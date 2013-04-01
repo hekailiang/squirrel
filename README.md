@@ -84,8 +84,7 @@ Use conventional way to define action method call is convenient, but  sometimes 
     })
 	@Transitions({
         @Transit(from="A", to="B", on="GoToB", callMethod="stateAToStateBOnGotoB"),
-        @Transit(from="A", to="A", on="WithinA", callMethod="stateAToStateAOnWithinA", 
-        		 type=TransitionType.INTERNAL)
+        @Transit(from="A", to="A", on="WithinA", callMethod="stateAToStateAOnWithinA", type=TransitionType.INTERNAL)
 	})
 	interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> { . . . }
 	```
@@ -93,7 +92,8 @@ Use conventional way to define action method call is convenient, but  sometimes 
 	(One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)
 ### Advanced Feature
 * **State Machine Lifecycle Events**  
-TBD
+During the lifecycle of the state machine, various events will be fired. TBD.
+
 * **State Machine PostProcessor**  
 TBD
 * **State Machine Intercepter**  
