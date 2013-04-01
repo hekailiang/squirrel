@@ -39,12 +39,14 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         void entryD(TestState from, TestState to, TestEvent event, Integer context);
         
         void transitFromAToBOnToB(TestState from, TestState to, TestEvent event, Integer context);
-        void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context);
+        void transitFromBToCOnToCBase(TestState from, TestState to, TestEvent event, Integer context);
+        void transitFromBToCOnToCOverride(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToD(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromDToFinalOnToEnd(TestState from, TestState to, TestEvent event, Integer context);
         
         void exitA(TestState from, TestState to, TestEvent event, Integer context);
         void exitB(TestState from, TestState to, TestEvent event, Integer context);
+        void afterExitB(TestState from, TestState to, TestEvent event, Integer context);
         void exitC(TestState from, TestState to, TestEvent event, Integer context);
         void exitD(TestState from, TestState to, TestEvent event, Integer context);
         
@@ -105,6 +107,11 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         protected void afterTransitToB(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.afterTransitToB(from, to, event, context);
         }
+        
+        @Override
+        protected void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context) {
+            monitor.transitFromBToCOnToCOverride(from, to, event, context);
+        }
     }
     
     abstract static class AbstractDeclarativeStateMachine extends 
@@ -141,7 +148,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         }
 
         protected void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context) {
-            monitor.transitFromBToCOnToC(from, to, event, context);
+            monitor.transitFromBToCOnToCBase(from, to, event, context);
         }
 
         protected void transitFromCToDOnToD(TestState from, TestState to, TestEvent event, Integer context) {
@@ -236,5 +243,17 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).beforeEntryB(null, B, ToB, null);
         callSequence.verify(monitor, Mockito.times(1)).entryB(null, B, ToB, null);
         callSequence.verify(monitor, Mockito.times(1)).afterEntryB(null, B, ToB, null);
+    }
+    
+    @Test
+    public void testOverrideMethodInvokeSequence() {
+    	stateMachine.fire(TestEvent.ToB, null);
+    	
+        InOrder callSequence = Mockito.inOrder(monitor);
+        stateMachine.fire(TestEvent.ToC, null);
+        callSequence.verify(monitor, Mockito.times(1)).exitB(B, null, ToC, null);
+        callSequence.verify(monitor, Mockito.times(0)).afterExitB(B, null, ToC, null);
+        callSequence.verify(monitor, Mockito.times(0)).transitFromBToCOnToCBase(B, C, ToC, null);
+        callSequence.verify(monitor, Mockito.times(1)).transitFromBToCOnToCOverride(B, C, ToC, null);
     }
 }

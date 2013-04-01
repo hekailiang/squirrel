@@ -51,11 +51,11 @@ A list of state entry actions is defined.
 
 * **Method Call Action**  
 	User can define actions during define transitions or state entry actions. However, the actions will be scattered over the definitions method blocks and other classes. Moreover, other user cannot override the actions. Thus, we also support define method call actions within state machine implementation in a **Convention Over Configuration** manner.  
-	Basically, this means that if the method implemented in state machine satisfied naming and parameters requirement, it will be invoked at certain transition status.  
+	Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain transition status. e.g.  
 	```java
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
-	The method name satisfied **transitFrom\[SourceStateName\]To\[TargetStateName\]On\[EventName\]**, and the type of parameters also match \[MyState, MyState, MyEvent, MyContext\]. It will be added into transition action list. When transit from state 'A' to state 'B' on event 'GoToB', this method will be invoked.
+	The method named as **transitFrom\[SourceStateName\]To\[TargetStateName\]On\[EventName\]**, and parameterized as \[MyState, MyState, MyEvent, MyContext\] will be added into transition "A-(GoToB)->B" action list. When transiting from state 'A' to state 'B' on event 'GoToB', this method will be invoked.
 	
 	```java
 	protected void transitFromAnyToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
@@ -76,7 +76,7 @@ A list of state entry actions is defined.
     on[eventName] 
     ```
 * **Declarative Annotation**  
-Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name, and moreover the java compiler cannot help user to detect the error when misspelling the method name. For this case, the state machine can also be defined and extended in a declarative manner.
+Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name, and moreover the java compiler cannot help user to detect the error when misspelling the method name. For this case, a declarative way is also provided to define or extend the state machine. Here is an example.  
 	```java
 	@States({
         @State(name="A", entryCallMethod="entryStateA", exitCallMethod="exitStateA"), 
@@ -86,9 +86,9 @@ Use conventional way to define action method call is convenient, but sometimes u
         @Transit(from="A", to="B", on="GoToB", callMethod="stateAToStateBOnGotoB"),
         @Transit(from="A", to="A", on="WithinA", callMethod="stateAToStateAOnWithinA", type=TransitionType.INTERNAL)
 	})
-	interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> { . . . }
+	interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> { ... }
 	```
-	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
+	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can also be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
 
 ### Advanced Feature
 * **State Machine Lifecycle Events**  
