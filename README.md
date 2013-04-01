@@ -6,7 +6,7 @@ squirrel-foundation
 
 ### Getting Started 
 
-**squirrel-foundation** supports both fluent API and declarative manner to define a state machine, and also support user to define the action methods in a straightforward manner. 
+**squirrel-foundation** supports both fluent API and declarative manner to define a state machine, and also enable user to declare the action methods in a straightforward manner. 
 
 * **StateMahcine** takes four parameter types.  
 	* **T** The type of implemented state machine.
@@ -76,7 +76,7 @@ A list of state entry actions is defined.
     on[eventName] 
     ```
 * **Declarative Annotation**  
-Use conventional way to define action method call is convenient, but  sometimes user want give method a more meaningful name and also the java compiler cannot help user to find the error when user misspelling the method name. For this case, the state machine can also be defined and extended in a declarative manner.
+Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name, and moreover the java compiler cannot help user to detect the error when misspelling the method name. For this case, the state machine can also be defined and extended in a declarative manner.
 	```java
 	@States({
         @State(name="A", entryCallMethod="entryStateA", exitCallMethod="exitStateA"), 
@@ -88,8 +88,8 @@ Use conventional way to define action method call is convenient, but  sometimes 
 	})
 	interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> { . . . }
 	```
-	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations.  
-	(One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)
+	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
+
 ### Advanced Feature
 * **State Machine Lifecycle Events**  
 During the lifecycle of the state machine, various events will be fired. TBD.
