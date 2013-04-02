@@ -18,6 +18,7 @@ import org.squirrel.foundation.fsm.Action;
 import org.squirrel.foundation.fsm.Condition;
 import org.squirrel.foundation.fsm.Conditions;
 import org.squirrel.foundation.fsm.Converter;
+import org.squirrel.foundation.fsm.ConverterProvider;
 import org.squirrel.foundation.fsm.ImmutableState;
 import org.squirrel.foundation.fsm.ImmutableTransition;
 import org.squirrel.foundation.fsm.MutableState;
@@ -77,8 +78,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             "\" must be extended from AbstractStateMachine.class.");
         
         this.stateMachineClazz = stateMachineClazz;
-        this.stateConverter = ConverterProvider.getInstance().getConverter(stateClazz);
-        this.eventConverter = ConverterProvider.getInstance().getConverter(eventClazz);
+        this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
+        this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
 //        this.stateClazz = stateClazz;
 //        this.eventClazz = eventClazz;
 //        this.contextClazz = contextClazz;
