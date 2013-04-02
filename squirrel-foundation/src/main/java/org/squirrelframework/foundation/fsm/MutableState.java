@@ -1,0 +1,16 @@
+package org.squirrelframework.foundation.fsm;
+
+import java.util.List;
+
+public interface MutableState<T extends StateMachine<T, S, E, C>, S, E, C> extends ImmutableState<T, S, E, C> {
+    
+    MutableTransition<T, S, E, C> addTransitionOn(E event);
+    
+    void addEntryAction(Action<T, S, E, C> newAction);
+    
+    void addEntryActions(List<Action<T, S, E, C>> newActions);
+    
+    void addExitAction(Action<T, S, E, C> newAction);
+    
+    void addExitActions(List<Action<T, S, E, C>> newActions);
+}
