@@ -182,12 +182,12 @@
 	</profiles>
 	<distributionManagement>
 		<repository>
-			<id>oss-sonatype-staging</id>
+			<id>sonatype-nexus-staging</id>
 			<name>Nexus Staging Repo</name>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 		<snapshotRepository>
-			<id>oss-snapshot-sonatype</id>
+			<id>sonatype-nexus-snapshots</id>
 			<name>Nexus Snapshot Repo</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
