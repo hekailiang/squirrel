@@ -2,7 +2,16 @@ squirrel-foundation
 ========
 
 ### What is it?  
-**squirrel-foundation** provided an easy use, type safe and highly extensible state machine implementation for Java. 
+**squirrel-foundation** provided an easy use, type safe and highly extensible state machine implementation for Java.  
+
+### Maven  
+```maven
+<dependency>
+  <groupId>org.squirrelframework</groupId>
+  <artifactId>squirrel-foundation</artifactId>
+  <version>0.1.5</version>
+</dependency>
+``` 
 
 ### Getting Started 
 
