@@ -101,10 +101,9 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
         }
 
         @Override
-        public void onTransitionCausedException(Exception e,
-                int transitionStatus, DeclarativeStateMachine stateMachine,
+        public void onTransitionCausedException(Exception e, DeclarativeStateMachine stateMachine,
                 TestState sourceState, TestEvent event, Integer context) {
-            delegator.onTransitionCausedException(e, transitionStatus, stateMachine, sourceState, event, context);
+            delegator.onTransitionCausedException(e, stateMachine, sourceState, event, context);
         }
 
         @Override

@@ -13,4 +13,12 @@ public interface MutableState<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void addExitAction(Action<T, S, E, C> newAction);
     
     void addExitActions(List<Action<T, S, E, C>> newActions);
+    
+    void setParentState(MutableState<T, S, E, C> parent);
+    
+    void addChildState(MutableState<T, S, E, C> childState);
+    
+    void setChildInitialState(MutableState<T, S, E, C> childInitialState);
+    
+    void setLevel(int level);
 }

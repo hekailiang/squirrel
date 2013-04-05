@@ -14,7 +14,7 @@ public interface StateMachineIntercepter<T extends StateMachine<T, S, E, C>, S, 
     
     void onTransitionDeclined(T stateMachine, S sourceState, E event, C context);
     
-    void onTransitionCausedException(Exception e, int transitionStatus, T stateMachine, S sourceState, E event, C context);
+    void onTransitionCausedException(Exception e, T stateMachine, S sourceState, E event, C context);
     
     void afterOnTransition(T stateMachine, S sourceState, E event, C context);
 }

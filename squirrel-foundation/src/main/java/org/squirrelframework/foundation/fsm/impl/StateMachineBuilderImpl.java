@@ -453,6 +453,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public void defineState(S stateId) {
         FSM.getState(states, stateId);
     }
+    
+    @Override
+    public void defineHierachyOn(S parentStateId, S... childStateIds) {
+    	if(childStateIds!=null && childStateIds.length>0) {
+    		MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
+    		for(int i=0, size=childStateIds.length; i<size; ++i) {
+    			MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
+    			if(i==0) { parentState.setChildInitialState(childState); }
+    			childState.setParentState(parentState);
+    			parentState.addChildState(childState);
+    		}
+    	}
+    }
 
     @Override
     public EntryExitActionBuilder<T, S, E, C> onEntry(S stateId) {

@@ -62,4 +62,11 @@ public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C
     TransitionType getType();
     
     boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type);
+    
+    /**
+     * Notify transition when receiving event
+     * @param stateContext
+     * @return result of transition
+     */
+    TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext);
 }

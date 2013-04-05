@@ -10,6 +10,7 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.Visitor;
 
@@ -101,6 +102,94 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     public void setType(TransitionType type) {
         this.type = type;
     }
+    
+    /**
+	 * Recursively traverses the state hierarchy, exiting states along the way, performing the action, and entering states to the target.
+	 * <hr>
+	 * There exist the following transition scenarios:
+	 * <ul>
+	 * <li>0. there is no target state (internal transition) --> handled outside this method.</li>
+	 * <li>1. The source and target state are the same (self transition) --> perform the transition directly: Exit source state, perform
+	 * transition actions and enter target state</li>
+	 * <li>2. The target state is a direct or indirect sub-state of the source state --> perform the transition actions, then traverse the
+	 * hierarchy from the source state down to the target state, entering each state along the way. No state is exited.
+	 * <li>3. The source state is a sub-state of the target state --> traverse the hierarchy from the source up to the target, exiting each
+	 * state along the way. Then perform transition actions. Finally enter the target state.</li>
+	 * <li>4. The source and target state share the same super-state</li>
+	 * <li>5. All other scenarios:
+	 * <ul>
+	 * <li>a. The source and target states reside at the same level in the hierarchy but do not share the same direct super-state</li>
+	 * <li>b. The source state is lower in the hierarchy than the target state</li>
+	 * <li>c. The target state is lower in the hierarchy than the source state</li>
+	 * </ul>
+	 * </ul>
+	 * 
+	 * @param source
+	 *            the source state
+	 * @param target
+	 *            the target state
+	 * @param stateContext
+	 *            the state context
+	 */
+    private void process(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {
+		if (source == this.getTargetState()) {
+			// Handles 1.
+			// Handles 3. after traversing from the source to the target.
+			source.exit(stateContext);
+			transit(stateContext);
+			getTargetState().entry(stateContext);
+		} else if (source == target) {
+			// Handles 2. after traversing from the target to the source.
+			transit(stateContext);
+		} else if (source.getParentState() == target.getParentState()) {
+			// // Handles 4.
+			// // Handles 5a. after traversing the hierarchy until a common
+			// ancestor if found.
+			source.exit(stateContext);
+			transit(stateContext);
+			target.entry(stateContext);
+		} else {
+			// traverses the hierarchy until one of the above scenarios is met.
+			// Handles 3.
+			// Handles 5b.
+			if (source.getLevel() > target.getLevel()) {
+				source.exit(stateContext);
+				process(source.getParentState(), target, stateContext);
+			} else if (source.getLevel() < target.getLevel()) {
+				// Handles 2.
+				// Handles 5c.
+				process(source, target.getParentState(), stateContext);
+				target.entry(stateContext);
+			} else {
+				// Handles 5a.
+				source.exit(stateContext);
+				process(source.getParentState(), target.getParentState(), stateContext);
+				target.entry(stateContext);
+			}
+		}
+	}
+    
+    @Override
+    public TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext) {
+    	if(!condition.isSatisfied(stateContext.getContext())) {
+    		return TransitionResultImpl.notAccepted();
+    	}
+    	ImmutableState<T, S, E, C> newState = stateContext.getSourceState();
+    	if(type==TransitionType.INTERNAL) {
+    		newState = transit(stateContext);
+    	} else {
+    		unwindSubStates(stateContext.getSourceState(), stateContext);
+    		process(getSourceState(), getTargetState(), stateContext);
+    		newState = getTargetState().enterByHistory(stateContext);
+    	}
+	    return TransitionResultImpl.newResult(true, newState);
+    }
+    
+    private void unwindSubStates(ImmutableState<T, S, E, C> orgState, StateContext<T, S, E, C> stateContext) {
+		for (ImmutableState<T, S, E, C> state=orgState; state!=getSourceState(); state=state.getParentState()) {
+			state.exit(stateContext);
+		}
+	}
     
     @Override
     public void accept(Visitor<T, S, E, C> visitor) {

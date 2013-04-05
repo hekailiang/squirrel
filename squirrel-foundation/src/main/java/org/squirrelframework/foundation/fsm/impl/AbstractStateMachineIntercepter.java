@@ -33,7 +33,7 @@ public abstract class AbstractStateMachineIntercepter<T extends StateMachine<T, 
                                 transitionEvent.getSourceState(), transitionEvent.getCause(), transitionEvent.getContext());
                     } else if (event instanceof StateMachine.TransitionExceptionEvent) {
                         StateMachine.TransitionExceptionEvent<T, S, E, C> transitionExceptionEvent = (StateMachine.TransitionExceptionEvent<T, S, E, C>)event;
-                        onTransitionCausedException(transitionExceptionEvent.getException(), transitionExceptionEvent.getTransitionStatus(), 
+                        onTransitionCausedException(transitionExceptionEvent.getException(),  
                                 transitionExceptionEvent.getStateMachine(), transitionExceptionEvent.getSourceState(), 
                                 transitionExceptionEvent.getCause(), transitionExceptionEvent.getContext());
                     }

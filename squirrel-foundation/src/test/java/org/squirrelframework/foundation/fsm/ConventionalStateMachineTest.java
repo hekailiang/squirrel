@@ -209,9 +209,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         }
         
         @Override
-        public void afterTransitionCausedException(Exception e, int transitionStatus, TestState fromState, 
+        public void afterTransitionCausedException(Exception e, TestState fromState, 
                 TestState toState, TestEvent event, Integer context) {
-            super.afterTransitionCausedException(e, transitionStatus, fromState, toState, event, context);
+            super.afterTransitionCausedException(e, fromState, toState, event, context);
             throw new ConventionalStateMachineException();
         }
         

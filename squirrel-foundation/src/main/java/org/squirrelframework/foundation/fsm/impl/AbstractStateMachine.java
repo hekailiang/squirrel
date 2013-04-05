@@ -3,18 +3,16 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.data.impl.AbstractHierarchyItem;
 import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
-import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
@@ -68,69 +66,31 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void processEvent(E event, C context) {
         ImmutableState<T, S, E, C> fromState = currentState;
-        ImmutableState<T, S, E, C> toState = null;
-        
         logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
         Stopwatch sw = null;
         if(logger.isDebugEnabled()) {
             sw = new Stopwatch().start();
         }
-        int transitionStatus = StateMachine.TRANSITION_NOT_STARTED;
         try {
             beforeTransitionBegin(fromState.getStateId(), event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getCurrent()));
-            transitionStatus = StateMachine.TRANSITION_INITIALIED;
-
-            List<ImmutableTransition<T, S, E, C>> transitions = currentState.getTransitions(event);
-            for(final ImmutableTransition<T, S, E, C> transition : transitions) {
-                // evaluate transition condition
-                if(transition.getCondition().isSatisfied(context)) {
-                    transitionStatus = StateMachine.TRANSITION_STARTED;
-                    StateContext<T, S, E, C> stateContext = FSM.newStateContext(getCurrent(), currentState, event, context);
-                    
-                    if(transition.getType()==TransitionType.EXTERNAL) {
-                        // say goodbye to all child states
-                        nonRecursiveTerminateChildren(getCurrent(), event, context);
-                        transitionStatus = StateMachine.CHILD_STATES_EXITED;
-                    }
-                    
-                    // do state machine job - 
-                    // perform old state exit actions, transition actions, new state entry actions orderly
-                    if(transition.getType()!=TransitionType.INTERNAL) {
-                        currentState.exit(stateContext);
-                        transitionStatus = StateMachine.STATE_EXITED;
-                    }
-                    
-                    toState = transition.transit(stateContext);
-                    transitionStatus = StateMachine.TRANSITION_DONE;
-                    
-                    if(transition.getType()!=TransitionType.INTERNAL) {
-                        toState.entry(stateContext);
-                        currentState = toState;
-                        transitionStatus = StateMachine.STATE_ENTERED;
-                    }
-                    
-                    fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromState.getStateId(), toState.getStateId(), 
-                            event, context, getCurrent()));
-                    afterTransitionCompleted(fromState.getStateId(), toState.getStateId(), event, context);
-                    transitionStatus = StateMachine.TRANSITION_FINALIZED;
-                    
-                    if(transition.getType()!=TransitionType.INTERNAL) {
-                        // after transition complete, say hi to new child states
-                        nonRecursiveStartChildren(getCurrent(), event, context);
-                    }
-                    return;
-                }
+            
+            TransitionResult<T, S, E, C> result = currentState.internalFire( 
+            		FSM.newStateContext(getCurrent(), currentState, event, context) );
+            
+            if(result.isAccepted()) {
+            	currentState = result.getTargetState();
+            	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromState.getStateId(), currentState.getStateId(), 
+                      event, context, getCurrent()));
+                afterTransitionCompleted(fromState.getStateId(), currentState.getStateId(), event, context);
+            } else {
+            	fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromState.getStateId(), event, context, getCurrent()));
+                afterTransitionDeclined(fromState.getStateId(), event, context);
             }
-            
-            fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getCurrent()));
-            afterTransitionDeclined(fromState.getStateId(), event, context);
-            
         } catch(Exception e) {
-            S toStateId = toState!=null ? toState.getStateId() : null;
-            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, transitionStatus, fromState.getStateId(), 
-                    toStateId, event, context, getCurrent()));
-            afterTransitionCausedException(e, transitionStatus, fromState.getStateId(), toStateId, event, context);
+            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromState.getStateId(), 
+                    currentState.getStateId(), event, context, getCurrent()));
+            afterTransitionCausedException(e, fromState.getStateId(), currentState.getStateId(), event, context);
         } finally {
             if(logger.isDebugEnabled()) {
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
@@ -195,7 +155,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return true;
     }
     
-    protected void afterTransitionCausedException(Exception e, int transitionStatus, S fromState, S toState, 
+    protected void afterTransitionCausedException(Exception e, S fromState, S toState, 
             E event, C context) {
         status = StateMachineStatus.ERROR;
         logger.error("Transition from state \""+fromState+"\" to state \""+toState+
@@ -546,13 +506,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionExceptionEvent<T, S, E, C> {
         private final S targetState;
         private final Exception e;
-        private final int transitionStatus;
-        public TransitionExceptionEventImpl(Exception e, int transitionStatus, 
-                S sourceState, S targetState, E event, C context,T stateMachine) {
+        public TransitionExceptionEventImpl(Exception e, S sourceState, S targetState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
             this.targetState = targetState;
             this.e = e;
-            this.transitionStatus = transitionStatus;
         }
         
         @Override
@@ -563,11 +520,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         @Override
         public Exception getException() {
             return e;
-        }
-        
-        @Override
-        public int getTransitionStatus() {
-            return transitionStatus;
         }
         
     }

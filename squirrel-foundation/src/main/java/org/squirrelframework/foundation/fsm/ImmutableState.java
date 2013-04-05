@@ -52,6 +52,16 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      */
     void entry(StateContext<T, S, E, C> stateContext);
     
+    ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext);
+    
+    /**
+     * Enters this state is shallow mode: The entry action is executed and the
+	 * initial state is entered in shallow mode if there is one.
+	 * @param stateContext
+	 * @return child state entered by shadow
+     */
+    ImmutableState<T, S, E, C> enterShallow(StateContext<T, S, E, C> stateContext);
+    
     /**
      * Exit state with state context
      * @param stateContext
@@ -59,7 +69,30 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     void exit(StateContext<T, S, E, C> stateContext);
     
     /**
+     * @return parent state
+     */
+    ImmutableState<T, S, E, C> getParentState();
+    
+    
+    /**
+     * @return initial child state
+     */
+    ImmutableState<T, S, E, C> getChildInitialState();
+    
+    /**
+     * Notify transitions when receiving event.
+     * @param stateContext
+     * @return result of transition
+     */
+    TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext);
+    
+    /**
      * @return whether current state is final state
      */
     boolean isFinal();
+    
+    /**
+     * @return hierarchy state level
+     */
+    int getLevel();
 }

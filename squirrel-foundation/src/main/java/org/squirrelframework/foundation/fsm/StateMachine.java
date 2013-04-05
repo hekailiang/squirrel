@@ -96,7 +96,6 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     interface TransitionExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {
         S getTargetState();
         Exception getException();
-        int getTransitionStatus();
     }
     void addListener(TransitionExceptionListener<T, S, E, C> listener);
     void removeListener(TransitionExceptionListener<T, S, E, C> listener);
