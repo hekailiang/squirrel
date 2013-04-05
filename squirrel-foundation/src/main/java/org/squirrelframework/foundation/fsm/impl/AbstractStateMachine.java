@@ -205,8 +205,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
         StateContext<T, S, E, C> stateContext = 
                 FSM.newStateContext(getCurrent(), getCurrentRawState(), getInitialEvent(), getInitialContext());
-        getCurrentRawState().entry(stateContext);
-        
+        currentState = getCurrentRawState().enterShallow(stateContext);
         nonRecursiveStartChildren(getCurrent(), getInitialEvent(), getInitialContext());
     }
     

@@ -87,11 +87,12 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     	if(this==parent) {
     		throw new IllegalArgumentException("parent state cannot be state itself.");
     	}
-		if(parent==null) {
+		if(this.parentState==null) {
 			this.parentState = parent;
 			setLevel(this.parentState!=null ? this.parentState.getLevel()+1 : 1);
+		} else {
+			throw new RuntimeException("Cannot change state parent.");
 		}
-		throw new RuntimeException("Cannot change state parent.");
     }
     
     @Override
@@ -101,10 +102,11 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 
 	@Override
     public void setChildInitialState(MutableState<T, S, E, C> childInitialState) {
-	    if(childInitialState==null) {
+	    if(this.childInitialState==null) {
 	    	this.childInitialState = childInitialState;
+	    } else {
+	    	throw new RuntimeException("Cannot change child initial parent.");
 	    }
-	    throw new RuntimeException("Cannot change child initial parent.");
     }
 
     @Override
