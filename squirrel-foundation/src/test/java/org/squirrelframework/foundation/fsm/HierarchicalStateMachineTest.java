@@ -15,6 +15,7 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.squirrelframework.foundation.fsm.impl.SCXMLVisitorImpl;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class HierarchicalStateMachineTest {
@@ -314,4 +315,12 @@ public class HierarchicalStateMachineTest {
 		
 		stateMachine.terminate();
 	}
+	
+	@Test
+    public void testExportHierarchicalStateMachine() {
+        SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = 
+                new SCXMLVisitorImpl<HierachicalStateMachine, HState, HEvent, Integer>();
+        stateMachine.accept(visitor);
+        visitor.convertSCXMLFile("HierarchicalStateMachine", true);
+    }
 }

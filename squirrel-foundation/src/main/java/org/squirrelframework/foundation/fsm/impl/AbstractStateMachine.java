@@ -313,7 +313,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public void accept(Visitor<T, S, E, C> visitor) {
         visitor.visitOnEntry(this);
         for(ImmutableState<T, S, E, C> state : states.values()) {
-            state.accept(visitor);
+        	if(state.getParentState()==null)
+        		state.accept(visitor);
         }
         visitor.visitOnExit(this);
     }

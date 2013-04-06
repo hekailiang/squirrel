@@ -208,6 +208,11 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
         for(ImmutableTransition<T, S, E, C> transition : getAllTransitions()) {
             transition.accept(visitor);
         }
+        if(childStates!=null) {
+        	for (ImmutableState<T, S, E, C> childState : childStates) {
+        		childState.accept(visitor);
+    		}
+        }
         visitor.visitOnExit(this);
     }
     
