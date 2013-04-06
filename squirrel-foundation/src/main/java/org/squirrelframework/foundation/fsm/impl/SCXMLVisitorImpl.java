@@ -20,7 +20,16 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
-
+/**
+ * Use visitor pattern to export SCXML definition.
+ * 
+ * @author Henry.He
+ *
+ * @param <T> state machine type
+ * @param <S> state type
+ * @param <E> event type
+ * @param <C> context type
+ */
 public class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements SCXMLVisitor<T, S, E, C> {
     
     private final StringBuilder scxml = new StringBuilder();

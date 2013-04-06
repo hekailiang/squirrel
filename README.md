@@ -17,7 +17,7 @@ squirrel-foundation
 
 **squirrel-foundation** supports both fluent API and declarative manner to define a state machine, and also enable user to declare the action methods in a straightforward manner. 
 
-* **StateMahcine** takes four parameter types.  
+* **StateMahcine** takes four type parameters.  
 	* **T** The type of implemented state machine.
 	* **S** The type of implemented state.
 	* **E** The type of implemented event.
@@ -98,8 +98,58 @@ Use conventional way to define action method call is convenient, but sometimes u
 	interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> { ... }
 	```
 	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can also be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
+	
+* **Converters**  
+In order to declare state and event within *@State* and *@Transit*, user need to implement corresponding converters for their state(S) and event(E) type. The convert must implement Converter\<T\> interface, which convert the state/event to/from String.
+```java
+public interface Converter<T> extends SquirrelComponent {
+    /**
+     * Convert object to string.
+     * @param obj converted object
+     * @return string description of object
+     */
+    String convertToString(T obj);
+    
+    /**
+     * Convert string to object.
+     * @param name name of the object
+     * @return converted object
+     */
+    T convertFromString(String name);
+}
+```  
+Then register to *ConverterProvider*. e.g.
+```java
+ConverterProvider.INSTANCE.register(MyEvent.class, new MyEventConverter());
+ConverterProvider.INSTANCE.register(MyState.class, new MyStateConverter());
+```  
+	Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters.
+	
+* **New State Machine Instance**  
+```java
+T newStateMachine(S initialStateId, T parent, Class<?> type, boolean isLeaf, Object... extraParams);
+```
+To create a new state machine instance from state machine builder, you need to pass several parameters.
+	1. *initialStateId*: When started, the initial state of the state machine.
+	2. *parent*: parent state machine of current. Set null for no parent state machine.
+	3. *type*: the type of state machine value. Set to *Object.class* for no need to be specified.
+	4. *isLeaf*: whether current state machine has child state machines. Set true for no child.
+	5. *extraParams*: Extra parameters that needed for create new state machine instance. Set to "*new Object[0]*" for no extra parameters needed.  
+	
+	New state machine from state machine builder.
+	```java
+	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial, null, Object.class, true, new Object[0]);
+	```
+
+* **Fire events**  
+	After state machine was created, user can fire events along with context to trigger state transition inside state machine. e.g.
+	```java
+	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));
+	```
 
 ### Advanced Feature
+* **Hierarchical State Machine** 
+
 * **State Machine Lifecycle Events**  
 During the lifecycle of the state machine, various events will be fired. TBD.
 
@@ -108,8 +158,8 @@ TBD
 * **State Machine Intercepter**  
 TBD
 * **State Machine Diagnose**  
-TBD
+TBD 
 
 ### Future Plan  
-* Support Hierarchical State
+* Support state persistence
 * Support sendEvent(sync) and postEvent(async)

@@ -49,7 +49,7 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * Create new state machine instance according to state machine definition 
      * @param initialStateId the id of state machine initial state
      * @param parent parent state machine
-     * @param type the class type of state machine
+     * @param type the class type of state machine value
      * @param isLeaf whether state machine has child state machine
      * @param extraParams other parameters for instantiate state machine
      * @return new state machine
