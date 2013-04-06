@@ -189,9 +189,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             throw new RuntimeException("Internal transiton must transit to the same source state.");
         }
         
-        S fromState = stateConverter.convertFromString(getStateDescription(transit.from()));
+        S fromState = stateConverter.convertFromString(parseStateId(transit.from()));
         Preconditions.checkNotNull(fromState);
-        S toState = stateConverter.convertFromString(getStateDescription(transit.to()));
+        S toState = stateConverter.convertFromString(parseStateId(transit.to()));
         E event = eventConverter.convertFromString(transit.on());
         Preconditions.checkNotNull(event);
         
@@ -242,7 +242,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
-    private String getStateDescription(String value) {
+    private String parseStateId(String value) {
         return (value!=null && value.startsWith("#")) ? 
                 stateAliasToDescription.get(value.substring(1)) : value;
     }
@@ -252,7 +252,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         S stateId = stateConverter.convertFromString(state.name());
         Preconditions.checkNotNull(stateId);
-        defineState(stateId);
+        MutableState<T, S, E, C> newState = defineState(stateId);
+        
+        if(!Strings.isNullOrEmpty(state.parent())) {
+        	S parentStateId = stateConverter.convertFromString(parseStateId(state.parent()));
+        	MutableState<T, S, E, C> parentState = defineState(parentStateId);
+        	newState.setParentState(parentState);
+        	parentState.addChildState(newState);
+        	if(state.initialState()) {
+        		parentState.setChildInitialState(newState);
+        	}
+        }
         
         if(!Strings.isNullOrEmpty(state.entryCallMethod())) {
             Method method = findMethodCallAction(stateMachineClazz, state.entryCallMethod(), methodCallParamTypes);
@@ -450,8 +460,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
-    public void defineState(S stateId) {
-        FSM.getState(states, stateId);
+    public MutableState<T, S, E, C> defineState(S stateId) {
+        return FSM.getState(states, stateId);
     }
     
     @Override

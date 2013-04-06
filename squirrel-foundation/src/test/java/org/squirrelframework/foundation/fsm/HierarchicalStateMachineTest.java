@@ -7,21 +7,30 @@ import static org.junit.Assert.assertThat;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.squirrelframework.foundation.fsm.annotation.State;
+import org.squirrelframework.foundation.fsm.annotation.Transit;
+import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
-public class HierarchicalStateMachineTest extends AbstractStateMachineTest {
+public class HierarchicalStateMachineTest {
 	
 	public enum HState {
-		A, A1, A2, B, B1, B2
+		A, A1, A2, A3, B, B1, B2
 	}
 	
 	public enum HEvent {
-		A2B, A12A2, B12B2, B22A
+		A2B, A12A2, A12A3, A32A1, B12B2, B22A
 	}
 	
+	@State(parent="A", name="A3", entryCallMethod="enterA3", exitCallMethod="leftA3")
+	@Transitions({
+		@Transit(from="A1", to="A3", on="A12A3", callMethod="transitA12A3"), 
+		@Transit(from="A3", to="A1", on="A32A1", callMethod="transitA32A1"), 
+		})
 	static class HierachicalStateMachine extends AbstractStateMachine<HierachicalStateMachine, HState, HEvent, Integer> {
 		
 		private StringBuilder logger = new StringBuilder();
@@ -133,6 +142,26 @@ public class HierarchicalStateMachineTest extends AbstractStateMachineTest {
 			logger.append("transitFromB2ToAOnB22A");
 		}
 		
+		public void enterA3(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterA3");
+		}
+		
+		public void leftA3(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("leftA3");
+		}
+		
+		public void transitA12A3(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitA12A3");
+		}
+		
+		public void transitA32A1(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitA32A1");
+		}
+		
 		private void addOptionalDot() {
 			if (logger.length() > 0) {
 				logger.append('.');
@@ -148,6 +177,12 @@ public class HierarchicalStateMachineTest extends AbstractStateMachineTest {
 	}
 	
 	HierachicalStateMachine stateMachine;
+	
+	@BeforeClass
+	public static void beforeTest() {
+		ConverterProvider.INSTANCE.register(HEvent.class, new Converter.EnumConverter<HEvent>(HEvent.class));
+        ConverterProvider.INSTANCE.register(HState.class, new Converter.EnumConverter<HState>(HState.class));
+	}
 	
 	@Before
     public void setup() {
@@ -187,5 +222,21 @@ public class HierarchicalStateMachineTest extends AbstractStateMachineTest {
 		stateMachine.fire(HEvent.B22A, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitB2.exitB.transitFromB2ToAOnB22A.entryA.entryA1")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
+		
+		stateMachine.terminate();
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.exitA")));
+	}
+	
+	@Test
+	public void testDeclarativeHierarchicalState() {
+		stateMachine.fire(HEvent.A12A3, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("entryA.entryA1.exitA1.transitA12A3.enterA3")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A3)));
+		
+		stateMachine.fire(HEvent.A32A1, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("leftA3.transitA32A1.entryA1")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
+		
+		stateMachine.terminate();
 	}
 }

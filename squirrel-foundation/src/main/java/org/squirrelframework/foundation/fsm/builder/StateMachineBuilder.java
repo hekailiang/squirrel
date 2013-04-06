@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm.builder;
 
+import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
 /**
@@ -18,8 +19,9 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     /**
      * Define a new state in state machine model
      * @param stateId id of new state
+     * @return defined new immutable state
      */
-    void defineState(S stateId);
+    MutableState<T, S, E, C> defineState(S stateId);
     
     /**
      * Define hierarchy states on parent state

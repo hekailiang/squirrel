@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,14 +200,29 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return states.get(stateId);
     }
     
+    private void entryAll(ImmutableState<T, S, E, C> origin, StateContext<T, S, E, C> stateContext) {
+    	Stack<ImmutableState<T, S, E, C>> stack = new Stack<ImmutableState<T, S, E, C>>();
+
+    	ImmutableState<T, S, E, C> state = origin;
+		while (state != null) {
+			stack.push(state);
+			state = state.getParentState();
+		}
+		while (stack.size() > 0) {
+			state = stack.pop();
+			state.entry(stateContext);
+		}
+	}
+    
     @Override
     public void start() {
         startNow();
         
         StateContext<T, S, E, C> stateContext = 
                 FSM.newStateContext(getCurrent(), getCurrentRawState(), getInitialEvent(), getInitialContext());
-        currentState = getCurrentRawState().enterShallow(stateContext);
-        nonRecursiveStartChildren(getCurrent(), getInitialEvent(), getInitialContext());
+        entryAll(initialState, stateContext);
+        currentState = getCurrentRawState().enterByHistory(stateContext);
+//        nonRecursiveStartChildren(getCurrent(), getInitialEvent(), getInitialContext());
     }
     
     protected void startNow() {
@@ -217,18 +233,19 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         fireEvent(new StartEventImpl<T, S, E, C>(getCurrent()));
     }
     
-    @SuppressWarnings("rawtypes")
-    private void nonRecursiveStartChildren(T parent, E event, C context) {
-        if(parent.getCurrentRawState().isFinal()) 
-            return;
-        
-        for(T stateMachine : parent.getAllChildren(false, false)) {
-            ((AbstractStateMachine)stateMachine).startNow();
-            StateContext<T, S, E, C> stateContext = 
-                    FSM.newStateContext(stateMachine, stateMachine.getCurrentRawState(), event, context);
-            stateMachine.getCurrentRawState().entry(stateContext);
-        }
-    }
+//    @SuppressWarnings("rawtypes")
+//    private void nonRecursiveStartChildren(T parent, E event, C context) {
+//        if(parent.getCurrentRawState().isFinal()) 
+//            return;
+//        
+//        for(T stateMachine : parent.getAllChildren(false, false)) {
+//            ((AbstractStateMachine)stateMachine).startNow();
+//            StateContext<T, S, E, C> stateContext = 
+//                    FSM.newStateContext(stateMachine, stateMachine.getCurrentRawState(), event, context);
+//            entryAll(initialState, stateContext);
+//            currentState = getCurrentRawState().enterByHistory(stateContext); ???
+//        }
+//    }
     
     private boolean isStarted() {
         return status==StateMachineStatus.IDLE || status==StateMachineStatus.BUSY;
@@ -242,13 +259,20 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public void terminate() {
         // terminate children first then parent
-        nonRecursiveTerminateChildren(getCurrent(), getTerminateEvent(), getTerminateContext());
+//        nonRecursiveTerminateChildren(getCurrent(), getTerminateEvent(), getTerminateContext());
         
         StateContext<T, S, E, C> stateContext = 
                 FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), getTerminateContext());
-        getCurrentRawState().exit(stateContext);
-        
+        exitAll(getCurrentRawState(), stateContext);
         terminateNow();
+    }
+    
+    private void exitAll(ImmutableState<T, S, E, C> current, StateContext<T, S, E, C> stateContext) {
+    	ImmutableState<T, S, E, C> state = current;
+        while (state != null) {
+        	state.exit(stateContext);
+        	state = state.getParentState();
+		}
     }
     
     protected void terminateNow() {
@@ -272,18 +296,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
      * @param event the reason caused child state machine closed.
      * @param context the context when terminating all child state machines.
      */
-    @SuppressWarnings("rawtypes")
-    private void nonRecursiveTerminateChildren(T parent, E event, C context) {
-        if(!parent.hasChildren())
-            return;
-        
-        for(T stateMachine : parent.getAllChildren(false, true)) {
-            StateContext<T, S, E, C> stateContext = 
-                    FSM.newStateContext(stateMachine, stateMachine.getCurrentRawState(), event, context);
-            stateMachine.getCurrentRawState().exit(stateContext);
-            ((AbstractStateMachine)stateMachine).terminateNow();
-        }
-    }
+//    @SuppressWarnings("rawtypes")
+//    private void nonRecursiveTerminateChildren(T parent, E event, C context) {
+//        if(!parent.hasChildren())
+//            return;
+//        
+//        for(T stateMachine : parent.getAllChildren(false, true)) {
+//            StateContext<T, S, E, C> stateContext = 
+//                    FSM.newStateContext(stateMachine, stateMachine.getCurrentRawState(), event, context);
+//            exitAll(getCurrentRawState(), stateContext);
+//            ((AbstractStateMachine)stateMachine).terminateNow();
+//        }
+//    }
     
     @Override
     public void accept(Visitor<T, S, E, C> visitor) {
