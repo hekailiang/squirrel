@@ -40,7 +40,7 @@ builder.externalTransition().from(MyState.A).to(MyState.B).on(MyEvent.GoToB);
 ```
 An **external transition** is built from state 'A' to state 'B' on event 'GoToB'.
 ```java
-builder.externalTransition().within(MyState.A).on(MyEvent.WithinA).perform(myAction);
+builder.internalTransition().within(MyState.A).on(MyEvent.WithinA).perform(myAction);
 ```
 An **internal transition** is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered.
 ```java
@@ -147,14 +147,26 @@ To create a new state machine instance from state machine builder, you need to p
 	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial, null, Object.class, true, new Object[0]);
 	```
 
-* **Fire events**  
+* **Fire Events**  
 	After state machine was created, user can fire events along with context to trigger state transition inside state machine. e.g.
 	```java
 	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));
 	```
 
 ### Advanced Feature
-* **Hierarchical State Machine** 
+* **Define Hierarchical State**  
+The hierarchical state can be defined through API or annotation.
+```java
+void defineHierachyOn(S parentStateId, S... childStateIds);
+```
+*builder.defineHierarchyOn(State.A, State.BinA, StateCinA)* defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.
+```java
+@States({
+		@State(name="A", entryMethodCall="entryA", exitMethodCall="exitA"),
+		@State(parent="A", name="BinA", entryMethodCall="entryBinA", exitMethodCall="exitBinA", initialState=true),
+		@State(parent="A", name="CinA", entryMethodCall="entryCinA", exitMethodCall="exitCinA")
+})
+```  
 
 * **Transition Types**  
 According to the UML specification, a transition may be one of these three kinds:    
