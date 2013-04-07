@@ -10,8 +10,11 @@ import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.TransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 import org.squirrelframework.foundation.util.TypeReference;
 
 final class FSM {
@@ -46,10 +49,22 @@ final class FSM {
         return state;
     }
 
-    static <T extends StateMachine<T, S, E, C>, S, E, C> TransitionBuilder<T, S, E, C> newTransitionBuilder(
+    static <T extends StateMachine<T, S, E, C>, S, E, C> ExternalTransitionBuilder<T, S, E, C> newExternalTransitionBuilder(
             Map<S, MutableState<T, S, E, C>> states) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class }, new Object[] { states });
+                new Class[] { Map.class, TransitionType.class }, new Object[] { states, TransitionType.EXTERNAL });
+    }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> LocalTransitionBuilder<T, S, E, C> newLocalTransitionBuilder(
+            Map<S, MutableState<T, S, E, C>> states) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
+                new Class[] { Map.class, TransitionType.class }, new Object[] { states, TransitionType.LOCAL });
+    }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> InternalTransitionBuilder<T, S, E, C> newInternalTransitionBuilder(
+            Map<S, MutableState<T, S, E, C>> states) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
+                new Class[] { Map.class, TransitionType.class }, new Object[] { states, TransitionType.INTERNAL });
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> EntryExitActionBuilder<T, S, E, C> newEntryExitActionBuilder(

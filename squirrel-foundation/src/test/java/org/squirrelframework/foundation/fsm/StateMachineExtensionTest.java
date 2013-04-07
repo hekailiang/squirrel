@@ -208,7 +208,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
                 StateMachineBuilderImpl.<DeclarativeStateMachine, TestState, TestEvent, Integer>
                 newStateMachineBuilder(StateMachineImpl.class, TestState.class, 
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
-        builder.transition().from(D).toFinal().on(ToEnd);
+        builder.externalTransition().from(D).toFinal().on(ToEnd);
         stateMachine = builder.newStateMachine(A, null, Object.class, true, monitor);
     }
     

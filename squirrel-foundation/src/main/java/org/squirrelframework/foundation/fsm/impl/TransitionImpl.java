@@ -103,6 +103,14 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
         this.type = type;
     }
     
+    private void doTransit(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {
+    	if (source.getLevel() < target.getLevel() && type == TransitionType.EXTERNAL) {
+    		source.exit(stateContext);
+    		source.entry(stateContext);
+    	}
+    	doTransitInternal(source, target, stateContext);
+    }
+    
     /**
 	 * Recursively traverses the state hierarchy, exiting states along the way, performing the action, and entering states to the target.
 	 * <hr>
@@ -131,39 +139,44 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
 	 * @param stateContext
 	 *            the state context
 	 */
-    private void process(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {
+    private void doTransitInternal(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {
 		if (source == this.getTargetState()) {
 			// Handles 1.
 			// Handles 3. after traversing from the source to the target.
-			source.exit(stateContext);
-			transit(stateContext);
-			getTargetState().entry(stateContext);
+			if(type==TransitionType.LOCAL) {
+				// not exit and re-enter the composite (source) state for 
+				// local transition
+				transit(stateContext);
+			} else {
+				source.exit(stateContext);
+				transit(stateContext);
+				getTargetState().entry(stateContext);
+			}
 		} else if (source == target) {
 			// Handles 2. after traversing from the target to the source.
 			transit(stateContext);
 		} else if (source.getParentState() == target.getParentState()) {
-			// // Handles 4.
-			// // Handles 5a. after traversing the hierarchy until a common
-			// ancestor if found.
+			// Handles 4.
+			// Handles 5a. after traversing the hierarchy until a common ancestor if found.
 			source.exit(stateContext);
 			transit(stateContext);
 			target.entry(stateContext);
 		} else {
 			// traverses the hierarchy until one of the above scenarios is met.
-			// Handles 3.
-			// Handles 5b.
 			if (source.getLevel() > target.getLevel()) {
+				// Handles 3.
+				// Handles 5b.
 				source.exit(stateContext);
-				process(source.getParentState(), target, stateContext);
+				doTransitInternal(source.getParentState(), target, stateContext);
 			} else if (source.getLevel() < target.getLevel()) {
 				// Handles 2.
 				// Handles 5c.
-				process(source, target.getParentState(), stateContext);
+				doTransitInternal(source, target.getParentState(), stateContext);
 				target.entry(stateContext);
 			} else {
 				// Handles 5a.
 				source.exit(stateContext);
-				process(source.getParentState(), target.getParentState(), stateContext);
+				doTransitInternal(source.getParentState(), target.getParentState(), stateContext);
 				target.entry(stateContext);
 			}
 		}
@@ -179,7 +192,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     		newState = transit(stateContext);
     	} else {
     		unwindSubStates(stateContext.getSourceState(), stateContext);
-    		process(getSourceState(), getTargetState(), stateContext);
+    		doTransit(getSourceState(), getTargetState(), stateContext);
     		newState = getTargetState().enterByHistory(stateContext);
     	}
 	    return TransitionResultImpl.newResult(true, newState);

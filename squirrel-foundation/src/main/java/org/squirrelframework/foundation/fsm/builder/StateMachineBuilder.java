@@ -14,7 +14,16 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  * @param <C> The type of implemented context
  */
 public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C> {
-    TransitionBuilder<T, S, E, C> transition();
+	
+	/**
+	 * Start to build external transition.
+	 * @return External transition builder
+	 */
+    ExternalTransitionBuilder<T, S, E, C> externalTransition();
+    
+    LocalTransitionBuilder<T, S, E, C> localTransition();
+    
+    InternalTransitionBuilder<T, S, E, C> internalTransition();
     
     /**
      * Define a new state in state machine model

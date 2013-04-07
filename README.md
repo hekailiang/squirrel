@@ -2,7 +2,7 @@ squirrel-foundation
 ========
 
 ### What is it?  
-**squirrel-foundation** provided an easy use, type safe and highly extensible state machine implementation for Java.  
+**squirrel-foundation** provided an easy use, type safe and highly extensible **state machine** ([Wikipedia] [1]) implementation for Java.  
 
 ### Maven  
 ```maven
@@ -36,15 +36,15 @@ squirrel-foundation
 
 * **Fluent API**  
 ```java
-builder.transition().from(MyState.A).to(MyState.B).on(MyEvent.GoToB);
+builder.externalTransition().from(MyState.A).to(MyState.B).on(MyEvent.GoToB);
 ```
 An **external transition** is built from state 'A' to state 'B' on event 'GoToB'.
 ```java
-builder.transition().within(MyState.A).on(MyEvent.WithinA).perform(myAction);
+builder.externalTransition().within(MyState.A).on(MyEvent.WithinA).perform(myAction);
 ```
 An **internal transition** is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered.
 ```java
-		builder.transition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
+		builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
 		new Condition<MyContext>() {
             @Override
             public boolean isSatisfied(MyContext context) {
@@ -95,7 +95,13 @@ Use conventional way to define action method call is convenient, but sometimes u
         @Transit(from="A", to="B", on="GoToB", callMethod="stateAToStateBOnGotoB"),
         @Transit(from="A", to="A", on="WithinA", callMethod="stateAToStateAOnWithinA", type=TransitionType.INTERNAL)
 	})
-	interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> { ... }
+	interface MyStateMachine extends StateMachine<MyStateMachine, MyState, MyEvent, MyContext> {
+		void entryStateA(MyState from, MyState to, MyEvent event, MyContext context);
+		void stateAToStateBOnGotoB(MyState from, MyState to, MyEvent event, MyContext context)
+		void stateAToStateAOnWithinA(MyState from, MyState to, MyEvent event, MyContext context)
+		void exitStateA(MyState from, MyState to, MyEvent event, MyContext context);
+		...
+	}
 	```
 	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can also be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
 	
@@ -134,7 +140,7 @@ To create a new state machine instance from state machine builder, you need to p
 	2. *parent*: parent state machine of current. Set null for no parent state machine.
 	3. *type*: the type of state machine value. Set to *Object.class* for no need to be specified.
 	4. *isLeaf*: whether current state machine has child state machines. Set true for no child.
-	5. *extraParams*: Extra parameters that needed for create new state machine instance. Set to "*new Object[0]*" for no extra parameters needed.  
+	5. *extraParams*: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
 	
 	New state machine from state machine builder.
 	```java
@@ -150,6 +156,32 @@ To create a new state machine instance from state machine builder, you need to p
 ### Advanced Feature
 * **Hierarchical State Machine** 
 
+* **Transition Types**  
+According to the UML specification, a transition may be one of these three kinds:    
+
+	> * *Internal Transition*  	
+Implies that the Transition, if triggered, occurs without exiting or entering the source State (i.e., it does not cause a state change). This means that the entry or exit condition of the source State will not be invoked. An internal Transition can be taken even if the StateMachine is in one or more Regions nested within the associated State.  
+	> * *Local Transition*  
+	Implies that the Transition, if triggered, will not exit the composite (source) State, but it will exit and re-enter any state within the composite State that is in the current state configuration.
+	> * *External Transition*   
+	Implies that the Transition, if triggered, will exit the composite (source) State
+	  
+
+	squirrel-foundation supports both API and annotation to declare all kinds of transitions, e.g.  
+	```java
+	builder.externalTransition().from(MyState.A).to(MyState.B).on(MyEvent.A2B);
+	builder.internalTransition().within(MyState.A).on(MyEvent.innerA);
+	builder.localTransition().from(MyState.A).to(MyState.CinA).on(MyEvent.intoC)
+	```
+	or  
+	```java
+	@Transitions({
+		@Transition(from="A", to="B", on="A2B"), //default value of transition type is EXTERNAL
+		@Transition(from="A", on="innerA", type=TransitionType.INTERNAL),
+		@Transition(from="A", to="CinA", on="intoC", type=TransitionType.LOCAL),
+	})
+	```
+
 * **State Machine Lifecycle Events**  
 During the lifecycle of the state machine, various events will be fired. TBD.
 
@@ -161,5 +193,8 @@ TBD
 TBD 
 
 ### Future Plan  
+* Support parallel state
 * Support state persistence
 * Support sendEvent(sync) and postEvent(async)
+
+[1]: http://en.wikipedia.org/wiki/UML_state_machine

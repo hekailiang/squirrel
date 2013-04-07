@@ -31,10 +31,12 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.From;
+import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.On;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.builder.To;
-import org.squirrelframework.foundation.fsm.builder.TransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.When;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -152,9 +154,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
-    public TransitionBuilder<T, S, E, C> transition() {
+    public ExternalTransitionBuilder<T, S, E, C> externalTransition() {
         checkState();
-        return FSM.newTransitionBuilder(states);
+        return FSM.newExternalTransitionBuilder(states);
+    }
+    
+    @Override
+    public LocalTransitionBuilder<T, S, E, C> localTransition() {
+    	checkState();
+        return FSM.newLocalTransitionBuilder(states);
+    }
+
+	@Override
+    public InternalTransitionBuilder<T, S, E, C> internalTransition() {
+		checkState();
+        return FSM.newInternalTransitionBuilder(states);
     }
     
     private void addStateEntryExitMethodCallAction(String methodName, Class<?>[] parameterTypes, 
@@ -211,14 +225,16 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         // if no existed transition is matched then create a new transition
-        TransitionBuilder<T, S, E, C> transitionBuilder = FSM.newTransitionBuilder(states);
         To<T, S, E, C> toBuilder = null;
         if(transit.type()==TransitionType.INTERNAL) {
+        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = FSM.newInternalTransitionBuilder(states);
             toBuilder = transitionBuilder.within(fromState);
         } else {
+        	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ?
+        			FSM.newLocalTransitionBuilder(states) : FSM.newExternalTransitionBuilder(states);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
             toBuilder = toState!=null ? fromBuilder.to(toState) : fromBuilder.toFinal();
-        }
+        } 
         On<T, S, E, C> onBuilder = toBuilder.on(event);
         Condition<C> c = null;
         try {

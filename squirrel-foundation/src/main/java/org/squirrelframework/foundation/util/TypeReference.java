@@ -4,7 +4,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * Refer to http://gafter.blogspot.com/2006/12/super-type-tokens.html.
+ * 
+ * @see <a href="http://gafter.blogspot.com/2006/12/super-type-tokens.html"> Super Type Tokens </a>
  * 
  * @author Henry He
  *

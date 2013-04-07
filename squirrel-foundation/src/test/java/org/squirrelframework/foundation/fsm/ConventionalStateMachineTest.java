@@ -234,22 +234,22 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                 StateMachineBuilderImpl.<ConventionalStateMachineImpl, TestState, TestEvent, Integer>
                 newStateMachineBuilder(ConventionalStateMachineImpl.class, TestState.class, 
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
-        builder.transition().from(A).to(B).on(ToB);
-        builder.transition().within(A).on(InternalA);
-        builder.transition().from(B).to(C).on(ToC);
-        builder.transition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
+        builder.externalTransition().from(A).to(B).on(ToB);
+        builder.internalTransition().within(A).on(InternalA);
+        builder.externalTransition().from(B).to(C).on(ToC);
+        builder.externalTransition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
             @Override
             public boolean isSatisfied(Integer context) {
                 return context!=null && context>80;
             }
         });
-        builder.transition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
+        builder.externalTransition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
             @Override
             public boolean isSatisfied(Integer context) {
                 return context!=null && context>=60 && context<=80;
             }
         });
-        builder.transition().from(D).toFinal().on(ToEnd);
+        builder.externalTransition().from(D).toFinal().on(ToEnd);
         stateMachine = builder.newStateMachine(A, null, Object.class, true, monitor);
     }
     
