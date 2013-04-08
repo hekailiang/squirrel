@@ -68,13 +68,17 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     EntryExitActionBuilder<T, S, E, C> onExit(S stateId);
     
     /**
+     * Create a new state machine instance
+     * @param initialStateId initial state id
+     * @return new state machine instance
+     */
+    T newStateMachine(S initialStateId);
+    
+    /**
      * Create new state machine instance according to state machine definition 
      * @param initialStateId the id of state machine initial state
-     * @param parent parent state machine
-     * @param type the class type of state machine value
-     * @param isLeaf whether state machine has child state machine
      * @param extraParams other parameters for instantiate state machine
      * @return new state machine
      */
-    T newStateMachine(S initialStateId, T parent, Class<?> type, boolean isLeaf, Object... extraParams);
+    T newStateMachine(S initialStateId, Object... extraParams);
 }

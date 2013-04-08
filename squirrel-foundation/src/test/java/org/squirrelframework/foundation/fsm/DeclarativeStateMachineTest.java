@@ -90,8 +90,8 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         public DeclarativeStateMachineImpl(
                 ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
                 Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                DeclarativeStateMachine parent, Class<?> type, boolean isLeaf, DeclarativeStateMachine delegator) {
-            super(initialState, states, parent, type, isLeaf);
+                DeclarativeStateMachine delegator) {
+            super(initialState, states);
             this.monitor = delegator;
         }
 
@@ -246,7 +246,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 StateMachineBuilderImpl.<DeclarativeStateMachine, TestState, TestEvent, Integer>
         newStateMachineBuilder(DeclarativeStateMachineImpl.class, TestState.class, 
                 TestEvent.class, Integer.class, DeclarativeStateMachine.class);
-        stateMachine = builder.newStateMachine(TestState.A, null, Object.class, true, monitor);
+        stateMachine = builder.newStateMachine(TestState.A, monitor);
     }
 
     @Test
@@ -375,7 +375,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 TestState.D, null, TestEvent.ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).fromStateDToFinalOnToEnd(
                 TestState.D, null, TestEvent.ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(0)).terminate();
+        callSequence.verify(monitor, Mockito.times(1)).terminate();
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
                 TestState.D, null, TestEvent.ToEnd, null);
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));

@@ -79,9 +79,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         public StateMachineImpl(
                 ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
                 Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                DeclarativeStateMachine parent, Class<?> type, boolean isLeaf,
                 CallSequenceMonitor monitor) {
-            super(initialState, states, parent, type, isLeaf, monitor);
+            super(initialState, states, monitor);
         }
         
         protected void beforeEntryB(TestState from, TestState to, TestEvent event, Integer context) {
@@ -122,8 +121,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         public AbstractDeclarativeStateMachine(
                 ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
                 Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                DeclarativeStateMachine parent, Class<?> type, boolean isLeaf, CallSequenceMonitor monitor) {
-            super(initialState, states, parent, type, isLeaf);
+                CallSequenceMonitor monitor) {
+            super(initialState, states);
             this.monitor = monitor;
         }
 
@@ -209,7 +208,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
                 newStateMachineBuilder(StateMachineImpl.class, TestState.class, 
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
         builder.externalTransition().from(D).toFinal().on(ToEnd);
-        stateMachine = builder.newStateMachine(A, null, Object.class, true, monitor);
+        stateMachine = builder.newStateMachine(A, monitor);
     }
     
     @Test

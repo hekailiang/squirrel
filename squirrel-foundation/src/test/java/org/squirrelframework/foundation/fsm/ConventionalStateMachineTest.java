@@ -76,8 +76,8 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         public ConventionalStateMachineImpl(
                 ImmutableState<ConventionalStateMachineImpl, TestState, TestEvent, Integer> initialState,
                 Map<TestState, ImmutableState<ConventionalStateMachineImpl, TestState, TestEvent, Integer>> states,
-                ConventionalStateMachineImpl parent, Class<?> type, boolean isLeaf, CallSequenceMonitor monitor) {
-            super(initialState, states, parent, type, isLeaf);
+                CallSequenceMonitor monitor) {
+            super(initialState, states);
             this.monitor = monitor;
         }
         
@@ -250,7 +250,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
             }
         });
         builder.externalTransition().from(D).toFinal().on(ToEnd);
-        stateMachine = builder.newStateMachine(A, null, Object.class, true, monitor);
+        stateMachine = builder.newStateMachine(A, monitor);
     }
     
     @Test
@@ -342,7 +342,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(D, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).exitD(D, null, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).transitFromDToFinalOnToEnd(D, null, ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(0)).terminate();
+        callSequence.verify(monitor, Mockito.times(1)).terminate();
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(D, null, ToEnd, null);
         
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));

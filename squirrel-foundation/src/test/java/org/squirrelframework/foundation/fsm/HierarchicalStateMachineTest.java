@@ -57,9 +57,8 @@ public class HierarchicalStateMachineTest {
 
 		public HierachicalStateMachine(
                 ImmutableState<HierachicalStateMachine, HState, HEvent, Integer> initialState,
-                Map<HState, ImmutableState<HierachicalStateMachine, HState, HEvent, Integer>> states,
-                HierachicalStateMachine parent, Class<?> type, boolean isLeaf) {
-	        super(initialState, states, parent, type, isLeaf);
+                Map<HState, ImmutableState<HierachicalStateMachine, HState, HEvent, Integer>> states) {
+	        super(initialState, states);
         }
 
 		@Override
@@ -321,7 +320,7 @@ public class HierarchicalStateMachineTest {
 		builder.externalTransition().from(HState.B1).to(HState.B2).on(HEvent.B12B2);
 		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);		
 		
-		stateMachine = builder.newStateMachine(HState.A, null, Object.class, true, new Object[0]);
+		stateMachine = builder.newStateMachine(HState.A);
 	}
 	
 	@Test

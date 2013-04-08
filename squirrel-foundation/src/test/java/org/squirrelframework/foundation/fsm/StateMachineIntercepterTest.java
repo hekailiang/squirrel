@@ -28,9 +28,8 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
 
         public DeclarativeStateMachine(
                 ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                DeclarativeStateMachine parent, Class<?> type, boolean isLeaf) {
-            super(initialState, states, parent, type, isLeaf);
+                Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states) {
+            super(initialState, states);
         }
         
         public void transitFail(TestState from, TestState to, TestEvent event, Integer context) {
@@ -134,7 +133,7 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
                         TestStateMachineIntercepter.class, 
                         new Class<?>[]{StateMachineIntercepter.class}, 
                         new Object[]{delegator}));
-        DeclarativeStateMachine stateMachine = builder.newStateMachine(TestState.A, null, Object.class, true);
+        DeclarativeStateMachine stateMachine = builder.newStateMachine(TestState.A);
         stateMachine.fire(TestEvent.ToB, null);
         stateMachine.terminate();
         callSequence.verify(delegator, Mockito.times(1)).onStart(stateMachine);
@@ -154,7 +153,7 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
                         TestStateMachineIntercepter.class, 
                         new Class<?>[]{StateMachineIntercepter.class}, 
                         new Object[]{delegator}));
-        DeclarativeStateMachine stateMachine = builder.newStateMachine(TestState.A, null, Object.class, true);
+        DeclarativeStateMachine stateMachine = builder.newStateMachine(TestState.A);
         stateMachine.fire(TestEvent.ToC, null);
         stateMachine.terminate();
         callSequence.verify(delegator, Mockito.times(1)).onStart(stateMachine);

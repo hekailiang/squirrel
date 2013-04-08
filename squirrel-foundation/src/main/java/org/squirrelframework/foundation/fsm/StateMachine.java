@@ -1,8 +1,9 @@
 package org.squirrelframework.foundation.fsm;
 
-import org.squirrelframework.foundation.data.HierarchyItem;
+import org.squirrelframework.foundation.component.Observable;
+import org.squirrelframework.foundation.event.SquirrelEvent;
 
-public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends HierarchyItem<T, Object>, Visitable<T, S, E, C> {
+public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitable<T, S, E, C>, Observable {
     
     void fire(E event, C context);
     
@@ -27,7 +28,7 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void stateMachineEvent(StateMachineEvent<T, S, E, C> event);
     }
-    interface StateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ItemEvent<T, Object> {
+    interface StateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
         T getStateMachine();
     }
     void addListener(StateMachineListener<T, S, E, C> listener);

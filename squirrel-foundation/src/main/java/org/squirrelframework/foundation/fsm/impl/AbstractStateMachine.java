@@ -8,7 +8,7 @@ import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.squirrelframework.foundation.data.impl.AbstractHierarchyItem;
+import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -42,7 +42,7 @@ import com.google.common.collect.Maps;
  * @param <E> event type
  * @param <C> context type
  */
-public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractHierarchyItem<T, Object> implements StateMachine<T, S, E, C> {
+public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements StateMachine<T, S, E, C> {
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
@@ -60,9 +60,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private final Map<S, S> parentChildStateHierarchyStore = Maps.newHashMap();
     
-    public AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states, 
-            T parent, Class<?> type, boolean isLeaf) {
-        super(parent, type, isLeaf);
+    public AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
         this.initialState = initialState;
         this.currentState = initialState;
         this.states = Collections.unmodifiableMap(states);
@@ -116,21 +114,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void execute() {
         if (isIdel()) {
-            AbstractStateMachine<T, S, E, C> originParent = 
-                    (AbstractStateMachine<T, S, E, C>)getParent();
             try {
                 status = StateMachineStatus.BUSY;
                 processQueuedEvents();
             } finally {
-                status = StateMachineStatus.IDLE;
-            }
-            
-            if(currentState.isFinal()) 
-                terminateNow();
-            
-            // execute new events which was fired to parent during child processing events
-            if(originParent!=null && originParent.getQueuedEventSize()>0) {
-                originParent.execute();
+            	if(status==StateMachineStatus.BUSY)
+            		status = StateMachineStatus.IDLE;
             }
         }
     }
@@ -149,14 +138,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected boolean isIdel() {
-        if(getStatus()==StateMachineStatus.BUSY)
-            return false;
-        
-        for(StateMachine<T, S, E, C> s : getAllRawChildren(true, false)) {
-            if(s.getStatus()==StateMachineStatus.BUSY) 
-                return false;
-        } 
-        return true;
+    	return getStatus()!=StateMachineStatus.BUSY;
     }
     
     protected void afterTransitionCausedException(Exception e, S fromState, S toState, 
@@ -173,10 +155,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected void afterTransitionDeclined(S fromState, E event, C context) {
-        // TODO-hhe: when exception happened during parent state machine handle the event, the exception 
-        // handling order would be parent handle first then child. Is this what we expected?
-        if(getParent()!=null) 
-            getParent().fire(event, context);
     }
     
     protected void internalSetState(S state) {
@@ -219,39 +197,25 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void start() {
-        startNow();
-        
+    	if(isStarted()) {
+            return;
+        }
+    	
+    	status = StateMachineStatus.IDLE;
         StateContext<T, S, E, C> stateContext = 
                 FSM.newStateContext(getCurrent(), getCurrentRawState(), getInitialEvent(), getInitialContext());
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
-//        nonRecursiveStartChildren(getCurrent(), getInitialEvent(), getInitialContext());
-    }
-    
-    protected void startNow() {
-        if(isStarted()) {
-            return;
-        }
-        status = StateMachineStatus.IDLE;
+        
         fireEvent(new StartEventImpl<T, S, E, C>(getCurrent()));
     }
     
-//    @SuppressWarnings("rawtypes")
-//    private void nonRecursiveStartChildren(T parent, E event, C context) {
-//        if(parent.getCurrentRawState().isFinal()) 
-//            return;
-//        
-//        for(T stateMachine : parent.getAllChildren(false, false)) {
-//            ((AbstractStateMachine)stateMachine).startNow();
-//            StateContext<T, S, E, C> stateContext = 
-//                    FSM.newStateContext(stateMachine, stateMachine.getCurrentRawState(), event, context);
-//            entryAll(initialState, stateContext);
-//            currentState = getCurrentRawState().enterByHistory(stateContext); ???
-//        }
-//    }
-    
     private boolean isStarted() {
         return status==StateMachineStatus.IDLE || status==StateMachineStatus.BUSY;
+    }
+    
+    private boolean isTerminiated() {
+    	return status==StateMachineStatus.TERMINATED;
     }
     
     @Override
@@ -271,13 +235,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 
     @Override
     public void terminate() {
-        // terminate children first then parent
-//        nonRecursiveTerminateChildren(getCurrent(), getTerminateEvent(), getTerminateContext());
+    	if(isTerminiated()) {
+            return;
+        }
         
         StateContext<T, S, E, C> stateContext = 
                 FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), getTerminateContext());
         exitAll(getCurrentRawState(), stateContext);
-        terminateNow();
+        
+        currentState = initialState;
+        status = StateMachineStatus.TERMINATED;
+        fireEvent(new TerminateEventImpl<T, S, E, C>(getCurrent()));
+        
     }
     
     private void exitAll(ImmutableState<T, S, E, C> current, StateContext<T, S, E, C> stateContext) {
@@ -288,39 +257,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 		}
     }
     
-    protected void terminateNow() {
-        if(status!=StateMachineStatus.IDLE) {
-            return;
-        }
-        // reset current state to state machine initial state
-        currentState = initialState;
-        status = StateMachineStatus.TERMINATED;
-        fireEvent(new TerminateEventImpl<T, S, E, C>(getCurrent()));
-        
-        if(getParent()!=null) {
-            detach();
-        }
+    @SuppressWarnings("unchecked")
+    protected T getCurrent() {
+    	return (T)this;
     }
-    
-    /**
-     * Terminate all the child state machine without recursion. The same reason(event and context) that caused 
-     * the child state machine terminated will be used for each child state machine exiting its current state. 
-     * @param parent the parent state machine
-     * @param event the reason caused child state machine closed.
-     * @param context the context when terminating all child state machines.
-     */
-//    @SuppressWarnings("rawtypes")
-//    private void nonRecursiveTerminateChildren(T parent, E event, C context) {
-//        if(!parent.hasChildren())
-//            return;
-//        
-//        for(T stateMachine : parent.getAllChildren(false, true)) {
-//            StateContext<T, S, E, C> stateContext = 
-//                    FSM.newStateContext(stateMachine, stateMachine.getCurrentRawState(), event, context);
-//            exitAll(getCurrentRawState(), stateContext);
-//            ((AbstractStateMachine)stateMachine).terminateNow();
-//        }
-//    }
     
     @Override
     public void accept(Visitor<T, S, E, C> visitor) {
@@ -451,14 +391,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     public static abstract class AbstractStateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractItemEvent<T, Object> implements StateMachine.StateMachineEvent<T, S, E, C> {
-        public AbstractStateMachineEvent(T source) {
-            super(source);
+    implements StateMachine.StateMachineEvent<T, S, E, C> {
+    	private final T stateMachine;
+        public AbstractStateMachineEvent(T stateMachine) {
+        	this.stateMachine = stateMachine;
         }
         
         @Override
         public T getStateMachine() {
-            return getSourceItem();
+            return stateMachine;
         }
     }
     

@@ -58,6 +58,7 @@ final class FinalStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implemen
     @Override
     public void entry(StateContext<T, S, E, C> stateContext) {
         logger.debug("Final state entry");
+        stateContext.getStateMachine().terminate();
     }
     
     @Override

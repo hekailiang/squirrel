@@ -133,18 +133,15 @@ ConverterProvider.INSTANCE.register(MyState.class, new MyStateConverter());
 	
 * **New State Machine Instance**  
 ```java
-T newStateMachine(S initialStateId, T parent, Class<?> type, boolean isLeaf, Object... extraParams);
+T newStateMachine(S initialStateId, Object... extraParams);
 ```
 To create a new state machine instance from state machine builder, you need to pass several parameters.
 	1. *initialStateId*: When started, the initial state of the state machine.
-	2. *parent*: parent state machine of current. Set null for no parent state machine.
-	3. *type*: the type of state machine value. Set to *Object.class* for no need to be specified.
-	4. *isLeaf*: whether current state machine has child state machines. Set true for no child.
-	5. *extraParams*: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
+	2. *extraParams*: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
 	
 	New state machine from state machine builder.
 	```java
-	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial, null, Object.class, true, new Object[0]);
+	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial, new Object[0]);
 	```
 
 * **Fire Events**  
@@ -195,14 +192,67 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 	```
 
 * **State Machine Lifecycle Events**  
-During the lifecycle of the state machine, various events will be fired. TBD.
+During the lifecycle of the state machine, various events will be fired, e.g. 
+```  
+|--StateMachineEvent 						/* Base event of all state machine event */   
+       |--StartEvent							/* Fired when state machine started      */ 
+       |--TerminateEvent						/* Fired when state machine terminated   */ 
+          |--TransitionEvent					/* Base event of all transition event    */ 
+             |--TransitionBeginEvent			/* Fired when transition began           */ 
+             |--TransitionCompleteEvent			/* Fired when transition completed       */ 
+             |--TransitionExceptionEvent		/* Fired when transition threw exception */ 
+             |--TransitionDeclinedListener		/* Fired when transition declined        */ 
+```
+User can add a listener to listener StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
+```java
+stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEvent, MyContext>() {
+			@Override
+			public void stateMachineEvent(StateMachineEvent<MyStateMachine, MyState, MyEvent, MyContext> event) {
+				// ...
+			}
+	});
+```
 
 * **State Machine PostProcessor**  
-TBD
+	User can register post processor for specific type of state machine, which means the state machine of that type will be post processed after instantiated, e.g.  
+	```java
+	// 1 User defined a state machine interface
+	interface MyStateMachine extends StateMachine<MyStateMachine, MyState, MyEvent, MyContext> {
+	. . .
+	}
+	
+	// 2 Both MyStateMachineImpl and MyStateMachineImplEx are implemented MyStateMachine
+	class MyStateMachineImpl implements MyStateMachine {
+		. . . 
+	}
+	class MyStateMachineImplEx implements MyStateMachine {
+		. . .
+	}
+	
+	// 3 User define a state machine post processor
+	MyStateMachinePostProcessor implements SquirrelPostProcessor<MyStateMachine> {
+		void postProcess(MyStateMachine component) {
+			. . . 
+		}
+	}  
+	
+	// 4 User register state machine post process
+	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, MyStateMachinePostProcessor.class);
+	```
+	This means when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.
 * **State Machine Intercepter**  
-TBD
+	User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle. 
+	```java
+	public abstract class AbstractStateMachineIntercepter<T extends StateMachine<T, S, E, C>, S, E, C> 
+    	implements StateMachineIntercepter<T, S, E, C>, SquirrelPostProcessor<T> {
+    	. . .
+    }
+	```
+	User can create a custom state machine intercepter which extended from *AbstractStateMachineIntercepter*. Actually, the *AbstractStateMachineIntercepter* implemented *SquirrelPostProcessor* interface, which added StateMachineEvent listener to the state machine, and dispatch the method call according to the event type. So the StateMachineIntercepter registration should be the same as state machine post processor.
+	
 * **State Machine Diagnose**  
-TBD 
+	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time.
+	
 
 ### Future Plan  
 * Support parallel state

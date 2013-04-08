@@ -3,8 +3,6 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -113,36 +111,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private Class<?>[] getConstParamTypes(Class<?>[] extraConstParamTypes) {
         Class<?>[] parameterTypes = null;
         if(extraConstParamTypes!=null) {
-            parameterTypes = new Class<?>[extraConstParamTypes.length+5];
+            parameterTypes = new Class<?>[extraConstParamTypes.length+2];
         } else {
-            parameterTypes = new Class<?>[5];
+            parameterTypes = new Class<?>[2];
         }
         // add fixed constructor parameters
         parameterTypes[0] = ImmutableState.class;
         parameterTypes[1] = Map.class;
         
-        // find property type of state machine
-        Class<?> directImplementClass = stateMachineClazz;
-        while(directImplementClass.getSuperclass()!=AbstractStateMachine.class) {
-            directImplementClass = directImplementClass.getSuperclass();
-        }
-        ParameterizedType type = (ParameterizedType)directImplementClass.getGenericSuperclass();
-        for(Type argType : type.getActualTypeArguments()) {
-            Class<?> argTypeClass = (Class<?>)argType;
-            if(StateMachine.class.isAssignableFrom(argTypeClass)) {
-                parameterTypes[2] = argTypeClass;
-                break;
-            }
-        }
-        if(parameterTypes[2] == null) {
-            throw new RuntimeException("Cannot find property type of statemachine.");
-        }
-        
-        parameterTypes[3] = Class.class;
-        parameterTypes[4] = boolean.class;
         //  add additional constructor parameters extended by derived state machine implementation 
         if(extraConstParamTypes!=null) {
-            System.arraycopy(extraConstParamTypes, 0, parameterTypes, 5, extraConstParamTypes.length);
+            System.arraycopy(extraConstParamTypes, 0, parameterTypes, 2, extraConstParamTypes.length);
         }
         return parameterTypes;
     }
@@ -446,22 +425,23 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         // TODO-hhe: cache action method in a map and try to get from cache first
         return searchMethod(target, AbstractStateMachine.class, methodName, parameterTypes);
     }
+    
+    public T newStateMachine(S initialStateId) {
+    	return newStateMachine(initialStateId, new Object[0]);
+    }
 
     @SuppressWarnings("unchecked")
     @Override
-    public T newStateMachine(S initialStateId, T parent, Class<?> type, boolean isLeaf, Object... extraParams) {
+    public T newStateMachine(S initialStateId, Object... extraParams) {
         if(!prepared) prepare();
-        Object[] parameters = new Object[extraParams.length+5];
+        Object[] parameters = new Object[extraParams.length+2];
         parameters[0] = states.get(initialStateId);
         if(parameters[0] == null) {
             throw new RuntimeException(getClass()+" cannot find Initial state \'"+initialStateId+"\' in state machine.");
         }
         parameters[1] = states;
-        parameters[2] = parent;
-        parameters[3] = type;
-        parameters[4] = isLeaf;
         if(extraParams!=null) {
-            System.arraycopy(extraParams, 0, parameters, 5, extraParams.length);
+            System.arraycopy(extraParams, 0, parameters, 2, extraParams.length);
         }
         return postProcessStateMachine((Class<T>)stateMachineClazz, ReflectUtils.newInstance(contructor, parameters));
     }

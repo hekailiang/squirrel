@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.squirrelframework.foundation.component.SquirrelProvider;
+import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.data.HierarchyItem;
 import org.squirrelframework.foundation.data.ItemProvider;
-import org.squirrelframework.foundation.event.EventMediator;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.util.ReflectUtils;
@@ -30,8 +29,8 @@ import com.google.common.collect.Maps;
  * @param <N>
  *            the type of item value
  */
-public abstract class AbstractHierarchyItem<M extends HierarchyItem<M, N>, N>
-        implements HierarchyItem<M, N> {
+public abstract class AbstractHierarchyItem<M extends HierarchyItem<M, N>, N> 
+		extends AbstractSubject implements HierarchyItem<M, N> {
 
     private AbstractHierarchyItem<M, N> parent;
 
@@ -44,10 +43,6 @@ public abstract class AbstractHierarchyItem<M extends HierarchyItem<M, N>, N>
     protected boolean isLeaf;
 
     private Map<String, Object> data;
-
-    private boolean notifiable = true;
-
-    private EventMediator eventMediator;
 
     public AbstractHierarchyItem(M parent, Class<?> type, boolean isLeaf) {
         setParent(parent);
@@ -274,64 +269,6 @@ public abstract class AbstractHierarchyItem<M extends HierarchyItem<M, N>, N>
 
     public void clearData() {
         data = null;
-    }
-
-    @Override
-    public boolean isNotifiable() {
-        return notifiable;
-    }
-
-    @Override
-    public void setNotifiable(boolean notifiable) {
-        this.notifiable = notifiable;
-    }
-
-    @Override
-    public void addListener(Class<?> eventType, Object listener, Method method) {
-        if (eventMediator == null) {
-            eventMediator = SquirrelProvider.getInstance().newInstance(EventMediator.class);
-        }
-        eventMediator.register(eventType, listener, method);
-    }
-    
-    @Override
-    public void addListener(Class<?> eventType, Object listener, String methodName) {
-        Method method = ReflectUtils.getFirstMethodOfName(listener.getClass(), methodName);
-        addListener(eventType, listener, method);
-    }
-
-    @Override
-    public void removeListener(Class<?> eventType, Object listener,
-            Method method) {
-        if (eventMediator != null) {
-            eventMediator.unregister(eventType, listener, method);
-        }
-    }
-    
-    @Override
-    public void removeListener(Class<?> eventType, Object listener,
-            String methodName) {
-        Method method = ReflectUtils.getFirstMethodOfName(listener.getClass(), methodName);
-        removeListener(eventType, listener, method);
-    }
-
-    @Override
-    public void removeListener(Class<?> eventType, Object listener) {
-        if (eventMediator != null) {
-            eventMediator.unregister(eventType, listener);
-        }
-    }
-
-    @Override
-    public void removeAllListeners() {
-        if (eventMediator != null)
-            eventMediator.unregisterAll();
-    }
-
-    protected void fireEvent(ItemEvent<M, N> event) {
-        if (eventMediator != null && isNotifiable()) {
-            eventMediator.fireEvent(event);
-        }
     }
 
     private static final Method ITEM_EVENT_METHOD = 

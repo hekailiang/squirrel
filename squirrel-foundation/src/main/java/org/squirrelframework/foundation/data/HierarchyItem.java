@@ -1,7 +1,9 @@
 package org.squirrelframework.foundation.data;
 
-import java.lang.reflect.Method;
 import java.util.List;
+
+import org.squirrelframework.foundation.component.Observable;
+import org.squirrelframework.foundation.event.SquirrelEvent;
 
 /**
  * Generic tree structure interface which handles basic tree structure
@@ -16,7 +18,7 @@ import java.util.List;
  * @param <N>
  *            the type of item value
  */
-public interface HierarchyItem<M extends HierarchyItem<M, N>, N> {
+public interface HierarchyItem<M extends HierarchyItem<M, N>, N> extends Observable {
 
     List<M> getChildren();
 
@@ -58,23 +60,7 @@ public interface HierarchyItem<M extends HierarchyItem<M, N>, N> {
 
     void clearData();
 
-    boolean isNotifiable();
-
     String toLog();
-
-    void setNotifiable(boolean notifiable);
-
-    void addListener(Class<?> eventType, Object listener, Method method);
-    
-    void addListener(Class<?> eventType, Object listener, String methodName);
-
-    void removeListener(Class<?> eventType, Object listener, Method method);
-    
-    void removeListener(Class<?> eventType, Object listener, String methodName);
-
-    void removeListener(Class<?> eventType, Object listener);
-
-    void removeAllListeners();
 
     /**
      * <p>
@@ -100,7 +86,7 @@ public interface HierarchyItem<M extends HierarchyItem<M, N>, N> {
     /**
      * Base event of all the tree item events.
      */
-    interface ItemEvent<M extends HierarchyItem<M, N>, N> {
+    interface ItemEvent<M extends HierarchyItem<M, N>, N> extends SquirrelEvent {
         /**
          * @return tree item that event happens on
          */
