@@ -9,24 +9,23 @@ squirrel-foundation
 <dependency>
   <groupId>org.squirrelframework</groupId>
   <artifactId>squirrel-foundation</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
 </dependency>
 ``` 
 
 ### Getting Started 
 
-**squirrel-foundation** supports both fluent API and declarative manner to define a state machine, and also enable user to declare the action methods in a straightforward manner. 
+**squirrel-foundation** supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. 
 
-* **StateMahcine** takes four type parameters.  
-	* **T** The type of implemented state machine.
-	* **S** The type of implemented state.
-	* **E** The type of implemented event.
-	* **C** The type of implemented context.
+* **StateMahcine** interface takes four generic type parameters.  
+	* **T** stands for the type of implemented state machine.
+	* **S** stands for the type of implemented state.
+	* **E** stands for the type of implemented event.
+	* **C** stands for the type of implemented context.
 
 * **StateMachineBuilder**  
-	* The StateMachineBuilder is composed of TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
-	* The state of StateMachine is implicitly built during transition build and state action build.
-	e.g. new state machine builder
+	* The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
+	* The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: 
 	
 		```java
 		StateMachineBuilder<ConventionalStateMachine, MyState, MyEvent, MyContext> builder =
@@ -35,6 +34,7 @@ squirrel-foundation
 		```
 
 * **Fluent API**  
+After state machine builder was created, we can use fluent API to define state/transition/action of the state machine.
 ```java
 builder.externalTransition().from(MyState.A).to(MyState.B).on(MyEvent.GoToB);
 ```
@@ -59,8 +59,8 @@ builder.onEntry(MyState.A).perform(Lists.newArrayList(action1, action2))
 A list of state entry actions is defined.
 
 * **Method Call Action**  
-	User can define actions during define transitions or state entry actions. However, the actions will be scattered over the definitions method blocks and other classes. Moreover, other user cannot override the actions. Thus, we also support define method call actions within state machine implementation in a **Convention Over Configuration** manner.  
-	Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain transition status. e.g.  
+	User can define actions during define transitions or state entry actions. However, the actions will be scattered over the definitions method blocks and other classes. Moreover, other user cannot override the actions. Thus, squirrel-foundation also support define method call actions within state machine implementation in a **Convention Over Configuration** manner.  
+	Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain phase. e.g.  
 	```java
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
@@ -75,7 +75,7 @@ A list of state entry actions is defined.
 	```
 	**exit[StateName]** The method will be invoked when exit state 'A'. So as the **entry[StateName]** , **exitAny** and **entryAny**.  
 	
-	***Other supported naming pattern***
+	***Other Supported Naming Patterns:***
 	```
 	transitFrom[fromStateName]To[toStateName]On[eventName]When[conditionName]  
     transitFrom[fromStateName]To[toStateName]On[eventName]  
@@ -85,7 +85,7 @@ A list of state entry actions is defined.
     on[eventName] 
     ```
 * **Declarative Annotation**  
-Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name, and moreover the java compiler cannot help user to detect the error when misspelling the method name. For this case, a declarative way is also provided to define or extend the state machine. Here is an example.  
+Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name. Moreover, the java compiler cannot help user to detect the error when misspelling the method name. For this case, a declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
 	@States({
         @State(name="A", entryCallMethod="entryStateA", exitCallMethod="exitStateA"), 
@@ -103,7 +103,7 @@ Use conventional way to define action method call is convenient, but sometimes u
 		...
 	}
 	```
-	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. Moreover, this declarative annotations can also be used together with fluent API which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
+	The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. It also can be used mixed with fluent API, which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  
 	
 * **Converters**  
 In order to declare state and event within *@State* and *@Transit*, user need to implement corresponding converters for their state(S) and event(E) type. The convert must implement Converter\<T\> interface, which convert the state/event to/from String.
@@ -124,7 +124,7 @@ public interface Converter<T> extends SquirrelComponent {
     T convertFromString(String name);
 }
 ```  
-Then register to *ConverterProvider*. e.g.
+Then register these converters to *ConverterProvider*. e.g.
 ```java
 ConverterProvider.INSTANCE.register(MyEvent.class, new MyEventConverter());
 ConverterProvider.INSTANCE.register(MyState.class, new MyStateConverter());
@@ -132,10 +132,11 @@ ConverterProvider.INSTANCE.register(MyState.class, new MyStateConverter());
 	Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters.
 	
 * **New State Machine Instance**  
+After user defined state machine behavior, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.
 ```java
 T newStateMachine(S initialStateId, Object... extraParams);
 ```
-To create a new state machine instance from state machine builder, you need to pass several parameters.
+To create a new state machine instance from state machine builder, you need to pass following parameters.
 	1. *initialStateId*: When started, the initial state of the state machine.
 	2. *extraParams*: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
 	
@@ -145,7 +146,7 @@ To create a new state machine instance from state machine builder, you need to p
 	```
 
 * **Fire Events**  
-	After state machine was created, user can fire events along with context to trigger state transition inside state machine. e.g.
+	After state machine was created, user can fire events along with context to trigger transition inside state machine. e.g.
 	```java
 	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));
 	```
@@ -203,7 +204,7 @@ During the lifecycle of the state machine, various events will be fired, e.g.
              |--TransitionExceptionEvent		/* Fired when transition threw exception */ 
              |--TransitionDeclinedListener		/* Fired when transition declined        */ 
 ```
-User can add a listener to listener StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
+User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
 ```java
 stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEvent, MyContext>() {
 			@Override
@@ -214,7 +215,7 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 ```
 
 * **State Machine PostProcessor**  
-	User can register post processor for specific type of state machine, which means the state machine of that type will be post processed after instantiated, e.g.  
+	User can register post processor for specific type of state machine in order to adding post process logic after state machine instantiated, e.g.  
 	```java
 	// 1 User defined a state machine interface
 	interface MyStateMachine extends StateMachine<MyStateMachine, MyState, MyEvent, MyContext> {
@@ -239,7 +240,7 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 	// 4 User register state machine post process
 	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, MyStateMachinePostProcessor.class);
 	```
-	This means when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.
+	For this case, when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.
 * **State Machine Intercepter**  
 	User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle. 
 	```java
@@ -248,11 +249,26 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
     	. . .
     }
 	```
-	User can create a custom state machine intercepter which extended from *AbstractStateMachineIntercepter*. Actually, the *AbstractStateMachineIntercepter* implemented *SquirrelPostProcessor* interface, which added StateMachineEvent listener to the state machine, and dispatch the method call according to the event type. So the StateMachineIntercepter registration should be the same as state machine post processor.
+	User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from *AbstractStateMachineIntercepter*. Actually, the *AbstractStateMachineIntercepter* also implemented *SquirrelPostProcessor* interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.   
+	By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.
 	
 * **State Machine Diagnose**  
-	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time.
-	
+	User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.   
+	For example, the following code is used to register a execution time monitor for state machine of *MyStateMachine* type.
+	```java
+	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, 
+        		new TypeReference<TransitionExecTimeMonitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
+	```  
+	The following code is used to monitor transition progress.^* (Notify progress bar)
+	```java
+	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, 
+        		new TypeReference<TransitionProgressMonitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
+	```   
+	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
+	```java
+	@LogExecTime
+	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
+	```
 
 ### Future Plan  
 * Support parallel state
