@@ -69,13 +69,13 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     static class ConventionalStateMachineException extends RuntimeException {
     }
     
-    static class ConventionalStateMachineImpl extends AbstractStateMachine<ConventionalStateMachineImpl, TestState, TestEvent, Integer> {
+    static class ConventionalStateMachine extends AbstractStateMachine<ConventionalStateMachine, TestState, TestEvent, Integer> {
         
         private final CallSequenceMonitor monitor;
         
-        public ConventionalStateMachineImpl(
-                ImmutableState<ConventionalStateMachineImpl, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<ConventionalStateMachineImpl, TestState, TestEvent, Integer>> states,
+        public ConventionalStateMachine(
+                ImmutableState<ConventionalStateMachine, TestState, TestEvent, Integer> initialState,
+                Map<TestState, ImmutableState<ConventionalStateMachine, TestState, TestEvent, Integer>> states,
                 CallSequenceMonitor monitor) {
             super(initialState, states);
             this.monitor = monitor;
@@ -225,14 +225,14 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     @Mock
     private CallSequenceMonitor monitor;
     
-    private ConventionalStateMachineImpl stateMachine;
+    private ConventionalStateMachine stateMachine;
     
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        StateMachineBuilder<ConventionalStateMachineImpl, TestState, TestEvent, Integer> builder = 
-                StateMachineBuilderImpl.<ConventionalStateMachineImpl, TestState, TestEvent, Integer>
-                newStateMachineBuilder(ConventionalStateMachineImpl.class, TestState.class, 
+        StateMachineBuilder<ConventionalStateMachine, TestState, TestEvent, Integer> builder = 
+                StateMachineBuilderImpl.<ConventionalStateMachine, TestState, TestEvent, Integer>
+                newStateMachineBuilder(ConventionalStateMachine.class, TestState.class, 
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
         builder.externalTransition().from(A).to(B).on(ToB);
         builder.internalTransition().within(A).on(InternalA);

@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.squirrelframework.foundation.component.impl.CompositePostProcessorImpl;
 import org.squirrelframework.foundation.util.ClassComparator;
 import org.squirrelframework.foundation.util.ReflectUtils;
+import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -97,5 +98,9 @@ public class SquirrelPostProcessorProvider implements SquirrelComponent, Squirre
     
     public <T> SquirrelPostProcessor<? super T> getBestMatchPostProcessor(Class<T> componentClass) {
         return getBestMatchPostProcessor(componentClass, new ClassComparator<SquirrelPostProcessor<? super T>>());
+    }
+
+	public <T> void register(Class<T> componentClass, TypeReference<? extends SquirrelPostProcessor<? super T>> typeReference) {
+		register(componentClass, typeReference.getRawType());
     }
 }

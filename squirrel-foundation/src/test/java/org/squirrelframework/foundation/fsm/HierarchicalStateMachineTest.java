@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -18,6 +19,8 @@ import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.impl.SCXMLVisitorImpl;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
+import org.squirrelframework.foundation.fsm.monitor.TransitionExecTimeMonitor;
+import org.squirrelframework.foundation.util.TypeReference;
 
 public class HierarchicalStateMachineTest {
 	
@@ -296,6 +299,8 @@ public class HierarchicalStateMachineTest {
 	public static void beforeTest() {
 		ConverterProvider.INSTANCE.register(HEvent.class, new Converter.EnumConverter<HEvent>(HEvent.class));
         ConverterProvider.INSTANCE.register(HState.class, new Converter.EnumConverter<HState>(HState.class));
+        SquirrelPostProcessorProvider.getInstance().register(HierachicalStateMachine.class, 
+        		new TypeReference<TransitionExecTimeMonitor<HierachicalStateMachine, HState, HEvent, Integer>>() {});
 	}
 	
 	@After
