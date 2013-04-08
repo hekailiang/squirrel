@@ -105,6 +105,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     
     private void doTransit(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {
     	if (source.getLevel() < target.getLevel() && type == TransitionType.EXTERNAL) {
+    		// exit and re-enter current state for external transition to child state
     		source.exit(stateContext);
     		source.entry(stateContext);
     	}

@@ -9,4 +9,8 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     C getContext();
     
     E getEvent();
+    
+    ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState);
+    
+    void setLastActiveChildState(ImmutableState<T, S, E, C> parentState, ImmutableState<T, S, E, C> childState);
 }

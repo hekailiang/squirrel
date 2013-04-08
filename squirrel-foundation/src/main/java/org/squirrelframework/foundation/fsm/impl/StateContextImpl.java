@@ -36,4 +36,19 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     public E getEvent() {
         return event;
     }
+    
+    @Override
+    public ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState) {
+    	S childStateId = stateMachine.getLastActiveChildStateOf(parentState.getStateId());
+    	if(childStateId!=null) {
+    		return stateMachine.getRawStateFrom(childStateId);
+    	} else {
+    		return parentState.getChildInitialState();
+    	}
+    }
+    
+    @Override
+    public void setLastActiveChildState(ImmutableState<T, S, E, C> parentState, ImmutableState<T, S, E, C> childState) {
+    	stateMachine.setLastActiveChildState(parentState.getStateId(), childState.getStateId());
+    }
 }

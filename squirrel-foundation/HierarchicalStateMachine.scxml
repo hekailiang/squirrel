@@ -1,43 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scxml initial="A" version="1.0" xmlns="http://www.w3.org/2005/07/scxml">
-    <state id="B">
-        <onentry>
-            <raise event="callMethod(HierachicalStateMachine.entryB)"/>
-        </onentry>
-        <state id="B1">
-            <onentry>
-                <raise event="callMethod(HierachicalStateMachine.entryB1)"/>
-            </onentry>
-            <transition cond="Always" event="B12B2" target="B2">
-                <raise event="callMethod(HierachicalStateMachine.transitFromB1ToB2OnB12B2)"/>
-            </transition>
-            <onexit>
-                <raise event="callMethod(HierachicalStateMachine.exitB1)"/>
-            </onexit>
-        </state>
-        <state id="B2">
-            <onentry>
-                <raise event="callMethod(HierachicalStateMachine.entryB2)"/>
-            </onentry>
-            <transition cond="Always" event="B22A" target="A">
-                <raise event="callMethod(HierachicalStateMachine.transitFromB2ToAOnB22A)"/>
-            </transition>
-            <onexit>
-                <raise event="callMethod(HierachicalStateMachine.exitB2)"/>
-            </onexit>
-        </state>
-        <state id="B3">
-            <onentry>
-                <raise event="callMethod(HierachicalStateMachine.enterB3)"/>
-            </onentry>
-            <onexit>
-                <raise event="callMethod(HierachicalStateMachine.leftB3)"/>
-            </onexit>
-        </state>
-        <onexit>
-            <raise event="callMethod(HierachicalStateMachine.exitB)"/>
-        </onexit>
-    </state>
     <state id="A">
         <onentry>
             <raise event="callMethod(HierachicalStateMachine.entryA)"/>
@@ -97,6 +59,17 @@
             <onentry>
                 <raise event="callMethod(HierachicalStateMachine.entryA2)"/>
             </onentry>
+            <transition cond="Always" event="A22A2a" target="A2a">
+                <raise event="callMethod(HierachicalStateMachine.transitA22A2a)"/>
+            </transition>
+            <state id="A2a">
+                <onentry>
+                    <raise event="callMethod(HierachicalStateMachine.enterA2a)"/>
+                </onentry>
+                <onexit>
+                    <raise event="callMethod(HierachicalStateMachine.leftA2a)"/>
+                </onexit>
+            </state>
             <onexit>
                 <raise event="callMethod(HierachicalStateMachine.exitA2)"/>
             </onexit>
@@ -114,6 +87,58 @@
         </state>
         <onexit>
             <raise event="callMethod(HierachicalStateMachine.exitA)"/>
+        </onexit>
+    </state>
+    <state id="B">
+        <onentry>
+            <raise event="callMethod(HierachicalStateMachine.entryB)"/>
+        </onentry>
+        <transition cond="Always" event="B2A" target="A">
+            <raise event="callMethod(HierachicalStateMachine.transitFromBToAOnB2A)"/>
+        </transition>
+        <state id="B1">
+            <onentry>
+                <raise event="callMethod(HierachicalStateMachine.entryB1)"/>
+            </onentry>
+            <transition cond="Always" event="B12B2" target="B2">
+                <raise event="callMethod(HierachicalStateMachine.transitFromB1ToB2OnB12B2)"/>
+            </transition>
+            <onexit>
+                <raise event="callMethod(HierachicalStateMachine.exitB1)"/>
+            </onexit>
+        </state>
+        <state id="B2">
+            <onentry>
+                <raise event="callMethod(HierachicalStateMachine.entryB2)"/>
+            </onentry>
+            <transition cond="Always" event="B22A" target="A">
+                <raise event="callMethod(HierachicalStateMachine.transitFromB2ToAOnB22A)"/>
+            </transition>
+            <transition cond="Always" event="B22B2a" target="B2a">
+                <raise event="callMethod(HierachicalStateMachine.transitB22B2a)"/>
+            </transition>
+            <state id="B2a">
+                <onentry>
+                    <raise event="callMethod(HierachicalStateMachine.enterB2a)"/>
+                </onentry>
+                <onexit>
+                    <raise event="callMethod(HierachicalStateMachine.leftB2a)"/>
+                </onexit>
+            </state>
+            <onexit>
+                <raise event="callMethod(HierachicalStateMachine.exitB2)"/>
+            </onexit>
+        </state>
+        <state id="B3">
+            <onentry>
+                <raise event="callMethod(HierachicalStateMachine.enterB3)"/>
+            </onentry>
+            <onexit>
+                <raise event="callMethod(HierachicalStateMachine.leftB3)"/>
+            </onexit>
+        </state>
+        <onexit>
+            <raise event="callMethod(HierachicalStateMachine.exitB)"/>
         </onexit>
     </state>
     <final id="Final"/>

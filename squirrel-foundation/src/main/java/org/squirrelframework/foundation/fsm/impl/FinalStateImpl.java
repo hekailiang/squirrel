@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.MutableState;
@@ -142,6 +143,21 @@ final class FinalStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implemen
 
 	@Override
     public ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext) {
+	    return this;
+    }
+
+	@Override
+    public HistoryType getHistoryType() {
+	    return HistoryType.NONE;
+    }
+
+	@Override
+    public void setHistoryType(HistoryType historyType) {
+		throw new UnsupportedOperationException("The final state should never be modified.");
+    }
+
+	@Override
+    public ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext) {
 	    return this;
     }
 }

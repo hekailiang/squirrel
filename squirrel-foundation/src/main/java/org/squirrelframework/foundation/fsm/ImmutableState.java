@@ -52,7 +52,25 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      */
     void entry(StateContext<T, S, E, C> stateContext);
     
+    /**
+	 * Enters this state by its history depending on its
+	 * <code>HistoryType</code>. The <code>Entry</code> method has to be called
+	 * already.
+	 * 
+	 * @param stateContext
+	 *            the state context.
+	 * @return the active state. (depends on this states<code>HistoryType</code>)
+	 */
     ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext);
+    
+    /**
+	 * Enters this state is deep mode: mode if there is one.
+	 * 
+	 * @param stateContext
+	 *            the event context.
+	 * @return the active state.
+	 */
+    ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext);
     
     /**
      * Enters this state is shallow mode: The entry action is executed and the
@@ -95,4 +113,6 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      * @return hierarchy state level
      */
     int getLevel();
+    
+    HistoryType getHistoryType();
 }

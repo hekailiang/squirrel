@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,18 +22,22 @@ import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 public class HierarchicalStateMachineTest {
 	
 	public enum HState {
-		A, A1, A1a, A1a1, A2, A3, B, B1, B2, B3
+		A, A1, A1a, A1a1, A2, A2a, A3, B, B1, B2, B2a, B3
 	}
 	
 	public enum HEvent {
-		A2B, A12A2, A12A3, A12A1a, A12A1a1, A1a12A1, A1a2A1a1, A1a12A1a, A32A1, A12B3, B12B2, B22A
+		A2B, A12A2, A12A3, A12A1a, A12A1a1, A1a12A1, A1a2A1a1, A1a12A1a, A32A1, A12B3, A22A2a, B12B2, B22B2a, B22A, B2A
 	}
 	
 	@States({
 		@State(parent="A", name="A3", entryCallMethod="enterA3", exitCallMethod="leftA3"), 
 		@State(parent="B", name="B3", entryCallMethod="enterB3", exitCallMethod="leftB3"),
 		@State(parent="A1", name="A1a", entryCallMethod="enterA1a", exitCallMethod="leftA1a"),
-		@State(parent="A1a", name="A1a1", entryCallMethod="enterA1a1", exitCallMethod="leftA1a1")
+		@State(parent="A1a", name="A1a1", entryCallMethod="enterA1a1", exitCallMethod="leftA1a1"),
+		@State(name="A2", historyType=HistoryType.DEEP),
+		@State(parent="A2", name="A2a", entryCallMethod="enterA2a", exitCallMethod="leftA2a"),
+		@State(name="B2", historyType=HistoryType.DEEP),
+		@State(parent="B2", name="B2a", entryCallMethod="enterB2a", exitCallMethod="leftB2a"),
 		})
 	@Transitions({
 		@Transit(from="A1", to="A3", on="A12A3", callMethod="transitA12A3"), 
@@ -42,7 +47,9 @@ public class HierarchicalStateMachineTest {
 		@Transit(from="A1a1", to="A1", on="A1a12A1", callMethod="transitA1a12A1"),
 		@Transit(from="A1", to="A1a", on="A12A1a", callMethod="transitA12A1a"),
 		@Transit(from="A1a", to="A1a1", on="A1a2A1a1", callMethod="transitA1a2A1a1", type=TransitionType.LOCAL),
-		@Transit(from="A1a1", to="A1a", on="A1a12A1a", callMethod="transitA1a12A1a", type=TransitionType.LOCAL)
+		@Transit(from="A1a1", to="A1a", on="A1a12A1a", callMethod="transitA1a12A1a", type=TransitionType.LOCAL),
+		@Transit(from="A2", to="A2a", on="A22A2a", callMethod="transitA22A2a", type=TransitionType.LOCAL),
+		@Transit(from="B2", to="B2a", on="B22B2a", callMethod="transitB22B2a", type=TransitionType.LOCAL),
 		})
 	static class HierachicalStateMachine extends AbstractStateMachine<HierachicalStateMachine, HState, HEvent, Integer> {
 		
@@ -145,6 +152,11 @@ public class HierarchicalStateMachineTest {
 			logger.append("exitB2");
 		}
 		
+		public void transitFromBToAOnB2A(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitFromBToAOnB2A");
+		}
+		
 		public void transitFromB1ToB2OnB12B2(HState from, HState to, HEvent event, Integer context) {
 			addOptionalDot();
 			logger.append("transitFromB1ToB2OnB12B2");
@@ -235,6 +247,36 @@ public class HierarchicalStateMachineTest {
 			logger.append("transitA1a2A1a1");
 		}
 		
+		public void enterA2a(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterA2a");
+		}
+		
+		public void leftA2a(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("leftA2a");
+		}
+		
+		public void transitA22A2a(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitA22A2a");
+		}
+		
+		public void enterB2a(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterB2a");
+		}
+		
+		public void leftB2a(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("leftB2a");
+		}
+		
+		public void transitB22B2a(HState from, HState to, HEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitB22B2a");
+		}
+		
 		private void addOptionalDot() {
 			if (logger.length() > 0) {
 				logger.append('.');
@@ -257,17 +299,25 @@ public class HierarchicalStateMachineTest {
         ConverterProvider.INSTANCE.register(HState.class, new Converter.EnumConverter<HState>(HState.class));
 	}
 	
+	@After
+	public void teardown() {
+		if(stateMachine.getStatus()!=StateMachineStatus.TERMINATED)
+			stateMachine.terminate();
+	}
+	
+	
 	@Before
     public void setup() {
 		StateMachineBuilder<HierachicalStateMachine, HState, HEvent, Integer> builder = 
 				StateMachineBuilderImpl.newStateMachineBuilder(
 						HierachicalStateMachine.class, HState.class, HEvent.class, Integer.class, new Class<?>[0]);
 		builder.externalTransition().from(HState.A).to(HState.B).on(HEvent.A2B);
+		builder.externalTransition().from(HState.B).to(HState.A).on(HEvent.B2A);
 		
-		builder.defineHierachyOn(HState.A, HState.A1, HState.A2);
+		builder.defineHierachyOn(HState.A, HistoryType.DEEP, HState.A1, HState.A2);
 		builder.externalTransition().from(HState.A1).to(HState.A2).on(HEvent.A12A2);
 		
-		builder.defineHierachyOn(HState.B, HState.B1, HState.B2);
+		builder.defineHierachyOn(HState.B, HistoryType.SHALLOW, HState.B1, HState.B2);
 		builder.externalTransition().from(HState.B1).to(HState.B2).on(HEvent.B12B2);
 		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);		
 		
@@ -292,12 +342,13 @@ public class HierarchicalStateMachineTest {
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitB1.transitFromB1ToB2OnB12B2.entryB2")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B2)));
 		
-		stateMachine.fire(HEvent.B22A, 1);
-		assertThat(stateMachine.consumeLog(), is(equalTo("exitB2.exitB.transitFromB2ToAOnB22A.entryA.entryA1")));
-		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
+		stateMachine.fire(HEvent.B22A, 1); 
+		// enter A2 by history
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitB2.exitB.transitFromB2ToAOnB22A.entryA.entryA2")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A2)));
 		
 		stateMachine.terminate();
-		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.exitA")));
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA2.exitA")));
 	}
 	
 	@Test
@@ -309,8 +360,6 @@ public class HierarchicalStateMachineTest {
 		stateMachine.fire(HEvent.A32A1, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("leftA3.transitA32A1.entryA1")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
-		
-		stateMachine.terminate();
 	}
 	
 	@Test
@@ -318,7 +367,6 @@ public class HierarchicalStateMachineTest {
 		stateMachine.fire(HEvent.A12B3, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("entryA.entryA1.exitA1.exitA.transitA12B3.entryB.enterB3")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B3)));
-		stateMachine.terminate();
 	}
 	
 	@Test
@@ -334,8 +382,6 @@ public class HierarchicalStateMachineTest {
 		stateMachine.fire(HEvent.A1a12A1, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("leftA1a1.leftA1a.exitA1.transitA1a12A1.entryA1")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
-		
-		stateMachine.terminate();
 	}
 	
 	@Test
@@ -352,8 +398,53 @@ public class HierarchicalStateMachineTest {
 		stateMachine.fire(HEvent.A1a12A1a, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("leftA1a1.transitA1a12A1a")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1a)));
+	}
+	
+	@Test
+	public void testParentTransition() {
+		stateMachine.start();
+		stateMachine.consumeLog();
+		stateMachine.fire(HEvent.A12A1a1, 1);
+		stateMachine.consumeLog();
+		stateMachine.fire(HEvent.A12B3, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("leftA1a1.leftA1a.exitA1.exitA.transitA12B3.entryB.enterB3")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B3)));
+	}
+	
+	@Test
+	public void testDeepHistoryState() {
+		stateMachine.start();
+		stateMachine.consumeLog();
+		stateMachine.fire(HEvent.A12A2, 1);
+		stateMachine.consumeLog();
+		stateMachine.fire(HEvent.A22A2a, 1);
+		stateMachine.consumeLog();
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A2a)));
 		
-		stateMachine.terminate();
+		stateMachine.fire(HEvent.A2B, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("leftA2a.exitA2.exitA.transitFromAToBOnA2B.entryB.entryB1")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B1)));
+		
+		stateMachine.fire(HEvent.B2A, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitB1.exitB.transitFromBToAOnB2A.entryA.entryA2.enterA2a")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A2a)));
+	}
+	
+	@Test
+	public void testShallowHistoryState() {
+		stateMachine.fire(HEvent.A2B, 1);
+		stateMachine.fire(HEvent.B12B2, 1);
+		stateMachine.fire(HEvent.B22B2a, 1);
+		stateMachine.consumeLog();
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B2a)));
+		
+		stateMachine.fire(HEvent.B2A, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("leftB2a.exitB2.exitB.transitFromBToAOnB2A.entryA.entryA1")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
+		
+		stateMachine.fire(HEvent.A2B, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.exitA.transitFromAToBOnA2B.entryB.entryB2")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B2)));
 	}
 	
 	@Test

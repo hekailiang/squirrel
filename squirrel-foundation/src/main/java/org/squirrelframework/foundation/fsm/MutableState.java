@@ -21,4 +21,6 @@ public interface MutableState<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void setChildInitialState(MutableState<T, S, E, C> childInitialState);
     
     void setLevel(int level);
+    
+    void setHistoryType(HistoryType historyType);
 }

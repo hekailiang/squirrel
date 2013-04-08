@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Actions;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.MutableState;
@@ -40,12 +41,26 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     
     private final LinkedListMultimap<E, ImmutableTransition<T, S, E, C>> transitions = LinkedListMultimap.create();
     
+    /**
+	 * The super-state of this state. Null for states with <code>level</code> equal to 1.
+	 */
     private MutableState<T, S, E, C> parentState;
     
     private List<MutableState<T, S, E, C>> childStates;
     
+    /**
+	 * The initial child state of this state.
+	 */
     private MutableState<T, S, E, C> childInitialState;
-
+    
+    /**
+	 * The HistoryType of this state.
+	 */
+	private HistoryType historyType = HistoryType.NONE;
+	
+	/**
+	 * The level of this state within the state hierarchy [1..maxLevel].
+	 */
     private int level = 0;
     
     StateImpl(S stateId) {
@@ -120,14 +135,47 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     
     @Override
     public ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext) {
-    	return enterHistoryNone(stateContext);
+    	ImmutableState<T, S, E, C> result = null;
+    	switch (this.historyType) {
+		case NONE:
+			result = enterHistoryNone(stateContext);
+			break;
+		case SHALLOW:
+			result = enterHistoryShallow(stateContext);
+			break;
+		case DEEP:
+			result = enterHistoryDeep(stateContext);
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown HistoryType : " + historyType);
+		}
+    	return result;
     }
+    
+    @Override
+	public ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext) {
+		this.entry(stateContext);
+		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
+		return lastActiveState == null ? this : lastActiveState.enterDeep(stateContext);
+	}
     
     @Override
     public ImmutableState<T, S, E, C> enterShallow(StateContext<T, S, E, C> stateContext) {
 	    entry(stateContext);
 	    return childInitialState!=null ? childInitialState.enterShallow(stateContext) : this;
     }
+    
+    /**
+	 * Enters this instance with history type = shallow.
+	 * 
+	 * @param stateContext
+	 *            state context
+	 * @return the entered state
+	 */
+	private ImmutableState<T, S, E, C> enterHistoryShallow(StateContext<T, S, E, C> stateContext) {
+		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
+		return lastActiveState != null ? lastActiveState.enterShallow(stateContext) : this;
+	}
     
     /**
 	 * Enters with history type = none.
@@ -139,6 +187,19 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 	private ImmutableState<T, S, E, C> enterHistoryNone(StateContext<T, S, E, C> stateContext) {
 		return childInitialState != null ? childInitialState.enterShallow(stateContext) : this;
 	}
+	
+	/**
+	 * Enters this instance with history type = deep.
+	 * 
+	 * @param stateContext
+	 *            the state context.
+	 * @return the state
+	 */
+	private ImmutableState<T, S, E, C> enterHistoryDeep(
+			final StateContext<T, S, E, C> stateContext) {
+		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
+		return lastActiveState != null ? lastActiveState.enterDeep(stateContext) : this;
+	}
     
     @Override
     public void exit(StateContext<T, S, E, C> stateContext) {
@@ -146,6 +207,10 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
             exitAction.execute(stateId, null, stateContext.getEvent(), 
                     stateContext.getContext(), stateContext.getStateMachine());
         }
+        // update historical state 
+        if (parentState != null && parentState.getHistoryType()!=HistoryType.NONE) {
+			stateContext.setLastActiveChildState(parentState, this);
+		}
         logger.debug("State \""+stateId+"\" exit.");
     }
 
@@ -245,5 +310,15 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 			if(!childStates.contains(childState))
 				childStates.add(childState);
 		}
+    }
+
+	@Override
+    public HistoryType getHistoryType() {
+	    return historyType;
+    }
+
+	@Override
+    public void setHistoryType(HistoryType historyType) {
+	    this.historyType = historyType;
     }
 }

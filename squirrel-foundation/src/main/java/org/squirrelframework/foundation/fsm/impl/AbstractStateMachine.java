@@ -20,6 +20,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * The Abstract state machine provide several extension ability to cover different extension granularity. 
@@ -56,6 +57,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private boolean autoStart = true;
     
     private final LinkedList<Pair<E, C>> queuedEvents = Lists.newLinkedList();
+    
+    private final Map<S, S> parentChildStateHierarchyStore = Maps.newHashMap();
     
     public AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states, 
             T parent, Class<?> type, boolean isLeaf) {
@@ -254,6 +257,16 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public StateMachineStatus getStatus() {
         return status;
+    }
+    
+    @Override
+    public S getLastActiveChildStateOf(S parentStateId) {
+    	return parentChildStateHierarchyStore.get(parentStateId);
+    }
+    
+    @Override
+    public void setLastActiveChildState(S parentStateId, S childStateId) {
+    	parentChildStateHierarchyStore.put(parentStateId, childStateId);
     }
 
     @Override

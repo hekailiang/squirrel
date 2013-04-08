@@ -4,22 +4,6 @@ import org.squirrelframework.foundation.data.HierarchyItem;
 
 public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends HierarchyItem<T, Object>, Visitable<T, S, E, C> {
     
-    public static final int TRANSITION_NOT_STARTED = -1;
-    
-    public static final int TRANSITION_INITIALIED = 0;
-    
-    public static final int TRANSITION_STARTED = 1;
-    
-    public static final int CHILD_STATES_EXITED = 2;
-    
-    public static final int STATE_EXITED = 3;
-    
-    public static final int TRANSITION_DONE = 4;
-    
-    public static final int STATE_ENTERED = 5;
-    
-    public static final int TRANSITION_FINALIZED = 6;
-    
     void fire(E event, C context);
     
     S getCurrentState();
@@ -27,6 +11,10 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     ImmutableState<T, S, E, C> getRawStateFrom(S state);
     
     ImmutableState<T, S, E, C> getCurrentRawState();
+    
+    S getLastActiveChildStateOf(S parentStateId);
+    
+    void setLastActiveChildState(S parentStateId, S childStateId);
     
     S getInitialState();
     

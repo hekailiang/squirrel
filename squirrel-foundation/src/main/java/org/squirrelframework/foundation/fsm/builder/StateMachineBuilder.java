@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm.builder;
 
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
@@ -16,13 +17,21 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C> {
 	
 	/**
-	 * Start to build external transition.
+	 * Start to build external transition
 	 * @return External transition builder
 	 */
     ExternalTransitionBuilder<T, S, E, C> externalTransition();
     
+    /**
+     * Start to build local transition
+     * @return Local transition builder
+     */
     LocalTransitionBuilder<T, S, E, C> localTransition();
     
+    /**
+     * Start to build internal transition
+     * @return Internal transition builder
+     */
     InternalTransitionBuilder<T, S, E, C> internalTransition();
     
     /**
@@ -32,13 +41,17 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     MutableState<T, S, E, C> defineState(S stateId);
     
+    
+    void defineHierachyOn(S parentStateId, S... childStateIds);
+    
     /**
      * Define hierarchy states on parent state
      * 
-     * @param parentStateId id of parent state.
+     * @param parentStateId id of parent state
+     * @param historyType history type of parent state
      * @param childStateIds child states id of parent state. The first child state will be used as initial child state of parent state.
      */
-    void defineHierachyOn(S parentStateId, S... childStateIds);
+    void defineHierachyOn(S parentStateId, HistoryType historyType, S... childStateIds);
     
     /**
      * Define on entry actions for state
@@ -48,7 +61,7 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     EntryExitActionBuilder<T, S, E, C> onEntry(S stateId);
     
     /**
-     * Define on exit actions for state.
+     * Define on exit actions for state
      * @param stateId the id of state
      * @return the builder to build state on exit actions
      */

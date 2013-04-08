@@ -19,6 +19,7 @@ import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.MutableState;
@@ -30,13 +31,13 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
+import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.From;
 import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.On;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.builder.To;
-import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.When;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -269,6 +270,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         S stateId = stateConverter.convertFromString(state.name());
         Preconditions.checkNotNull(stateId);
         MutableState<T, S, E, C> newState = defineState(stateId);
+        newState.setHistoryType(state.historyType());
         
         if(!Strings.isNullOrEmpty(state.parent())) {
         	S parentStateId = stateConverter.convertFromString(parseStateId(state.parent()));
@@ -481,9 +483,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
-    public void defineHierachyOn(S parentStateId, S... childStateIds) {
+    public void defineHierachyOn(S parentStateId, HistoryType historyType, S... childStateIds) {
     	if(childStateIds!=null && childStateIds.length>0) {
     		MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
+    		parentState.setHistoryType(historyType);
     		for(int i=0, size=childStateIds.length; i<size; ++i) {
     			MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
     			if(i==0) { parentState.setChildInitialState(childState); }
@@ -491,6 +494,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     			parentState.addChildState(childState);
     		}
     	}
+    }
+    
+    @Override
+    public void defineHierachyOn(S parentStateId, S... childStateIds) {
+    	defineHierachyOn(parentStateId, HistoryType.NONE, childStateIds);
     }
 
     @Override

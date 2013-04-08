@@ -6,6 +6,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.squirrelframework.foundation.fsm.HistoryType;
+
 @Target({TYPE})
 @Retention(RUNTIME)
 public @interface State {
@@ -15,4 +17,5 @@ public @interface State {
     String entryCallMethod() default "";
     String exitCallMethod() default "";
     boolean initialState() default false;
+    HistoryType historyType() default HistoryType.NONE;
 }
