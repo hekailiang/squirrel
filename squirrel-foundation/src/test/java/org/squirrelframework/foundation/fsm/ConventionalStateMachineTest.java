@@ -3,6 +3,8 @@ package org.squirrelframework.foundation.fsm;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.squirrelframework.foundation.fsm.TestEvent.InternalA;
+import static org.squirrelframework.foundation.fsm.TestEvent.Started;
+import static org.squirrelframework.foundation.fsm.TestEvent.Terminated;
 import static org.squirrelframework.foundation.fsm.TestEvent.ToB;
 import static org.squirrelframework.foundation.fsm.TestEvent.ToC;
 import static org.squirrelframework.foundation.fsm.TestEvent.ToD;
@@ -60,7 +62,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         void afterTransitionCausedException(Exception e, int transitionStatus, TestState fromState, 
                 TestState toState, TestEvent event, Integer context);
         
-        void terminate();
+        void terminateWithoutExitStates();
     }
     
     @SuppressWarnings("serial")
@@ -194,9 +196,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         }
         
         @Override
-        public void terminate() {
-            super.terminate();
-            monitor.terminate();
+        public void terminateWithoutExitStates() {
+            super.terminateWithoutExitStates();
+            monitor.terminateWithoutExitStates();
         }
     }
     
@@ -320,9 +322,19 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(D, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).exitD(D, null, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).transitFromDToFinalOnToEnd(D, Final, ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(1)).terminate();
+        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates();
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(D, Final, ToEnd, null);
         
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
+    }
+    
+    
+    @Test
+    public void testDeclaredEventType() {
+    	InOrder callSequence = Mockito.inOrder(monitor);
+    	stateMachine.start();
+    	callSequence.verify(monitor, Mockito.times(1)).entryA(null, A, Started, null);
+    	stateMachine.terminate();
+    	callSequence.verify(monitor, Mockito.times(1)).exitA(A, null, Terminated, null);
     }
 }

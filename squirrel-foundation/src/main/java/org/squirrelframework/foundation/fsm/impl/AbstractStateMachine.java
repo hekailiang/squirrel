@@ -60,6 +60,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private final Map<S, S> parentChildStateHierarchyStore = Maps.newHashMap();
     
+    private E startEvent, finishEvent, terminateEvent;
+    
     public AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
         this.initialState = initialState;
         this.currentState = initialState;
@@ -203,7 +205,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	
     	status = StateMachineStatus.IDLE;
         StateContext<T, S, E, C> stateContext = 
-                FSM.newStateContext(getCurrent(), getCurrentRawState(), getInitialEvent(), getInitialContext());
+                FSM.newStateContext(getCurrent(), getCurrentRawState(), getStartEvent(), getStartContext());
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
         execute();
@@ -235,14 +237,24 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 
     @Override
     public void terminate() {
+    	terminate(true);
+    }
+    
+    @Override
+    public void terminateWithoutExitStates() {
+    	terminate(false);
+    }
+    
+    public void terminate(boolean exitStates) {
     	if(isTerminiated()) {
             return;
         }
         
-        StateContext<T, S, E, C> stateContext = 
-                FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), getTerminateContext());
-        exitAll(getCurrentRawState(), stateContext);
-        
+    	if(exitStates) {
+    		StateContext<T, S, E, C> stateContext = 
+                    FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), getTerminateContext());
+            exitAll(getCurrentRawState(), stateContext);
+    	}
         currentState = initialState;
         status = StateMachineStatus.TERMINATED;
         fireEvent(new TerminateEventImpl<T, S, E, C>(getCurrent()));
@@ -271,20 +283,37 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         visitor.visitOnExit(this);
     }
     
-    protected E getInitialEvent() {
+    public void setStartEvent(E startEvent) {
+    	this.startEvent=startEvent;
+    }
+    
+    public E getStartEvent() {
+    	return startEvent;
+    }
+    
+    public C getStartContext() {
     	return null;
     }
     
-    protected C getInitialContext() {
+    
+    public void setTerminateEvent(E terminateEvent) {
+    	this.terminateEvent=terminateEvent;
+    }
+    
+    public E getTerminateEvent() {
+    	return terminateEvent;
+    }
+    
+    public C getTerminateContext() {
     	return null;
     }
     
-    protected E getTerminateEvent() {
-    	return null;
+    public void setFinishEvent(E finishEvent) {
+    	this.finishEvent=finishEvent;
     }
     
-    protected C getTerminateContext() {
-    	return null;
+    public E getFinishEvent() {
+    	return finishEvent;
     }
     
     // leverage bridge method to call the method of actual listener

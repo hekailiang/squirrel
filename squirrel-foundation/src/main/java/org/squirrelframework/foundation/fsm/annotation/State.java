@@ -17,5 +17,6 @@ public @interface State {
     String entryCallMethod() default "";
     String exitCallMethod() default "";
     boolean initialState() default false;
+    boolean isFinal() default false;
     HistoryType historyType() default HistoryType.NONE;
 }

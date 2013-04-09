@@ -191,8 +191,8 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     	} else {
     		unwindSubStates(stateContext.getSourceState(), stateContext);
     		doTransit(getSourceState(), getTargetState(), stateContext);
-    		newState = getTargetState().isFinal() ? getTargetState() : 
-    			getTargetState().enterByHistory(stateContext);
+    		newState = getTargetState().isFinal() ? getTargetState().getParentState()==null ? 
+    				getTargetState() : getTargetState().getParentState() : getTargetState().enterByHistory(stateContext);
     	}
 	    return TransitionResultImpl.newResult(true, newState);
     }

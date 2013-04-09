@@ -69,7 +69,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 TestState toState, TestEvent event, Integer context);
 
         void start();
-        void terminate();
+        void terminateWithoutExitStates();
     }
 
     static class ExcellentCondition implements Condition<Integer> {
@@ -204,9 +204,9 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         }
 
         @Override
-        public void terminate() {
-            super.terminate();
-            monitor.terminate();
+        public void terminateWithoutExitStates() {
+            super.terminateWithoutExitStates();
+            monitor.terminateWithoutExitStates();
         }
     }
 
@@ -355,7 +355,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 TestState.D, null, TestEvent.ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).fromStateDToFinalOnToEnd(
                 TestState.D, TestState.Final, TestEvent.ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(1)).terminate();
+        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates();
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
                 TestState.D, TestState.Final, TestEvent.ToEnd, null);
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));

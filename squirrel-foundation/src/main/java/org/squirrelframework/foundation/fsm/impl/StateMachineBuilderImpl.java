@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm.impl;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
+import org.squirrelframework.foundation.fsm.EventKind;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
@@ -24,6 +26,7 @@ import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -70,6 +73,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private Map<String, String> stateAliasToDescription = null;
     
+    private E startEvent, finishEvent, terminateEvent;
+    
     private StateMachineBuilderImpl(Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
         Preconditions.checkArgument(isInstantiableType(stateMachineClazz), "The state machine class \""
@@ -81,6 +86,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.stateMachineClazz = stateMachineClazz;
         this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
+        
+        initailEvents(eventClazz);
 //        this.stateClazz = stateClazz;
 //        this.eventClazz = eventClazz;
 //        this.contextClazz = contextClazz;
@@ -89,6 +96,25 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.contructor = ReflectUtils.getConstructor(stateMachineClazz, constParamTypes);
     }
     
+    private void initailEvents(Class<E> eventClazz) {
+    	Field[]  fields = ReflectUtils.getAnnotatedFields(eventClazz, EventType.class);
+        if(fields==null || fields.length<1) return;
+        
+        for(Field field : fields) {
+    		if(eventClazz.isAssignableFrom(field.getType()) && Modifier.isStatic(field.getModifiers())) {
+    			EventType eventType = field.getAnnotation(EventType.class);
+    			E event = eventClazz.cast(ReflectUtils.getStatic(field));
+    			if(eventType.value()==EventKind.START) {
+    				startEvent = event;
+    			} else if(eventType.value()==EventKind.FINISH) {
+    				finishEvent = event;
+    			} else if(eventType.value()==EventKind.TERMINATE) {
+    				terminateEvent = event;
+    			} 
+    		}
+    	}
+    }
+     
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
@@ -213,7 +239,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ?
         			FSM.newLocalTransitionBuilder(states) : FSM.newExternalTransitionBuilder(states);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
-            toBuilder = transit.isTargetFinal() ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
+            boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinal();
+            toBuilder = isTargetFinal ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
         } 
         On<T, S, E, C> onBuilder = toBuilder.on(event);
         Condition<C> c = null;
@@ -250,6 +277,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         Preconditions.checkNotNull(stateId);
         MutableState<T, S, E, C> newState = defineState(stateId);
         newState.setHistoryType(state.historyType());
+        newState.setFinal(state.isFinal());
         
         if(!Strings.isNullOrEmpty(state.parent())) {
         	S parentStateId = stateConverter.convertFromString(parseStateId(state.parent()));
@@ -443,7 +471,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(extraParams!=null) {
             System.arraycopy(extraParams, 0, parameters, 2, extraParams.length);
         }
-        return postProcessStateMachine((Class<T>)stateMachineClazz, ReflectUtils.newInstance(contructor, parameters));
+        T stateMachine = postProcessStateMachine((Class<T>)stateMachineClazz, ReflectUtils.newInstance(contructor, parameters));
+        ((AbstractStateMachine<T, S, E, C>)stateMachine).setStartEvent(startEvent);
+        ((AbstractStateMachine<T, S, E, C>)stateMachine).setFinishEvent(finishEvent);
+        ((AbstractStateMachine<T, S, E, C>)stateMachine).setTerminateEvent(terminateEvent);
+        return stateMachine;
     }
     
     private T postProcessStateMachine(Class<T> clz, T component) {

@@ -23,6 +23,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     void terminate();
     
+    void terminateWithoutExitStates();
+    
     StateMachineStatus getStatus();
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {

@@ -23,4 +23,6 @@ public interface MutableState<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void setLevel(int level);
     
     void setHistoryType(HistoryType historyType);
+    
+    void setFinal(boolean isFinal);
 }

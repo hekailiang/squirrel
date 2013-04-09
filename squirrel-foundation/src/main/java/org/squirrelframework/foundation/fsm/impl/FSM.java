@@ -36,11 +36,6 @@ final class FSM {
                 new Class[] { Object.class }, new Object[] { stateId });
     }
     
-    static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> newFinalState(S stateId) {
-    	return SquirrelProvider.getInstance().newInstance(new TypeReference<FinalStateImpl<T, S, E, C>>() {}, 
-    			new Class[] { Object.class }, new Object[] { stateId });
-    }
-
     static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> getState(
             Map<S, MutableState<T, S, E, C>> states, S stateId) {
         MutableState<T, S, E, C> state = states.get(stateId);
