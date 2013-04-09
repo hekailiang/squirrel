@@ -206,7 +206,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 FSM.newStateContext(getCurrent(), getCurrentRawState(), getInitialEvent(), getInitialContext());
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
-        
+        execute();
         fireEvent(new StartEventImpl<T, S, E, C>(getCurrent()));
     }
     
@@ -246,7 +246,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         currentState = initialState;
         status = StateMachineStatus.TERMINATED;
         fireEvent(new TerminateEventImpl<T, S, E, C>(getCurrent()));
-        
     }
     
     private void exitAll(ImmutableState<T, S, E, C> current, StateContext<T, S, E, C> stateContext) {
@@ -272,13 +271,21 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         visitor.visitOnExit(this);
     }
     
-    abstract protected E getInitialEvent();
+    protected E getInitialEvent() {
+    	return null;
+    }
     
-    abstract protected C getInitialContext();
+    protected C getInitialContext() {
+    	return null;
+    }
     
-    abstract protected E getTerminateEvent();
+    protected E getTerminateEvent() {
+    	return null;
+    }
     
-    abstract protected C getTerminateContext();
+    protected C getTerminateContext() {
+    	return null;
+    }
     
     // leverage bridge method to call the method of actual listener
     private static final Method STATEMACHINE_EVENT_METHOD = 

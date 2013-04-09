@@ -133,12 +133,9 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
 	 * </ul>
 	 * </ul>
 	 * 
-	 * @param source
-	 *            the source state
-	 * @param target
-	 *            the target state
-	 * @param stateContext
-	 *            the state context
+	 * @param source the source state
+	 * @param target the target state
+	 * @param stateContext the state context
 	 */
     private void doTransitInternal(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {
 		if (source == this.getTargetState()) {
@@ -194,7 +191,8 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     	} else {
     		unwindSubStates(stateContext.getSourceState(), stateContext);
     		doTransit(getSourceState(), getTargetState(), stateContext);
-    		newState = getTargetState().enterByHistory(stateContext);
+    		newState = getTargetState().isFinal() ? getTargetState() : 
+    			getTargetState().enterByHistory(stateContext);
     	}
 	    return TransitionResultImpl.newResult(true, newState);
     }

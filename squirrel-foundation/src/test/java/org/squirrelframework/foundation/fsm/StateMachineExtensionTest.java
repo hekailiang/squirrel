@@ -10,6 +10,7 @@ import static org.squirrelframework.foundation.fsm.TestState.A;
 import static org.squirrelframework.foundation.fsm.TestState.B;
 import static org.squirrelframework.foundation.fsm.TestState.C;
 import static org.squirrelframework.foundation.fsm.TestState.D;
+import static org.squirrelframework.foundation.fsm.TestState.Final;
 
 import java.util.Map;
 
@@ -19,9 +20,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -173,26 +171,6 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         protected void exitD(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.exitD(from, to, event, context);
         }
-
-        @Override
-        protected TestEvent getInitialEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getInitialContext() {
-            return 0;
-        }
-
-        @Override
-        protected TestEvent getTerminateEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getTerminateContext() {
-            return -1;
-        }
     }
     
     @Mock
@@ -207,7 +185,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
                 StateMachineBuilderImpl.<DeclarativeStateMachine, TestState, TestEvent, Integer>
                 newStateMachineBuilder(StateMachineImpl.class, TestState.class, 
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
-        builder.externalTransition().from(D).toFinal().on(ToEnd);
+        builder.externalTransition().from(D).toFinal(Final).on(ToEnd);
         stateMachine = builder.newStateMachine(A, monitor);
     }
     

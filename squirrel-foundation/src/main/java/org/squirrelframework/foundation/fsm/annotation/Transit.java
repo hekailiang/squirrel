@@ -16,8 +16,10 @@ public @interface Transit {
     String from();
 
     String to();
-
+    
     String on();
+    
+    boolean isTargetFinal() default false;
 
     @SuppressWarnings("rawtypes")
     Class<? extends Condition> when() default Conditions.Always.class;

@@ -22,9 +22,6 @@ final class FSM {
     private FSM() {
     }
 
-    @SuppressWarnings("rawtypes")
-    static ImmutableState FINAL_STATE = new FinalStateImpl();
-
     static <T extends StateMachine<T, S, E, C>, S, E, C> StateContext<T, S, E, C> newStateContext(
             T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context) {
         return new StateContextImpl<T, S, E, C>(stateMachine, sourceState, event, context);
@@ -37,6 +34,11 @@ final class FSM {
     static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> newState(S stateId) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<StateImpl<T, S, E, C>>() {}, 
                 new Class[] { Object.class }, new Object[] { stateId });
+    }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> newFinalState(S stateId) {
+    	return SquirrelProvider.getInstance().newInstance(new TypeReference<FinalStateImpl<T, S, E, C>>() {}, 
+    			new Class[] { Object.class }, new Object[] { stateId });
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> getState(

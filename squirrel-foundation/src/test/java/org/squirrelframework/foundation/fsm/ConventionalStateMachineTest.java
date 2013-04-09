@@ -11,6 +11,7 @@ import static org.squirrelframework.foundation.fsm.TestState.A;
 import static org.squirrelframework.foundation.fsm.TestState.B;
 import static org.squirrelframework.foundation.fsm.TestState.C;
 import static org.squirrelframework.foundation.fsm.TestState.D;
+import static org.squirrelframework.foundation.fsm.TestState.Final;
 
 import java.util.Map;
 
@@ -20,9 +21,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
@@ -79,26 +77,6 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                 CallSequenceMonitor monitor) {
             super(initialState, states);
             this.monitor = monitor;
-        }
-        
-        @Override
-        protected TestEvent getInitialEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getInitialContext() {
-            return 0;
-        }
-
-        @Override
-        protected TestEvent getTerminateEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getTerminateContext() {
-            return -1;
         }
         
         protected void beforeEntryAny(TestState from, TestState to, TestEvent event, Integer context) {
@@ -249,7 +227,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                 return context!=null && context>=60 && context<=80;
             }
         });
-        builder.externalTransition().from(D).toFinal().on(ToEnd);
+        builder.externalTransition().from(D).toFinal(Final).on(ToEnd);
         stateMachine = builder.newStateMachine(A, monitor);
     }
     
@@ -341,9 +319,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         stateMachine.fire(ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(D, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).exitD(D, null, ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(1)).transitFromDToFinalOnToEnd(D, null, ToEnd, null);
+        callSequence.verify(monitor, Mockito.times(1)).transitFromDToFinalOnToEnd(D, Final, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).terminate();
-        callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(D, null, ToEnd, null);
+        callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(D, Final, ToEnd, null);
         
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
     }

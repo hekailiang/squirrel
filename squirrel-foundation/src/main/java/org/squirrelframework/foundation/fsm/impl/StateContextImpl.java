@@ -43,7 +43,7 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     	if(childStateId!=null) {
     		return stateMachine.getRawStateFrom(childStateId);
     	} else {
-    		return parentState.getChildInitialState();
+    		return parentState.getInitialState();
     	}
     }
     

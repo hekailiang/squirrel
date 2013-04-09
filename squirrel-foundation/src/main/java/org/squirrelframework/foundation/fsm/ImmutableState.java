@@ -95,7 +95,7 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     /**
      * @return initial child state
      */
-    ImmutableState<T, S, E, C> getChildInitialState();
+    ImmutableState<T, S, E, C> getInitialState();
     
     /**
      * Notify transitions when receiving event.

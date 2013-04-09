@@ -64,26 +64,6 @@ public class HierarchicalStateMachineTest {
 	        super(initialState, states);
         }
 
-		@Override
-        protected HEvent getInitialEvent() {
-	        return null;
-        }
-
-		@Override
-        protected Integer getInitialContext() {
-	        return 0;
-        }
-
-		@Override
-        protected HEvent getTerminateEvent() {
-	        return null;
-        }
-
-		@Override
-        protected Integer getTerminateContext() {
-	        return -1;
-        }
-		
 		public void entryA(HState from, HState to, HEvent event, Integer context) {
 			addOptionalDot();
 			logger.append("entryA");

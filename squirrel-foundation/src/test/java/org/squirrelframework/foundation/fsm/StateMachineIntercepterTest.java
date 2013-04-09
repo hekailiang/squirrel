@@ -35,26 +35,6 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
         public void transitFail(TestState from, TestState to, TestEvent event, Integer context) {
             throw new RuntimeException("fail on purpose");
         }
-
-        @Override
-        protected TestEvent getInitialEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getInitialContext() {
-            return 0;
-        }
-
-        @Override
-        protected TestEvent getTerminateEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getTerminateContext() {
-            return -1;
-        }
     }
     
     static class TestStateMachineIntercepter extends AbstractStateMachineIntercepter<DeclarativeStateMachine, TestState, TestEvent, Integer> {

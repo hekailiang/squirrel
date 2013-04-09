@@ -39,7 +39,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         @Transit(from="B", to="#StateC", on="ToC"),
         @Transit(from="C", to="D", on="ToD", when=ExcellentCondition.class),
         @Transit(from="D", to="A", on="ToA", callMethod="transitionWithException"),
-        @Transit(from="D", to="Final", on="ToEnd", callMethod="fromStateDToFinalOnToEnd")
+        @Transit(from="D", to="Final", on="ToEnd", callMethod="fromStateDToFinalOnToEnd", isTargetFinal=true)
     })
     interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> {
         // entry states
@@ -195,26 +195,6 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 TestState toState, TestEvent event, Integer context) {
             super.afterTransitionCausedException(e, fromState, toState, event, context);
             throw new DeclarativeStateMachineException();
-        }
-
-        @Override
-        protected TestEvent getInitialEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getInitialContext() {
-            return 0;
-        }
-
-        @Override
-        protected TestEvent getTerminateEvent() {
-            return null;
-        }
-
-        @Override
-        protected Integer getTerminateContext() {
-            return -1;
         }
 
         @Override
@@ -374,10 +354,10 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).exitStateD(
                 TestState.D, null, TestEvent.ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).fromStateDToFinalOnToEnd(
-                TestState.D, null, TestEvent.ToEnd, null);
+                TestState.D, TestState.Final, TestEvent.ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).terminate();
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
-                TestState.D, null, TestEvent.ToEnd, null);
+                TestState.D, TestState.Final, TestEvent.ToEnd, null);
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
     }
 }

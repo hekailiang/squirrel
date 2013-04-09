@@ -63,8 +63,8 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     @SuppressWarnings("unchecked")
     @Override
-    public To<T, S, E, C> toFinal() {
-        targetState = (MutableState<T, S, E, C>) FSM.FINAL_STATE;
+    public To<T, S, E, C> toFinal(S stateId) {
+        targetState = (MutableState<T, S, E, C>) FSM.newFinalState(stateId);
         return this;
     }
 

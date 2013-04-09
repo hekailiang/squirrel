@@ -213,7 +213,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ?
         			FSM.newLocalTransitionBuilder(states) : FSM.newExternalTransitionBuilder(states);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
-            toBuilder = toState!=null ? fromBuilder.to(toState) : fromBuilder.toFinal();
+            toBuilder = transit.isTargetFinal() ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
         } 
         On<T, S, E, C> onBuilder = toBuilder.on(event);
         Condition<C> c = null;
@@ -257,7 +257,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         	newState.setParentState(parentState);
         	parentState.addChildState(newState);
         	if(state.initialState()) {
-        		parentState.setChildInitialState(newState);
+        		parentState.setInitialState(newState);
         	}
         }
         
@@ -469,7 +469,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     		parentState.setHistoryType(historyType);
     		for(int i=0, size=childStateIds.length; i<size; ++i) {
     			MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
-    			if(i==0) { parentState.setChildInitialState(childState); }
+    			if(i==0) { parentState.setInitialState(childState); }
     			childState.setParentState(parentState);
     			parentState.addChildState(childState);
     		}
