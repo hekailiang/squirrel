@@ -102,21 +102,10 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     
     @Override
     public void entry(StateContext<T, S, E, C> stateContext) {
-    	if(isFinal()) {
-    		if(getParentState()==null) {
-            	stateContext.getStateMachine().terminateWithoutExitStates(stateContext.getContext());
-            } else {
-            	// A child state can be final; when a final child state is entered, the parent state fire the finish context.
-            	AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
-            			stateContext.getStateMachine();
-            	if(abstractStateMachine.getFinishEvent()!=null) {
-            		abstractStateMachine.fire(abstractStateMachine.getFinishEvent(), stateContext.getContext());
-            	} else {
-            		logger.warn("The finished event is not specified.");
-            	}
-            }
-    		logger.debug("Final state entry");
-    	} else {
+    	if(isFinalState() && isRootState()) {
+    		stateContext.getStateMachine().terminateWithoutExitStates(stateContext.getContext());
+    		logger.debug("Final state of state machine entry.");
+    	} else if(!isFinalState()) {
     		for(Action<T, S, E, C> entryAction : getEntryActions()) {
                 entryAction.execute(null, getStateId(), stateContext.getEvent(), 
                         stateContext.getContext(), stateContext.getStateMachine());
@@ -127,10 +116,9 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     
     @Override
     public void exit(StateContext<T, S, E, C> stateContext) {
-    	if(isFinal()) {
+    	if(isFinalState()) {
             throw new UnsupportedOperationException("The final state should never be exited.");
     	}
-    	
         for(Action<T, S, E, C> exitAction : getExitActions()) {
             exitAction.execute(getStateId(), null, stateContext.getEvent(), 
                     stateContext.getContext(), stateContext.getStateMachine());
@@ -299,7 +287,12 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     }
     
     @Override
-    public boolean isFinal() {
+    public boolean isRootState() {
+	    return parentState==null;
+    }
+    
+    @Override
+    public boolean isFinalState() {
         return isFinalState;
     }
     

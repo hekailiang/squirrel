@@ -239,7 +239,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ?
         			FSM.newLocalTransitionBuilder(states) : FSM.newExternalTransitionBuilder(states);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
-            boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinal();
+            boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinalState();
             toBuilder = isTargetFinal ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
         } 
         On<T, S, E, C> onBuilder = toBuilder.on(event);
@@ -357,7 +357,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         return new String[]{
                 "before" + postfix,
-                prefix + ((stateConverter!=null && !state.isFinal()) ? 
+                prefix + ((stateConverter!=null && !state.isFinalState()) ? 
                 stateConverter.convertToString(state.getStateId()) : StringUtils.capitalize(state.toString())),
                 "after" + postfix
         };
@@ -369,7 +369,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         E event = transition.getEvent();
         String fromStateName = stateConverter!=null ? stateConverter.convertToString(fromState.getStateId()) : 
             StringUtils.capitalize(fromState.toString());
-        String toStateName = (stateConverter!=null && !toState.isFinal()) ? 
+        String toStateName = (stateConverter!=null && !toState.isFinalState()) ? 
                 stateConverter.convertToString(toState.getStateId()) : StringUtils.capitalize(toState.toString());
         String eventName = eventConverter!=null ? eventConverter.convertToString(event) : 
             StringUtils.capitalize(event.toString());
@@ -391,7 +391,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private void installExtensionMethods() {
         for(MutableState<T, S, E, C> state : states.values()) {
             // Ignore all the transition start from a final state
-            if(state.isFinal()) continue;
+            if(state.isFinalState()) continue;
             
             // state exit extension method
             String[] exitMethodCallCandidates = getEntryExitStateMethodNames(state, false);

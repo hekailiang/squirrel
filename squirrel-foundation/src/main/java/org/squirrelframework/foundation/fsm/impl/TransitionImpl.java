@@ -191,8 +191,25 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     	} else {
     		unwindSubStates(stateContext.getSourceState(), stateContext);
     		doTransit(getSourceState(), getTargetState(), stateContext);
-    		newState = getTargetState().isFinal() ? getTargetState().getParentState()==null ? 
-    				getTargetState() : getTargetState().getParentState() : getTargetState().enterByHistory(stateContext);
+    		if(getTargetState().isFinalState()) {
+    			if(getTargetState().isRootState()) {
+    				newState = getTargetState();
+    			} else {
+    				ImmutableState<T, S, E, C> parentState = getTargetState().getParentState();
+    				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
+                			stateContext.getStateMachine();
+                	if(abstractStateMachine.getFinishEvent()!=null) {
+                		StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), parentState, 
+                				abstractStateMachine.getFinishEvent(), stateContext.getContext());
+                		TransitionResult<T, S, E, C> finishResult = parentState.internalFire(finishContext);
+                		newState = finishResult.isAccepted() ? finishResult.getTargetState() : parentState;
+                	} else {
+                		newState = parentState; // or parentState.enterByHistory(stateContext);
+                	}
+    			}
+    		} else {
+    			newState = getTargetState().enterByHistory(stateContext);
+    		}
     	}
 	    return TransitionResultImpl.newResult(true, newState);
     }
@@ -211,9 +228,9 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     
     @Override
     public boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type) {
-        if(toState==null && !getTargetState().isFinal())
+        if(toState==null && !getTargetState().isFinalState())
             return false;
-        if(toState!=null && !getTargetState().isFinal() && !getTargetState().getStateId().equals(toState))
+        if(toState!=null && !getTargetState().isFinalState() && !getTargetState().getStateId().equals(toState))
             return false;
         if(!getEvent().equals(event)) 
             return false;

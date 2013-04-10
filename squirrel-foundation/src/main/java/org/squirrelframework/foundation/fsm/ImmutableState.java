@@ -26,6 +26,11 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     S getStateId();
     
     /**
+     * @return whether state is root state
+     */
+    boolean isRootState();
+    
+    /**
      * @return Activities executed when entering the state
      */
     List<Action<T, S, E, C>> getEntryActions();
@@ -107,7 +112,7 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     /**
      * @return whether current state is final state
      */
-    boolean isFinal();
+    boolean isFinalState();
     
     /**
      * @return hierarchy state level
