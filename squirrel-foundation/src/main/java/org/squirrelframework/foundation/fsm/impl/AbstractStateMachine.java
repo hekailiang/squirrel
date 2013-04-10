@@ -3,6 +3,7 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -19,6 +20,7 @@ import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -58,7 +60,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private final LinkedList<Pair<E, C>> queuedEvents = Lists.newLinkedList();
     
-    private final Map<S, S> parentChildStateHierarchyStore = Maps.newHashMap();
+    private final Map<S, S> lastActiveChildStateStore = Maps.newHashMap();
+    
+    private final ArrayListMultimap<S, S> parallelStatesStore = ArrayListMultimap.create();
     
     private E startEvent, finishEvent, terminateEvent;
     
@@ -227,14 +231,62 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S getLastActiveChildStateOf(S parentStateId) {
-    	return parentChildStateHierarchyStore.get(parentStateId);
+    	return lastActiveChildStateStore.get(parentStateId);
     }
     
     @Override
     public void setLastActiveChildState(S parentStateId, S childStateId) {
-    	parentChildStateHierarchyStore.put(parentStateId, childStateId);
+    	lastActiveChildStateStore.put(parentStateId, childStateId);
     }
-
+    
+    @Override
+    public List<S> getSubStatesOn(S parentState) {
+    	if(getRawStateFrom(parentState).isParallelState()) {
+    		return parallelStatesStore.get(parentState);
+    	} 
+    	return Collections.emptyList();
+    }
+    
+    @Override
+    public void setSubState(S parentState, S subState) {
+    	if(getRawStateFrom(parentState)!=null && getRawStateFrom(parentState).isParallelState()) {
+    		parallelStatesStore.put(parentState, subState);
+    	} else {
+    		logger.warn("Cannot set sub states on none parallel state {}."+parentState);
+    	}
+    }
+    
+    @Override
+    public void removeSubState(S parentState, S subState) {
+    	if(getRawStateFrom(parentState)!=null && getRawStateFrom(parentState).isParallelState()) {
+    		parallelStatesStore.remove(parentState, subState);
+    	} else {
+    		logger.warn("Cannot remove sub states on none parallel state {}."+parentState);
+    	}
+    }
+    
+    @Override
+    public void replaceSubState(S parentState, S oldSubState, S newSubState) {
+    	if(getRawStateFrom(parentState)!=null && getRawStateFrom(parentState).isParallelState()) {
+    		int index = parallelStatesStore.get(parentState).indexOf(oldSubState);
+    		if(index>=0) {
+    			parallelStatesStore.get(parentState).set(index, newSubState);
+    		} else {
+    			parallelStatesStore.put(parentState, newSubState);
+    		}
+    		parallelStatesStore.remove(parentState, oldSubState);
+    	} else {
+    		logger.warn("Cannot replace sub states on none parallel state {}."+parentState);
+    	}
+    }
+    
+    @Override
+    public void removeSubStatesOn(S parentState) {
+    	if(getRawStateFrom(parentState).isParallelState()) {
+    		parallelStatesStore.removeAll(parentState);
+    	} 
+    }
+    
     @Override
     public void terminate(C context) {
     	terminate(true, context);

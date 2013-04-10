@@ -52,17 +52,13 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds);
     
-    
-    void defineParallelStatesOn(S parentStateId, S... childStateIds);
-    
     /**
-     * Define sequential child states on parent state
+     * Define sequential child states on parent state. For parallel state the history type always be none.
      * 
      * @param parentStateId id of parent state
-     * @param historyType history type of parent state
      * @param childStateIds child states id of parent state. The first child state will be used as initial child state of parent state.
      */
-    void defineParallelStatesOn(S parentStateId, HistoryType historyType, S... childStateIds);
+    void defineParallelStatesOn(S parentStateId, S... childStateIds);
     
     /**
      * Define on entry actions for state

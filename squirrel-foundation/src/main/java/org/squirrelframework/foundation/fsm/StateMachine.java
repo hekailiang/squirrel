@@ -1,5 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.util.List;
+
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 
@@ -16,6 +18,16 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     S getLastActiveChildStateOf(S parentStateId);
     
     void setLastActiveChildState(S parentStateId, S childStateId);
+    
+    List<S> getSubStatesOn(S parentState);
+    
+    void setSubState(S parentState, S subState);
+    
+    void removeSubState(S parentState, S subState);
+    
+    void removeSubStatesOn(S parentState);
+    
+    void replaceSubState(S parentState, S oldSubState, S newSubState);
     
     S getInitialState();
     

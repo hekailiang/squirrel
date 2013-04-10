@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.squirrelframework.foundation.fsm.HistoryType;
+import org.squirrelframework.foundation.fsm.StateCompositeType;
 
 @Target({TYPE})
 @Retention(RUNTIME)
@@ -19,4 +20,5 @@ public @interface State {
     boolean initialState() default false;
     boolean isFinal() default false;
     HistoryType historyType() default HistoryType.NONE;
+    StateCompositeType compositeType() default StateCompositeType.SEQUENTIAL;
 }

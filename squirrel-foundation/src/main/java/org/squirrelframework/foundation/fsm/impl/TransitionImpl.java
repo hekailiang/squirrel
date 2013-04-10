@@ -189,8 +189,14 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     	if(type==TransitionType.INTERNAL) {
     		newState = transit(stateContext);
     	} else {
-    		unwindSubStates(stateContext.getSourceState(), stateContext);
+    		// exit origin states
+    		// FIXME-hhe: why here???
+    		if(!stateContext.getSourceState().isParallelState()) {
+    			unwindSubStates(stateContext.getSourceState(), stateContext);
+        	}
+    		// perform transition actions
     		doTransit(getSourceState(), getTargetState(), stateContext);
+    		// enter new states
     		if(getTargetState().isFinalState()) {
     			if(getTargetState().isRootState()) {
     				newState = getTargetState();
@@ -207,6 +213,9 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
                 		newState = parentState; // or parentState.enterByHistory(stateContext);
                 	}
     			}
+    		} else if(getTargetState().isParallelState()) {
+    			// parallel state does not has history type
+    			newState = getTargetState();
     		} else {
     			newState = getTargetState().enterByHistory(stateContext);
     		}

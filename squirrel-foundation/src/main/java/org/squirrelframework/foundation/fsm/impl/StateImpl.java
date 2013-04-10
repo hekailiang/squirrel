@@ -116,6 +116,15 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
                 entryAction.execute(null, getStateId(), stateContext.getEvent(), 
                         stateContext.getContext(), stateContext.getStateMachine());
             }
+    		
+    		if(isParallelState()) {
+    			// When a parallel state group is entered, all its child states will be simultaneously entered. 
+    			for(ImmutableState<T, S, E, C> parallelState : getChildStates()) {
+    				parallelState.entry(stateContext);
+    				ImmutableState<T, S, E, C> subState = parallelState.enterByHistory(stateContext);
+    				stateContext.getStateMachine().setSubState(getStateId(), subState.getStateId());
+    			}
+    		}
             logger.debug("State \""+getStateId()+"\" entry.");
     	}
     }
@@ -124,6 +133,14 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     public void exit(StateContext<T, S, E, C> stateContext) {
     	if(isFinalState()) {
             throw new UnsupportedOperationException("The final state should never be exited.");
+    	}
+    	if(isParallelState()) {
+    		for(ImmutableState<T, S, E, C> parallelState : childStates) {
+    			if(!parallelState.isFinalState()) {
+    				parallelState.exit(stateContext);
+    			}
+    		}
+    		stateContext.getStateMachine().removeSubStatesOn(getStateId());
     	}
         for(Action<T, S, E, C> exitAction : getExitActions()) {
             exitAction.execute(getStateId(), null, stateContext.getEvent(), 
@@ -139,6 +156,11 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     @Override
     public ImmutableState<T, S, E, C> getParentState() {
 	    return parentState;
+    }
+    
+    @Override
+    public List<ImmutableState<T, S, E, C>> getChildStates() {
+	    return Lists.<ImmutableState<T, S, E, C>>newArrayList(childStates);
     }
     
     @Override
@@ -161,6 +183,10 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 
 	@Override
     public void setInitialState(MutableState<T, S, E, C> childInitialState) {
+		if(isParallelState()) {
+			logger.warn("Ignoring attempt to set initial state of parallel state group.");
+			return;
+		}
 	    if(this.childInitialState==null) {
 	    	this.childInitialState = childInitialState;
 	    } else {
@@ -230,8 +256,7 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 	 *            the state context.
 	 * @return the state
 	 */
-	private ImmutableState<T, S, E, C> enterHistoryDeep(
-			final StateContext<T, S, E, C> stateContext) {
+	private ImmutableState<T, S, E, C> enterHistoryDeep(StateContext<T, S, E, C> stateContext) {
 		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
 		return lastActiveState != null ? lastActiveState.enterDeep(stateContext) : this;
 	}
@@ -245,7 +270,6 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 	
     @Override
     public MutableTransition<T, S, E, C> addTransitionOn(E event) {
-    	
         MutableTransition<T, S, E, C> newTransition = FSM.newTransition();
         newTransition.setSourceState(this);
         newTransition.setEvent(event);
@@ -276,6 +300,23 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     @Override
     public TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext) {
     	TransitionResult<T, S, E, C> result = TransitionResultImpl.notAccepted();
+    	if(isParallelState()) {
+    		/**
+    		 * The parallelism in the State Machine framework follows an interleaved semantics. 
+    		 * All parallel operations will be executed in a single, atomic step of the event 
+    		 * processing, so no event can interrupt the parallel operations. However, events 
+    		 * will still be processed sequentially, since the machine itself is single threaded.
+    		 */
+    		for(S parallelStateId : stateContext.getStateMachine().getSubStatesOn(getStateId())) {
+    			ImmutableState<T, S, E, C> parallelState = stateContext.getStateMachine().getRawStateFrom(parallelStateId);
+    			TransitionResult<T, S, E, C> subResult = parallelState.internalFire(stateContext); 
+    			if(subResult.isAccepted()) {
+    				stateContext.getStateMachine().replaceSubState(getStateId(), 
+    						parallelState.getStateId(), subResult.getTargetState().getStateId());
+    			}
+    		}
+    	}
+    	
     	List<ImmutableTransition<T, S, E, C>> transitions = getTransitions(stateContext.getEvent());
         for(final ImmutableTransition<T, S, E, C> transition : transitions) {
         	result = transition.internalFire(stateContext);
@@ -285,7 +326,7 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
         }
         
         // fire to super state
-        if(getParentState()!=null) {
+        if(getParentState()!=null && !getParentState().isParallelState()) {
         	logger.debug("Internal notify the same event to parent state");
         	result = getParentState().internalFire(stateContext);
         }
@@ -365,6 +406,11 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 	@Override
     public void setCompositeType(StateCompositeType compositeType) {
 	    this.compositeType =compositeType;
+    }
+	
+	@Override
+    public boolean isParallelState() {
+	    return compositeType==StateCompositeType.PARALLEL;
     }
 	
 	@Override

@@ -96,6 +96,10 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      */
     ImmutableState<T, S, E, C> getParentState();
     
+    /**
+     * @return child states
+     */
+    List<ImmutableState<T, S, E, C>> getChildStates();
     
     /**
      * @return initial child state
@@ -128,4 +132,9 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      * @return child states composite type
      */
     StateCompositeType getCompositeType();
+    
+    /**
+     * @return whether child states composite type is parallel
+     */
+    boolean isParallelState();
 }

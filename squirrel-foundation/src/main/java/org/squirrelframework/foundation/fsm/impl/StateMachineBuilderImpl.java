@@ -115,6 +115,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     		}
     	}
     }
+    
+    public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
+            Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, Class<C> contextClazz) {
+        return newStateMachineBuilder(stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
+    }
      
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
@@ -277,7 +282,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         S stateId = stateConverter.convertFromString(state.name());
         Preconditions.checkNotNull(stateId);
         MutableState<T, S, E, C> newState = defineState(stateId);
-        newState.setHistoryType(state.historyType());
+        newState.setCompositeType(state.compositeType());
+        if(!newState.isParallelState()) {
+        	newState.setHistoryType(state.historyType());
+        }
         newState.setFinal(state.isFinal());
         
         if(!Strings.isNullOrEmpty(state.parent())) {
@@ -285,7 +293,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         	MutableState<T, S, E, C> parentState = defineState(parentStateId);
         	newState.setParentState(parentState);
         	parentState.addChildState(newState);
-        	if(state.initialState()) {
+        	if(!parentState.isParallelState() && state.initialState()) {
         		parentState.setInitialState(newState);
         	}
         }
@@ -510,11 +518,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     	defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, childStateIds);
     }
 
-	@Override
-    public void defineParallelStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
-		defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, historyType, childStateIds);
-    }
-    
     private void defineChildStatesOn(S parentStateId, StateCompositeType compositeType, HistoryType historyType, S... childStateIds) {
     	if(childStateIds!=null && childStateIds.length>0) {
     		MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
@@ -522,7 +525,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     		parentState.setHistoryType(historyType);
     		for(int i=0, size=childStateIds.length; i<size; ++i) {
     			MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
-    			if(i==0) { parentState.setInitialState(childState); }
+    			if(i==0 && compositeType==StateCompositeType.SEQUENTIAL) { 
+    				parentState.setInitialState(childState); 
+    			}
     			childState.setParentState(parentState);
     			parentState.addChildState(childState);
     		}
