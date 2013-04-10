@@ -130,7 +130,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public void fire(E event, C context) {
         if(status==StateMachineStatus.INITIALIZED) {
             if(autoStart) {
-                start();
+                start(context);
             } else {
                 throw new RuntimeException("The state machine is not running.");
             }
@@ -198,14 +198,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 	}
     
     @Override
-    public void start() {
+    public void start(C context) {
     	if(isStarted()) {
             return;
         }
     	
     	status = StateMachineStatus.IDLE;
         StateContext<T, S, E, C> stateContext = 
-                FSM.newStateContext(getCurrent(), getCurrentRawState(), getStartEvent(), getStartContext());
+                FSM.newStateContext(getCurrent(), getCurrentRawState(), getStartEvent(), context);
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
         execute();
@@ -236,23 +236,23 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
 
     @Override
-    public void terminate() {
-    	terminate(true);
+    public void terminate(C context) {
+    	terminate(true, context);
     }
     
     @Override
-    public void terminateWithoutExitStates() {
-    	terminate(false);
+    public void terminateWithoutExitStates(C context) {
+    	terminate(false, context);
     }
     
-    public void terminate(boolean exitStates) {
+    public void terminate(boolean exitStates, C context) {
     	if(isTerminiated()) {
             return;
         }
         
     	if(exitStates) {
     		StateContext<T, S, E, C> stateContext = 
-                    FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), getTerminateContext());
+                    FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), context);
             exitAll(getCurrentRawState(), stateContext);
     	}
         currentState = initialState;
@@ -291,21 +291,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return startEvent;
     }
     
-    public C getStartContext() {
-    	return null;
-    }
-    
-    
     public void setTerminateEvent(E terminateEvent) {
     	this.terminateEvent=terminateEvent;
     }
     
     public E getTerminateEvent() {
     	return terminateEvent;
-    }
-    
-    public C getTerminateContext() {
-    	return null;
     }
     
     public void setFinishEvent(E finishEvent) {

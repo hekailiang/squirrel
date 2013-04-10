@@ -323,7 +323,7 @@ public class HierarchicalStateMachineTest {
 	@After
 	public void teardown() {
 		if(stateMachine.getStatus()!=StateMachineStatus.TERMINATED)
-			stateMachine.terminate();
+			stateMachine.terminate(null);
 	}
 	
 	
@@ -347,7 +347,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
 	public void testBasicHierarchicalState() {
-		stateMachine.start();
+		stateMachine.start(null);
 		assertThat(stateMachine.consumeLog(), is(equalTo("entryA.entryA1")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
 		
@@ -368,7 +368,7 @@ public class HierarchicalStateMachineTest {
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitB2.exitB.transitFromB2ToAOnB22A.entryA.entryA2")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A2)));
 		
-		stateMachine.terminate();
+		stateMachine.terminate(null);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA2.exitA")));
 	}
 	
@@ -392,7 +392,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
 	public void testExternalTransitionBetweenParentAndChild() {
-		stateMachine.start();
+		stateMachine.start(null);
 		assertThat(stateMachine.consumeLog(), is(equalTo("entryA.entryA1")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
 		
@@ -407,7 +407,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
 	public void testLocalTransitionBetweenParentAndChild() {
-		stateMachine.start();
+		stateMachine.start(null);
 		stateMachine.consumeLog();
 		
 		stateMachine.fire(HEvent.A12A1a, 1);
@@ -423,7 +423,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
 	public void testParentTransition() {
-		stateMachine.start();
+		stateMachine.start(null);
 		stateMachine.consumeLog();
 		stateMachine.fire(HEvent.A12A1a1, 1);
 		stateMachine.consumeLog();
@@ -434,7 +434,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
 	public void testDeepHistoryState() {
-		stateMachine.start();
+		stateMachine.start(null);
 		stateMachine.consumeLog();
 		stateMachine.fire(HEvent.A12A2, 1);
 		stateMachine.consumeLog();
@@ -470,7 +470,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
 	public void testNestedFinalState() {
-		stateMachine.start();
+		stateMachine.start(null);
 		stateMachine.consumeLog();
 		stateMachine.fire(HEvent.A12A4, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.transitA12A4.exitA.transitA2C.enterC")));

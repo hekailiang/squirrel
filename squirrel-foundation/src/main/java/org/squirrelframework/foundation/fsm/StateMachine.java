@@ -19,11 +19,11 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     S getInitialState();
     
-    void start();
+    void start(C context);
     
-    void terminate();
+    void terminate(C context);
     
-    void terminateWithoutExitStates();
+    void terminateWithoutExitStates(C context);
     
     StateMachineStatus getStatus();
     

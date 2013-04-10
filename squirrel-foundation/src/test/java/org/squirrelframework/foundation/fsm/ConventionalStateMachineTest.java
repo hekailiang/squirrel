@@ -196,8 +196,8 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         }
         
         @Override
-        public void terminateWithoutExitStates() {
-            super.terminateWithoutExitStates();
+        public void terminateWithoutExitStates(Integer context) {
+            super.terminateWithoutExitStates(context);
             monitor.terminateWithoutExitStates();
         }
     }
@@ -332,9 +332,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     @Test
     public void testDeclaredEventType() {
     	InOrder callSequence = Mockito.inOrder(monitor);
-    	stateMachine.start();
+    	stateMachine.start(null);
     	callSequence.verify(monitor, Mockito.times(1)).entryA(null, A, Started, null);
-    	stateMachine.terminate();
+    	stateMachine.terminate(null);
     	callSequence.verify(monitor, Mockito.times(1)).exitA(A, null, Terminated, null);
     }
 }

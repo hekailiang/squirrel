@@ -104,12 +104,16 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     public void entry(StateContext<T, S, E, C> stateContext) {
     	if(isFinal()) {
     		if(getParentState()==null) {
-            	stateContext.getStateMachine().terminateWithoutExitStates();
+            	stateContext.getStateMachine().terminateWithoutExitStates(stateContext.getContext());
             } else {
             	// A child state can be final; when a final child state is entered, the parent state fire the finish context.
             	AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
             			stateContext.getStateMachine();
-            	abstractStateMachine.fire(abstractStateMachine.getFinishEvent(), stateContext.getContext());
+            	if(abstractStateMachine.getFinishEvent()!=null) {
+            		abstractStateMachine.fire(abstractStateMachine.getFinishEvent(), stateContext.getContext());
+            	} else {
+            		logger.warn("The finished event is not specified.");
+            	}
             }
     		logger.debug("Final state entry");
     	} else {

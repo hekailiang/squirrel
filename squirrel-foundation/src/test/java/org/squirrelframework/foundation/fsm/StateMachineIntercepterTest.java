@@ -115,7 +115,7 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
                         new Object[]{delegator}));
         DeclarativeStateMachine stateMachine = builder.newStateMachine(TestState.A);
         stateMachine.fire(TestEvent.ToB, null);
-        stateMachine.terminate();
+        stateMachine.terminate(null);
         callSequence.verify(delegator, Mockito.times(1)).onStart(stateMachine);
         callSequence.verify(delegator, Mockito.times(1)).beforeOnTransition(stateMachine, TestState.A, TestEvent.ToB, null);
         callSequence.verify(delegator, Mockito.times(1)).onTransitionBegin(stateMachine, TestState.A, TestEvent.ToB, null);
@@ -135,7 +135,7 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
                         new Object[]{delegator}));
         DeclarativeStateMachine stateMachine = builder.newStateMachine(TestState.A);
         stateMachine.fire(TestEvent.ToC, null);
-        stateMachine.terminate();
+        stateMachine.terminate(null);
         callSequence.verify(delegator, Mockito.times(1)).onStart(stateMachine);
         callSequence.verify(delegator, Mockito.times(1)).beforeOnTransition(stateMachine, TestState.A, TestEvent.ToC, null);
         callSequence.verify(delegator, Mockito.times(1)).onTransitionBegin(stateMachine, TestState.A, TestEvent.ToC, null);

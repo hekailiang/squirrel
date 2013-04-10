@@ -68,8 +68,8 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         void afterTransitionCausedException(Exception e, TestState fromState, 
                 TestState toState, TestEvent event, Integer context);
 
-        void start();
-        void terminateWithoutExitStates();
+        void start(Integer context);
+        void terminateWithoutExitStates(Integer context);
     }
 
     static class ExcellentCondition implements Condition<Integer> {
@@ -198,15 +198,15 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         }
 
         @Override
-        public void start() {
-            super.start();
-            monitor.start();
+        public void start(Integer context) {
+            super.start(context);
+            monitor.start(context);
         }
 
         @Override
-        public void terminateWithoutExitStates() {
-            super.terminateWithoutExitStates();
-            monitor.terminateWithoutExitStates();
+        public void terminateWithoutExitStates(Integer context) {
+            super.terminateWithoutExitStates(context);
+            monitor.terminateWithoutExitStates(context);
         }
     }
 
@@ -343,21 +343,21 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     @Test
     public void testTransitToFinalState() {
         InOrder callSequence = Mockito.inOrder(monitor);
-        stateMachine.fire(TestEvent.ToB, null);
-        callSequence.verify(monitor, Mockito.times(1)).start();
+        stateMachine.fire(TestEvent.ToB, 0);
+        callSequence.verify(monitor, Mockito.times(1)).start(0);
         stateMachine.fire(TestEvent.ToC, null);
         stateMachine.fire(TestEvent.ToD, 81);
 
-        stateMachine.fire(TestEvent.ToEnd, null);
+        stateMachine.fire(TestEvent.ToEnd, -1);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(
-                TestState.D, TestEvent.ToEnd, null);
+                TestState.D, TestEvent.ToEnd, -1);
         callSequence.verify(monitor, Mockito.times(1)).exitStateD(
-                TestState.D, null, TestEvent.ToEnd, null);
+                TestState.D, null, TestEvent.ToEnd, -1);
         callSequence.verify(monitor, Mockito.times(1)).fromStateDToFinalOnToEnd(
-                TestState.D, TestState.Final, TestEvent.ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates();
+                TestState.D, TestState.Final, TestEvent.ToEnd, -1);
+        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates(-1);
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
-                TestState.D, TestState.Final, TestEvent.ToEnd, null);
+                TestState.D, TestState.Final, TestEvent.ToEnd, -1);
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
     }
 }
