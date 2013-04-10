@@ -335,10 +335,10 @@ public class HierarchicalStateMachineTest {
 		builder.externalTransition().from(HState.A).to(HState.B).on(HEvent.A2B);
 		builder.externalTransition().from(HState.B).to(HState.A).on(HEvent.B2A);
 		
-		builder.defineHierachyOn(HState.A, HistoryType.DEEP, HState.A1, HState.A2);
+		builder.defineSequentialStatesOn(HState.A, HistoryType.DEEP, HState.A1, HState.A2);
 		builder.externalTransition().from(HState.A1).to(HState.A2).on(HEvent.A12A2);
 		
-		builder.defineHierachyOn(HState.B, HistoryType.SHALLOW, HState.B1, HState.B2);
+		builder.defineSequentialStatesOn(HState.B, HistoryType.SHALLOW, HState.B1, HState.B2);
 		builder.externalTransition().from(HState.B1).to(HState.B2).on(HEvent.B12B2);
 		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);		
 		

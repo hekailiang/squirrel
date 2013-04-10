@@ -24,6 +24,7 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
+import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
@@ -495,9 +496,29 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
-    public void defineHierachyOn(S parentStateId, HistoryType historyType, S... childStateIds) {
+    public void defineSequentialStatesOn(S parentStateId, S... childStateIds) {
+    	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, HistoryType.NONE, childStateIds);
+    }
+    
+    @Override
+    public void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
+    	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, childStateIds);
+    }
+    
+    @Override
+    public void defineParallelStatesOn(S parentStateId, S... childStateIds) {
+    	defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, childStateIds);
+    }
+
+	@Override
+    public void defineParallelStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
+		defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, historyType, childStateIds);
+    }
+    
+    private void defineChildStatesOn(S parentStateId, StateCompositeType compositeType, HistoryType historyType, S... childStateIds) {
     	if(childStateIds!=null && childStateIds.length>0) {
     		MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
+    		parentState.setCompositeType(compositeType);
     		parentState.setHistoryType(historyType);
     		for(int i=0, size=childStateIds.length; i<size; ++i) {
     			MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
@@ -506,11 +527,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     			parentState.addChildState(childState);
     		}
     	}
-    }
-    
-    @Override
-    public void defineHierachyOn(S parentStateId, S... childStateIds) {
-    	defineHierachyOn(parentStateId, HistoryType.NONE, childStateIds);
     }
 
     @Override

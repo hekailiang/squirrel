@@ -119,5 +119,13 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      */
     int getLevel();
     
+    /**
+     * @return Historical type of state
+     */
     HistoryType getHistoryType();
+    
+    /**
+     * @return child states composite type
+     */
+    StateCompositeType getCompositeType();
 }

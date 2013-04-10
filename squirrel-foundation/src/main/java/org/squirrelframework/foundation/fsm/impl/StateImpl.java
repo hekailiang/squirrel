@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Actions;
+import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
@@ -68,6 +69,11 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
      * Whether the state is a final state
      */
     private boolean isFinalState = false;
+    
+    /**
+     * Composite type of child states
+     */
+    private StateCompositeType compositeType = StateCompositeType.SEQUENTIAL;
     
     StateImpl(S stateId) {
     	this.stateId = stateId;
@@ -349,6 +355,16 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 	@Override
     public void setHistoryType(HistoryType historyType) {
 	    this.historyType = historyType;
+    }
+	
+	@Override
+    public StateCompositeType getCompositeType() {
+	    return compositeType;
+    }
+
+	@Override
+    public void setCompositeType(StateCompositeType compositeType) {
+	    this.compositeType =compositeType;
     }
 	
 	@Override

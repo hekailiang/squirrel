@@ -41,17 +41,28 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     MutableState<T, S, E, C> defineState(S stateId);
     
-    
-    void defineHierachyOn(S parentStateId, S... childStateIds);
+    void defineSequentialStatesOn(S parentStateId, S... childStateIds);
     
     /**
-     * Define hierarchy states on parent state
+     * Define sequential child states on parent state
      * 
      * @param parentStateId id of parent state
      * @param historyType history type of parent state
      * @param childStateIds child states id of parent state. The first child state will be used as initial child state of parent state.
      */
-    void defineHierachyOn(S parentStateId, HistoryType historyType, S... childStateIds);
+    void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds);
+    
+    
+    void defineParallelStatesOn(S parentStateId, S... childStateIds);
+    
+    /**
+     * Define sequential child states on parent state
+     * 
+     * @param parentStateId id of parent state
+     * @param historyType history type of parent state
+     * @param childStateIds child states id of parent state. The first child state will be used as initial child state of parent state.
+     */
+    void defineParallelStatesOn(S parentStateId, HistoryType historyType, S... childStateIds);
     
     /**
      * Define on entry actions for state
