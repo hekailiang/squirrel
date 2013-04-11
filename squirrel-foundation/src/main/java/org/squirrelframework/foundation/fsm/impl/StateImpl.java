@@ -135,10 +135,14 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
             throw new UnsupportedOperationException("The final state should never be exited.");
     	}
     	if(isParallelState()) {
-    		for(ImmutableState<T, S, E, C> parallelState : childStates) {
-    			if(!parallelState.isFinalState()) {
-    				parallelState.exit(stateContext);
+    		List<ImmutableState<T, S, E, C>> subStates = stateContext.getSubStatesOn(this);
+    		for(ImmutableState<T, S, E, C> subState : subStates) {
+    			if(!subState.isFinalState()) {
+    				subState.exit(stateContext);
     			}
+    		}
+    		for(ImmutableState<T, S, E, C> parallelState : childStates) {
+    			parallelState.exit(stateContext);
     		}
     		stateContext.getStateMachine().removeSubStatesOn(getStateId());
     	}
@@ -309,7 +313,9 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     		 */
     		for(S parallelStateId : stateContext.getStateMachine().getSubStatesOn(getStateId())) {
     			ImmutableState<T, S, E, C> parallelState = stateContext.getStateMachine().getRawStateFrom(parallelStateId);
-    			TransitionResult<T, S, E, C> subResult = parallelState.internalFire(stateContext); 
+    			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(stateContext.getStateMachine(), 
+    					parallelState, stateContext.getEvent(), stateContext.getContext());
+    			TransitionResult<T, S, E, C> subResult = parallelState.internalFire(subStateContext); 
     			if(subResult.isAccepted()) {
     				stateContext.getStateMachine().replaceSubState(getStateId(), 
     						parallelState.getStateId(), subResult.getTargetState().getStateId());

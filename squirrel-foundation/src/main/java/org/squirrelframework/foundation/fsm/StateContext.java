@@ -1,5 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.util.List;
+
 public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     
     T getStateMachine();
@@ -13,4 +15,6 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState);
     
     void setLastActiveChildState(ImmutableState<T, S, E, C> parentState, ImmutableState<T, S, E, C> childState);
+    
+    List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState);
 }

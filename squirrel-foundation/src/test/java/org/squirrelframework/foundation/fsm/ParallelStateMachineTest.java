@@ -217,6 +217,9 @@ public class ParallelStateMachineTest {
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1a.transitA1a2A1b.enterA1b")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
 		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1b, PState.A2b));
+		
+		stateMachine.terminate(null);
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1b.exitA2b.exitA1.exitA2.exitA")));
 	}
 
 }

@@ -190,10 +190,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     		newState = transit(stateContext);
     	} else {
     		// exit origin states
-    		// FIXME-hhe: why here???
-    		if(!stateContext.getSourceState().isParallelState()) {
-    			unwindSubStates(stateContext.getSourceState(), stateContext);
-        	}
+    		unwindSubStates(stateContext.getSourceState(), stateContext);
     		// perform transition actions
     		doTransit(getSourceState(), getTargetState(), stateContext);
     		// enter new states
@@ -225,7 +222,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     
     private void unwindSubStates(ImmutableState<T, S, E, C> orgState, StateContext<T, S, E, C> stateContext) {
 		for (ImmutableState<T, S, E, C> state=orgState; state!=getSourceState(); state=state.getParentState()) {
-			state.exit(stateContext);
+			if(state!=null) { state.exit(stateContext); }
 		}
 	}
     
