@@ -1,13 +1,9 @@
 package org.squirrelframework.foundation.component;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.squirrelframework.foundation.exception.ErrorCodes;
-import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
 
@@ -29,19 +25,9 @@ public class SquirrelProvider implements SquirrelSingleton {
         return newInstance(typeRef, null, null);
     }
     
-    @SuppressWarnings("unchecked")
     public <T> T newInstance(TypeReference<T> typeRef, Class<?>[] argTypes, Object[] args) {
-        Class<?> clz = null;
-        Type type = typeRef.getType();
-        if (type instanceof Class<?>) {
-            clz = (Class<?>)type;
-        } else if(type instanceof ParameterizedType) {
-            Type rawType = ((ParameterizedType) type).getRawType();
-            clz = (Class<?>)rawType;
-        } else {
-            throw new SquirrelRuntimeException(ErrorCodes.UNSUPPORTED_TYPE_REFERENCE, typeRef.getType());
-        }
-        return (T) newInstance(clz, argTypes, args);
+        Class<T> clz = typeRef.getRawType();
+        return clz.cast(newInstance(clz, argTypes, args));
     }
     
     /**

@@ -1,7 +1,8 @@
 package org.squirrelframework.foundation.fsm;
 
 /**
- * Define the relationship between child states of current state.
+ * Composite state is defined as state that has substates (nested states). Substates could be sequential (disjoint) 
+ * or parallel (orthogonal). {@code StateCompositeType} defines the type of composite state.
  * 
  * @author Henry.He
  */
