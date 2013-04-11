@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -21,11 +22,11 @@ import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 public class ParallelStateMachineTest {
 	
 	enum PState {
-		Total, A, A1, A1a, A1b, A2, A2a, A2b, B
+		Total, A, A1, A1a, A1b, A1c, A2, A2a, A2b, A2c, B, C
 	}
 	
 	enum PEvent {
-		A1a2A1b, A1b2A1a, A2a2A2b, A2b2A2a, A2B, B2A
+		A1a2A1b, A1b2A1a, A1b2A1c, A2a2A2b, A2b2A2a, A2b2A2c, A2B, B2A, @EventType(EventKind.FINISH)Finish
 	}
 	
 	@States({
@@ -35,20 +36,26 @@ public class ParallelStateMachineTest {
 		@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1"),
 		@State(parent="A1", name="A1a", entryCallMethod="enterA1a", exitCallMethod="exitA1a", initialState=true),
 		@State(parent="A1", name="A1b", entryCallMethod="enterA1b", exitCallMethod="exitA1b"),
+		@State(parent="A1", name="A1c", entryCallMethod="enterA1c", exitCallMethod="exitA1c", isFinal=true),
 		
 		@State(parent="A", name="A2", entryCallMethod="enterA2", exitCallMethod="exitA2"),
 		@State(parent="A2", name="A2a", entryCallMethod="enterA2a", exitCallMethod="exitA2a"),
 		@State(parent="A2", name="A2b", entryCallMethod="enterA2b", exitCallMethod="exitA2b", initialState=true),
+		@State(parent="A2", name="A2c", entryCallMethod="enterA2c", exitCallMethod="exitA2c", isFinal=true),
 		
-		@State(parent="Total", name="B", entryCallMethod="enterB", exitCallMethod="exitB")
+		@State(parent="Total", name="B", entryCallMethod="enterB", exitCallMethod="exitB"),
+		@State(parent="Total", name="C", entryCallMethod="enterC", exitCallMethod="exitC"),
 	})
 	@Transitions({
 		@Transit(from="A", to="B", on="A2B", callMethod="transitA2B"),
 		@Transit(from="B", to="A", on="B2A", callMethod="transitB2A"),
 		@Transit(from="A1a", to="A1b", on="A1a2A1b", callMethod="transitA1a2A1b"),
 		@Transit(from="A1b", to="A1a", on="A1b2A1a", callMethod="transitA1b2A1a"),
+		@Transit(from="A1b", to="A1c", on="A1b2A1c", callMethod="transitA1b2A1c"),
 		@Transit(from="A2a", to="A2b", on="A2a2A2b", callMethod="transitA2a2A2b"),
 		@Transit(from="A2b", to="A2a", on="A2b2A2a", callMethod="transitA2b2A2a"),
+		@Transit(from="A2b", to="A2c", on="A2b2A2c", callMethod="transitA2b2A2c"),
+		@Transit(from="A", to="C", on="Finish", callMethod="transitA2C"),
 	})
 	static class ParallelStateMachine extends AbstractStateMachine<ParallelStateMachine, PState, PEvent, Integer> {
 		private StringBuilder logger = new StringBuilder();
@@ -57,6 +64,21 @@ public class ParallelStateMachineTest {
                 Map<PState, ImmutableState<ParallelStateMachine, PState, PEvent, Integer>> states) {
 	        super(initialState, states);
         }
+		
+		public void transitA2C(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitA2C");
+		}
+		
+		public void transitA1b2A1c(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitA1b2A1c");
+		}
+		
+		public void transitA2b2A2c(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("transitA2b2A2c");
+		}
 		
 		public void transitA2a2A2b(PState from, PState to, PEvent event, Integer context) {
 			addOptionalDot();
@@ -138,6 +160,16 @@ public class ParallelStateMachineTest {
 			logger.append("exitA1b");
 		}
 		
+		public void enterA1c(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterA1c");
+		}
+		
+		public void exitA1c(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("exitA1c");
+		}
+		
 		public void enterA2(PState from, PState to, PEvent event, Integer context) {
 			addOptionalDot();
 			logger.append("enterA2");
@@ -168,6 +200,16 @@ public class ParallelStateMachineTest {
 			logger.append("exitA2b");
 		}
 		
+		public void enterA2c(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterA2c");
+		}
+		
+		public void exitA2c(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("exitA2c");
+		}
+		
 		public void enterB(PState from, PState to, PEvent event, Integer context) {
 			addOptionalDot();
 			logger.append("enterB");
@@ -176,6 +218,16 @@ public class ParallelStateMachineTest {
 		public void exitB(PState from, PState to, PEvent event, Integer context) {
 			addOptionalDot();
 			logger.append("exitB");
+		}
+		
+		public void enterC(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterC");
+		}
+		
+		public void exitC(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("exitC");
 		}
 		
 		private void addOptionalDot() {
@@ -231,6 +283,25 @@ public class ParallelStateMachineTest {
 		
 		stateMachine.terminate(null);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1b.exitA2b.exitA1.exitA2.exitA.exitTotal")));
+	}
+	
+	@Test
+	public void testEnterSubFinalState() {
+		stateMachine.start(null);
+		stateMachine.consumeLog();
+		stateMachine.fire(PEvent.A1a2A1b, 1);
+		stateMachine.consumeLog();
+		stateMachine.fire(PEvent.A1b2A1c, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1b.transitA1b2A1c")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1c, PState.A2b));
+		
+		stateMachine.fire(PEvent.A2b2A2c, 1);
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA2b.transitA2b2A2c.exitA1.exitA2.exitA.transitA2C.enterC")));
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.C)));
+		
+		stateMachine.terminate(null);
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitC.exitTotal")));
 	}
 
 }

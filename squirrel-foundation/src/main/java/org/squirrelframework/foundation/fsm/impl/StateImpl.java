@@ -200,6 +200,9 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 
     @Override
     public ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext) {
+    	if(isFinalState() || isParallelState()) // no historical info
+    		return this;
+    	
     	ImmutableState<T, S, E, C> result = null;
     	switch (this.historyType) {
 		case NONE:
@@ -310,9 +313,14 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     		 * All parallel operations will be executed in a single, atomic step of the event 
     		 * processing, so no event can interrupt the parallel operations. However, events 
     		 * will still be processed sequentially, since the machine itself is single threaded.
+    		 * 
+    		 * The child states execute in parallel in the sense that any event that is processed 
+    		 * is processed in each child state independently, and each child state may take a different 
+    		 * transition in response to the event. (Similarly, one child state may take a transition 
+    		 * in response to an event, while another child ignores it.)
     		 */
-    		for(S parallelStateId : stateContext.getStateMachine().getSubStatesOn(getStateId())) {
-    			ImmutableState<T, S, E, C> parallelState = stateContext.getStateMachine().getRawStateFrom(parallelStateId);
+    		for(ImmutableState<T, S, E, C> parallelState : stateContext.getSubStatesOn(this)) {
+    			if(parallelState.isFinalState()) continue;
     			// context isolation as entering a new region
     			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(stateContext.getStateMachine(), 
     					parallelState, stateContext.getEvent(), stateContext.getContext());
@@ -320,6 +328,33 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     			if(subResult.isAccepted()) {
     				stateContext.getStateMachine().replaceSubState(getStateId(), 
     						parallelState.getStateId(), subResult.getTargetState().getStateId());
+    				
+    				if(subResult.getTargetState().isFinalState()) {
+    					ImmutableState<T, S, E, C> parentState = subResult.getTargetState().getParentState();
+        				ImmutableState<T, S, E, C> grandParentState = parentState.getParentState();
+        				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
+                    			stateContext.getStateMachine();
+        				// When all of the children reach final states, the parallel state itself is considered 
+                		// to be in a final state, and a completion event is generated.
+                		if(grandParentState!=null && grandParentState.isParallelState()) {
+                			boolean allReachedFinal = true;
+                			for(ImmutableState<T, S, E, C> subState : stateContext.getSubStatesOn(grandParentState)) {
+                				if(!subState.isFinalState()) {
+                					allReachedFinal = false;
+                					break;
+                				}
+                			}
+                			if(allReachedFinal) {
+                				StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), grandParentState, 
+                        				abstractStateMachine.getFinishEvent(), stateContext.getContext());
+                        		TransitionResult<T, S, E, C> finishResult = grandParentState.internalFire(finishContext);
+                        		if(finishResult.isAccepted()) {
+                        			return TransitionResultImpl.newResult(true, finishResult.getTargetState());
+                        		}
+                			}
+        				} 
+    				}
+    				
     			}
     		}
     	}
@@ -328,6 +363,18 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
         for(final ImmutableTransition<T, S, E, C> transition : transitions) {
         	result = transition.internalFire(stateContext);
         	if(result.isAccepted()) {
+        		if(result.getTargetState().isFinalState() && !result.getTargetState().isRootState()) {
+        			ImmutableState<T, S, E, C> parentState = result.getTargetState().getParentState();
+    				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
+                			stateContext.getStateMachine();
+    				if(abstractStateMachine.getFinishEvent()!=null) {
+                		StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), parentState, 
+                				abstractStateMachine.getFinishEvent(), stateContext.getContext());
+                		TransitionResult<T, S, E, C> finishResult = parentState.internalFire(finishContext);
+                		if(finishResult.isAccepted()) 
+                			result = TransitionResultImpl.newResult(true,finishResult.getTargetState());
+                	} 
+        		}
         		return result;
         	}
         }

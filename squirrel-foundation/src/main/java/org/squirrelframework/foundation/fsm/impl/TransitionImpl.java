@@ -194,28 +194,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     		// perform transition actions
     		doTransit(getSourceState(), getTargetState(), stateContext);
     		// enter new states
-    		if(getTargetState().isFinalState()) {
-    			if(getTargetState().isRootState()) {
-    				newState = getTargetState();
-    			} else {
-    				ImmutableState<T, S, E, C> parentState = getTargetState().getParentState();
-    				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
-                			stateContext.getStateMachine();
-                	if(abstractStateMachine.getFinishEvent()!=null) {
-                		StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), parentState, 
-                				abstractStateMachine.getFinishEvent(), stateContext.getContext());
-                		TransitionResult<T, S, E, C> finishResult = parentState.internalFire(finishContext);
-                		newState = finishResult.isAccepted() ? finishResult.getTargetState() : parentState;
-                	} else {
-                		newState = parentState; // or parentState.enterByHistory(stateContext);
-                	}
-    			}
-    		} else if(getTargetState().isParallelState()) {
-    			// parallel state does not has history type
-    			newState = getTargetState();
-    		} else {
-    			newState = getTargetState().enterByHistory(stateContext);
-    		}
+    		newState = getTargetState().enterByHistory(stateContext);
     	}
 	    return TransitionResultImpl.newResult(true, newState);
     }
