@@ -313,6 +313,7 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     		 */
     		for(S parallelStateId : stateContext.getStateMachine().getSubStatesOn(getStateId())) {
     			ImmutableState<T, S, E, C> parallelState = stateContext.getStateMachine().getRawStateFrom(parallelStateId);
+    			// context isolation as entering a new region
     			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(stateContext.getStateMachine(), 
     					parallelState, stateContext.getEvent(), stateContext.getContext());
     			TransitionResult<T, S, E, C> subResult = parallelState.internalFire(subStateContext); 

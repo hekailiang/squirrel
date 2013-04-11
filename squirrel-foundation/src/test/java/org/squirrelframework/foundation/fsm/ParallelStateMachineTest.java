@@ -21,7 +21,7 @@ import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 public class ParallelStateMachineTest {
 	
 	enum PState {
-		A, A1, A1a, A1b, A2, A2a, A2b, B
+		Total, A, A1, A1a, A1b, A2, A2a, A2b, B
 	}
 	
 	enum PEvent {
@@ -29,7 +29,8 @@ public class ParallelStateMachineTest {
 	}
 	
 	@States({
-		@State(name="A", entryCallMethod="enterA", exitCallMethod="exitA", compositeType=StateCompositeType.PARALLEL),
+		@State(name="Total", entryCallMethod="enterTotal", exitCallMethod="exitTotal"),
+		@State(parent="Total", name="A", entryCallMethod="enterA", exitCallMethod="exitA", compositeType=StateCompositeType.PARALLEL),
 		
 		@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1"),
 		@State(parent="A1", name="A1a", entryCallMethod="enterA1a", exitCallMethod="exitA1a", initialState=true),
@@ -39,7 +40,7 @@ public class ParallelStateMachineTest {
 		@State(parent="A2", name="A2a", entryCallMethod="enterA2a", exitCallMethod="exitA2a"),
 		@State(parent="A2", name="A2b", entryCallMethod="enterA2b", exitCallMethod="exitA2b", initialState=true),
 		
-		@State(name="B", entryCallMethod="enterB", exitCallMethod="exitB")
+		@State(parent="Total", name="B", entryCallMethod="enterB", exitCallMethod="exitB")
 	})
 	@Transitions({
 		@Transit(from="A", to="B", on="A2B", callMethod="transitA2B"),
@@ -85,6 +86,16 @@ public class ParallelStateMachineTest {
 		public void transitA2B(PState from, PState to, PEvent event, Integer context) {
 			addOptionalDot();
 			logger.append("transitA2B");
+		}
+		
+		public void enterTotal(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("enterTotal");
+		}
+		
+		public void exitTotal(PState from, PState to, PEvent event, Integer context) {
+			addOptionalDot();
+			logger.append("exitTotal");
 		}
 		
 		public void enterA(PState from, PState to, PEvent event, Integer context) {
@@ -204,7 +215,7 @@ public class ParallelStateMachineTest {
 	@Test
 	public void testInitialParallelStates() {
 		stateMachine.start(null);
-		assertThat(stateMachine.consumeLog(), is(equalTo("enterA.enterA1.enterA1a.enterA2.enterA2b")));
+		assertThat(stateMachine.consumeLog(), is(equalTo("enterTotal.enterA.enterA1.enterA1a.enterA2.enterA2b")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
 		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1a, PState.A2b));
 	}
@@ -219,7 +230,7 @@ public class ParallelStateMachineTest {
 		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1b, PState.A2b));
 		
 		stateMachine.terminate(null);
-		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1b.exitA2b.exitA1.exitA2.exitA")));
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1b.exitA2b.exitA1.exitA2.exitA.exitTotal")));
 	}
 
 }
