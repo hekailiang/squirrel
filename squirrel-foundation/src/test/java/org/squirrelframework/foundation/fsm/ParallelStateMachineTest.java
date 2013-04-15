@@ -17,6 +17,7 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.squirrelframework.foundation.fsm.impl.SCXMLVisitorImpl;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class ParallelStateMachineTest {
@@ -302,6 +303,14 @@ public class ParallelStateMachineTest {
 		
 		stateMachine.terminate(null);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitC.exitTotal")));
+	}
+	
+	@Test
+	public void testExportParallelState() {
+		SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer> visitor = 
+                new SCXMLVisitorImpl<ParallelStateMachine, PState, PEvent, Integer>();
+        stateMachine.accept(visitor);
+        visitor.convertSCXMLFile("ParallelStateMachine", true);
 	}
 
 }

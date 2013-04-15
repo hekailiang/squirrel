@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.SCXMLVisitor;
@@ -48,7 +49,17 @@ public class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> imple
 
     @Override
     public void visitOnEntry(ImmutableState<T, S, E, C> visitable) {
-        writeLine("<state id= " + quoteName(visitable.toString()) + ">");
+    	if(visitable.isParallelState()) {
+    		writeLine("<parallel id= " + quoteName(visitable.toString()) + ">");
+    	} else { 
+    		StringBuilder builder = new StringBuilder("<state id= ");
+    		builder.append(quoteName(visitable.toString()));
+    		if(visitable.getInitialState()!=null) {
+    			builder.append(" initial= ").append(quoteName(visitable.getInitialState().toString()));
+    		}
+    		builder.append(">");
+			writeLine(builder.toString());
+    	}
         if(!visitable.getEntryActions().isEmpty()) {
             writeLine("<onentry>");
             for(Action<T, S, E, C> entryAction : visitable.getEntryActions()) {
@@ -56,6 +67,9 @@ public class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> imple
             }
             writeLine("</onentry>");
         }
+        if(visitable.getHistoryType()!=HistoryType.NONE) {
+			writeLine("<history type= "+ quoteName(visitable.getHistoryType().name().toLowerCase())+"/>");
+		}
     }
 
     @Override
@@ -67,7 +81,10 @@ public class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> imple
             }
             writeLine("</onexit>");
         }
-        writeLine("</state>");
+        if(visitable.isParallelState()) 
+        	writeLine("</parallel>"); 
+        else 
+        	writeLine("</state>");
     }
 
     @Override
