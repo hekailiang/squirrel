@@ -1,13 +1,13 @@
 package org.squirrelframework.foundation.fsm.monitor;
 
 import org.squirrelframework.foundation.fsm.ActionExecutor;
-import org.squirrelframework.foundation.fsm.ActionExecutor.ExecutorEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionEvent;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.impl.MethodCallActionImpl;
 
-public class TransitionProgressMonitor<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionExecutor.ExecutorLisenter<T, S, E, C> {
+public class TransitionProgressMonitor<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionExecutor.ExecActionLisenter<T, S, E, C> {
 	@Override
-    public void beforeExecute(ExecutorEvent<T, S, E, C> event) {
+    public void beforeExecute(ExecActionEvent<T, S, E, C> event) {
 	    if(event.getExecutionTarget() instanceof MethodCallActionImpl) {
 	    	String actionName = ((MethodCallActionImpl<T, S, E, C>)event.getExecutionTarget()).getName();
 	    	System.out.println("Exection method call action \""+actionName+" \" "+ 

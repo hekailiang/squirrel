@@ -27,7 +27,7 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
     public void execute() {
 		List<ExectionContext<T, S, E, C>> executionContexts = stack.pop();
         for (int i=0, size=executionContexts.size(); i<size; ++i) {
-        	fireEvent(new ExecutorEventImpl<T, S, E, C>(i+1, size, executionContexts.get(i)));
+        	fireEvent(new ExecActionEventImpl<T, S, E, C>(i+1, size, executionContexts.get(i)));
         	executionContexts.get(i).run();
         }
     }
@@ -39,24 +39,24 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
     }
 	
 	private static final Method EXECUTOR_EVENT_METHOD = 
-            ReflectUtils.getMethod(ExecutorLisenter.class, "beforeExecute", new Class<?>[]{ExecutorEvent.class});
+            ReflectUtils.getMethod(ExecActionLisenter.class, "beforeExecute", new Class<?>[]{ExecActionEvent.class});
 	
 	@Override
-    public void addListener(ExecutorLisenter<T, S, E, C> listener) {
-		addListener(ExecutorEvent.class, listener, EXECUTOR_EVENT_METHOD);
+    public void addListener(ExecActionLisenter<T, S, E, C> listener) {
+		addListener(ExecActionEvent.class, listener, EXECUTOR_EVENT_METHOD);
     }
 	
 	@Override
-	public void removeListener(ExecutorLisenter<T, S, E, C> listener) {
-		removeListener(ExecutorEvent.class, listener);
+	public void removeListener(ExecActionLisenter<T, S, E, C> listener) {
+		removeListener(ExecActionEvent.class, listener);
 	}
 	
-	static class ExecutorEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements ExecutorEvent<T, S, E, C> {
+	static class ExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements ExecActionEvent<T, S, E, C> {
 		private ExectionContext<T, S, E, C> executionContext;
 		private int pos;
 		private int size;
 		
-		ExecutorEventImpl(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+		ExecActionEventImpl(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
 			this.pos = pos;
 			this.size = size;
 			this.executionContext = executionContext;
@@ -64,32 +64,32 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 
 		@Override
         public Action<T, S, E, C> getExecutionTarget() {
-	        return executionContext.getExecutionTarget();
+	        return executionContext.action;
         }
 
 		@Override
         public S getFrom() {
-	        return executionContext.getFrom();
+	        return executionContext.from;
         }
 
 		@Override
         public S getTo() {
-	        return executionContext.getTo();
+	        return executionContext.to;
         }
 
 		@Override
         public E getEvent() {
-	        return executionContext.getEvent();
+	        return executionContext.event;
         }
 
 		@Override
         public C getContext() {
-	        return executionContext.getContext();
+	        return executionContext.context;
         }
 
 		@Override
         public T getStateMachine() {
-	        return executionContext.getStateMachine();
+	        return executionContext.stateMachine;
         }
 
 		@Override
@@ -98,13 +98,13 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
         }
 	}
 	
-	static class ExectionContext<T extends StateMachine<T, S, E, C>, S, E, C> {
-		private final Action<T, S, E, C> action;
-		private final S from;
-		private final S to;
-		private final E event;
-		private final C context;
-		private final T stateMachine;
+	private static class ExectionContext<T extends StateMachine<T, S, E, C>, S, E, C> {
+		final Action<T, S, E, C> action;
+		final S from;
+		final S to;
+		final E event;
+		final C context;
+		final T stateMachine;
 		
 		private ExectionContext(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
 			this.action = action;
@@ -120,30 +120,6 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 			return new ExectionContext<T, S, E, C>(action, from, to, event, context, stateMachine);
 		}
 
-		public Action<T, S, E, C> getExecutionTarget() {
-	        return action;
-        }
-		
-		public S getFrom() {
-	        return from;
-        }
-
-		public S getTo() {
-	        return to;
-        }
-
-		public E getEvent() {
-	        return event;
-        }
-
-		public C getContext() {
-	        return context;
-        }
-
-		public T getStateMachine() {
-	        return stateMachine;
-        }
-		
 		public void run() {
 			action.execute(from, to, event, context, stateMachine);
 		}

@@ -10,11 +10,11 @@ public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> {
 	
 	void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine);
 	
-	void addListener(ExecutorLisenter<T, S, E, C> listener);
+	void addListener(ExecActionLisenter<T, S, E, C> listener);
 	
-	void removeListener(ExecutorLisenter<T, S, E, C> listener);
+	void removeListener(ExecActionLisenter<T, S, E, C> listener);
 	
-	interface ExecutorEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
+	interface ExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
 		Action<T, S, E, C> getExecutionTarget();
 		S getFrom();
 		S getTo();
@@ -24,7 +24,7 @@ public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> {
 		int[] getMOfN();
 	}
 	
-	interface ExecutorLisenter<T extends StateMachine<T, S, E, C>, S, E, C> {
-		void beforeExecute(ExecutorEvent<T, S, E, C> event);
+	interface ExecActionLisenter<T extends StateMachine<T, S, E, C>, S, E, C> {
+		void beforeExecute(ExecActionEvent<T, S, E, C> event);
 	}
 }

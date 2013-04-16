@@ -18,7 +18,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
-import org.squirrelframework.foundation.fsm.ActionExecutor.ExecutorLisenter;
+import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -483,11 +483,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         removeListener(TransitionDeclinedEvent.class, listener, TRANSITION_DECLINED_EVENT_METHOD);
     }
     
-    public void addListener(ExecutorLisenter<T, S, E, C> listener) {
+    public void addListener(ExecActionLisenter<T, S, E, C> listener) {
     	executor.addListener(listener);
     }
 	
-	public void removeListener(ExecutorLisenter<T, S, E, C> listener) {
+	public void removeListener(ExecActionLisenter<T, S, E, C> listener) {
 		executor.removeListener(listener);
 	}
     
