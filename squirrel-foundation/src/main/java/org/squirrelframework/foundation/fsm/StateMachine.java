@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutor.ExecutorLisenter;
 
 public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitable<T, S, E, C>, Observable {
     
@@ -109,4 +110,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     interface TransitionDeclinedEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
     void addListener(TransitionDeclinedListener<T, S, E, C> listener);
     void removeListener(TransitionDeclinedListener<T, S, E, C> listener);
+    
+    void addListener(ExecutorLisenter<T, S, E, C> listener);
+	
+	void removeListener(ExecutorLisenter<T, S, E, C> listener);
 }

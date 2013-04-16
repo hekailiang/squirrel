@@ -14,5 +14,7 @@ public interface ConverterProvider extends SquirrelComponent, SquirrelSingleton 
 	
 	void unregister(Class<?> clazz);
 	
+	void clearRegistry();
+	
 	<T> Converter<T> getConverter(Class<T> clazz);
 }

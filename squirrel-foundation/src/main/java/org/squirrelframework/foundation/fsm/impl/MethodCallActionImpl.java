@@ -12,7 +12,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 
-class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
+public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
     
     final static Logger logger = LoggerFactory.getLogger(MethodCallActionImpl.class);
 

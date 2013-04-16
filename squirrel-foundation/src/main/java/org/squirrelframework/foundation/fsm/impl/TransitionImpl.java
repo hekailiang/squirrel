@@ -43,11 +43,11 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     }
 
     @Override
-    public ImmutableState<T, S, E, C> transit(StateContext<T, S, E, C> stateContext) {
-        T stateMachine = stateContext.getStateMachine();
-        for(Action<T, S, E, C> action : getActions()) {
-            action.execute(sourceState.getStateId(), targetState.getStateId(), stateContext.getEvent(), 
-                    stateContext.getContext(), stateMachine);
+    public ImmutableState<T, S, E, C> transit(final StateContext<T, S, E, C> stateContext) {
+        for(final Action<T, S, E, C> action : getActions()) {
+        	stateContext.getExecutor().defer(action,
+        			sourceState.getStateId(), targetState.getStateId(), stateContext.getEvent(), 
+                    stateContext.getContext(), stateContext.getStateMachine());
         }
         return targetState;
     }

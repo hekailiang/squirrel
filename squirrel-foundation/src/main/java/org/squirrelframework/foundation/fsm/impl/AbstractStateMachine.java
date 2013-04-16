@@ -9,15 +9,19 @@ import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
+import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
+import org.squirrelframework.foundation.fsm.ActionExecutor.ExecutorLisenter;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
+import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ArrayListMultimap;
@@ -64,6 +68,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private final ArrayListMultimap<S, S> parallelStatesStore = ArrayListMultimap.create();
     
+    private final ActionExecutor<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
+    		new TypeReference<ActionExecutor<T, S, E, C>>(){});
+    
     private E startEvent, finishEvent, terminateEvent;
     
     public AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
@@ -83,8 +90,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             beforeTransitionBegin(fromState.getStateId(), event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getCurrent()));
             
+            executor.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, currentState, null);
-            currentState.internalFire( FSM.newStateContext(getCurrent(), currentState, event, context, result) );
+            currentState.internalFire( FSM.newStateContext(getCurrent(), currentState, event, context, result, executor) );
+            executor.execute();
             
             if(result.isAccepted()) {
             	currentState = result.getTargetState();
@@ -206,12 +215,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	if(isStarted()) {
             return;
         }
-    	
     	status = StateMachineStatus.IDLE;
-        StateContext<T, S, E, C> stateContext = 
-                FSM.newStateContext(getCurrent(), getCurrentRawState(), getStartEvent(), context, null);
+        
+    	executor.begin();
+    	StateContext<T, S, E, C> stateContext = FSM.newStateContext(
+    			getCurrent(), getCurrentRawState(), getStartEvent(), context, null, executor);
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
+        executor.execute();
+        
         execute();
         fireEvent(new StartEventImpl<T, S, E, C>(getCurrent()));
     }
@@ -303,9 +315,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
         
     	if(exitStates) {
-    		StateContext<T, S, E, C> stateContext = 
-                    FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), context, null);
+    		executor.begin();
+    		StateContext<T, S, E, C> stateContext = FSM.newStateContext(
+    				getCurrent(), getCurrentRawState(), getTerminateEvent(), context, null, executor);
             exitAll(getCurrentRawState(), stateContext);
+            executor.execute();
     	}
         currentState = initialState;
         status = StateMachineStatus.TERMINATED;
@@ -468,6 +482,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public void removeListener(TransitionDeclinedListener<T, S, E, C> listener) {
         removeListener(TransitionDeclinedEvent.class, listener, TRANSITION_DECLINED_EVENT_METHOD);
     }
+    
+    public void addListener(ExecutorLisenter<T, S, E, C> listener) {
+    	executor.addListener(listener);
+    }
+	
+	public void removeListener(ExecutorLisenter<T, S, E, C> listener) {
+		executor.removeListener(listener);
+	}
     
     public static abstract class AbstractStateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
     implements StateMachine.StateMachineEvent<T, S, E, C> {

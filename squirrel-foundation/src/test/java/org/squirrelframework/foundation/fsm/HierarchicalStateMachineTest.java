@@ -7,9 +7,11 @@ import static org.junit.Assert.assertThat;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -21,6 +23,7 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.impl.SCXMLVisitorImpl;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 import org.squirrelframework.foundation.fsm.monitor.TransitionExecTimeMonitor;
+import org.squirrelframework.foundation.fsm.monitor.TransitionProgressMonitor;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class HierarchicalStateMachineTest {
@@ -318,6 +321,20 @@ public class HierarchicalStateMachineTest {
         ConverterProvider.INSTANCE.register(HState.class, new Converter.EnumConverter<HState>(HState.class));
         SquirrelPostProcessorProvider.getInstance().register(HierachicalStateMachine.class, 
         		new TypeReference<TransitionExecTimeMonitor<HierachicalStateMachine, HState, HEvent, Integer>>() {});
+        SquirrelPostProcessorProvider.getInstance().register(
+        		new TypeReference<ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer>>(){}, 
+        		new SquirrelPostProcessor<ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer>>() {
+			@Override
+            public void postProcess(ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer> component) {
+				component.addListener(new TransitionProgressMonitor<HierachicalStateMachine, HState, HEvent, Integer>());
+            }
+		});
+	}
+	
+	@AfterClass
+	public static void afterTest() {
+		ConverterProvider.INSTANCE.clearRegistry();
+		SquirrelPostProcessorProvider.getInstance().clearRegistry();
 	}
 	
 	@After

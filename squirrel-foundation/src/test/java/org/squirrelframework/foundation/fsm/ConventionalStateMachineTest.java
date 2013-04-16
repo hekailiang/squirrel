@@ -320,9 +320,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         
         stateMachine.fire(ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(D, ToEnd, null);
+        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates();
         callSequence.verify(monitor, Mockito.times(1)).exitD(D, null, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).transitFromDToFinalOnToEnd(D, Final, ToEnd, null);
-        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates();
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(D, Final, ToEnd, null);
         
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));

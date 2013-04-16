@@ -22,8 +22,9 @@ public class HeartbeatImpl implements Heartbeat, SquirrelComponent {
     @Override
     public void execute() {
         List<Runnable> beat = stack.pop();
-        for (Runnable r : beat)
+        for (Runnable r : beat) {
             r.run();
+        }
     }
 
     @Override

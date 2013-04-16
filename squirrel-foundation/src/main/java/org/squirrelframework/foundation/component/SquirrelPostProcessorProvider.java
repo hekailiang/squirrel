@@ -103,4 +103,8 @@ public class SquirrelPostProcessorProvider implements SquirrelComponent, Squirre
 	public <T> void register(Class<T> componentClass, TypeReference<? extends SquirrelPostProcessor<? super T>> typeReference) {
 		register(componentClass, typeReference.getRawType());
     }
+	
+	public <T> void register(TypeReference<T> typeRefComponent, SquirrelPostProcessor<? super T> postProcessor) {
+		register(typeRefComponent.getRawType(), postProcessor);
+    }
 }

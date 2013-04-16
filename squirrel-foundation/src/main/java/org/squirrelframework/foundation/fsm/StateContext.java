@@ -19,4 +19,6 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState);
     
     TransitionResult<T, S, E, C> getResult();
+    
+    ActionExecutor<T, S, E, C> getExecutor();
 }

@@ -107,14 +107,15 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     }
     
     @Override
-    public void entry(StateContext<T, S, E, C> stateContext) {
+    public void entry(final StateContext<T, S, E, C> stateContext) {
     	if(isFinalState() && isRootState()) {
     		stateContext.getStateMachine().terminateWithoutExitStates(stateContext.getContext());
     		logger.debug("Final state of state machine entry.");
     	} else if(!isFinalState()) {
-    		for(Action<T, S, E, C> entryAction : getEntryActions()) {
-                entryAction.execute(null, getStateId(), stateContext.getEvent(), 
-                        stateContext.getContext(), stateContext.getStateMachine());
+    		for(final Action<T, S, E, C> entryAction : getEntryActions()) {
+    			stateContext.getExecutor().defer(entryAction, 
+    					null, getStateId(), stateContext.getEvent(), 
+	                    stateContext.getContext(), stateContext.getStateMachine());
             }
     		
     		if(isParallelState()) {
@@ -130,7 +131,7 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     }
     
     @Override
-    public void exit(StateContext<T, S, E, C> stateContext) {
+    public void exit(final StateContext<T, S, E, C> stateContext) {
     	if(isFinalState()) {
             throw new UnsupportedOperationException("The final state should never be exited.");
     	}
@@ -146,8 +147,10 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     		}
     		stateContext.getStateMachine().removeSubStatesOn(getStateId());
     	}
-        for(Action<T, S, E, C> exitAction : getExitActions()) {
-            exitAction.execute(getStateId(), null, stateContext.getEvent(), 
+    	
+        for(final Action<T, S, E, C> exitAction : getExitActions()) {
+        	stateContext.getExecutor().defer(exitAction,
+        			getStateId(), null, stateContext.getEvent(), 
                     stateContext.getContext(), stateContext.getStateMachine());
         }
         // update historical state 
@@ -324,8 +327,10 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     			// context isolation as entering a new region
     			TransitionResult<T, S, E, C> subTransitionResult = 
     					FSM.<T, S, E, C>newResult(false, parallelState, currentTransitionResult);
-    			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(stateContext.getStateMachine(), 
-    					parallelState, stateContext.getEvent(), stateContext.getContext(), subTransitionResult);
+    			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(
+    					stateContext.getStateMachine(), parallelState, 
+    					stateContext.getEvent(), stateContext.getContext(), 
+    					subTransitionResult, stateContext.getExecutor());
     			parallelState.internalFire(subStateContext); 
     			if(subTransitionResult.isDeclined()) continue;
     			
@@ -349,7 +354,8 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
             			}
             			if(allReachedFinal) {
             				StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), grandParentState, 
-                    				abstractStateMachine.getFinishEvent(), stateContext.getContext(), currentTransitionResult);
+                    				abstractStateMachine.getFinishEvent(), stateContext.getContext(), 
+                    				currentTransitionResult, stateContext.getExecutor());
                     		grandParentState.internalFire(finishContext);
                     		return;
             			}
@@ -368,8 +374,10 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
         			ImmutableState<T, S, E, C> parentState = targetState.getParentState();
     				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
                 			stateContext.getStateMachine();
-    				StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), parentState, 
-            				abstractStateMachine.getFinishEvent(), stateContext.getContext(), currentTransitionResult);
+    				StateContext<T, S, E, C> finishContext = FSM.newStateContext(
+    						stateContext.getStateMachine(), parentState, 
+            				abstractStateMachine.getFinishEvent(), stateContext.getContext(), 
+            				currentTransitionResult, stateContext.getExecutor());
             		parentState.internalFire(finishContext);
         		}
         		return;

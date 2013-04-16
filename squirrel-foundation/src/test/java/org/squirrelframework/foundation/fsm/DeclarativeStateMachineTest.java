@@ -351,11 +351,11 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         stateMachine.fire(TestEvent.ToEnd, -1);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(
                 TestState.D, TestEvent.ToEnd, -1);
+        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates(-1);
         callSequence.verify(monitor, Mockito.times(1)).exitStateD(
                 TestState.D, null, TestEvent.ToEnd, -1);
         callSequence.verify(monitor, Mockito.times(1)).fromStateDToFinalOnToEnd(
                 TestState.D, TestState.Final, TestEvent.ToEnd, -1);
-        callSequence.verify(monitor, Mockito.times(1)).terminateWithoutExitStates(-1);
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
                 TestState.D, TestState.Final, TestEvent.ToEnd, -1);
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));

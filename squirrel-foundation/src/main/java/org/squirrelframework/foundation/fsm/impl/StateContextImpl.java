@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import java.util.List;
 
+import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -15,13 +16,16 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     private final C context;
     private final E event;
     private final TransitionResult<T, S, E, C> result;
+    private final ActionExecutor<T, S, E, C> executor;
     
-    StateContextImpl(T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, TransitionResult<T, S, E, C> result) {
+    StateContextImpl(T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, 
+    		TransitionResult<T, S, E, C> result, ActionExecutor<T, S, E, C> executor) {
         this.stateMachine = stateMachine;
         this.sourceState = sourceState;
         this.event = event;
         this.context = context;
         this.result = result;
+        this.executor = executor;
     }
     
     @Override
@@ -71,5 +75,10 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
 	@Override
     public TransitionResult<T, S, E, C> getResult() {
 	    return result;
+    }
+
+	@Override
+    public ActionExecutor<T, S, E, C> getExecutor() {
+	    return executor;
     }
 }

@@ -33,4 +33,9 @@ public class ConverterProviderImpl implements ConverterProvider {
     public <T> Converter<T> getConverter(Class<T> clazz) {
         return (Converter<T>)converterRegistry.get(clazz);
     }
+
+	@Override
+    public void clearRegistry() {
+		converterRegistry.clear();
+    }
 }
