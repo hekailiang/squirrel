@@ -1,12 +1,14 @@
 package org.squirrelframework.foundation.fsm;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -252,6 +254,11 @@ public class ParallelStateMachineTest {
 	public static void beforeTest() {
 		ConverterProvider.INSTANCE.register(PEvent.class, new Converter.EnumConverter<PEvent>(PEvent.class));
         ConverterProvider.INSTANCE.register(PState.class, new Converter.EnumConverter<PState>(PState.class));
+	}
+	
+	@AfterClass
+	public static void afterTest() {
+		ConverterProvider.INSTANCE.clearRegistry();
 	}
 	
 	@After
