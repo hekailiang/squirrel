@@ -17,4 +17,6 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     void setLastActiveChildState(ImmutableState<T, S, E, C> parentState, ImmutableState<T, S, E, C> childState);
     
     List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState);
+    
+    TransitionResult<T, S, E, C> getResult();
 }

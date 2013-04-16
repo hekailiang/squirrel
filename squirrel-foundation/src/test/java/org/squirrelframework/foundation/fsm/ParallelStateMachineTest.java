@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -275,6 +276,12 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testReceiveSubStateEvent() {
+		stateMachine.addListener(new StateMachine.TransitionDeclinedListener<ParallelStateMachine, PState, PEvent, Integer>() {
+			@Override
+			public void transitionDeclined(TransitionDeclinedEvent<ParallelStateMachine, PState, PEvent, Integer> event) {
+				stateMachine.consumeLog();
+			}
+		});
 		stateMachine.start(null);
 		stateMachine.consumeLog();
 		stateMachine.fire(PEvent.A1a2A1b, 1);

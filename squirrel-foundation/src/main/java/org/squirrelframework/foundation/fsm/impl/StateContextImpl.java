@@ -5,20 +5,23 @@ import java.util.List;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.TransitionResult;
 
 import com.google.common.collect.Lists;
 
 class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateContext<T, S, E, C> {
-    final private T stateMachine;
-    final private ImmutableState<T, S, E, C> sourceState;
-    final private C context;
-    final private E event;
+    private final T stateMachine;
+    private final ImmutableState<T, S, E, C> sourceState;
+    private final C context;
+    private final E event;
+    private final TransitionResult<T, S, E, C> result;
     
-    StateContextImpl(T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context) {
+    StateContextImpl(T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, TransitionResult<T, S, E, C> result) {
         this.stateMachine = stateMachine;
         this.sourceState = sourceState;
         this.event = event;
         this.context = context;
+        this.result = result;
     }
     
     @Override
@@ -63,5 +66,10 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
 			subStates.add(stateMachine.getRawStateFrom(stateId));
 		}
 	    return subStates;
+    }
+
+	@Override
+    public TransitionResult<T, S, E, C> getResult() {
+	    return result;
     }
 }

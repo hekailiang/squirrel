@@ -66,7 +66,6 @@ public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C
     /**
      * Notify transition when receiving event
      * @param stateContext
-     * @return result of transition
      */
-    TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext);
+    void internalFire(StateContext<T, S, E, C> stateContext);
 }

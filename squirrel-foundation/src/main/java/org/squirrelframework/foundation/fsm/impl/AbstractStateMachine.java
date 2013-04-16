@@ -83,8 +83,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             beforeTransitionBegin(fromState.getStateId(), event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getCurrent()));
             
-            TransitionResult<T, S, E, C> result = currentState.internalFire( 
-            		FSM.newStateContext(getCurrent(), currentState, event, context) );
+            TransitionResult<T, S, E, C> result = FSM.newResult(false, currentState, null);
+            currentState.internalFire( FSM.newStateContext(getCurrent(), currentState, event, context, result) );
             
             if(result.isAccepted()) {
             	currentState = result.getTargetState();
@@ -209,7 +209,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	
     	status = StateMachineStatus.IDLE;
         StateContext<T, S, E, C> stateContext = 
-                FSM.newStateContext(getCurrent(), getCurrentRawState(), getStartEvent(), context);
+                FSM.newStateContext(getCurrent(), getCurrentRawState(), getStartEvent(), context, null);
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
         execute();
@@ -304,7 +304,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
     	if(exitStates) {
     		StateContext<T, S, E, C> stateContext = 
-                    FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), context);
+                    FSM.newStateContext(getCurrent(), getCurrentRawState(), getTerminateEvent(), context, null);
             exitAll(getCurrentRawState(), stateContext);
     	}
         currentState = initialState;

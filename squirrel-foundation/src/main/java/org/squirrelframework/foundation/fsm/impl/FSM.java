@@ -10,6 +10,7 @@ import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
@@ -23,8 +24,8 @@ final class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> StateContext<T, S, E, C> newStateContext(
-            T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context) {
-        return new StateContextImpl<T, S, E, C>(stateMachine, sourceState, event, context);
+            T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, TransitionResult<T, S, E, C> result) {
+        return new StateContextImpl<T, S, E, C>(stateMachine, sourceState, event, context, result);
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MutableTransition<T, S, E, C> newTransition() {
@@ -79,4 +80,10 @@ final class FSM {
     static <T extends StateMachine<T, S, E, C>, S, E, C> Actions<T, S, E, C> newActions() {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<Actions<T, S, E, C>>() {});
     }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> TransitionResult<T, S, E, C> newResult(
+			boolean accepted, ImmutableState<T, S, E, C> targetState, TransitionResult<T, S, E, C> parent) {
+		return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionResult<T, S, E, C>>() {}).
+				setAccepted(accepted).setTargetState(targetState).setParent(parent);
+	}
 }

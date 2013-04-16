@@ -109,9 +109,8 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     /**
      * Notify transitions when receiving event.
      * @param stateContext
-     * @return result of transition
      */
-    TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext);
+    void internalFire(StateContext<T, S, E, C> stateContext);
     
     /**
      * @return whether current state is final state
@@ -137,4 +136,6 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      * @return whether child states composite type is parallel
      */
     boolean isParallelState();
+    
+    boolean isRegion();
 }

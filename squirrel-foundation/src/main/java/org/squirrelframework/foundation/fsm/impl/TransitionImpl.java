@@ -10,7 +10,6 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.Visitor;
 
@@ -181,22 +180,21 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
 	}
     
     @Override
-    public TransitionResult<T, S, E, C> internalFire(StateContext<T, S, E, C> stateContext) {
-    	if(!condition.isSatisfied(stateContext.getContext())) {
-    		return TransitionResultImpl.notAccepted();
+    public void internalFire(StateContext<T, S, E, C> stateContext) {
+    	if(condition.isSatisfied(stateContext.getContext())) {
+    		ImmutableState<T, S, E, C> newState = stateContext.getSourceState();
+        	if(type==TransitionType.INTERNAL) {
+        		newState = transit(stateContext);
+        	} else {
+        		// exit origin states
+        		unwindSubStates(stateContext.getSourceState(), stateContext);
+        		// perform transition actions
+        		doTransit(getSourceState(), getTargetState(), stateContext);
+        		// enter new states
+        		newState = getTargetState().enterByHistory(stateContext);
+        	}
+        	stateContext.getResult().setAccepted(true).setTargetState(newState);
     	}
-    	ImmutableState<T, S, E, C> newState = stateContext.getSourceState();
-    	if(type==TransitionType.INTERNAL) {
-    		newState = transit(stateContext);
-    	} else {
-    		// exit origin states
-    		unwindSubStates(stateContext.getSourceState(), stateContext);
-    		// perform transition actions
-    		doTransit(getSourceState(), getTargetState(), stateContext);
-    		// enter new states
-    		newState = getTargetState().enterByHistory(stateContext);
-    	}
-	    return TransitionResultImpl.newResult(true, newState);
     }
     
     private void unwindSubStates(ImmutableState<T, S, E, C> orgState, StateContext<T, S, E, C> stateContext) {
