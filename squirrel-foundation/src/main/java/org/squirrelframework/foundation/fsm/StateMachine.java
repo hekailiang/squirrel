@@ -6,18 +6,52 @@ import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
 
+/**
+ * Interface for finite state machine.
+ * 
+ * @author Henry.He
+ *
+ * @param <T> type of State Machine
+ * @param <S> type of State
+ * @param <E> type of Event
+ * @param <C> type of Context
+ */
 public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitable<T, S, E, C>, Observable {
     
+	/**
+	 * Fires the specified event
+	 * @param event the event
+	 * @param context external context
+	 */
     void fire(E event, C context);
     
+    /**
+     * @return current state id of state machine
+     */
     S getCurrentState();
     
-    ImmutableState<T, S, E, C> getRawStateFrom(S state);
+    /**
+     * @param stateId the identify of state 
+     * @return raw state of the same state identify
+     */
+    ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
     
+    /**
+     * @return current raw state of state machine
+     */
     ImmutableState<T, S, E, C> getCurrentRawState();
     
+    /**
+     * @param parentStateId id of parent state
+     * @return last active child state of the parent state
+     */
     S getLastActiveChildStateOf(S parentStateId);
     
+    /**
+     * Set last active child state of parent state
+     * @param parentStateId id of parent state
+     * @param childStateId id of child state
+     */
     void setLastActiveChildState(S parentStateId, S childStateId);
     
     List<S> getSubStatesOn(S parentState);
@@ -28,14 +62,32 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     void removeSubStatesOn(S parentState);
     
+    /**
+     * @return id of state machine initial state
+     */
     S getInitialState();
     
+    /**
+     * Start state machine under external context
+     * @param context external context
+     */
     void start(C context);
     
+    /**
+     * Terminate state machine under external context
+     * @param context external context
+     */
     void terminate(C context);
     
+    /**
+     * Terminate state machine under external context without exiting any states
+     * @param context external context
+     */
     void terminateWithoutExitStates(C context);
     
+    /**
+     * @return current status of state machine
+     */
     StateMachineStatus getStatus();
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
