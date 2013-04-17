@@ -165,6 +165,7 @@ void defineHierachyOn(S parentStateId, S... childStateIds);
 		@State(parent="A", name="CinA", entryMethodCall="entryCinA", exitMethodCall="exitCinA")
 })
 ```  
+
 * **Define Parallel State**  
 TBD
 
