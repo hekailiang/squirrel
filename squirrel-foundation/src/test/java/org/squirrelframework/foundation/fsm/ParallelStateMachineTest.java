@@ -2,7 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.util.Map;
@@ -35,14 +35,15 @@ public class ParallelStateMachineTest {
 	
 	@States({
 		@State(name="Total", entryCallMethod="enterTotal", exitCallMethod="exitTotal"),
-		@State(parent="Total", name="A", entryCallMethod="enterA", exitCallMethod="exitA", compositeType=StateCompositeType.PARALLEL),
+		@State(parent="Total", name="A", entryCallMethod="enterA", exitCallMethod="exitA", 
+			compositeType=StateCompositeType.PARALLEL, historyType=HistoryType.DEEP),
 		
-		@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1"),
+		@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP),
 		@State(parent="A1", name="A1a", entryCallMethod="enterA1a", exitCallMethod="exitA1a", initialState=true),
 		@State(parent="A1", name="A1b", entryCallMethod="enterA1b", exitCallMethod="exitA1b"),
 		@State(parent="A1", name="A1c", entryCallMethod="enterA1c", exitCallMethod="exitA1c", isFinal=true),
 		
-		@State(parent="A", name="A2", entryCallMethod="enterA2", exitCallMethod="exitA2"),
+		@State(parent="A", name="A2", entryCallMethod="enterA2", exitCallMethod="exitA2", historyType=HistoryType.DEEP),
 		@State(parent="A2", name="A2a", entryCallMethod="enterA2a", exitCallMethod="exitA2a"),
 		@State(parent="A2", name="A2b", entryCallMethod="enterA2b", exitCallMethod="exitA2b", initialState=true),
 		@State(parent="A2", name="A2c", entryCallMethod="enterA2c", exitCallMethod="exitA2c", isFinal=true),
@@ -332,6 +333,30 @@ public class ParallelStateMachineTest {
 		stateMachine.fire(PEvent.A1a2B, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1a.exitA1.exitA2b.exitA2.exitA.transitA1a2B.enterB")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.B)));
+	}
+	
+	@Test
+	public void testHistoricalState() {
+		stateMachine.start(null);
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1a, PState.A2b));
+		
+		stateMachine.fire(PEvent.A1a2A1b, 1);
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A2b, PState.A1b));
+		
+		stateMachine.fire(PEvent.A2b2A2a, 1);
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1b, PState.A2a));
+		
+		stateMachine.fire(PEvent.A2B, 1);
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.B)));
+		assertThat(stateMachine.getSubStatesOn(PState.A), is(empty()));
+		assertThat(stateMachine.getSubStatesOn(PState.B), is(empty()));
+		
+		stateMachine.fire(PEvent.B2A, 1);
+		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1b, PState.A2a));
 	}
 	
 	@Test
