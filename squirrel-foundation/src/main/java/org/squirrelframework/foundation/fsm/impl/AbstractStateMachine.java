@@ -278,21 +278,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    public void replaceSubState(S parentState, S oldSubState, S newSubState) {
-    	if(getRawStateFrom(parentState)!=null && getRawStateFrom(parentState).isParallelState()) {
-    		int index = parallelStatesStore.get(parentState).indexOf(oldSubState);
-    		if(index>=0) {
-    			parallelStatesStore.get(parentState).set(index, newSubState);
-    		} else {
-    			parallelStatesStore.put(parentState, newSubState);
-    		}
-    		parallelStatesStore.remove(parentState, oldSubState);
-    	} else {
-    		logger.warn("Cannot replace sub states on none parallel state {}."+parentState);
-    	}
-    }
-    
-    @Override
     public void removeSubStatesOn(S parentState) {
     	if(getRawStateFrom(parentState).isParallelState()) {
     		parallelStatesStore.removeAll(parentState);
@@ -600,7 +585,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         public Exception getException() {
             return e;
         }
-        
     }
     
     public static class TransitionDeclinedEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 

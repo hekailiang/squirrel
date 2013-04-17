@@ -341,6 +341,7 @@ public class HierarchicalStateMachineTest {
 	public void teardown() {
 		if(stateMachine.getStatus()!=StateMachineStatus.TERMINATED)
 			stateMachine.terminate(null);
+		System.out.println("-------------------------------------------------");
 	}
 	
 	

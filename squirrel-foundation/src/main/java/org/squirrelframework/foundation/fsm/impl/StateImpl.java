@@ -141,9 +141,7 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     			if(!subState.isFinalState()) {
     				subState.exit(stateContext);
     			}
-    		}
-    		for(ImmutableState<T, S, E, C> parallelState : childStates) {
-    			parallelState.exit(stateContext);
+    			subState.getParentState().exit(stateContext);
     		}
     		stateContext.getStateMachine().removeSubStatesOn(getStateId());
     	}
@@ -153,9 +151,16 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
         			getStateId(), null, stateContext.getEvent(), 
                     stateContext.getContext(), stateContext.getStateMachine());
         }
-        // update historical state 
-        if (getParentState() != null && getParentState().getHistoryType()!=HistoryType.NONE) {
-			stateContext.setLastActiveChildState(getParentState(), this);
+         
+        if (getParentState() != null) {
+        	// update historical state
+        	if(getParentState().getHistoryType()!=HistoryType.NONE) {
+        		stateContext.setLastActiveChildState(getParentState(), this);
+        	}
+        	if(getParentState().isRegion()) {
+        		S grandParentId = getParentState().getParentState().getStateId();
+        		stateContext.getStateMachine().removeSubState(grandParentId, getStateId());
+        	}
 		}
         logger.debug("State \""+getStateId()+"\" exit.");
     }
@@ -307,6 +312,16 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
         exitActions.addAll(newActions);
     }
     
+    private boolean isParentOf(ImmutableState<T, S, E, C> state) {
+    	ImmutableState<T, S, E, C> parent = state.getParentState();
+    	while(parent!=null) {
+    		if(parent==this) 
+    			return true;
+    		parent=parent.getParentState();
+    	}
+    	return false;
+    }
+    
     @Override
     public void internalFire(StateContext<T, S, E, C> stateContext) {
     	TransitionResult<T, S, E, C> currentTransitionResult = stateContext.getResult();
@@ -334,8 +349,12 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     			parallelState.internalFire(subStateContext); 
     			if(subTransitionResult.isDeclined()) continue;
     			
-    			stateContext.getStateMachine().replaceSubState(getStateId(), 
-						parallelState.getStateId(), subTransitionResult.getTargetState().getStateId());
+    			if(!isParentOf(subTransitionResult.getTargetState())) {
+    				// child state transition exit the parallel state
+    				currentTransitionResult.setTargetState(subTransitionResult.getTargetState());
+    				return;
+    			}
+    			stateContext.getStateMachine().setSubState(getStateId(), subTransitionResult.getTargetState().getStateId());
 				// TODO-hhe: fire event to notify listeners???
 				if(subTransitionResult.getTargetState().isFinalState()) {
 					ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();

@@ -27,7 +27,7 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
     public void execute() {
 		List<ExectionContext<T, S, E, C>> executionContexts = stack.pop();
         for (int i=0, size=executionContexts.size(); i<size; ++i) {
-        	fireEvent(new ExecActionEventImpl<T, S, E, C>(i+1, size, executionContexts.get(i)));
+        	fireEvent(ExecActionEventImpl.get(i+1, size, executionContexts.get(i)));
         	executionContexts.get(i).run();
         }
     }
@@ -60,6 +60,11 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 			this.pos = pos;
 			this.size = size;
 			this.executionContext = executionContext;
+		}
+		
+		static <T extends StateMachine<T, S, E, C>, S, E, C> ExecActionEvent<T, S, E, C> get(
+				int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+			return new ExecActionEventImpl<T, S, E, C>(pos, size, executionContext);
 		}
 
 		@Override

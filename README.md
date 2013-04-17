@@ -165,6 +165,11 @@ void defineHierachyOn(S parentStateId, S... childStateIds);
 		@State(parent="A", name="CinA", entryMethodCall="entryCinA", exitMethodCall="exitCinA")
 })
 ```  
+* **Define Parallel State**  
+TBD
+
+* **Using History States to Save and Restore the Current State**  
+TBD
 
 * **Transition Types**  
 According to the UML specification, a transition may be one of these three kinds:    
@@ -254,15 +259,22 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 	
 * **State Machine Diagnose**  
 	User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.   
-	For example, the following code is used to register a execution time monitor for state machine of *MyStateMachine* type.
+	For example, the following code is used to register an execution time monitor for state machine of *MyStateMachine* type.
 	```java
 	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, 
         		new TypeReference<TransitionExecTimeMonitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
 	```  
-	The following code is used to monitor transition progress.^* (Notify progress bar)
+	The following code is used to monitor transition progress by adding a *TransitionProgressMonitor* to *ActionExecutor* to monitor transition action execution.
 	```java
-	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, 
-        		new TypeReference<TransitionProgressMonitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
+	SquirrelPostProcessorProvider.getInstance().register(
+        new TypeReference<ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext>>(){}, 
+        new SquirrelPostProcessor<ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext>>() {
+			@Override
+            public void postProcess(ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext> component) {
+				component.addListener(new TransitionProgressMonitor<MyStateMachine, MyState, MyEvent, MyContext>());
+            }
+        }
+	);
 	```   
 	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
 	```java
@@ -271,7 +283,6 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 	```
 
 ### Future Plan  
-* Support parallel state
 * Support state persistence
 * Support sendEvent(sync) and postEvent(async)
 

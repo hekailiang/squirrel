@@ -28,8 +28,6 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     void removeSubStatesOn(S parentState);
     
-    void replaceSubState(S parentState, S oldSubState, S newSubState);
-    
     S getInitialState();
     
     void start(C context);
