@@ -504,6 +504,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
+    public MutableState<T, S, E, C> defineFinalState(S stateId) {
+    	MutableState<T, S, E, C> newState = FSM.getState(states, stateId);
+    	newState.setFinal(true);
+    	return newState;
+    }
+    
+    @Override
     public void defineSequentialStatesOn(S parentStateId, S... childStateIds) {
     	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, HistoryType.NONE, childStateIds);
     }

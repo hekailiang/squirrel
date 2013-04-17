@@ -37,10 +37,22 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     /**
      * Define a new state in state machine model
      * @param stateId id of new state
-     * @return defined new immutable state
+     * @return defined new mutable state
      */
     MutableState<T, S, E, C> defineState(S stateId);
     
+    /**
+     * Define a final state in state machine model
+     * @param stateId id of final state
+     * @return defined final state
+     */
+    MutableState<T, S, E, C> defineFinalState(S stateId);
+    
+    /**
+     * Define sequential child states whose hierarchy type is default set to NONE on parent state
+     * @param parentStateId id of parent state
+     * @param childStateIds child states id of parent state. The first child state will be used as initial child state of parent state.
+     */
     void defineSequentialStatesOn(S parentStateId, S... childStateIds);
     
     /**

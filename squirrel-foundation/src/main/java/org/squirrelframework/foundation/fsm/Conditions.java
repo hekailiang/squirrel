@@ -1,7 +1,12 @@
 package org.squirrelframework.foundation.fsm;
 
 import java.util.List;
-
+/**
+ * Constants conditions
+ * 
+ * @author Henry.He
+ *
+ */
 public class Conditions {
     
     public static class Always<C> implements Condition<C> {
