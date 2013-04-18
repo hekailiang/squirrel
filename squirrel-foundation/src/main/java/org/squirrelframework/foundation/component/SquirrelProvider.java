@@ -7,6 +7,12 @@ import java.util.Map;
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
 
+/**
+ * Central factory class for components used by squirrel-foundation.
+ * 
+ * @author Henry.He
+ *
+ */
 public class SquirrelProvider implements SquirrelSingleton {
 
     private static SquirrelProvider instance = new SquirrelProvider();
@@ -76,7 +82,15 @@ public class SquirrelProvider implements SquirrelSingleton {
     }
 
     /**
-     * Return the current registered implementation.
+     * Return the current registered implementation. 
+     * If class has register a implementation class, return register implementation class. If register class or implement 
+     * class is an interface, try to find corresponding implementation class over naming convention. 
+     * (implementation class simple name = interface class simple name + "Impl") First try to find the implementation class 
+     * with conventional naming under the same package as interface class. If still not exist, try to find implementation class 
+     * in (interface class package + ".impl").
+     * 
+     * @param clz registered class
+     * @return current registered implementation
      */
     @SuppressWarnings("unchecked")
     public <T> Class<T> getImplementation(Class<T> clz) {
