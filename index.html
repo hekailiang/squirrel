@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Squirrel by hekailiang</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Squirrel</h1>
+        <h2>squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java.</h2>
+        <a href="https://github.com/hekailiang/squirrel" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>squirrel-foundation</h1>
+
+<h3>What is it?</h3>
+
+<p><strong>squirrel-foundation</strong> provided an easy use, type safe and highly extensible <strong>state machine</strong> (<a href="http://en.wikipedia.org/wiki/UML_state_machine">Wikipedia</a>) implementation for Java.  </p>
+
+<h3>Maven</h3>
+
+<pre lang="maven"><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
+  &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
+  &lt;version&gt;0.1.6&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<h3>Getting Started</h3>
+
+<p><strong>squirrel-foundation</strong> supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. </p>
+
+<ul>
+<li>
+<p><strong>StateMahcine</strong> interface takes four generic type parameters.  </p>
+
+<ul>
+<li>
+<strong>T</strong> stands for the type of implemented state machine.</li>
+<li>
+<strong>S</strong> stands for the type of implemented state.</li>
+<li>
+<strong>E</strong> stands for the type of implemented event.</li>
+<li>
+<strong>C</strong> stands for the type of implemented context.</li>
+</ul>
+</li>
+<li>
+<p><strong>StateMachineBuilder</strong>  </p>
+
+<ul>
+<li>The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. </li>
+<li>
+<p>The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: </p>
+
+<div class="highlight"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;</span><span class="n">ConventionalStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">builder</span> <span class="o">=</span>
+    <span class="n">StateMachineBuilderImpl</span><span class="o">.</span><span class="na">newStateMachineBuilder</span><span class="o">(</span><span class="n">ConventionalStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
+    <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Fluent API</strong><br>
+After state machine builder was created, we can use fluent API to define state/transition/action of the state machine.</p>
+
+<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">B</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">GoToB</span><span class="o">);</span>
+</pre></div>
+
+<p>An <strong>external transition</strong> is built from state 'A' to state 'B' on event 'GoToB'.</p>
+
+<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">internalTransition</span><span class="o">().</span><span class="na">within</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">WithinA</span><span class="o">).</span><span class="na">perform</span><span class="o">(</span><span class="n">myAction</span><span class="o">);</span>
+</pre></div>
+
+<p>An <strong>internal transition</strong> is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered.</p>
+
+<div class="highlight"><pre>    <span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">C</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">D</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">GoToD</span><span class="o">).</span><span class="na">when</span><span class="o">(</span>
+    <span class="k">new</span> <span class="n">Condition</span><span class="o">&lt;</span><span class="n">MyContext</span><span class="o">&gt;()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSatisfied</span><span class="o">(</span><span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">context</span><span class="o">!=</span><span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">context</span><span class="o">.</span><span class="na">getValue</span><span class="o">()&gt;</span><span class="mi">80</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+</pre></div>
+
+<p>An <strong>conditional transition</strong> is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction.</p>
+
+<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">onEntry</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">perform</span><span class="o">(</span><span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="n">action1</span><span class="o">,</span> <span class="n">action2</span><span class="o">))</span>
+</pre></div>
+
+<p>A list of state entry actions is defined.</p>
+</li>
+<li>
+<p><strong>Method Call Action</strong><br>
+User can define actions during define transitions or state entry actions. However, the actions will be scattered over the definitions method blocks and other classes. Moreover, other user cannot override the actions. Thus, squirrel-foundation also support define method call actions within state machine implementation in a <strong>Convention Over Configuration</strong> manner.<br>
+Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain phase. e.g.  </p>
+
+<div class="highlight"><pre><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromAToBOnGoToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
+</pre></div>
+
+<p>The method named as <strong>transitFrom[SourceStateName]To[TargetStateName]On[EventName]</strong>, and parameterized as [MyState, MyState, MyEvent, MyContext] will be added into transition "A-(GoToB)-&gt;B" action list. When transiting from state 'A' to state 'B' on event 'GoToB', this method will be invoked.</p>
+
+<div class="highlight"><pre><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromAnyToBOnGoToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
+</pre></div>
+
+<p><strong>transitFromAnyTo[TargetStateName]On[EventName]</strong> The method will be invoked when transit from any state to state 'B' on event 'GoToB'.</p>
+
+<div class="highlight"><pre><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">exitA</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
+</pre></div>
+
+<p><strong>exit[StateName]</strong> The method will be invoked when exit state 'A'. So as the <strong>entry[StateName]</strong> , <strong>exitAny</strong> and <strong>entryAny</strong>.  </p>
+
+<p><strong><em>Other Supported Naming Patterns:</em></strong></p>
+
+<pre><code>transitFrom[fromStateName]To[toStateName]On[eventName]When[conditionName]  
+transitFrom[fromStateName]To[toStateName]On[eventName]  
+transitFromAnyTo[toStateName]On[eventName]  
+transitFrom[fromStateName]ToAnyOn[eventName]  
+transitFrom[fromStateName]To[toStateName]          
+on[eventName] 
+</code></pre>
+</li>
+<li>
+<p><strong>Declarative Annotation</strong><br>
+Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name. Moreover, the java compiler cannot help user to detect the error when misspelling the method name. For this case, a declarative way is also provided to define and also to extend the state machine. Here is an example.  </p>
+
+<div class="highlight"><pre><span class="nd">@States</span><span class="o">({</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"entryStateA"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitStateA"</span><span class="o">),</span> 
+    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"B"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"entryStateB"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitStateB"</span><span class="o">)</span>
+<span class="o">})</span>
+<span class="nd">@Transitions</span><span class="o">({</span>
+    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"B"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"GoToB"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"stateAToStateBOnGotoB"</span><span class="o">),</span>
+    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"WithinA"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"stateAToStateAOnWithinA"</span><span class="o">,</span> <span class="n">type</span><span class="o">=</span><span class="n">TransitionType</span><span class="o">.</span><span class="na">INTERNAL</span><span class="o">)</span>
+<span class="o">})</span>
+<span class="kd">interface</span> <span class="nc">MyStateMachine</span> <span class="kd">extends</span> <span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">entryStateA</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">stateAToStateBOnGotoB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
+    <span class="kt">void</span> <span class="nf">stateAToStateAOnWithinA</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
+    <span class="kt">void</span> <span class="nf">exitStateA</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>The annotation can be defined in both implementation class of state machine or any interface that state machine will be implemented. It also can be used mixed with fluent API, which means the state machine defined in fluent API can also be extended by these annotations. (One thing you may need to be noticed, the method defined within interface must be public, which means also the method call action implementation will be public to caller.)  </p>
+</li>
+<li>
+<p><strong>Converters</strong><br>
+In order to declare state and event within <em><a href="https://github.com/State" class="user-mention">@State</a></em> and <em><a href="https://github.com/Transit" class="user-mention">@Transit</a></em>, user need to implement corresponding converters for their state(S) and event(E) type. The convert must implement Converter&lt;T&gt; interface, which convert the state/event to/from String.</p>
+
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Converter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">SquirrelComponent</span> <span class="o">{</span>
+<span class="cm">/**</span>
+<span class="cm"> * Convert object to string.</span>
+<span class="cm"> * @param obj converted object</span>
+<span class="cm"> * @return string description of object</span>
+<span class="cm"> */</span>
+<span class="n">String</span> <span class="nf">convertToString</span><span class="o">(</span><span class="n">T</span> <span class="n">obj</span><span class="o">);</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Convert string to object.</span>
+<span class="cm"> * @param name name of the object</span>
+<span class="cm"> * @return converted object</span>
+<span class="cm"> */</span>
+<span class="n">T</span> <span class="nf">convertFromString</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>Then register these converters to <em>ConverterProvider</em>. e.g.</p>
+
+<div class="highlight"><pre><span class="n">ConverterProvider</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyEventConverter</span><span class="o">());</span>
+<span class="n">ConverterProvider</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyStateConverter</span><span class="o">());</span>
+</pre></div>
+
+<p>Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters.</p>
+</li>
+<li>
+<p><strong>New State Machine Instance</strong><br>
+After user defined state machine behavior, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.</p>
+
+<div class="highlight"><pre><span class="n">T</span> <span class="nf">newStateMachine</span><span class="o">(</span><span class="n">S</span> <span class="n">initialStateId</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">extraParams</span><span class="o">);</span>
+</pre></div>
+
+<p>To create a new state machine instance from state machine builder, you need to pass following parameters.</p>
+
+<ol>
+<li>
+<em>initialStateId</em>: When started, the initial state of the state machine.</li>
+<li>
+<em>extraParams</em>: Extra parameters that needed for create new state machine instance. Set to <em>"new Object[0]"</em> for no extra parameters needed.<br>
+</li>
+</ol>
+<p>New state machine from state machine builder.</p>
+
+<div class="highlight"><pre><span class="n">MyStateMachine</span> <span class="n">stateMachine</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">Initial</span><span class="o">,</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</pre></div>
+</li>
+<li>
+<p><strong>Fire Events</strong><br>
+After state machine was created, user can fire events along with context to trigger transition inside state machine. e.g.</p>
+
+<div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>
+</pre></div>
+</li>
+</ul><h3>Advanced Feature</h3>
+
+<ul>
+<li>
+<p><strong>Define Hierarchical State</strong><br>
+The hierarchical state can be defined through API or annotation.</p>
+
+<div class="highlight"><pre><span class="kt">void</span> <span class="nf">defineHierachyOn</span><span class="o">(</span><span class="n">S</span> <span class="n">parentStateId</span><span class="o">,</span> <span class="n">S</span><span class="o">...</span> <span class="n">childStateIds</span><span class="o">);</span>
+</pre></div>
+
+<p><em>builder.defineHierarchyOn(State.A, State.BinA, StateCinA)</em> defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.</p>
+
+<div class="highlight"><pre><span class="nd">@States</span><span class="o">({</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">entryMethodCall</span><span class="o">=</span><span class="s">"entryA"</span><span class="o">,</span> <span class="n">exitMethodCall</span><span class="o">=</span><span class="s">"exitA"</span><span class="o">),</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"BinA"</span><span class="o">,</span> <span class="n">entryMethodCall</span><span class="o">=</span><span class="s">"entryBinA"</span><span class="o">,</span> <span class="n">exitMethodCall</span><span class="o">=</span><span class="s">"exitBinA"</span><span class="o">,</span> <span class="n">initialState</span><span class="o">=</span><span class="kc">true</span><span class="o">),</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"CinA"</span><span class="o">,</span> <span class="n">entryMethodCall</span><span class="o">=</span><span class="s">"entryCinA"</span><span class="o">,</span> <span class="n">exitMethodCall</span><span class="o">=</span><span class="s">"exitCinA"</span><span class="o">)</span>
+<span class="o">})</span>
+</pre></div>
+</li>
+<li><p><strong>Define Parallel State</strong><br>
+TBD</p></li>
+<li><p><strong>Using History States to Save and Restore the Current State</strong><br>
+TBD</p></li>
+<li>
+<p><strong>Transition Types</strong><br>
+According to the UML specification, a transition may be one of these three kinds:    </p>
+
+<blockquote>
+<ul>
+<li>
+<em>Internal Transition</em><br>
+Implies that the Transition, if triggered, occurs without exiting or entering the source State (i.e., it does not cause a state change). This means that the entry or exit condition of the source State will not be invoked. An internal Transition can be taken even if the StateMachine is in one or more Regions nested within the associated State.<br>
+</li>
+<li>
+<em>Local Transition</em><br>
+Implies that the Transition, if triggered, will not exit the composite (source) State, but it will exit and re-enter any state within the composite State that is in the current state configuration.</li>
+<li>
+<em>External Transition</em><br>
+Implies that the Transition, if triggered, will exit the composite (source) State</li>
+</ul>
+</blockquote>
+
+<p>squirrel-foundation supports both API and annotation to declare all kinds of transitions, e.g.  </p>
+
+<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">B</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">A2B</span><span class="o">);</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">internalTransition</span><span class="o">().</span><span class="na">within</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">innerA</span><span class="o">);</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">localTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">CinA</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">intoC</span><span class="o">)</span>
+</pre></div>
+
+<p>or  </p>
+
+<div class="highlight"><pre><span class="nd">@Transitions</span><span class="o">({</span>
+    <span class="nd">@Transition</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"B"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"A2B"</span><span class="o">),</span> <span class="c1">//default value of transition type is EXTERNAL</span>
+    <span class="nd">@Transition</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"innerA"</span><span class="o">,</span> <span class="n">type</span><span class="o">=</span><span class="n">TransitionType</span><span class="o">.</span><span class="na">INTERNAL</span><span class="o">),</span>
+    <span class="nd">@Transition</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"CinA"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"intoC"</span><span class="o">,</span> <span class="n">type</span><span class="o">=</span><span class="n">TransitionType</span><span class="o">.</span><span class="na">LOCAL</span><span class="o">),</span>
+<span class="o">})</span>
+</pre></div>
+</li>
+<li>
+<p><strong>State Machine Lifecycle Events</strong><br>
+During the lifecycle of the state machine, various events will be fired, e.g. </p>
+
+<pre><code>|--StateMachineEvent                        /* Base event of all state machine event */   
+   |--StartEvent                            /* Fired when state machine started      */ 
+   |--TerminateEvent                        /* Fired when state machine terminated   */ 
+      |--TransitionEvent                    /* Base event of all transition event    */ 
+         |--TransitionBeginEvent            /* Fired when transition began           */ 
+         |--TransitionCompleteEvent         /* Fired when transition completed       */ 
+         |--TransitionExceptionEvent        /* Fired when transition threw exception */ 
+         |--TransitionDeclinedListener      /* Fired when transition declined        */ 
+</code></pre>
+
+<p>User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,</p>
+
+<div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="n">StateMachineListener</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">stateMachineEvent</span><span class="o">(</span><span class="n">StateMachineEvent</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// ...</span>
+        <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
+</li>
+<li>
+<p><strong>State Machine PostProcessor</strong><br>
+User can register post processor for specific type of state machine in order to adding post process logic after state machine instantiated, e.g.  </p>
+
+<div class="highlight"><pre><span class="c1">// 1 User defined a state machine interface</span>
+<span class="kd">interface</span> <span class="nc">MyStateMachine</span> <span class="kd">extends</span> <span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
+<span class="o">}</span>
+
+<span class="c1">// 2 Both MyStateMachineImpl and MyStateMachineImplEx are implemented MyStateMachine</span>
+<span class="kd">class</span> <span class="nc">MyStateMachineImpl</span> <span class="kd">implements</span> <span class="n">MyStateMachine</span> <span class="o">{</span>
+    <span class="o">.</span> <span class="o">.</span> <span class="o">.</span> 
+<span class="o">}</span>
+<span class="kd">class</span> <span class="nc">MyStateMachineImplEx</span> <span class="kd">implements</span> <span class="n">MyStateMachine</span> <span class="o">{</span>
+    <span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
+<span class="o">}</span>
+
+<span class="c1">// 3 User define a state machine post processor</span>
+<span class="n">MyStateMachinePostProcessor</span> <span class="kd">implements</span> <span class="n">SquirrelPostProcessor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">postProcess</span><span class="o">(</span><span class="n">MyStateMachine</span> <span class="n">component</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">.</span> <span class="o">.</span> <span class="o">.</span> 
+    <span class="o">}</span>
+<span class="o">}</span>  
+
+<span class="c1">// 4 User register state machine post process</span>
+<span class="n">SquirrelPostProcessorProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">register</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyStateMachinePostProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+
+<p>For this case, when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.</p>
+</li>
+<li>
+<p><strong>State Machine Intercepter</strong><br>
+User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle. </p>
+
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractStateMachineIntercepter</span><span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;</span> 
+    <span class="kd">implements</span> <span class="n">StateMachineIntercepter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;,</span> <span class="n">SquirrelPostProcessor</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from <em>AbstractStateMachineIntercepter</em>. Actually, the <em>AbstractStateMachineIntercepter</em> also implemented <em>SquirrelPostProcessor</em> interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.<br>
+By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.</p>
+</li>
+<li>
+<p><strong>State Machine Diagnose</strong><br>
+User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.<br>
+For example, the following code is used to register an execution time monitor for state machine of <em>MyStateMachine</em> type.</p>
+
+<div class="highlight"><pre><span class="n">SquirrelPostProcessorProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">register</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
+            <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">TransitionExecTimeMonitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{});</span>
+</pre></div>
+
+<p>The following code is used to monitor transition progress by adding a <em>TransitionProgressMonitor</em> to <em>ActionExecutor</em> to monitor transition action execution.</p>
+
+<div class="highlight"><pre><span class="n">SquirrelPostProcessorProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">register</span><span class="o">(</span>
+    <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;(){},</span> 
+    <span class="k">new</span> <span class="n">SquirrelPostProcessor</span><span class="o">&lt;</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">postProcess</span><span class="o">(</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">component</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">component</span><span class="o">.</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="n">TransitionProgressMonitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">);</span>
+</pre></div>
+
+<p>Add <strong>@LogExecTime</strong> on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method <em>transitFromAToBOnGoToB</em> will be logged out.</p>
+
+<div class="highlight"><pre><span class="nd">@LogExecTime</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromAToBOnGoToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
+</pre></div>
+</li>
+</ul><h3>Future Plan</h3>
+
+<ul>
+<li>Support state persistence</li>
+<li>Support sendEvent(sync) and postEvent(async)</li>
+</ul>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/hekailiang/squirrel/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/hekailiang/squirrel/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/hekailiang/squirrel"></a> is maintained by <a href="https://github.com/hekailiang">hekailiang</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
