@@ -29,20 +29,20 @@
       <section>
         <h1>squirrel-foundation</h1>
 
-<h3>What is it?</h3>
+<h2>What is it?</h2>
 
 <p><strong>squirrel-foundation</strong> provided an easy use, type safe and highly extensible <strong>state machine</strong> (<a href="http://en.wikipedia.org/wiki/UML_state_machine">Wikipedia</a>) implementation for Java.  </p>
 
-<h3>Maven</h3>
+<h2>Maven</h2>
 
 <pre lang="maven"><code>&lt;dependency&gt;
   &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
   &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-  &lt;version&gt;0.1.6&lt;/version&gt;
+  &lt;version&gt;0.1.7&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
-<h3>Getting Started</h3>
+<h2>Getting Started</h2>
 
 <p><strong>squirrel-foundation</strong> supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. </p>
 
@@ -62,19 +62,16 @@
 </ul>
 </li>
 <li>
-<p><strong>StateMachineBuilder</strong>  </p>
+<p><strong>State Machine Builder</strong>  </p>
 
 <ul>
 <li>The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. </li>
-<li>
-<p>The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: </p>
-
+<li>The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: </li>
+</ul>
 <div class="highlight"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;</span><span class="n">ConventionalStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">builder</span> <span class="o">=</span>
     <span class="n">StateMachineBuilderImpl</span><span class="o">.</span><span class="na">newStateMachineBuilder</span><span class="o">(</span><span class="n">ConventionalStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
     <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
-</li>
-</ul>
 </li>
 <li>
 <p><strong>Fluent API</strong><br>
@@ -216,7 +213,7 @@ After state machine was created, user can fire events along with context to trig
 <div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>
 </pre></div>
 </li>
-</ul><h3>Advanced Feature</h3>
+</ul><h2>Advanced Feature</h2>
 
 <ul>
 <li>
@@ -369,7 +366,7 @@ For example, the following code is used to register an execution time monitor fo
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromAToBOnGoToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
 </pre></div>
 </li>
-</ul><h3>Future Plan</h3>
+</ul><h2>Future Plan</h2>
 
 <ul>
 <li>Support state persistence</li>
