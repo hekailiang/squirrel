@@ -41,6 +41,7 @@ import org.squirrelframework.foundation.fsm.builder.On;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.builder.To;
 import org.squirrelframework.foundation.fsm.builder.When;
+import org.squirrelframework.foundation.util.DuplicateChecker;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
 import com.google.common.base.Function;
@@ -49,6 +50,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateMachineBuilder<T, S, E, C> {
+	
+	static {
+		DuplicateChecker.checkDuplicate(StateMachineBuilder.class);
+	}
     
     private static final Logger logger = LoggerFactory.getLogger(StateMachineBuilderImpl.class);
     
