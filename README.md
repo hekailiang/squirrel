@@ -1,19 +1,19 @@
 squirrel-foundation
 ========
 
-### What is it?  
+## What is it?  
 **squirrel-foundation** provided an easy use, type safe and highly extensible **state machine** ([Wikipedia] [1]) implementation for Java.  
 
-### Maven  
+## Maven  
 ```maven
 <dependency>
   <groupId>org.squirrelframework</groupId>
   <artifactId>squirrel-foundation</artifactId>
-  <version>0.1.6</version>
+  <version>0.1.7</version>
 </dependency>
 ``` 
 
-### Getting Started 
+## Getting Started 
 
 **squirrel-foundation** supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. 
 
@@ -23,15 +23,15 @@ squirrel-foundation
 	* **E** stands for the type of implemented event.
 	* **C** stands for the type of implemented context.
 
-* **StateMachineBuilder**  
+* **State Machine Builder**  
 	* The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
 	* The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: 
-	
-		```java
-		StateMachineBuilder<ConventionalStateMachine, MyState, MyEvent, MyContext> builder =
-			StateMachineBuilderImpl.newStateMachineBuilder(ConventionalStateMachine.class, 
-			MyState.class, MyEvent.class, MyContext.class);
-		```
+		
+	```java
+	StateMachineBuilder<ConventionalStateMachine, MyState, MyEvent, MyContext> builder =
+		StateMachineBuilderImpl.newStateMachineBuilder(ConventionalStateMachine.class, 
+		MyState.class, MyEvent.class, MyContext.class);
+	```
 
 * **Fluent API**  
 After state machine builder was created, we can use fluent API to define state/transition/action of the state machine.
@@ -151,7 +151,7 @@ To create a new state machine instance from state machine builder, you need to p
 	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));
 	```
 
-### Advanced Feature
+## Advanced Feature
 * **Define Hierarchical State**  
 The hierarchical state can be defined through API or annotation.
 ```java
@@ -283,7 +283,7 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
 
-### Future Plan  
+## Future Plan  
 * Support state persistence
 * Support sendEvent(sync) and postEvent(async)
 
