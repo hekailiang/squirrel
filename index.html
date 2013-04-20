@@ -1,32 +1,36 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Squirrel by hekailiang</title>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Squirrel : squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java." />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <title>Squirrel</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Squirrel</h1>
-        <p>squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java.</p>
-        <p class="view"><a href="https://github.com/hekailiang/squirrel">View the Project on GitHub <small>hekailiang/squirrel</small></a></p>
-        <ul>
-          <li><a href="https://github.com/hekailiang/squirrel/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/hekailiang/squirrel/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/hekailiang/squirrel">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/hekailiang/squirrel">View on GitHub</a>
+
+          <h1 id="project_title">Squirrel</h1>
+          <h2 id="project_tagline">squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/hekailiang/squirrel/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/hekailiang/squirrel/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>squirrel-foundation</h1>
 
 <h2>What is it?</h2>
@@ -35,10 +39,12 @@
 
 <h2>Maven</h2>
 
+<p>squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.</p>
+
 <pre lang="maven"><code>&lt;dependency&gt;
-  &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
-  &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-  &lt;version&gt;0.1.7&lt;/version&gt;
+    &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
+    &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
+    &lt;version&gt;0.1.7&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -58,7 +64,7 @@
 <li>
 <strong>E</strong> stands for the type of implemented event.</li>
 <li>
-<strong>C</strong> stands for the type of implemented context.</li>
+<strong>C</strong> stands for the type of implemented external context.</li>
 </ul>
 </li>
 <li>
@@ -87,13 +93,13 @@ After state machine builder was created, we can use fluent API to define state/t
 
 <p>An <strong>internal transition</strong> is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered.</p>
 
-<div class="highlight"><pre>    <span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">C</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">D</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">GoToD</span><span class="o">).</span><span class="na">when</span><span class="o">(</span>
+<div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">C</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">D</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">GoToD</span><span class="o">).</span><span class="na">when</span><span class="o">(</span>
     <span class="k">new</span> <span class="n">Condition</span><span class="o">&lt;</span><span class="n">MyContext</span><span class="o">&gt;()</span> <span class="o">{</span>
         <span class="nd">@Override</span>
         <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSatisfied</span><span class="o">(</span><span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
             <span class="k">return</span> <span class="n">context</span><span class="o">!=</span><span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">context</span><span class="o">.</span><span class="na">getValue</span><span class="o">()&gt;</span><span class="mi">80</span><span class="o">;</span>
         <span class="o">}</span>
-    <span class="o">});</span>
+<span class="o">});</span>
 </pre></div>
 
 <p>An <strong>conditional transition</strong> is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction.</p>
@@ -161,19 +167,19 @@ Use conventional way to define action method call is convenient, but sometimes u
 In order to declare state and event within <em><a href="https://github.com/State" class="user-mention">@State</a></em> and <em><a href="https://github.com/Transit" class="user-mention">@Transit</a></em>, user need to implement corresponding converters for their state(S) and event(E) type. The convert must implement Converter&lt;T&gt; interface, which convert the state/event to/from String.</p>
 
 <div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Converter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">SquirrelComponent</span> <span class="o">{</span>
-<span class="cm">/**</span>
-<span class="cm"> * Convert object to string.</span>
-<span class="cm"> * @param obj converted object</span>
-<span class="cm"> * @return string description of object</span>
-<span class="cm"> */</span>
-<span class="n">String</span> <span class="nf">convertToString</span><span class="o">(</span><span class="n">T</span> <span class="n">obj</span><span class="o">);</span>
+    <span class="cm">/**</span>
+<span class="cm">    * Convert object to string.</span>
+<span class="cm">    * @param obj converted object</span>
+<span class="cm">    * @return string description of object</span>
+<span class="cm">    */</span>
+    <span class="n">String</span> <span class="nf">convertToString</span><span class="o">(</span><span class="n">T</span> <span class="n">obj</span><span class="o">);</span>
 
-<span class="cm">/**</span>
-<span class="cm"> * Convert string to object.</span>
-<span class="cm"> * @param name name of the object</span>
-<span class="cm"> * @return converted object</span>
-<span class="cm"> */</span>
-<span class="n">T</span> <span class="nf">convertFromString</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
+    <span class="cm">/**</span>
+<span class="cm">    * Convert string to object.</span>
+<span class="cm">    * @param name name of the object</span>
+<span class="cm">    * @return converted object</span>
+<span class="cm">    */</span>
+    <span class="n">T</span> <span class="nf">convertFromString</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">);</span>
 <span class="o">}</span>
 </pre></div>
 
@@ -218,9 +224,9 @@ After state machine was created, user can fire events along with context to trig
 <ul>
 <li>
 <p><strong>Define Hierarchical State</strong><br>
-The hierarchical state can be defined through API or annotation.</p>
+A hierarchical state may contain nested state. The child states may themselves have nested children and the nesting may proceed to any depth. When a hierarchical state is active, one and only one of its child states is active. The hierarchical state can be defined through API or annotation.</p>
 
-<div class="highlight"><pre><span class="kt">void</span> <span class="nf">defineHierachyOn</span><span class="o">(</span><span class="n">S</span> <span class="n">parentStateId</span><span class="o">,</span> <span class="n">S</span><span class="o">...</span> <span class="n">childStateIds</span><span class="o">);</span>
+<div class="highlight"><pre><span class="kt">void</span> <span class="nf">defineSequentialStatesOn</span><span class="o">(</span><span class="n">S</span> <span class="n">parentStateId</span><span class="o">,</span> <span class="n">S</span><span class="o">...</span> <span class="n">childStateIds</span><span class="o">);</span>
 </pre></div>
 
 <p><em>builder.defineHierarchyOn(State.A, State.BinA, StateCinA)</em> defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.</p>
@@ -232,10 +238,37 @@ The hierarchical state can be defined through API or annotation.</p>
 <span class="o">})</span>
 </pre></div>
 </li>
-<li><p><strong>Define Parallel State</strong><br>
-TBD</p></li>
-<li><p><strong>Using History States to Save and Restore the Current State</strong><br>
-TBD</p></li>
+<li>
+<p><strong>Define Parallel State</strong><br>
+The parallel state encapsulates a set of child states which are simultaneously active when the parent element is active. The  parallel state can be defined through API or annotation both. e.g.   </p>
+
+<div class="highlight"><pre><span class="c1">// defines two child states "A1" and "A2" under parent parallel state "A"</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">defineParallelStatesOn</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">A1</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">A2</span><span class="o">)</span>
+</pre></div>
+
+<p>or</p>
+
+<div class="highlight"><pre><span class="nd">@States</span><span class="o">({</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"enterA"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitA"</span><span class="o">,</span> <span class="n">compositeType</span><span class="o">=</span><span class="n">StateCompositeType</span><span class="o">.</span><span class="na">PARALLEL</span><span class="o">),</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"A1"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"enterA1"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitA1"</span><span class="o">),</span>
+    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"A2"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"enterA2"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitA2"</span><span class="o">)</span>
+<span class="o">})</span>
+</pre></div>
+</li>
+<li>
+<p><strong>Using History States to Save and Restore the Current State</strong><br>
+The history pseudo-state allows a state machine to remember its state configuration. A transition taking the history state as its target will return the state machine to this recorded configuration. If the 'type' of a history is "shallow", the state machine processor must record the direct  active children of its parent before taking any transition that exits the parent. If the 'type' of a history is "deep", the state machine processor must record all the active  descendants of the parent before taking any transition that exits the parent.<br>
+Both API and annotation are supported to define history type of state. e.g.  </p>
+
+<div class="highlight"><pre><span class="c1">// defined history type of state "A" as "deep"</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">defineSequentialStatesOn</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">,</span> <span class="n">HistoryType</span><span class="o">.</span><span class="na">DEEP</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">A1</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">A2</span><span class="o">)</span>
+</pre></div>
+
+<p>or</p>
+
+<div class="highlight"><pre><span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"A1"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"enterA1"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitA1"</span><span class="o">,</span> <span class="n">historyType</span><span class="o">=</span><span class="n">HistoryType</span><span class="o">.</span><span class="na">DEEP</span><span class="o">)</span>
+</pre></div>
+</li>
 <li>
 <p><strong>Transition Types</strong><br>
 According to the UML specification, a transition may be one of these three kinds:    </p>
@@ -370,15 +403,21 @@ For example, the following code is used to register an execution time monitor fo
 
 <ul>
 <li>Support state persistence</li>
+<li>State machine import and export</li>
 <li>Support sendEvent(sync) and postEvent(async)</li>
 </ul>
       </section>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/hekailiang">hekailiang</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Squirrel maintained by <a href="https://github.com/hekailiang">hekailiang</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>
