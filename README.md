@@ -202,8 +202,7 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 	> * *Local Transition*  
 	Implies that the Transition, if triggered, will not exit the composite (source) State, but it will exit and re-enter any state within the composite State that is in the current state configuration.
 	> * *External Transition*   
-	Implies that the Transition, if triggered, will exit the composite (source) State
-	  
+	Implies that the Transition, if triggered, will exit the composite (source) State  
 
 	squirrel-foundation supports both API and annotation to declare all kinds of transitions, e.g.  
 	```java
@@ -278,7 +277,17 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
     }
 	```
 	User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from *AbstractStateMachineIntercepter*. Actually, the *AbstractStateMachineIntercepter* also implemented *SquirrelPostProcessor* interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.   
-	By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.
+	By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.  
+	
+* **State Machine Export**  
+SCXMLVisitor can be used to export state machine definition in [SCXML] [2] document.
+```java  
+SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext> visitor = SquirrelProvider.getInstance().newInstance(
+				new TypeReference<SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext>>() {} );
+stateMachine.accept(visitor);
+visitor.convertSCXMLFile("MyStateMachine", true);
+```
+
 	
 * **State Machine Diagnose**  
 	User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.   
@@ -311,3 +320,4 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 * Support sendEvent(sync) and postEvent(async)
 
 [1]: http://en.wikipedia.org/wiki/UML_state_machine
+[2]: http://www.w3.org/TR/scxml/

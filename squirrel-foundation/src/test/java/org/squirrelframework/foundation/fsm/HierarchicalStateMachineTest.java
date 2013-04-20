@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
+import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -20,7 +21,6 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.SCXMLVisitorImpl;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 import org.squirrelframework.foundation.fsm.monitor.TransitionExecTimeMonitor;
 import org.squirrelframework.foundation.fsm.monitor.TransitionProgressMonitor;
@@ -497,8 +497,8 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
     public void testExportHierarchicalStateMachine() {
-        SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = 
-                new SCXMLVisitorImpl<HierachicalStateMachine, HState, HEvent, Integer>();
+        SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
+        		new TypeReference<SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer>>() {} );
         stateMachine.accept(visitor);
         visitor.convertSCXMLFile("HierarchicalStateMachine", true);
     }

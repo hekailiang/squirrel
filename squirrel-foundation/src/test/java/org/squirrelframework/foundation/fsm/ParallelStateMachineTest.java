@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -20,8 +21,8 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.SCXMLVisitorImpl;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
+import org.squirrelframework.foundation.util.TypeReference;
 
 public class ParallelStateMachineTest {
 	
@@ -361,8 +362,8 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testExportParallelState() {
-		SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer> visitor = 
-                new SCXMLVisitorImpl<ParallelStateMachine, PState, PEvent, Integer>();
+		SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
+				new TypeReference<SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer>>() {} );
         stateMachine.accept(visitor);
         visitor.convertSCXMLFile("ParallelStateMachine", true);
 	}

@@ -31,7 +31,7 @@ import org.xml.sax.InputSource;
  * @param <E> event type
  * @param <C> context type
  */
-public class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements SCXMLVisitor<T, S, E, C> {
+class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements SCXMLVisitor<T, S, E, C> {
     
     private final StringBuilder scxml = new StringBuilder();
     
