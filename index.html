@@ -284,7 +284,8 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 Implies that the Transition, if triggered, will not exit the composite (source) State, but it will exit and re-enter any state within the composite State that is in the current state configuration.</li>
 <li>
 <em>External Transition</em><br>
-Implies that the Transition, if triggered, will exit the composite (source) State</li>
+Implies that the Transition, if triggered, will exit the composite (source) State<br>
+</li>
 </ul>
 </blockquote>
 
@@ -369,7 +370,17 @@ User can register intercepter for specific type of state machine to insert custo
 </pre></div>
 
 <p>User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from <em>AbstractStateMachineIntercepter</em>. Actually, the <em>AbstractStateMachineIntercepter</em> also implemented <em>SquirrelPostProcessor</em> interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.<br>
-By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.</p>
+By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.  </p>
+</li>
+<li>
+<p><strong>State Machine Export</strong><br>
+SCXMLVisitor can be used to export state machine definition in <a href="http://www.w3.org/TR/scxml/">SCXML</a> document.</p>
+
+<div class="highlight"><pre><span class="n">SCXMLVisitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">SquirrelProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">newInstance</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">SCXMLVisitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{}</span> <span class="o">);</span>
+<span class="n">stateMachine</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">visitor</span><span class="o">);</span>
+<span class="n">visitor</span><span class="o">.</span><span class="na">convertSCXMLFile</span><span class="o">(</span><span class="s">"MyStateMachine"</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</pre></div>
 </li>
 <li>
 <p><strong>State Machine Diagnose</strong><br>
