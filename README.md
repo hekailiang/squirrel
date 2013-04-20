@@ -5,11 +5,12 @@ squirrel-foundation
 **squirrel-foundation** provided an easy use, type safe and highly extensible **state machine** ([Wikipedia] [1]) implementation for Java.  
 
 ## Maven  
+squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.
 ```maven
 <dependency>
-  <groupId>org.squirrelframework</groupId>
-  <artifactId>squirrel-foundation</artifactId>
-  <version>0.1.7</version>
+	<groupId>org.squirrelframework</groupId>
+  	<artifactId>squirrel-foundation</artifactId>
+  	<version>0.1.7</version>
 </dependency>
 ``` 
 
@@ -21,7 +22,7 @@ squirrel-foundation
 	* **T** stands for the type of implemented state machine.
 	* **S** stands for the type of implemented state.
 	* **E** stands for the type of implemented event.
-	* **C** stands for the type of implemented context.
+	* **C** stands for the type of implemented external context.
 
 * **State Machine Builder**  
 	* The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
@@ -44,13 +45,13 @@ builder.internalTransition().within(MyState.A).on(MyEvent.WithinA).perform(myAct
 ```
 An **internal transition** is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered.
 ```java
-		builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
+	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
 		new Condition<MyContext>() {
             @Override
             public boolean isSatisfied(MyContext context) {
                 return context!=null && context.getValue()>80;
             }
-        });
+    });
 ```
 An **conditional transition** is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction.
 ```java
@@ -109,19 +110,19 @@ Use conventional way to define action method call is convenient, but sometimes u
 In order to declare state and event within *@State* and *@Transit*, user need to implement corresponding converters for their state(S) and event(E) type. The convert must implement Converter\<T\> interface, which convert the state/event to/from String.
 ```java
 public interface Converter<T> extends SquirrelComponent {
-    /**
-     * Convert object to string.
-     * @param obj converted object
-     * @return string description of object
-     */
-    String convertToString(T obj);
+    	/**
+     	* Convert object to string.
+     	* @param obj converted object
+     	* @return string description of object
+     	*/
+    	String convertToString(T obj);
     
-    /**
-     * Convert string to object.
-     * @param name name of the object
-     * @return converted object
-     */
-    T convertFromString(String name);
+    	/**
+     	* Convert string to object.
+     	* @param name name of the object
+     	* @return converted object
+     	*/
+    	T convertFromString(String name);
 }
 ```  
 Then register these converters to *ConverterProvider*. e.g.
@@ -153,9 +154,9 @@ To create a new state machine instance from state machine builder, you need to p
 
 ## Advanced Feature
 * **Define Hierarchical State**  
-The hierarchical state can be defined through API or annotation.
+A hierarchical state may contain nested state. The child states may themselves have nested children and the nesting may proceed to any depth. When a hierarchical state is active, one and only one of its child states is active. The hierarchical state can be defined through API or annotation.
 ```java
-void defineHierachyOn(S parentStateId, S... childStateIds);
+void defineSequentialStatesOn(S parentStateId, S... childStateIds);
 ```
 *builder.defineHierarchyOn(State.A, State.BinA, StateCinA)* defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.
 ```java
@@ -167,10 +168,31 @@ void defineHierachyOn(S parentStateId, S... childStateIds);
 ```  
 
 * **Define Parallel State**  
-TBD
+The parallel state encapsulates a set of child states which are simultaneously active when the parent element is active. The  parallel state can be defined through API or annotation both. e.g.   
+```java  
+	// defines two child states "A1" and "A2" under parent parallel state "A"
+	builder.defineParallelStatesOn(MyState.A, MyState.A1, MyState.A2)
+```
+or
+```java  
+@States({
+		@State(name="A", entryCallMethod="enterA", exitCallMethod="exitA", compositeType=StateCompositeType.PARALLEL),
+		@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1"),
+		@State(parent="A", name="A2", entryCallMethod="enterA2", exitCallMethod="exitA2")
+})
+```
 
 * **Using History States to Save and Restore the Current State**  
-TBD
+The history pseudo-state allows a state machine to remember its state configuration. A transition taking the history state as its target will return the state machine to this recorded configuration. If the 'type' of a history is "shallow", the state machine processor must record the direct  active children of its parent before taking any transition that exits the parent. If the 'type' of a history is "deep", the state machine processor must record all the active  descendants of the parent before taking any transition that exits the parent.   
+Both API and annotation are supported to define history type of state. e.g.  
+```java  
+	// defined history type of state "A" as "deep"
+	builder.defineSequentialStatesOn(MyState.A, HistoryType.DEEP, MyState.A1, MyState.A2)
+```
+or
+```java  
+	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)
+```
 
 * **Transition Types**  
 According to the UML specification, a transition may be one of these three kinds:    
@@ -285,6 +307,7 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 
 ## Future Plan  
 * Support state persistence
+* State machine import and export
 * Support sendEvent(sync) and postEvent(async)
 
 [1]: http://en.wikipedia.org/wiki/UML_state_machine
