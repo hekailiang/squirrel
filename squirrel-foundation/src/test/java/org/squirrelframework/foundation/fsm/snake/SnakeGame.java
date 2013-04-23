@@ -115,9 +115,9 @@ public class SnakeGame extends JFrame {
 			@Override
             public void transitionComplete(TransitionCompleteEvent<SnakeController, SnakeState, SnakeEvent, SnakeContext> event) {
 				snake.repaint();
+				snake.setTitle("Greedy Snake : "+event.getSourceState()+"--["+event.getCause()+"]--"+event.getTargetState());
             }
 		});
 		snake.startGame();
 	}
-
 }

@@ -4,9 +4,11 @@ import java.awt.Point;
 import java.util.Map;
 import java.util.Random;
 
+import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.SCXMLVisitor;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -15,6 +17,7 @@ import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
+import org.squirrelframework.foundation.util.TypeReference;
 
 @States({
 	@State(name="NEW"),
@@ -154,5 +157,13 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 			break;
 		}
 		return nextPoint;
+	}
+	
+	public void export() {
+	    // export snake game state machine
+        SCXMLVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<SCXMLVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext>>() {} );
+        accept(visitor);
+        visitor.convertSCXMLFile("SnakeStateMachine", true);
 	}
 }
