@@ -212,7 +212,16 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @SuppressWarnings("unchecked")
     private void buildDeclareTransition(Transit transit) {
-        if(transit==null || stateConverter==null || eventConverter==null) return;
+        if(transit==null) return;
+        
+        if(stateConverter==null) {
+        	throw new RuntimeException("Do not register state converter");
+        }
+        
+        if(eventConverter==null) {
+        	throw new RuntimeException("Do not register event converter");
+        }
+        
         if(!isInstantiableType(transit.when())) {
             throw new RuntimeException("Condition \'when\' should be concrete class or static inner class.");
         }
@@ -221,10 +230,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         S fromState = stateConverter.convertFromString(parseStateId(transit.from()));
-        Preconditions.checkNotNull(fromState);
+        Preconditions.checkNotNull(fromState, "Cannot convert state of name \""+fromState+"\".");
         S toState = stateConverter.convertFromString(parseStateId(transit.to()));
         E event = eventConverter.convertFromString(transit.on());
-        Preconditions.checkNotNull(event);
+        Preconditions.checkNotNull(event, "Cannot convert event of name \""+event+"\".");
         
         // check exited transition which satisfied the criteria
         if(states.get(fromState)!=null) {
@@ -282,10 +291,14 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     private void buidlDeclareState(State state) {
-        if(state==null || stateConverter==null) return;
+        if(state==null) return;
+        
+        if(stateConverter==null) {
+        	throw new RuntimeException("Do not register state converter");
+        }
         
         S stateId = stateConverter.convertFromString(state.name());
-        Preconditions.checkNotNull(stateId);
+        Preconditions.checkNotNull(stateId, "Cannot convert state of name \""+state.name()+"\".");
         MutableState<T, S, E, C> newState = defineState(stateId);
         newState.setCompositeType(state.compositeType());
         if(!newState.isParallelState()) {
