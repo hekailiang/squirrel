@@ -2,7 +2,12 @@ squirrel-foundation
 ========
 
 ## What is it?  
-**squirrel-foundation** provided an easy use, type safe and highly extensible **state machine** ([Wikipedia] [1]) implementation for Java.  
+**squirrel-foundation** provided an easy use, type safe and highly extensible **[state machine] [1]** implementation for Java.  
+
+Here is the state machine diagram which describes the state change of an ATM:  
+
+![ATMStateMachine](http://hekailiang.github.io/squirrel/images/ATMStateMachine.png)  
+The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.
 
 ## Maven  
 squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.
@@ -353,7 +358,7 @@ visitor.convertSCXMLFile("MyStateMachine", true);
 	...
 	}
 	```
-	This example can be found in package "*org.squirrelframework.foundation.fsm.snake*". 
+	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 ## Future Plan  
 * Support state persistence
