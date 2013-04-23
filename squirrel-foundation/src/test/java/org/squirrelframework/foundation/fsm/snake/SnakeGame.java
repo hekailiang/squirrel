@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
 
@@ -24,6 +25,8 @@ public class SnakeGame extends JFrame {
     
     private SnakeController snakeController;
     
+    private ConcurrentLinkedQueue<SnakeEvent> directionsQueue = new ConcurrentLinkedQueue<SnakeEvent>();
+    
     private SnakeGame(SnakeController controller) {
 		super("Greedy Snake");
 		setLayout(new BorderLayout());
@@ -43,22 +46,22 @@ public class SnakeGame extends JFrame {
 
 				case KeyEvent.VK_W:
 				case KeyEvent.VK_UP:
-					snakeController.fire(SnakeEvent.TURN_UP, new SnakeContext(model.peekFirst(), model.getDirection()));
+				    directionsQueue.add(SnakeEvent.TURN_UP);
 					break;
 
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_DOWN:
-					snakeController.fire(SnakeEvent.TURN_DOWN, new SnakeContext(model.peekFirst(), model.getDirection()));
+				    directionsQueue.add(SnakeEvent.TURN_DOWN);
 					break;
 				
 				case KeyEvent.VK_A:
 				case KeyEvent.VK_LEFT:
-					snakeController.fire(SnakeEvent.TURN_LEFT, new SnakeContext(model.peekFirst(), model.getDirection()));
+				    directionsQueue.add(SnakeEvent.TURN_LEFT);
 					break;
 			
 				case KeyEvent.VK_D:
 				case KeyEvent.VK_RIGHT:
-					snakeController.fire(SnakeEvent.TURN_RIGHT, new SnakeContext(model.peekFirst(), model.getDirection()));
+				    directionsQueue.add(SnakeEvent.TURN_RIGHT);
 					break;
 				
 				case KeyEvent.VK_P:
@@ -66,6 +69,7 @@ public class SnakeGame extends JFrame {
 					break;
 				
 				case KeyEvent.VK_ENTER:
+				    directionsQueue.clear();
 					Point head = new Point(GameConfigure.COL_COUNT / 2, GameConfigure.ROW_COUNT / 2);
 					SnakeState lastState = snakeController.getLastActiveChildStateOf(SnakeState.MOVE);
 					SnakeDirection initialDirection = lastState!=null ? 
@@ -90,7 +94,11 @@ public class SnakeGame extends JFrame {
 			long start = System.nanoTime();
 			
 			SnakeModel model = snakeController.getSnakeModel();
-			snakeController.fire(SnakeEvent.MOVE_AHEAD, new SnakeContext(model.peekFirst(), model.getDirection()));
+			SnakeContext context = new SnakeContext(model.peekFirst(), model.getDirection());
+			snakeController.fire(SnakeEvent.MOVE_AHEAD, context);
+			if(directionsQueue.size()>0) {
+			    snakeController.fire(directionsQueue.poll(), context);
+			} 
 			
 			long delta = (System.nanoTime() - start) / 1000000L;
 			if(delta < GameConfigure.FRAME_TIME) {

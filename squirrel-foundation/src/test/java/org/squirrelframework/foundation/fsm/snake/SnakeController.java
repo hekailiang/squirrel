@@ -112,7 +112,7 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 	}
 	
 	protected void onChangeDirection(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
-		snakeModel.setDirection(getSnakeDirection(to));
+	    snakeModel.setDirection(getSnakeDirection(to));
 	}
 	
 	public static SnakeDirection getSnakeDirection(SnakeState state) {

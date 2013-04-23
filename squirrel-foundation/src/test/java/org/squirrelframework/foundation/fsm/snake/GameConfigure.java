@@ -10,5 +10,5 @@ public class GameConfigure {
 	
 	public static final int CELL_SIZE = 16;
 	
-	public static final long FRAME_TIME = 300; // ms
+	public static final long FRAME_TIME = 100; // ms
 }
