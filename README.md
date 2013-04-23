@@ -14,7 +14,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 </dependency>
 ``` 
 
-## Getting Started 
+## User Guide 
 
 **squirrel-foundation** supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. 
 
@@ -313,6 +313,47 @@ visitor.convertSCXMLFile("MyStateMachine", true);
 	@LogExecTime
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
+## Examples  
+* **Greedy Snake Game Sample**  
+	Here is an interesting example which used state machine to implement greedy snake game 	controller. The following diagram shows that the state machine definition of the controller.   
+	![SnakeStateMachine](http://hekailiang.github.io/squirrel/images/SnakeGame.png)  
+	Sample code to create snake game state machine.
+	```java
+	@States({
+		@State(name="NEW"),
+		@State(name="MOVE", historyType=HistoryType.DEEP),
+		@State(parent="MOVE", name="UP", initialState=true),
+		@State(parent="MOVE", name="LEFT"),
+		@State(parent="MOVE", name="RIGHT"),
+		@State(parent="MOVE", name="DOWN"),
+		@State(name="PAUSE"),
+		@State(name="GAMEOVER")
+	})
+	@Transitions({
+		@Transit(from="NEW", to="MOVE", on="PRESS_START", callMethod="onStart"),
+    	@Transit(from = "GAMEOVER", to = "MOVE", on = "PRESS_START", callMethod = "onStart"),
+    	@Transit(from = "MOVE", to = "GAMEOVER", on = "MOVE_AHEAD", callMethod = "onEnd"),
+    	@Transit(from = "MOVE", to = "GAMEOVER", on = "BODY_COLLAPSED", callMethod = "onEnd"),
+    	@Transit(from = "UP", to = "UP", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
+    	@Transit(from = "DOWN", to = "DOWN", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
+    	@Transit(from = "LEFT", to = "LEFT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
+    	@Transit(from = "RIGHT", to = "RIGHT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
+		@Transit(from="MOVE", to="PAUSE", on="PRESS_PAUSE", callMethod="onPause"),
+		@Transit(from="PAUSE", to="MOVE", on="PRESS_PAUSE", callMethod="onResume"),
+		@Transit(from="UP", to="LEFT", on="TURN_LEFT", callMethod="onChangeDirection"),
+		@Transit(from="UP", to="RIGHT", on="TURN_RIGHT", callMethod="onChangeDirection"),
+		@Transit(from="DOWN", to="LEFT", on="TURN_LEFT", callMethod="onChangeDirection"),
+		@Transit(from="DOWN", to="RIGHT", on="TURN_RIGHT", callMethod="onChangeDirection"),
+		@Transit(from="LEFT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
+		@Transit(from="LEFT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection"),
+		@Transit(from="RIGHT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
+		@Transit(from="RIGHT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection")
+	})
+	public class SnakeController extends AbstractStateMachine<SnakeController, SnakeState, SnakeEvent, SnakeContext> {
+	...
+	}
+	```
+	This example can be found in package "*org.squirrelframework.foundation.fsm.snake*". 
 
 ## Future Plan  
 * Support state persistence
