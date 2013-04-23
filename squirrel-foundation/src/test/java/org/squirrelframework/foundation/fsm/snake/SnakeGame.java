@@ -94,10 +94,9 @@ public class SnakeGame extends JFrame {
 			long start = System.nanoTime();
 			
 			SnakeModel model = snakeController.getSnakeModel();
-			SnakeContext context = new SnakeContext(model.peekFirst(), model.getDirection());
-			snakeController.fire(SnakeEvent.MOVE_AHEAD, context);
+			snakeController.fire(SnakeEvent.MOVE_AHEAD, new SnakeContext(model.peekFirst(), model.getDirection()));
 			if(directionsQueue.size()>0) {
-			    snakeController.fire(directionsQueue.poll(), context);
+			    snakeController.fire(directionsQueue.poll(), new SnakeContext(model.peekFirst(), model.getDirection()));
 			} 
 			
 			long delta = (System.nanoTime() - start) / 1000000L;
