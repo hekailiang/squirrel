@@ -1,7 +1,5 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -31,9 +29,7 @@ import org.xml.sax.InputSource;
  * @param <E> event type
  * @param <C> context type
  */
-class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements SCXMLVisitor<T, S, E, C> {
-    
-    private final StringBuilder scxml = new StringBuilder();
+class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractVisitor implements SCXMLVisitor<T, S, E, C> {
     
     @Override
     public void visitOnEntry(StateMachine<T, S, E, C> visitable) {
@@ -103,32 +99,18 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
         writeLine("</transition>");
     }
     
-    private String quoteName(final String id) {
-        return "\"" + id + "\"";
-    }
-    
     private void writeAction(final Action<T, S, E, C> action) {
         writeLine("<raise event="+quoteName(action.toString())+"/>");
     }
 
-    private void writeLine(final String msg) {
-        scxml.append(msg).append("\n");
-    }
-    
     @Override
     public String getScxml(boolean beautifyXml) {
-        return beautifyXml ? beautify(scxml.toString()) : scxml.toString();
+        return beautifyXml ? beautify(buffer.toString()) : buffer.toString();
     }
     
     @Override
     public void convertSCXMLFile(final String filename, boolean beautifyXml) {
-        try {
-            FileWriter file = new FileWriter(filename + ".scxml");
-            file.write(getScxml(beautifyXml));
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        saveFile(filename + ".scxml", getScxml(beautifyXml));
     }
     
     private String beautify(String unformattedXml) {

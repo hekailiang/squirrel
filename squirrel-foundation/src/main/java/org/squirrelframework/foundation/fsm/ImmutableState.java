@@ -102,6 +102,11 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     List<ImmutableState<T, S, E, C>> getChildStates();
     
     /**
+     * @return whether state has child states
+     */
+    boolean hasChildStates();
+    
+    /**
      * @return initial child state
      */
     ImmutableState<T, S, E, C> getInitialState();

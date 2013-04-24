@@ -502,4 +502,12 @@ public class HierarchicalStateMachineTest {
         stateMachine.accept(visitor);
         visitor.convertSCXMLFile("HierarchicalStateMachine", true);
     }
+	
+	@Test
+    public void testExportDotHierarchicalStateMachine() {
+        DotVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<DotVisitor<HierachicalStateMachine, HState, HEvent, Integer>>() {} );
+        stateMachine.accept(visitor);
+        visitor.convertDotFile("HierarchicalStateMachine");
+    }
 }

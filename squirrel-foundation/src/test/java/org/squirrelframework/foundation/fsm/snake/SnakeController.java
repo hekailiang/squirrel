@@ -6,9 +6,9 @@ import java.util.Random;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Condition;
+import org.squirrelframework.foundation.fsm.DotVisitor;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.SCXMLVisitor;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -161,9 +161,9 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 	
 	public void export() {
 	    // export snake game state machine
-        SCXMLVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<SCXMLVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext>>() {} );
-        accept(visitor);
-        visitor.convertSCXMLFile("SnakeStateMachine", true);
+	    DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext>>() {} );
+        this.accept(visitor);
+        visitor.convertDotFile("SnakeStateMachine");
 	}
 }

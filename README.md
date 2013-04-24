@@ -21,6 +21,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 
 ## User Guide 
 
+### Get Starting  
 **squirrel-foundation** supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. 
 
 * **StateMahcine** interface takes four generic type parameters.  
@@ -30,12 +31,13 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 	* **C** stands for the type of implemented external context.
 
 * **State Machine Builder**  
-	* The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
-	* The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: 
-		
+	* The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
+	* The internal state is implicitly built during transition creation or state action creation.   
+	
+	In order to create a state machine, user need to create state machine builder first. For example:   
 	```java
-	StateMachineBuilder<ConventionalStateMachine, MyState, MyEvent, MyContext> builder =
-		StateMachineBuilderImpl.newStateMachineBuilder(ConventionalStateMachine.class, 
+	StateMachineBuilder<MyStateMachine, MyState, MyEvent, MyContext> builder =
+		StateMachineBuilderImpl.newStateMachineBuilder(MyStateMachine.class, 
 		MyState.class, MyEvent.class, MyContext.class);
 	```
 
@@ -44,7 +46,7 @@ After state machine builder was created, we can use fluent API to define state/t
 ```java
 builder.externalTransition().from(MyState.A).to(MyState.B).on(MyEvent.GoToB);
 ```
-An **external transition** is built from state 'A' to state 'B' on event 'GoToB'.
+An **external transition** is built between state 'A' to state 'B' and triggered on received event 'GoToB'.
 ```java
 builder.internalTransition().within(MyState.A).on(MyEvent.WithinA).perform(myAction);
 ```
@@ -157,7 +159,7 @@ To create a new state machine instance from state machine builder, you need to p
 	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));
 	```
 
-## Advanced Feature
+### Advanced Feature
 * **Define Hierarchical State**  
 A hierarchical state may contain nested state. The child states may themselves have nested children and the nesting may proceed to any depth. When a hierarchical state is active, one and only one of its child states is active. The hierarchical state can be defined through API or annotation.
 ```java
@@ -288,11 +290,17 @@ stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEve
 SCXMLVisitor can be used to export state machine definition in [SCXML] [2] document.
 ```java  
 SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext> visitor = SquirrelProvider.getInstance().newInstance(
-				new TypeReference<SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext>>() {} );
+				new TypeReference<SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
 stateMachine.accept(visitor);
 visitor.convertSCXMLFile("MyStateMachine", true);
 ```
-
+DotVisitor can be used to generate state diagram which can be viewed by [GraphViz] [3].
+```java  
+DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext>>() {});
+stateMachine.accept(visitor);
+visitor.convertDotFile("SnakeStateMachine");
+```
 	
 * **State Machine Diagnose**  
 	User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.   
@@ -318,7 +326,7 @@ visitor.convertSCXMLFile("MyStateMachine", true);
 	@LogExecTime
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
-## Examples  
+### Examples  
 * **Greedy Snake Game Sample**  
 	Here is an interesting example which used state machine to implement greedy snake game 	controller. The following diagram shows that the state machine definition of the controller.   
 	![SnakeStateMachine](http://hekailiang.github.io/squirrel/images/SnakeGame.png)  
@@ -362,8 +370,10 @@ visitor.convertSCXMLFile("MyStateMachine", true);
 
 ## Future Plan  
 * Support state persistence
+* Nested state machine
 * State machine import and export
 * Support sendEvent(sync) and postEvent(async)
 
 [1]: http://en.wikipedia.org/wiki/UML_state_machine
 [2]: http://www.w3.org/TR/scxml/
+[3]: http://www.graphviz.org/

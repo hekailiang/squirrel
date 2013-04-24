@@ -176,6 +176,11 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     }
     
     @Override
+    public boolean hasChildStates() {
+        return childStates!=null && childStates.size()>0;
+    }
+    
+    @Override
     public void setParentState(MutableState<T, S, E, C> parent) {
     	if(this==parent) {
     		throw new IllegalArgumentException("parent state cannot be state itself.");
