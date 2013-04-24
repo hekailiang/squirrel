@@ -55,6 +55,8 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 
 <h2>User Guide</h2>
 
+<h3>Get Starting</h3>
+
 <p><strong>squirrel-foundation</strong> supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. </p>
 
 <ul>
@@ -76,11 +78,14 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <p><strong>State Machine Builder</strong>  </p>
 
 <ul>
-<li>The StateMachineBuilder is composed of *TransitionBuilder which is used to build transition between states and EntryExitActionBuilder which is used to build the actions during entry or exit state. </li>
-<li>The internal state is implicitly built during transition creation or state action creation. In order to create a state machine, user need to create state machine builder first. For example: </li>
+<li>The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. </li>
+<li>The internal state is implicitly built during transition creation or state action creation.<br>
+</li>
 </ul>
-<div class="highlight"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;</span><span class="n">ConventionalStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">builder</span> <span class="o">=</span>
-    <span class="n">StateMachineBuilderImpl</span><span class="o">.</span><span class="na">newStateMachineBuilder</span><span class="o">(</span><span class="n">ConventionalStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
+<p>In order to create a state machine, user need to create state machine builder first. For example:   </p>
+
+<div class="highlight"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">builder</span> <span class="o">=</span>
+    <span class="n">StateMachineBuilderImpl</span><span class="o">.</span><span class="na">newStateMachineBuilder</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
     <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </li>
@@ -91,7 +96,7 @@ After state machine builder was created, we can use fluent API to define state/t
 <div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">B</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">GoToB</span><span class="o">);</span>
 </pre></div>
 
-<p>An <strong>external transition</strong> is built from state 'A' to state 'B' on event 'GoToB'.</p>
+<p>An <strong>external transition</strong> is built between state 'A' to state 'B' and triggered on received event 'GoToB'.</p>
 
 <div class="highlight"><pre><span class="n">builder</span><span class="o">.</span><span class="na">internalTransition</span><span class="o">().</span><span class="na">within</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">WithinA</span><span class="o">).</span><span class="na">perform</span><span class="o">(</span><span class="n">myAction</span><span class="o">);</span>
 </pre></div>
@@ -224,7 +229,7 @@ After state machine was created, user can fire events along with context to trig
 <div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>
 </pre></div>
 </li>
-</ul><h2>Advanced Feature</h2>
+</ul><h3>Advanced Feature</h3>
 
 <ul>
 <li>
@@ -382,9 +387,17 @@ By leveraging state machine intercepter, user can implement various monitors for
 SCXMLVisitor can be used to export state machine definition in <a href="http://www.w3.org/TR/scxml/">SCXML</a> document.</p>
 
 <div class="highlight"><pre><span class="n">SCXMLVisitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">SquirrelProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">newInstance</span><span class="o">(</span>
-            <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">SCXMLVisitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{}</span> <span class="o">);</span>
+            <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">SCXMLVisitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{});</span>
 <span class="n">stateMachine</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">visitor</span><span class="o">);</span>
 <span class="n">visitor</span><span class="o">.</span><span class="na">convertSCXMLFile</span><span class="o">(</span><span class="s">"MyStateMachine"</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</pre></div>
+
+<p>DotVisitor can be used to generate state diagram which can be viewed by <a href="http://www.graphviz.org/">GraphViz</a>.</p>
+
+<div class="highlight"><pre><span class="n">DotVisitor</span><span class="o">&lt;</span><span class="n">SnakeController</span><span class="o">,</span> <span class="n">SnakeState</span><span class="o">,</span> <span class="n">SnakeEvent</span><span class="o">,</span> <span class="n">SnakeContext</span><span class="o">&gt;</span> <span class="n">visitor</span> <span class="o">=</span> <span class="n">SquirrelProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">newInstance</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">DotVisitor</span><span class="o">&lt;</span><span class="n">SnakeController</span><span class="o">,</span> <span class="n">SnakeState</span><span class="o">,</span> <span class="n">SnakeEvent</span><span class="o">,</span> <span class="n">SnakeContext</span><span class="o">&gt;&gt;()</span> <span class="o">{});</span>
+<span class="n">stateMachine</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="n">visitor</span><span class="o">);</span>
+<span class="n">visitor</span><span class="o">.</span><span class="na">convertDotFile</span><span class="o">(</span><span class="s">"SnakeStateMachine"</span><span class="o">);</span>
 </pre></div>
 </li>
 <li>
@@ -415,7 +428,7 @@ For example, the following code is used to register an execution time monitor fo
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromAToBOnGoToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
 </pre></div>
 
-<h2>Examples</h2>
+<h3>Examples</h3>
 </li>
 <li>
 <p><strong>Greedy Snake Game Sample</strong><br>
@@ -463,6 +476,7 @@ Sample code to create snake game state machine.</p>
 
 <ul>
 <li>Support state persistence</li>
+<li>Nested state machine</li>
 <li>State machine import and export</li>
 <li>Support sendEvent(sync) and postEvent(async)</li>
 </ul>
