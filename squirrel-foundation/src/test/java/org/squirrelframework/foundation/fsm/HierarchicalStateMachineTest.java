@@ -68,7 +68,7 @@ public class HierarchicalStateMachineTest {
 		
 		private StringBuilder logger = new StringBuilder();
 
-		public HierachicalStateMachine(
+		protected HierachicalStateMachine(
                 ImmutableState<HierachicalStateMachine, HState, HEvent, Integer> initialState,
                 Map<HState, ImmutableState<HierachicalStateMachine, HState, HEvent, Integer>> states) {
 	        super(initialState, states);

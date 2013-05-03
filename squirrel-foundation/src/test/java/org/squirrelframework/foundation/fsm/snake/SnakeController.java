@@ -72,7 +72,7 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 	
 	private Random random = new Random();
 	
-	public SnakeController (
+	protected SnakeController (
             ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeContext> initialState,
             Map<SnakeState, ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeContext>> states) {
 	    super(initialState, states);

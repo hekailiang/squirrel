@@ -73,7 +73,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         
         private final CallSequenceMonitor monitor;
         
-        public ConventionalStateMachine(
+        protected ConventionalStateMachine(
                 ImmutableState<ConventionalStateMachine, TestState, TestEvent, Integer> initialState,
                 Map<TestState, ImmutableState<ConventionalStateMachine, TestState, TestEvent, Integer>> states,
                 CallSequenceMonitor monitor) {

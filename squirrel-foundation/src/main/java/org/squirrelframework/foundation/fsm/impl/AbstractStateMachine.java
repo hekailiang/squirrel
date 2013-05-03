@@ -73,7 +73,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private E startEvent, finishEvent, terminateEvent;
     
-    public AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
+    protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
         this.initialState = initialState;
         this.currentState = initialState;
         this.states = Collections.unmodifiableMap(states);

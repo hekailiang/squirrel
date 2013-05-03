@@ -67,7 +67,7 @@ public class ParallelStateMachineTest {
 	static class ParallelStateMachine extends AbstractStateMachine<ParallelStateMachine, PState, PEvent, Integer> {
 		private StringBuilder logger = new StringBuilder();
 
-		public ParallelStateMachine(ImmutableState<ParallelStateMachine, PState, PEvent, Integer> initialState,
+		protected ParallelStateMachine(ImmutableState<ParallelStateMachine, PState, PEvent, Integer> initialState,
                 Map<PState, ImmutableState<ParallelStateMachine, PState, PEvent, Integer>> states) {
 	        super(initialState, states);
         }

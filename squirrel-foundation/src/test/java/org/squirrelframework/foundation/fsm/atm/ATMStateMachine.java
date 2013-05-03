@@ -14,7 +14,7 @@ public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMSt
     
     private StringBuilder logger = new StringBuilder();
     
-    public ATMStateMachine(
+    protected ATMStateMachine(
             ImmutableState<ATMStateMachine, ATMState, String, Void> initialState,
             Map<ATMState, ImmutableState<ATMStateMachine, ATMState, String, Void>> states) {
         super(initialState, states);
