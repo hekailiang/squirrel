@@ -332,7 +332,13 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 
 * **Simple CSS Parser**  
 	This example illustrates how to parse incoming characters by define parser grammar in state machine.  
-	![SimpleCssParser](http://hekailiang.github.io/squirrel/images/SimpleCssParser.png)
+	![SimpleCssParser](http://hekailiang.github.io/squirrel/images/SimpleCssParser.png)  
+	Parse CSS scripts with *SimpleCssParser* which is defined as State Machine.
+	```java
+	SimpleCssParser parser = SimpleCssParser.newParser();
+    List<CssRule> rules = parser.parse("alpha { width: 100px/*comment1*/; /*comment2*/text-decoration: " + 
+    	"/*comment3*/ underlined; } epsilon/*comment4*/, zeta{ height: 34px; } ");
+	```
 	Sample code to define CssParser could be found in package *"org.squirrelframework.foundation.fsm.cssparser"*.
 
 * **Greedy Snake Game Sample**  
