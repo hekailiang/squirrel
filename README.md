@@ -327,6 +327,14 @@ visitor.convertDotFile("SnakeStateMachine");
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
 ### Examples  
+* **ATM State Machine**  
+The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.  
+
+* **Simple CSS Parser**  
+	This example illustrates how to parse incoming characters by define parser grammar in state machine.  
+	![SimpleCssParser](http://hekailiang.github.io/squirrel/images/SimpleCssParser.png)
+	Sample code to define CssParser could be found in package *"org.squirrelframework.foundation.fsm.cssparser"*.
+
 * **Greedy Snake Game Sample**  
 	Here is an interesting example which used state machine to implement greedy snake game 	controller. The following diagram shows that the state machine definition of the controller.   
 	![SnakeStateMachine](http://hekailiang.github.io/squirrel/images/SnakeGame.png)  
