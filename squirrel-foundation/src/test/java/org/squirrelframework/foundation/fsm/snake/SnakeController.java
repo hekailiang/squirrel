@@ -19,6 +19,12 @@ import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
 import org.squirrelframework.foundation.util.TypeReference;
 
+/**
+ * This is an example on how to use state machine to build a game controller. The state machine was defined in declarative manner.
+ * 
+ * @author Henry.He
+ *
+ */
 @States({
 	@State(name="NEW"),
 	@State(name="MOVE", historyType=HistoryType.DEEP),
