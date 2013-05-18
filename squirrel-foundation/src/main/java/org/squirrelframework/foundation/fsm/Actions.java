@@ -32,4 +32,9 @@ public interface Actions<T extends StateMachine<T, S, E, C>, S, E, C> extends Sq
      * @return all sorted actions
      */
     List<Action<T, S, E, C>> getAll();
+    
+    /**
+     * Remove all actions
+     */
+    void clear();
 }

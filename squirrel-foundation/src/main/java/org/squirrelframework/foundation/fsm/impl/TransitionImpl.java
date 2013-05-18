@@ -210,12 +210,20 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     }
     
     @Override
-    public boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type) {
+    public boolean isMatch(S fromState, S toState, E event) {
         if(toState==null && !getTargetState().isFinalState())
             return false;
-        if(toState!=null && !getTargetState().isFinalState() && !getTargetState().getStateId().equals(toState))
+        if(toState!=null && !getTargetState().isFinalState() && 
+                !getTargetState().getStateId().equals(toState))
             return false;
         if(!getEvent().equals(event)) 
+            return false;
+        return true;
+    }
+    
+    @Override
+    public boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type) {
+        if(!isMatch(fromState, toState, event))
             return false;
         if(getCondition().getClass()!=condClazz)
             return false;
@@ -228,5 +236,13 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     public String toString() {
         return sourceState + "-[" + event.toString() +", "+
                 condition.getClass().getSimpleName()+ "]->" + targetState;
+    }
+
+    @Override
+    public void verify() {
+        if(type==TransitionType.INTERNAL && sourceState!=targetState) {
+            throw new RuntimeException(String.format("Internal transition source state '%s' " +
+            		"and target state '%s' must be same.", sourceState, targetState));
+        }
     }
 }

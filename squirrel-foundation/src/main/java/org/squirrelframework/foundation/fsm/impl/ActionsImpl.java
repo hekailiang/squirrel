@@ -51,4 +51,11 @@ public class ActionsImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements
     public List<Action<T, S, E, C>> getAll() {
         return actions==null ? Collections.<Action<T, S, E, C>>emptyList() : Collections.unmodifiableList(actions);
     }
+
+    @Override
+    public void clear() {
+        actions.clear();
+        afterActionCounter = 0;
+        beforeActionCounter = 0;
+    }
 }

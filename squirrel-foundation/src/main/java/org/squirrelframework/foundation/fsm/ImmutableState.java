@@ -143,4 +143,9 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     boolean isParallelState();
     
     boolean isRegion();
+    
+    /**
+     * Verify state correctness
+     */
+    void verify();
 }

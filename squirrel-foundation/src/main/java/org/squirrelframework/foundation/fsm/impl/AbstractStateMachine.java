@@ -286,26 +286,16 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void terminate(C context) {
-    	terminate(true, context);
-    }
-    
-    @Override
-    public void terminateWithoutExitStates(C context) {
-    	terminate(false, context);
-    }
-    
-    public void terminate(boolean exitStates, C context) {
     	if(isTerminiated()) {
             return;
         }
         
-    	if(exitStates) {
-    		executor.begin();
-    		StateContext<T, S, E, C> stateContext = FSM.newStateContext(
-    				getCurrent(), getCurrentRawState(), getTerminateEvent(), context, null, executor);
-            exitAll(getCurrentRawState(), stateContext);
-            executor.execute();
-    	}
+    	executor.begin();
+        StateContext<T, S, E, C> stateContext = FSM.newStateContext(
+                getCurrent(), getCurrentRawState(), getTerminateEvent(), context, null, executor);
+        exitAll(getCurrentRawState(), stateContext);
+        executor.execute();
+        
         currentState = initialState;
         status = StateMachineStatus.TERMINATED;
         fireEvent(new TerminateEventImpl<T, S, E, C>(getCurrent()));

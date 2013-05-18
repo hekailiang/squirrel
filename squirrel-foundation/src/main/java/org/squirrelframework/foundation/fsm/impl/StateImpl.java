@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Actions;
+import org.squirrelframework.foundation.fsm.Conditions;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
@@ -108,26 +109,21 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     
     @Override
     public void entry(final StateContext<T, S, E, C> stateContext) {
-    	if(isFinalState() && isRootState()) {
-    		stateContext.getStateMachine().terminateWithoutExitStates(stateContext.getContext());
-    		logger.debug("Final state of state machine entry.");
-    	} else if(!isFinalState()) {
-    		for(final Action<T, S, E, C> entryAction : getEntryActions()) {
-    			stateContext.getExecutor().defer(entryAction, 
-    					null, getStateId(), stateContext.getEvent(), 
-	                    stateContext.getContext(), stateContext.getStateMachine());
+        for(final Action<T, S, E, C> entryAction : getEntryActions()) {
+            stateContext.getExecutor().defer(entryAction, 
+                    null, getStateId(), stateContext.getEvent(), 
+                    stateContext.getContext(), stateContext.getStateMachine());
+        }
+        
+        if(isParallelState()) {
+            // When a parallel state group is entered, all its child states will be simultaneously entered. 
+            for(ImmutableState<T, S, E, C> parallelState : getChildStates()) {
+                parallelState.entry(stateContext);
+                ImmutableState<T, S, E, C> subState = parallelState.enterByHistory(stateContext);
+                stateContext.getStateMachine().setSubState(getStateId(), subState.getStateId());
             }
-    		
-    		if(isParallelState()) {
-    			// When a parallel state group is entered, all its child states will be simultaneously entered. 
-    			for(ImmutableState<T, S, E, C> parallelState : getChildStates()) {
-    				parallelState.entry(stateContext);
-    				ImmutableState<T, S, E, C> subState = parallelState.enterByHistory(stateContext);
-    				stateContext.getStateMachine().setSubState(getStateId(), subState.getStateId());
-    			}
-    		}
-            logger.debug("State \""+getStateId()+"\" entry.");
-    	}
+        }
+        logger.debug("State \""+getStateId()+"\" entry.");
     }
     
     @Override
@@ -427,7 +423,7 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
     
     @Override
     public void setFinal(boolean isFinal) {
-		this.isFinalState = isFinal;
+        this.isFinalState = isFinal;
     }
     
     @Override
@@ -503,5 +499,44 @@ final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mu
 	@Override
     public boolean isRegion() {
 	    return parentState!=null && parentState.isParallelState();
+    }
+
+    @Override
+    public void verify() {
+        if(isFinalState()) {
+            if(isParallelState()) {
+                throw new RuntimeException("Final state cannot be parallel state.");
+            } else if(hasChildStates()) {
+                throw new RuntimeException("Final state cannot have child states.");
+            }
+        } 
+        
+        // make sure that every event can only trigger one transition happen at one time
+        if(transitions!=null) {
+            List<ImmutableTransition<T, S, E, C>> allTransitions=transitions.values();
+            for(ImmutableTransition<T, S, E, C> t : allTransitions) {
+                t.verify();
+                ImmutableTransition<T, S, E, C> conflictTransition = checkConflictTransitions(t, allTransitions);
+                if(conflictTransition!=null) {
+                    throw new RuntimeException(String.format("Tansition '%s' is conflicted with '%s'.", t, conflictTransition));
+                }
+            }
+        }
+    }
+    
+    public ImmutableTransition<T, S, E, C> checkConflictTransitions(ImmutableTransition<T, S, E, C> target, 
+            List<ImmutableTransition<T, S, E, C>> allTransitions) {
+        for(ImmutableTransition<T, S, E, C> t : allTransitions) {
+            if(target==t || t.getCondition().getClass()==Conditions.Never.class) continue;
+            if(t.isMatch(target.getSourceState().getStateId(), target.getTargetState().getStateId(), target.getEvent())) {
+                if(t.getCondition().getClass()==Conditions.Always.class) 
+                    return target;
+                if(target.getCondition().getClass()==Conditions.Always.class)
+                    return target;
+                if(t.getCondition().getClass()==target.getCondition().getClass()) 
+                    return target;
+            }
+        }
+        return null;
     }
 }

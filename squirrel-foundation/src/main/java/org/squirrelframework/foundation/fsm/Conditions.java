@@ -20,7 +20,7 @@ public class Conditions {
         return new Always<C>();
     }
     
-    static class Never<C> implements Condition<C> {
+    public static class Never<C> implements Condition<C> {
         @Override
         public boolean isSatisfied(C context) {
             return false;

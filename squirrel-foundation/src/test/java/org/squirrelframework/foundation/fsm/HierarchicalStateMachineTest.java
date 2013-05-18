@@ -491,7 +491,7 @@ public class HierarchicalStateMachineTest {
 		stateMachine.start(null);
 		stateMachine.consumeLog();
 		stateMachine.fire(HEvent.A12A4, 1);
-		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.transitA12A4.exitA.transitA2C.enterC")));
+		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.transitA12A4.enterA4.exitA.transitA2C.enterC")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(HState.C)));
 	}
 	

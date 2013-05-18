@@ -80,12 +80,6 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void terminate(C context);
     
     /**
-     * Terminate state machine under external context without exiting any states
-     * @param context external context
-     */
-    void terminateWithoutExitStates(C context);
-    
-    /**
      * @return current status of state machine
      */
     StateMachineStatus getStatus();

@@ -363,7 +363,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     private void verifyStateMachineDefinition() {
-        // make sure that every event can only trigger one transition happen
+        for(MutableState<T, S, E, C> state : states.values()) {
+            state.verify();
+        }
     }
     
     private void prepare() {
@@ -373,7 +375,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         install(new DeclareTransitionFunction());
         // install all the extension method call when state machine builder freeze
         installExtensionMethods();
-        // TODO-hhe: verify correctness of state machine
+        // install final state actions
+        installFinalStateActions();
+        // verify correctness of state machine
         verifyStateMachineDefinition();
         prepared = true;
     }
@@ -442,6 +446,28 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 addStateEntryExitMethodCallAction(entryMethodCallCandidates[i], 
                         methodCallParamTypes, state, true);
             }
+        }
+    }
+    
+    private void installFinalStateActions() {
+        for(MutableState<T, S, E, C> state : states.values()) {
+            if(!state.isFinalState()) continue;
+            // terminate state machine when enter root final state
+            if(state.isRootState()) {
+                state.addEntryAction(new Action<T, S, E, C>() {
+                    @Override
+                    public void execute(S from, S to, E event, C context, T stateMachine) {
+                        stateMachine.terminate(context);
+                    }
+                });
+            }
+            // defensive code: final state cannot be exited anymore
+            state.addExitAction(new Action<T, S, E, C>() {
+                @Override
+                public void execute(S from, S to, E event, C context, T stateMachine) {
+                    throw new RuntimeException("Final state cannot be exited anymore.");
+                }
+            });
         }
     }
     
