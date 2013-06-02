@@ -317,6 +317,8 @@ public class HierarchicalStateMachineTest {
 	
 	@BeforeClass
 	public static void beforeTest() {
+		ConverterProvider.INSTANCE.register(HEvent.class, new Converter.EnumConverter<HEvent>(HEvent.class));
+        ConverterProvider.INSTANCE.register(HState.class, new Converter.EnumConverter<HState>(HState.class));
         SquirrelPostProcessorProvider.getInstance().register(HierachicalStateMachine.class, 
         		new TypeReference<TransitionExecTimeMonitor<HierachicalStateMachine, HState, HEvent, Integer>>() {});
         SquirrelPostProcessorProvider.getInstance().register(
