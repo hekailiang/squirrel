@@ -10,7 +10,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
@@ -257,12 +256,6 @@ public class ParallelStateMachineTest {
 	}
 	
 	private ParallelStateMachine stateMachine;
-	
-	@BeforeClass
-	public static void beforeTest() {
-		ConverterProvider.INSTANCE.register(PEvent.class, new Converter.EnumConverter<PEvent>(PEvent.class));
-        ConverterProvider.INSTANCE.register(PState.class, new Converter.EnumConverter<PState>(PState.class));
-	}
 	
 	@AfterClass
 	public static void afterTest() {

@@ -7,27 +7,18 @@ import static org.junit.Assert.assertThat;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.SCXMLVisitor;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
-import org.squirrelframework.foundation.fsm.StringConverter;
 import org.squirrelframework.foundation.fsm.atm.ATMStateMachine.ATMState;
 import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class ATMStateMachineTest {
-    
-    @BeforeClass
-    public static void beforeTest() {
-        ConverterProvider.INSTANCE.register(ATMState.class, new Converter.EnumConverter<ATMState>(ATMState.class));
-        ConverterProvider.INSTANCE.register(String.class, StringConverter.INSTANCE);
-    }
     
     @AfterClass
     public static void afterTest() {

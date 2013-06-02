@@ -2,6 +2,8 @@ package org.squirrelframework.foundation.fsm;
 
 import org.squirrelframework.foundation.component.SquirrelComponent;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Convert object from string to object and object to string either.
  * 
@@ -41,7 +43,8 @@ public interface Converter<T> extends SquirrelComponent {
 
         @Override
         public String convertToString(T obj) {
-            return obj!=null ? obj.name() : "Final";
+            Preconditions.checkNotNull(obj);
+            return obj.name();
         }
 
         @Override

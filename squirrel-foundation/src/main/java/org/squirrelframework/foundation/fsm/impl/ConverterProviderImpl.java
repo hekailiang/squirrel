@@ -5,6 +5,7 @@ import java.util.Map;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
+import org.squirrelframework.foundation.fsm.StringConverter;
 
 import com.google.common.collect.Maps;
 
@@ -28,10 +29,19 @@ public class ConverterProviderImpl implements ConverterProvider {
         converterRegistry.remove(clazz);
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <T> Converter<T> getConverter(Class<T> clazz) {
-        return (Converter<T>)converterRegistry.get(clazz);
+        Converter<T> converter = (Converter<T>)converterRegistry.get(clazz);
+        if(converter==null) {
+            if(String.class.isAssignableFrom(clazz)) {
+                converter = (Converter<T>) StringConverter.INSTANCE;
+            } else if (Enum.class.isAssignableFrom(clazz)) {
+                converter = (Converter<T>) new Converter.EnumConverter(clazz);
+            } else {
+            }
+        }
+        return converter;
     }
 
 	@Override
