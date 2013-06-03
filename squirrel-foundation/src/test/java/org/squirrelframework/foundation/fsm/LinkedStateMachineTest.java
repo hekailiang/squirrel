@@ -247,19 +247,19 @@ public class LinkedStateMachineTest {
         LState linkedStateId = linkedStateMachine.getCurrentState();
         assertThat(linkedStateId, equalTo(LState.A1));
         
-        assertThat(logger.toString(), equalTo("start1.start2.enterA1.enterA"));
+        assertThat(logger.toString(), equalTo("start1.enterA.start2.enterA1"));
     }
     
     @Test
     public void testLinkedStateMachineProcessEvent() {
         stateMachine.fire(LEvent.A12A2, 0);
-        assertThat(logger.toString(), equalTo("start1.start2.enterA1.enterA.leftA1.transitA12A2.enterA2"));
+        assertThat(logger.toString(), equalTo("start1.enterA.start2.enterA1.leftA1.transitA12A2.enterA2"));
     }
     
     @Test
     public void testTestStateMachineProcessEvent() {
         stateMachine.fire(LEvent.A2B, 0);
-        assertThat(logger.toString(), equalTo("start1.start2.enterA1.enterA.leftA.terminate2.leftA1.transitA2B.enterB"));
+        assertThat(logger.toString(), equalTo("start1.enterA.start2.enterA1.terminate2.leftA1.leftA.transitA2B.enterB"));
     }
     
     @Test

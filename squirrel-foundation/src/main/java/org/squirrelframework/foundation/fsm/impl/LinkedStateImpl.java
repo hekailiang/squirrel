@@ -31,14 +31,14 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     
     private StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine;
     
-    private Action<T, S, E, C> firstEntryAction = new Action<T, S, E, C>() {
+    private Action<T, S, E, C> lastEntryAction = new Action<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
             linkedStateMachine.start(context);
         }
     };
     
-    private Action<T, S, E, C> lastExitAction = new Action<T, S, E, C>() {
+    private Action<T, S, E, C> firstExitAction = new Action<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
             linkedStateMachine.terminate(context);
@@ -83,16 +83,16 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     @Override
     public List<Action<T, S, E, C>> getEntryActions() {
         List<Action<T, S, E, C>> actions = new ArrayList<Action<T, S, E, C>>();
-        actions.add(firstEntryAction);
         actions.addAll(entryActions.getAll());
+        actions.add(lastEntryAction);
         return Collections.unmodifiableList(actions);
     }
 
     @Override
     public List<Action<T, S, E, C>> getExitActions() {
         List<Action<T, S, E, C>> actions = new ArrayList<Action<T, S, E, C>>();
+        actions.add(firstExitAction);
         actions.addAll(exitActions.getAll());
-        actions.add(lastExitAction);
         return Collections.unmodifiableList(actions);
     }
     

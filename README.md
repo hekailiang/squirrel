@@ -326,6 +326,10 @@ visitor.convertDotFile("SnakeStateMachine");
 	@LogExecTime
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
+
+* **Linked State**  
+TBD  
+
 ### Examples  
 * **ATM State Machine**  
 The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.  
