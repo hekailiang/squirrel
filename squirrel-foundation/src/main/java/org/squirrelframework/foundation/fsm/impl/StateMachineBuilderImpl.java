@@ -22,6 +22,7 @@ import org.squirrelframework.foundation.fsm.EventKind;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
+import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
@@ -93,7 +94,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
         
-        initailEvents(eventClazz);
+        initailContextEvents(eventClazz);
 //        this.stateClazz = stateClazz;
 //        this.eventClazz = eventClazz;
 //        this.contextClazz = contextClazz;
@@ -102,7 +103,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.contructor = ReflectUtils.getConstructor(stateMachineClazz, constParamTypes);
     }
     
-    private void initailEvents(Class<E> eventClazz) {
+    protected void initailContextEvents(Class<E> eventClazz) {
     	Field[]  fields = ReflectUtils.getAnnotatedFields(eventClazz, EventType.class);
         if(fields==null || fields.length<1) return;
         
@@ -549,9 +550,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public MutableState<T, S, E, C> defineFinalState(S stateId) {
-    	MutableState<T, S, E, C> newState = FSM.getState(states, stateId);
+    	MutableState<T, S, E, C> newState = defineState(stateId);
     	newState.setFinal(true);
     	return newState;
+    }
+    
+    @Override
+    public MutableState<T, S, E, C> definedLinkedState(S stateId, 
+            StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, S initialLinkedState, Object... extraParams) {
+        MutableLinkedState<T, S, E, C> linkedState = (MutableLinkedState<T, S, E, C>) FSM.getState(states, stateId, true);
+        linkedState.setLinkedStateMachine(linkedStateMachineBuilder.newStateMachine(initialLinkedState, extraParams));
+        return linkedState;
     }
     
     @Override

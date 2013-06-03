@@ -148,6 +148,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 throw new RuntimeException("The state machine is not running.");
             }
         }
+        if(status==StateMachineStatus.TERMINATED) {
+            throw new RuntimeException("The state machine is already terminated.");
+        }
         queuedEvents.addLast(new Pair<E, C>(event, context));
         execute();
     }

@@ -32,15 +32,15 @@ import com.google.common.collect.Lists;
  * @param <E> The type of implemented event
  * @param <C> The type of implemented context
  */
-final class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableState<T, S, E, C> {
+class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableState<T, S, E, C> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(StateImpl.class);
 	
-	private final S stateId;
+	protected final S stateId;
     
-    private final Actions<T, S, E, C> entryActions = FSM.newActions();
+    protected final Actions<T, S, E, C> entryActions = FSM.newActions();
     
-    private final Actions<T, S, E, C> exitActions  = FSM.newActions();
+    protected final Actions<T, S, E, C> exitActions  = FSM.newActions();
     
     private LinkedListMultimap<E, ImmutableTransition<T, S, E, C>> transitions;
     

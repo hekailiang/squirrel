@@ -48,6 +48,10 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     MutableState<T, S, E, C> defineFinalState(S stateId);
     
+    MutableState<T, S, E, C> definedLinkedState(S stateId, 
+            StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, 
+            S initialLinkedState, Object... extraParams);
+    
     /**
      * Define sequential child states whose hierarchy type is default set to NONE on parent state
      * @param parentStateId id of parent state
