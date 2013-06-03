@@ -1,7 +1,15 @@
 package org.squirrelframework.foundation.fsm;
 
 /**
- * Immutable linked state.
+ * A linked state specifies the insertion of the specification of a submachine state machine. 
+ * The state machine that contains the linked state is called the containing state machine. 
+ * The same state machine may be a submachine more than once in the context of a single containing 
+ * state machine.  
+ * 
+ * A linked state is semantically equivalent to a composite state. The regions of the submachine 
+ * state machine are the regions of the composite state. The entry, exit, and behavior actions and 
+ * internal transitions are defined as part of the state. Submachine state is a decomposition 
+ * mechanism that allows factoring of common behaviors and their reuse.
  * 
  * @author Henry.He
  *

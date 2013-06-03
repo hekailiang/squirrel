@@ -327,8 +327,14 @@ visitor.convertDotFile("SnakeStateMachine");
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
 
-* **Linked State**  
-TBD  
+* **Linked State (so called Submachine State)**  
+	A **linked state** specifies the insertion of the specification of a submachine state machine. The state machine that contains the linked state is called the containing state machine. The same state machine may be a submachine more than once in the context of a single containing state machine.  
+	  
+	A linked state is semantically equivalent to a composite state. The regions of the submachine state machine are the regions of the composite state. The entry, exit, and behavior actions and internal transitions are defined as part of the state. Submachine state is a decomposition mechanism that allows factoring of common behaviors and their reuse.  
+	The linked state can be defined by following sample code.
+	```java
+	builderOfTestStateMachine.definedLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1);
+	```
 
 ### Examples  
 * **ATM State Machine**  
@@ -388,7 +394,6 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 
 ## Future Plan  
 * Support state persistence
-* Nested state machine
 * State machine import and export
 * Support sendEvent(sync) and postEvent(async)
 
