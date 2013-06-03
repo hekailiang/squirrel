@@ -328,7 +328,6 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
     }
     
-    
     @Test
     public void testDeclaredEventType() {
     	InOrder callSequence = Mockito.inOrder(monitor);
@@ -336,5 +335,14 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     	callSequence.verify(monitor, Mockito.times(1)).entryA(null, A, Started, null);
     	stateMachine.terminate(null);
     	callSequence.verify(monitor, Mockito.times(1)).exitA(A, null, Terminated, null);
+    }
+    
+    @Test(expected=RuntimeException.class)
+    public void testFireEventToTerminatedFSM() {
+        stateMachine.fire(ToB, null);
+        assertThat(stateMachine.getCurrentState(), equalTo(B));
+        stateMachine.terminate(0);
+        assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
+        stateMachine.fire(ToC, null);
     }
 }
