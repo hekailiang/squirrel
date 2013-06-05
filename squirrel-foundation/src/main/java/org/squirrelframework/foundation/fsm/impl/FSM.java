@@ -8,6 +8,7 @@ import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.Actions;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MutableState;
+import org.squirrelframework.foundation.fsm.MutableStateMachine;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -25,7 +26,7 @@ final class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> StateContext<T, S, E, C> newStateContext(
-            T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, 
+            MutableStateMachine<T, S, E, C> stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, 
             TransitionResult<T, S, E, C> result, ActionExecutor<T, S, E, C> executor) {
         return new StateContextImpl<T, S, E, C>(stateMachine, sourceState, event, context, result, executor);
     }

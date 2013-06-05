@@ -14,6 +14,7 @@ import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
 import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.MutableStateMachine;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
@@ -48,7 +49,7 @@ import com.google.common.collect.Maps;
  * @param <E> event type
  * @param <C> context type
  */
-public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements StateMachine<T, S, E, C> {
+public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements MutableStateMachine<T, S, E, C> {
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
@@ -90,26 +91,26 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
         try {
             beforeTransitionBegin(fromState.getStateId(), event, context);
-            fireEvent(new TransitionBeginEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getCurrent()));
+            fireEvent(new TransitionBeginEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getThis()));
             
             executor.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, currentState, null);
-            currentState.internalFire( FSM.newStateContext(getCurrent(), currentState, event, context, result, executor) );
+            currentState.internalFire( FSM.newStateContext(this, currentState, event, context, result, executor) );
             executor.execute();
             
             if(result.isAccepted()) {
                 lastState = currentState;
             	currentState = result.getTargetState();
             	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromState.getStateId(), currentState.getStateId(), 
-                      event, context, getCurrent()));
+                      event, context, getThis()));
                 afterTransitionCompleted(fromState.getStateId(), currentState.getStateId(), event, context);
             } else {
-            	fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromState.getStateId(), event, context, getCurrent()));
+            	fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromState.getStateId(), event, context, getThis()));
                 afterTransitionDeclined(fromState.getStateId(), event, context);
             }
         } catch(Exception e) {
             fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromState.getStateId(), 
-                    currentState.getStateId(), event, context, getCurrent()));
+                    currentState.getStateId(), event, context, getThis()));
             afterTransitionCausedException(e, fromState.getStateId(), currentState.getStateId(), event, context);
         } finally {
             if(logger.isDebugEnabled()) {
@@ -235,13 +236,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
     	executor.begin();
     	StateContext<T, S, E, C> stateContext = FSM.newStateContext(
-    			getCurrent(), getCurrentRawState(), getStartEvent(), context, null, executor);
+    			this, getCurrentRawState(), getStartEvent(), context, null, executor);
         entryAll(initialState, stateContext);
         currentState = getCurrentRawState().enterByHistory(stateContext);
         executor.execute();
         
         execute();
-        fireEvent(new StartEventImpl<T, S, E, C>(getCurrent()));
+        fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
     }
     
     private boolean isStarted() {
@@ -308,13 +309,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
     	executor.begin();
         StateContext<T, S, E, C> stateContext = FSM.newStateContext(
-                getCurrent(), getCurrentRawState(), getTerminateEvent(), context, null, executor);
+                this, getCurrentRawState(), getTerminateEvent(), context, null, executor);
         exitAll(getCurrentRawState(), stateContext);
         executor.execute();
         
         currentState = initialState;
         status = StateMachineStatus.TERMINATED;
-        fireEvent(new TerminateEventImpl<T, S, E, C>(getCurrent()));
+        fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
     }
     
     private void exitAll(ImmutableState<T, S, E, C> current, StateContext<T, S, E, C> stateContext) {
@@ -326,7 +327,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @SuppressWarnings("unchecked")
-    protected T getCurrent() {
+    @Override
+    public T getThis() {
     	return (T)this;
     }
     

@@ -112,7 +112,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         for(final Action<T, S, E, C> entryAction : getEntryActions()) {
             stateContext.getExecutor().defer(entryAction, 
                     null, getStateId(), stateContext.getEvent(), 
-                    stateContext.getContext(), stateContext.getStateMachine());
+                    stateContext.getContext(), stateContext.getStateMachine().getThis());
         }
         
         if(isParallelState()) {
@@ -145,7 +145,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         for(final Action<T, S, E, C> exitAction : getExitActions()) {
         	stateContext.getExecutor().defer(exitAction,
         			getStateId(), null, stateContext.getEvent(), 
-                    stateContext.getContext(), stateContext.getStateMachine());
+                    stateContext.getContext(), stateContext.getStateMachine().getThis());
         }
          
         if (getParentState() != null) {

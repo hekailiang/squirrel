@@ -47,7 +47,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
         for(final Action<T, S, E, C> action : getActions()) {
         	stateContext.getExecutor().defer(action,
         			sourceState.getStateId(), targetState.getStateId(), stateContext.getEvent(), 
-                    stateContext.getContext(), stateContext.getStateMachine());
+                    stateContext.getContext(), stateContext.getStateMachine().getThis());
         }
         return targetState;
     }

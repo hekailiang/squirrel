@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.MutableStateMachine;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.TransitionResult;
@@ -11,14 +12,14 @@ import org.squirrelframework.foundation.fsm.TransitionResult;
 import com.google.common.collect.Lists;
 
 class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateContext<T, S, E, C> {
-    private final T stateMachine;
+    private final MutableStateMachine<T, S, E, C> stateMachine;
     private final ImmutableState<T, S, E, C> sourceState;
     private final C context;
     private final E event;
     private final TransitionResult<T, S, E, C> result;
     private final ActionExecutor<T, S, E, C> executor;
     
-    StateContextImpl(T stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, 
+    StateContextImpl(MutableStateMachine<T, S, E, C> stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, 
     		TransitionResult<T, S, E, C> result, ActionExecutor<T, S, E, C> executor) {
         this.stateMachine = stateMachine;
         this.sourceState = sourceState;
@@ -29,7 +30,7 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     }
     
     @Override
-    public T getStateMachine() {
+    public MutableStateMachine<T, S, E, C> getStateMachine() {
         return stateMachine;
     }
 

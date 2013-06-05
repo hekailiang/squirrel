@@ -57,20 +57,7 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      */
     S getLastActiveChildStateOf(S parentStateId);
     
-    /**
-     * Set last active child state of parent state
-     * @param parentStateId id of parent state
-     * @param childStateId id of child state
-     */
-    void setLastActiveChildState(S parentStateId, S childStateId);
-    
     List<S> getSubStatesOn(S parentState);
-    
-    void setSubState(S parentState, S subState);
-    
-    void removeSubState(S parentState, S subState);
-    
-    void removeSubStatesOn(S parentState);
     
     /**
      * @return id of state machine initial state
@@ -93,6 +80,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      * @return current status of state machine
      */
     StateMachineStatus getStatus();
+    
+    T getThis();
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void stateMachineEvent(StateMachineEvent<T, S, E, C> event);

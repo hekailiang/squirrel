@@ -17,7 +17,7 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
 	/**
 	 * @return current state machine object
 	 */
-    T getStateMachine();
+    MutableStateMachine<T, S, E, C> getStateMachine();
     
     /**
      * @return source state of state machine
