@@ -31,9 +31,11 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>squirrel-foundation</h1>
+        <h1>
+<a name="squirrel-foundation" class="anchor" href="#squirrel-foundation"><span class="octicon octicon-link"></span></a>squirrel-foundation</h1>
 
-<h2>What is it?</h2>
+<h2>
+<a name="what-is-it" class="anchor" href="#what-is-it"><span class="octicon octicon-link"></span></a>What is it?</h2>
 
 <p><strong>squirrel-foundation</strong> provided an easy use, type safe and highly extensible <strong><a href="http://en.wikipedia.org/wiki/UML_state_machine">state machine</a></strong> implementation for Java.  </p>
 
@@ -42,7 +44,8 @@
 <p><img src="http://hekailiang.github.io/squirrel/images/ATMStateMachine.png" alt="ATMStateMachine"><br>
 The sample code could be found in package <em>"org.squirrelframework.foundation.fsm.atm"</em>.</p>
 
-<h2>Maven</h2>
+<h2>
+<a name="maven" class="anchor" href="#maven"><span class="octicon octicon-link"></span></a>Maven</h2>
 
 <p>squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.</p>
 
@@ -53,9 +56,11 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 &lt;/dependency&gt;
 </code></pre>
 
-<h2>User Guide</h2>
+<h2>
+<a name="user-guide" class="anchor" href="#user-guide"><span class="octicon octicon-link"></span></a>User Guide</h2>
 
-<h3>Get Starting</h3>
+<h3>
+<a name="get-starting" class="anchor" href="#get-starting"><span class="octicon octicon-link"></span></a>Get Starting</h3>
 
 <p><strong>squirrel-foundation</strong> supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. </p>
 
@@ -229,7 +234,8 @@ After state machine was created, user can fire events along with context to trig
 <div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>
 </pre></div>
 </li>
-</ul><h3>Advanced Feature</h3>
+</ul><h3>
+<a name="advanced-feature" class="anchor" href="#advanced-feature"><span class="octicon octicon-link"></span></a>Advanced Feature</h3>
 
 <ul>
 <li>
@@ -427,14 +433,35 @@ For example, the following code is used to register an execution time monitor fo
 <div class="highlight"><pre><span class="nd">@LogExecTime</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromAToBOnGoToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
 </pre></div>
-
-<h3>Examples</h3>
 </li>
+<li>
+<p><strong>Linked State (so called Submachine State)</strong><br>
+A <strong>linked state</strong> specifies the insertion of the specification of a submachine state machine. The state machine that contains the linked state is called the containing state machine. The same state machine may be a submachine more than once in the context of a single containing state machine.  </p>
+
+<p>A linked state is semantically equivalent to a composite state. The regions of the submachine state machine are the regions of the composite state. The entry, exit, and behavior actions and internal transitions are defined as part of the state. Submachine state is a decomposition mechanism that allows factoring of common behaviors and their reuse.<br>
+The linked state can be defined by following sample code.</p>
+
+<div class="highlight"><pre><span class="n">builderOfTestStateMachine</span><span class="o">.</span><span class="na">definedLinkedState</span><span class="o">(</span><span class="n">LState</span><span class="o">.</span><span class="na">A</span><span class="o">,</span> <span class="n">builderOfLinkedStateMachine</span><span class="o">,</span> <span class="n">LState</span><span class="o">.</span><span class="na">A1</span><span class="o">);</span>
+</pre></div>
+</li>
+</ul><h3>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
+
+<ul>
 <li><p><strong>ATM State Machine</strong><br>
 The sample code could be found in package <em>"org.squirrelframework.foundation.fsm.atm"</em>.  </p></li>
-<li><p><strong>Simple CSS Parser</strong><br>
-This example illustrates how to parse incoming characters by define parser grammar in state machine.<br><img src="http://hekailiang.github.io/squirrel/images/SimpleCssParser.png" alt="SimpleCssParser">
-Sample code to define CssParser could be found in package <em>"org.squirrelframework.foundation.fsm.cssparser"</em>.</p></li>
+<li>
+<p><strong>Simple CSS Parser</strong><br>
+This example illustrates how to parse incoming characters by define parser grammar in state machine.<br><img src="http://hekailiang.github.io/squirrel/images/SimpleCssParser.png" alt="SimpleCssParser"><br>
+Parse CSS scripts with <em>SimpleCssParser</em> which is defined as State Machine.</p>
+
+<div class="highlight"><pre><span class="n">SimpleCssParser</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">SimpleCssParser</span><span class="o">.</span><span class="na">newParser</span><span class="o">();</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">CssRule</span><span class="o">&gt;</span> <span class="n">rules</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">"alpha { width: 100px/*comment1*/; /*comment2*/text-decoration: "</span> <span class="o">+</span> 
+    <span class="s">"/*comment3*/ underlined; } epsilon/*comment4*/, zeta{ height: 34px; } "</span><span class="o">);</span>
+</pre></div>
+
+<p>Sample code to define CssParser could be found in package <em>"org.squirrelframework.foundation.fsm.cssparser"</em>.</p>
+</li>
 <li>
 <p><strong>Greedy Snake Game Sample</strong><br>
 Here is an interesting example which used state machine to implement greedy snake game  controller. The following diagram shows that the state machine definition of the controller.<br><img src="http://hekailiang.github.io/squirrel/images/SnakeGame.png" alt="SnakeStateMachine"><br>
@@ -477,11 +504,11 @@ Sample code to create snake game state machine.</p>
 
 <p>This example can be found in package <em>"org.squirrelframework.foundation.fsm.snake"</em>. </p>
 </li>
-</ul><h2>Future Plan</h2>
+</ul><h2>
+<a name="future-plan" class="anchor" href="#future-plan"><span class="octicon octicon-link"></span></a>Future Plan</h2>
 
 <ul>
 <li>Support state persistence</li>
-<li>Nested state machine</li>
 <li>State machine import and export</li>
 <li>Support sendEvent(sync) and postEvent(async)</li>
 </ul>
