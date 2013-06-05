@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.ActionExecutor;
+import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
-import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -53,6 +53,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private ImmutableState<T, S, E, C> currentState;
+    
+    private ImmutableState<T, S, E, C> lastState;
     
     private ImmutableState<T, S, E, C> initialState;
     
@@ -96,6 +98,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             executor.execute();
             
             if(result.isAccepted()) {
+                lastState = currentState;
             	currentState = result.getTargetState();
             	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromState.getStateId(), currentState.getStateId(), 
                       event, context, getCurrent()));
@@ -185,8 +188,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
+    public ImmutableState<T, S, E, C> getLastRawState() {
+        return lastState;
+    }
+    
+    @Override
     public S getCurrentState() {
         return currentState.getStateId();
+    }
+    
+    @Override
+    public S getLastState() {
+        return lastState.getStateId();
     }
     
     @Override

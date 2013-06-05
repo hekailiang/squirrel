@@ -1,7 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.squirrelframework.foundation.fsm.TestEvent.InternalA;
 import static org.squirrelframework.foundation.fsm.TestEvent.Started;
 import static org.squirrelframework.foundation.fsm.TestEvent.Terminated;
@@ -231,6 +231,17 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         });
         builder.externalTransition().from(D).toFinal(Final).on(ToEnd);
         stateMachine = builder.newStateMachine(A, monitor);
+    }
+    
+    @Test
+    public void testLastState() {
+        assertThat(stateMachine.getLastRawState(), equalTo(null));
+        stateMachine.fire(ToB, null);
+        assertThat(stateMachine.getLastState(), equalTo(A));
+        stateMachine.fire(ToC, null);
+        assertThat(stateMachine.getLastState(), equalTo(B));
+        stateMachine.fire(ToD, 81);
+        assertThat(stateMachine.getLastState(), equalTo(C));
     }
     
     @Test

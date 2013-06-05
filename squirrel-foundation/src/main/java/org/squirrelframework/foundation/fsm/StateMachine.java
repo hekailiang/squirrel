@@ -31,6 +31,11 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     S getCurrentState();
     
     /**
+     * @return last active state id of state machine
+     */
+    S getLastState();
+    
+    /**
      * @param stateId the identify of state 
      * @return raw state of the same state identify
      */
@@ -40,6 +45,11 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      * @return current raw state of state machine
      */
     ImmutableState<T, S, E, C> getCurrentRawState();
+    
+    /**
+     * @return last active raw state of state machine
+     */
+    ImmutableState<T, S, E, C> getLastRawState();
     
     /**
      * @param parentStateId id of parent state
