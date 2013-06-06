@@ -42,13 +42,13 @@ public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> ext
 	 * Add action execution listener which can be used for monitoring execution
 	 * @param listener action execution listener
 	 */
-	void addListener(ExecActionLisenter<T, S, E, C> listener);
+	void addExecActionListener(ExecActionLisenter<T, S, E, C> listener);
 	
 	/**
 	 * Remove action execution listener
 	 * @param listener action execution listener
 	 */
-	void removeListener(ExecActionLisenter<T, S, E, C> listener);
+	void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener);
 	
 	/**
 	 * Action execution event

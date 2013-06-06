@@ -89,22 +89,22 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     interface StateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
         T getStateMachine();
     }
-    void addListener(StateMachineListener<T, S, E, C> listener);
-    void removeListener(StateMachineListener<T, S, E, C> listener);
+    void addStateMachineListener(StateMachineListener<T, S, E, C> listener);
+    void removeStateMachineListener(StateMachineListener<T, S, E, C> listener);
     
     interface StartListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void started(StartEvent<T, S, E, C> event);
     }
     interface StartEvent <T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {}
-    void addListener(StartListener<T, S, E, C> listener);
-    void removeListener(StartListener<T, S, E, C> listener);
+    void addStartListener(StartListener<T, S, E, C> listener);
+    void removeStartListener(StartListener<T, S, E, C> listener);
     
     interface TerminateListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void terminated(TerminateEvent<T, S, E, C> event);
     }
     interface TerminateEvent <T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {}
-    void addListener(TerminateListener<T, S, E, C> listener);
-    void removeListener(TerminateListener<T, S, E, C> listener);
+    void addTerminateListener(TerminateListener<T, S, E, C> listener);
+    void removeTerminateListener(TerminateListener<T, S, E, C> listener);
     
     interface StateMachineExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void stateMachineException(StateMachineExceptionEvent<T, S, E, C> event);
@@ -112,8 +112,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     interface StateMachineExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {
         Exception getException();
     }
-    void addListener(StateMachineExceptionListener<T, S, E, C> listener);
-    void removeListener(StateMachineExceptionListener<T, S, E, C> listener);
+    void addStateMachineExceptionListener(StateMachineExceptionListener<T, S, E, C> listener);
+    void removeStateMachineExceptionListener(StateMachineExceptionListener<T, S, E, C> listener);
     
     interface TransitionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {
         S getSourceState();
@@ -125,8 +125,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
         void transitionBegin(TransitionBeginEvent<T, S, E, C> event);
     }
     interface TransitionBeginEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
-    void addListener(TransitionBeginListener<T, S, E, C> listener);
-    void removeListener(TransitionBeginListener<T, S, E, C> listener);
+    void addTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener);
+    void removeTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener);
     
     interface TransitionCompleteListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void transitionComplete(TransitionCompleteEvent<T, S, E, C> event);
@@ -134,8 +134,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     interface TransitionCompleteEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {
         S getTargetState();
     }
-    void addListener(TransitionCompleteListener<T, S, E, C> listener);
-    void removeListener(TransitionCompleteListener<T, S, E, C> listener);
+    void addTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener);
+    void removeTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener);
     
     interface TransitionExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void transitionException(TransitionExceptionEvent<T, S, E, C> event);
@@ -144,17 +144,17 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
         S getTargetState();
         Exception getException();
     }
-    void addListener(TransitionExceptionListener<T, S, E, C> listener);
-    void removeListener(TransitionExceptionListener<T, S, E, C> listener);
+    void addTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener);
+    void removeTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener);
     
     interface TransitionDeclinedListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void transitionDeclined(TransitionDeclinedEvent<T, S, E, C> event);
     }
     interface TransitionDeclinedEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
-    void addListener(TransitionDeclinedListener<T, S, E, C> listener);
-    void removeListener(TransitionDeclinedListener<T, S, E, C> listener);
+    void addTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener);
+    void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener);
     
-    void addListener(ExecActionLisenter<T, S, E, C> listener);
+    void addExecActionListener(ExecActionLisenter<T, S, E, C> listener);
 	
-	void removeListener(ExecActionLisenter<T, S, E, C> listener);
+	void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener);
 }

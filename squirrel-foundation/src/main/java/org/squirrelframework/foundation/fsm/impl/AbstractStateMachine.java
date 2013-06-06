@@ -371,12 +371,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             ReflectUtils.getMethod(StateMachineListener.class, "stateMachineEvent", new Class<?>[]{StateMachineEvent.class});
     
     @Override
-    public void addListener(StateMachineListener<T, S, E, C> listener) {
+    public void addStateMachineListener(StateMachineListener<T, S, E, C> listener) {
         addListener(StateMachineEvent.class, listener, STATEMACHINE_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(StateMachineListener<T, S, E, C> listener) {
+    public void removeStateMachineListener(StateMachineListener<T, S, E, C> listener) {
         removeListener(StateMachineEvent.class, listener, STATEMACHINE_EVENT_METHOD);
     }
     
@@ -384,12 +384,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             ReflectUtils.getMethod(StartListener.class, "started", new Class<?>[]{StartEvent.class});
     
     @Override
-    public void addListener(StartListener<T, S, E, C> listener) {
+    public void addStartListener(StartListener<T, S, E, C> listener) {
         addListener(StartEvent.class, listener, START_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(StartListener<T, S, E, C> listener) {
+    public void removeStartListener(StartListener<T, S, E, C> listener) {
         removeListener(StartEvent.class, listener, START_EVENT_METHOD);
     }
     
@@ -397,12 +397,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             ReflectUtils.getMethod(TerminateListener.class, "terminated", new Class<?>[]{TerminateEvent.class});
 
     @Override
-    public void addListener(TerminateListener<T, S, E, C> listener) {
+    public void addTerminateListener(TerminateListener<T, S, E, C> listener) {
         addListener(TerminateEvent.class, listener, TERMINATE_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(TerminateListener<T, S, E, C> listener) {
+    public void removeTerminateListener(TerminateListener<T, S, E, C> listener) {
         removeListener(TerminateEvent.class, listener, TERMINATE_EVENT_METHOD);
     }
     
@@ -411,12 +411,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     "stateMachineException", new Class<?>[]{StateMachineExceptionEvent.class});
 
     @Override
-    public void addListener(StateMachineExceptionListener<T, S, E, C> listener) {
+    public void addStateMachineExceptionListener(StateMachineExceptionListener<T, S, E, C> listener) {
         addListener(StateMachineExceptionEvent.class, listener, STATEMACHINE_EXCEPTION_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(StateMachineExceptionListener<T, S, E, C> listener) {
+    public void removeStateMachineExceptionListener(StateMachineExceptionListener<T, S, E, C> listener) {
         removeListener(StateMachineExceptionEvent.class, listener, STATEMACHINE_EXCEPTION_EVENT_METHOD);
     }
     
@@ -425,12 +425,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     "transitionBegin", new Class<?>[]{TransitionBeginEvent.class});
 
     @Override
-    public void addListener(TransitionBeginListener<T, S, E, C> listener) {
+    public void addTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener) {
         addListener(TransitionBeginEvent.class, listener, TRANSITION_BEGIN_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(TransitionBeginListener<T, S, E, C> listener) {
+    public void removeTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener) {
         removeListener(TransitionBeginEvent.class, listener, TRANSITION_BEGIN_EVENT_METHOD);
     }
     
@@ -439,12 +439,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     "transitionComplete", new Class<?>[]{TransitionCompleteEvent.class});
 
     @Override
-    public void addListener(TransitionCompleteListener<T, S, E, C> listener) {
+    public void addTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener) {
         addListener(TransitionCompleteEvent.class, listener, TRANSITION_COMPLETE_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(TransitionCompleteListener<T, S, E, C> listener) {
+    public void removeTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener) {
         removeListener(TransitionCompleteEvent.class, listener, TRANSITION_COMPLETE_EVENT_METHOD);
     }
     
@@ -453,12 +453,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     "transitionException", new Class<?>[]{TransitionExceptionEvent.class});
 
     @Override
-    public void addListener(TransitionExceptionListener<T, S, E, C> listener) {
+    public void addTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener) {
         addListener(TransitionExceptionEvent.class, listener, TRANSITION_EXCEPTION_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(TransitionExceptionListener<T, S, E, C> listener) {
+    public void removeTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener) {
         removeListener(TransitionExceptionEvent.class, listener, TRANSITION_EXCEPTION_EVENT_METHOD);
     }
     
@@ -467,21 +467,21 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     "transitionDeclined", new Class<?>[]{TransitionDeclinedEvent.class});
 
     @Override
-    public void addListener(TransitionDeclinedListener<T, S, E, C> listener) {
+    public void addTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener) {
         addListener(TransitionDeclinedEvent.class, listener, TRANSITION_DECLINED_EVENT_METHOD);
     }
     
     @Override
-    public void removeListener(TransitionDeclinedListener<T, S, E, C> listener) {
+    public void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener) {
         removeListener(TransitionDeclinedEvent.class, listener, TRANSITION_DECLINED_EVENT_METHOD);
     }
     
-    public void addListener(ExecActionLisenter<T, S, E, C> listener) {
-    	executor.addListener(listener);
+    public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
+    	executor.addExecActionListener(listener);
     }
 	
-	public void removeListener(ExecActionLisenter<T, S, E, C> listener) {
-		executor.removeListener(listener);
+	public void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
+		executor.removeExecActionListener(listener);
 	}
     
     public static abstract class AbstractStateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> 

@@ -326,7 +326,7 @@ public class HierarchicalStateMachineTest {
         		new SquirrelPostProcessor<ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer>>() {
 			@Override
             public void postProcess(ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer> component) {
-				component.addListener(new TransitionProgressMonitor<HierachicalStateMachine, HState, HEvent, Integer>());
+				component.addExecActionListener(new TransitionProgressMonitor<HierachicalStateMachine, HState, HEvent, Integer>());
             }
 		});
 	}

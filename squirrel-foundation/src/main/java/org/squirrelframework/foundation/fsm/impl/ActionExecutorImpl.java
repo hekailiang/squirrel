@@ -42,12 +42,12 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
             ReflectUtils.getMethod(ExecActionLisenter.class, "beforeExecute", new Class<?>[]{ExecActionEvent.class});
 	
 	@Override
-    public void addListener(ExecActionLisenter<T, S, E, C> listener) {
+    public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
 		addListener(ExecActionEvent.class, listener, EXECUTOR_EVENT_METHOD);
     }
 	
 	@Override
-	public void removeListener(ExecActionLisenter<T, S, E, C> listener) {
+	public void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
 		removeListener(ExecActionEvent.class, listener);
 	}
 	

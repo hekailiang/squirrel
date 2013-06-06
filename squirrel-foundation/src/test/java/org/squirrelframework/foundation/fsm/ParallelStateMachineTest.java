@@ -284,7 +284,7 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testReceiveSubStateEvent() {
-		stateMachine.addListener(new StateMachine.TransitionDeclinedListener<ParallelStateMachine, PState, PEvent, Integer>() {
+		stateMachine.addTransitionDeclinedListener(new StateMachine.TransitionDeclinedListener<ParallelStateMachine, PState, PEvent, Integer>() {
 			@Override
 			public void transitionDeclined(TransitionDeclinedEvent<ParallelStateMachine, PState, PEvent, Integer> event) {
 				stateMachine.consumeLog();

@@ -65,13 +65,13 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
             // to outside state when event was declined by linked state machine.
             DeclineEventHandler declinedEventHandler = new DeclineEventHandler(stateContext);
             // add declined event listener
-            linkedStateMachine.addListener(declinedEventHandler);
+            linkedStateMachine.addTransitionDeclinedListener(declinedEventHandler);
             
             // delegate the event to linked state machine process
             linkedStateMachine.fire(stateContext.getEvent(), stateContext.getContext());
             
             // remove declined event listener
-            linkedStateMachine.removeListener(declinedEventHandler);
+            linkedStateMachine.removeTransitionDecleindListener(declinedEventHandler);
         }
     }
 

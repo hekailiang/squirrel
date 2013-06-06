@@ -14,7 +14,7 @@ public class Main {
                 StateMachineBuilderImpl.newStateMachineBuilder(SnakeController.class, SnakeState.class, SnakeEvent.class, SnakeContext.class);
         SnakeController controller = builder.newStateMachine(SnakeState.NEW);
         final SnakeGame snake = new SnakeGame(controller);
-        controller.addListener(new StateMachine.TransitionCompleteListener<SnakeController, SnakeState, SnakeEvent, SnakeContext>() {
+        controller.addTransitionCompleteListener(new StateMachine.TransitionCompleteListener<SnakeController, SnakeState, SnakeEvent, SnakeContext>() {
             @Override
             public void transitionComplete(TransitionCompleteEvent<SnakeController, SnakeState, SnakeEvent, SnakeContext> event) {
                 snake.repaint();
