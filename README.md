@@ -15,7 +15,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.1.7</version>
+  	<version>0.1.8</version>
 </dependency>
 ``` 
 
@@ -391,6 +391,12 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	}
 	```
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
+
+## Release Notes  
+*Version 0.1.8*  
+1. Support **linked state** which also called substatemachine state  
+2. Rename addListener/removeListener of StateMachine to more specific name add\*Listener/remove\*Listener  
+3. Simplify converter registration for String and Enumeration type  
 
 ## Future Plan  
 * Support state persistence
