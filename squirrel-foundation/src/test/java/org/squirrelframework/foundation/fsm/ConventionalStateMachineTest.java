@@ -23,9 +23,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     
@@ -211,8 +209,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         StateMachineBuilder<ConventionalStateMachine, TestState, TestEvent, Integer> builder = 
-                StateMachineBuilderImpl.<ConventionalStateMachine, TestState, TestEvent, Integer>
-                newStateMachineBuilder(ConventionalStateMachine.class, TestState.class, 
+                StateMachineBuilderFactory.create(ConventionalStateMachine.class, TestState.class, 
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
         builder.externalTransition().from(A).to(B).on(ToB);
         builder.internalTransition().within(A).on(InternalA);

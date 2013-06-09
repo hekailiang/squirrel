@@ -9,11 +9,11 @@ import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.cssparser.SimpleCssParser.ParserContext;
 import org.squirrelframework.foundation.fsm.cssparser.SimpleCssParser.ParserState;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 import com.google.common.collect.Lists;
 
@@ -57,7 +57,7 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
     private static final StateMachineBuilder<SimpleCssParser, ParserState, Character, ParserContext> builder;
     
     static {
-        builder = StateMachineBuilderImpl.newStateMachineBuilder(
+        builder = StateMachineBuilderFactory.create(
                 SimpleCssParser.class, ParserState.class, Character.class, ParserContext.class);
         builder.externalTransition().from(ParserState.RULE).to(ParserState.COMMENT).on(SLASH).when(
                 new Condition<ParserContext>() {

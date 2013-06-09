@@ -19,9 +19,7 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 import org.squirrelframework.foundation.fsm.monitor.TransitionExecTimeMonitor;
 import org.squirrelframework.foundation.fsm.monitor.TransitionProgressMonitor;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -348,8 +346,8 @@ public class HierarchicalStateMachineTest {
 	@Before
     public void setup() {
 		StateMachineBuilder<HierachicalStateMachine, HState, HEvent, Integer> builder = 
-				StateMachineBuilderImpl.newStateMachineBuilder(
-						HierachicalStateMachine.class, HState.class, HEvent.class, Integer.class, new Class<?>[0]);
+		        StateMachineBuilderFactory.create(HierachicalStateMachine.class, 
+		                HState.class, HEvent.class, Integer.class, new Class<?>[0]);
 		builder.externalTransition().from(HState.A).to(HState.B).on(HEvent.A2B);
 		builder.externalTransition().from(HState.B).to(HState.A).on(HEvent.B2A);
 		

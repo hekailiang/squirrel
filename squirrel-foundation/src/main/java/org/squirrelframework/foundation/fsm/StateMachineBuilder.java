@@ -1,8 +1,9 @@
-package org.squirrelframework.foundation.fsm.builder;
+package org.squirrelframework.foundation.fsm;
 
-import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.MutableState;
-import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
+import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 
 /**
  * State machine builder API.

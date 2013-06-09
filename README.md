@@ -37,8 +37,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 	In order to create a state machine, user need to create state machine builder first. For example:   
 	```java
 	StateMachineBuilder<MyStateMachine, MyState, MyEvent, MyContext> builder =
-		StateMachineBuilderImpl.newStateMachineBuilder(MyStateMachine.class, 
-		MyState.class, MyEvent.class, MyContext.class);
+		StateMachineBuilderFactory.create(MyStateMachine.class, MyState.class, MyEvent.class, MyContext.class);
 	```
 
 * **Fluent API**  

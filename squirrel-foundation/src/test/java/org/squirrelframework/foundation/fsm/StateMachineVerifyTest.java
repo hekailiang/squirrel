@@ -8,9 +8,7 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class StateMachineVerifyTest extends AbstractStateMachineTest {
     
@@ -63,7 +61,7 @@ public class StateMachineVerifyTest extends AbstractStateMachineTest {
     @Test
     public void testInvalidFinalState() {
         StateMachineBuilder<InvalidFinalStateMachine, TestState, TestEvent, Integer> builder = 
-                StateMachineBuilderImpl.newStateMachineBuilder(InvalidFinalStateMachine.class, TestState.class, 
+                StateMachineBuilderFactory.create(InvalidFinalStateMachine.class, TestState.class, 
                 TestEvent.class, Integer.class);
         try {
             builder.newStateMachine(TestState.A);
@@ -77,7 +75,7 @@ public class StateMachineVerifyTest extends AbstractStateMachineTest {
     @Test
     public void testInvalidInternalTransition() {
         StateMachineBuilder<InvalidInternalTransitionStateMachine, TestState, TestEvent, Integer> builder = 
-                StateMachineBuilderImpl.newStateMachineBuilder(InvalidInternalTransitionStateMachine.class, TestState.class, 
+                StateMachineBuilderFactory.create(InvalidInternalTransitionStateMachine.class, TestState.class, 
                 TestEvent.class, Integer.class);
         try {
             builder.newStateMachine(TestState.A);
@@ -91,7 +89,7 @@ public class StateMachineVerifyTest extends AbstractStateMachineTest {
     @Test
     public void testVerifyConflictTransition() {
         StateMachineBuilder<ConflictTransitionStateMachine, TestState, TestEvent, Integer> builder = 
-                StateMachineBuilderImpl.newStateMachineBuilder(ConflictTransitionStateMachine.class, TestState.class, 
+                StateMachineBuilderFactory.create(ConflictTransitionStateMachine.class, TestState.class, 
                 TestEvent.class, Integer.class);
         try {
             builder.newStateMachine(TestState.A);

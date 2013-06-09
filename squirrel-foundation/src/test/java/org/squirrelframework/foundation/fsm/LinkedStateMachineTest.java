@@ -10,9 +10,7 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class LinkedStateMachineTest {
     
@@ -221,11 +219,11 @@ public class LinkedStateMachineTest {
     public void setup() {
         logger = new StringBuilder();
         StateMachineBuilder<LinkedStateMachine, LState, LEvent, Integer> builderOfLinkedStateMachine = 
-                StateMachineBuilderImpl.newStateMachineBuilder(
+                StateMachineBuilderFactory.create(
                         LinkedStateMachine.class, LState.class, LEvent.class, Integer.class, new Class<?>[]{StringBuilder.class});
         
         StateMachineBuilder<TestStateMachine, LState, LEvent, Integer> builderOfTestStateMachine = 
-                StateMachineBuilderImpl.newStateMachineBuilder(
+                StateMachineBuilderFactory.create(
                         TestStateMachine.class, LState.class, LEvent.class, Integer.class, new Class<?>[]{StringBuilder.class});
         
         // defined linked state

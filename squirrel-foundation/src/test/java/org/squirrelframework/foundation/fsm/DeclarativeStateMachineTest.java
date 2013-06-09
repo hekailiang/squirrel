@@ -21,9 +21,7 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
 
@@ -223,9 +221,9 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         MockitoAnnotations.initMocks(this);
 
         StateMachineBuilder<DeclarativeStateMachine, TestState, TestEvent, Integer> builder = 
-                StateMachineBuilderImpl.<DeclarativeStateMachine, TestState, TestEvent, Integer>
-        newStateMachineBuilder(DeclarativeStateMachineImpl.class, TestState.class, 
-                TestEvent.class, Integer.class, DeclarativeStateMachine.class);
+                StateMachineBuilderFactory.<DeclarativeStateMachine, TestState, TestEvent, Integer>
+                    create(DeclarativeStateMachineImpl.class, TestState.class, 
+                            TestEvent.class, Integer.class, DeclarativeStateMachine.class);
         stateMachine = builder.newStateMachine(TestState.A, monitor);
     }
 

@@ -27,6 +27,7 @@ import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -39,7 +40,6 @@ import org.squirrelframework.foundation.fsm.builder.From;
 import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.On;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.builder.To;
 import org.squirrelframework.foundation.fsm.builder.When;
 import org.squirrelframework.foundation.util.DuplicateChecker;
@@ -122,28 +122,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     	}
     }
     
+    @Deprecated
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, Class<C> contextClazz) {
         return newStateMachineBuilder(stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
     }
-     
+    
+    @Deprecated
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
-        return postProcessBuilder( new StateMachineBuilderImpl<T, S, E, C>(
-                stateMachineClazz, stateClazz, eventClazz, contextClazz, extraConstParamTypes) );
-    }
-    
-    private static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> postProcessBuilder(
-            StateMachineBuilder<T, S, E, C> builder) {
-        @SuppressWarnings("unchecked")
-        SquirrelPostProcessor<StateMachineBuilder<T, S, E, C>> postProcessor = 
-                (SquirrelPostProcessor<StateMachineBuilder<T, S, E, C>>) 
-                SquirrelPostProcessorProvider.getInstance().getBestMatchPostProcessor(builder.getClass());
-        if(postProcessor!=null) {
-            postProcessor.postProcess(builder);
-        }
-        return builder;
+        return FSM.newStateMachineBuilder(stateMachineClazz, stateClazz, eventClazz, contextClazz, extraConstParamTypes);
     }
     
     private Class<?>[] getConstParamTypes(Class<?>[] extraConstParamTypes) {

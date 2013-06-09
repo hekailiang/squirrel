@@ -12,10 +12,10 @@ import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.SCXMLVisitor;
+import org.squirrelframework.foundation.fsm.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.atm.ATMStateMachine.ATMState;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class ATMStateMachineTest {
@@ -30,8 +30,8 @@ public class ATMStateMachineTest {
     
     @Before
     public void setup() {
-        StateMachineBuilder<ATMStateMachine, ATMState, String, Void> builder = StateMachineBuilderImpl.
-                newStateMachineBuilder(ATMStateMachine.class, ATMState.class, String.class, Void.class);
+        StateMachineBuilder<ATMStateMachine, ATMState, String, Void> builder = StateMachineBuilderFactory.create(
+                ATMStateMachine.class, ATMState.class, String.class, Void.class);
         builder.externalTransition().from(ATMState.Idle).to(ATMState.Loading).on("Connected");
         builder.externalTransition().from(ATMState.Loading).to(ATMState.Disconnected).on("ConnectionClosed");
         builder.externalTransition().from(ATMState.Loading).to(ATMState.InService).on("LoadSuccess");

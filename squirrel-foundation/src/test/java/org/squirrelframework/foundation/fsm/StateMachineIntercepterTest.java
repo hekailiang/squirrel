@@ -14,10 +14,8 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachineIntercepter;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineIntercepter;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 
 public class StateMachineIntercepterTest extends AbstractStateMachineTest {
     
@@ -101,8 +99,8 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        builder = StateMachineBuilderImpl.<DeclarativeStateMachine, TestState, TestEvent, Integer>
-            newStateMachineBuilder(DeclarativeStateMachine.class, TestState.class, TestEvent.class, Integer.class);
+        builder = StateMachineBuilderFactory.<DeclarativeStateMachine, TestState, TestEvent, Integer>
+            create(DeclarativeStateMachine.class, TestState.class, TestEvent.class, Integer.class);
     }
     
     @Test

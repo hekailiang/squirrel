@@ -18,9 +18,7 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineBuilderImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class ParallelStateMachineTest {
@@ -269,8 +267,8 @@ public class ParallelStateMachineTest {
 	
 	@Before
     public void setup() {
-		StateMachineBuilder<ParallelStateMachine, PState, PEvent, Integer> builder = StateMachineBuilderImpl.
-				newStateMachineBuilder(ParallelStateMachine.class, PState.class, PEvent.class, Integer.class);
+		StateMachineBuilder<ParallelStateMachine, PState, PEvent, Integer> builder = StateMachineBuilderFactory.create
+				(ParallelStateMachine.class, PState.class, PEvent.class, Integer.class);
 		stateMachine = builder.newStateMachine(PState.A);
 	}
 	
