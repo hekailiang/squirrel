@@ -239,7 +239,7 @@ During the lifecycle of the state machine, various events will be fired, e.g.
 ```
 User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
 ```java
-stateMachine.addListener(new StateMachineListener<MyStateMachine, MyState, MyEvent, MyContext>() {
+stateMachine.addStateMachineListener(new StateMachineListener<MyStateMachine, MyState, MyEvent, MyContext>() {
 			@Override
 			public void stateMachineEvent(StateMachineEvent<MyStateMachine, MyState, MyEvent, MyContext> event) {
 				// ...
@@ -315,7 +315,7 @@ visitor.convertDotFile("SnakeStateMachine");
         new SquirrelPostProcessor<ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext>>() {
 			@Override
             public void postProcess(ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext> component) {
-				component.addListener(new TransitionProgressMonitor<MyStateMachine, MyState, MyEvent, MyContext>());
+				component.addExecActionListener(new TransitionProgressMonitor<MyStateMachine, MyState, MyEvent, MyContext>());
             }
         }
 	);
