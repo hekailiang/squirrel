@@ -136,7 +136,7 @@ Then register these converters to *ConverterProvider*. e.g.
 ConverterProvider.INSTANCE.register(MyEvent.class, new MyEventConverter());
 ConverterProvider.INSTANCE.register(MyState.class, new MyStateConverter());
 ```  
-	Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters.
+	*Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters. And also if the Event or State class is type of String or Enumeration, you don't need to implement or register a converter explictly at most of cases.*
 	
 * **New State Machine Instance**  
 After user defined state machine behavior, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.
