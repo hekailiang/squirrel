@@ -392,7 +392,7 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 ## Release Notes  
-*Version 0.1.8*  
+*Version 0.1.8 - 2013-06-08*  
 1. Support **linked state** which also called substatemachine state  
 2. Rename addListener/removeListener of StateMachine to more specific name add\*Listener/remove\*Listener  
 3. Simplify converter registration for String and Enumeration type  
