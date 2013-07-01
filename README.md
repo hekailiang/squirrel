@@ -15,7 +15,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.1.8</version>
+  	<version>0.1.9</version>
 </dependency>
 ``` 
 
