@@ -392,6 +392,9 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 ## Release Notes  
+*Version 0.1.9 - 2013-07-01*  
+1. Add to *StateMachineBuilderFactory* simplify StateMachineBuilder creation  
+ 
 *Version 0.1.8 - 2013-06-08*  
 1. Support **linked state** which also called substatemachine state  
 2. Rename addListener/removeListener of StateMachine to more specific name add\*Listener/remove\*Listener  
