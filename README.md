@@ -393,7 +393,8 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 
 ## Release Notes  
 *Version 0.1.9 - 2013-07-01*  
-1. Add to *StateMachineBuilderFactory* simplify StateMachineBuilder creation  
+1. Add to *StateMachineBuilderFactory* simplify StateMachineBuilder creation
+2. Deprecate StateMachineBuilderImpl.newStateMachineBuilder(...) methods
  
 *Version 0.1.8 - 2013-06-08*  
 1. Support **linked state** which also called substatemachine state  
