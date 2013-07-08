@@ -14,9 +14,9 @@ import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
 import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.MutableStateMachine;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
@@ -25,9 +25,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * The Abstract state machine provide several extension ability to cover different extension granularity. 
@@ -49,17 +47,9 @@ import com.google.common.collect.Maps;
  * @param <E> event type
  * @param <C> context type
  */
-public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements MutableStateMachine<T, S, E, C> {
+public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements StateMachine<T, S, E, C> {
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
-    
-    private ImmutableState<T, S, E, C> currentState;
-    
-    private ImmutableState<T, S, E, C> lastState;
-    
-    private ImmutableState<T, S, E, C> initialState;
-    
-    private final Map<S, ImmutableState<T, S, E, C>> states;
     
     private StateMachineStatus status = StateMachineStatus.INITIALIZED;
     
@@ -67,51 +57,54 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private final LinkedList<Pair<E, C>> queuedEvents = Lists.newLinkedList();
     
-    private final Map<S, S> lastActiveChildStateStore = Maps.newHashMap();
-    
-    private final ArrayListMultimap<S, S> parallelStatesStore = ArrayListMultimap.create();
-    
     private final ActionExecutor<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutor<T, S, E, C>>(){});
+    
+    private final StateMachineData<T, S, E, C> data;
     
     private E startEvent, finishEvent, terminateEvent;
     
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
-        this.initialState = initialState;
-        this.currentState = initialState;
-        this.states = Collections.unmodifiableMap(states);
+        data = SquirrelProvider.getInstance().newInstance( 
+                new TypeReference<StateMachineData<T, S, E, C>>(){}, 
+                new Class[]{Map.class}, new Object[]{states} );
+        
+        S intialStateId = initialState.getStateId();
+        data.write().initalState(intialStateId);
+        data.write().currentState(intialStateId);
     }
     
     private void processEvent(E event, C context) {
-        ImmutableState<T, S, E, C> fromState = currentState;
+        ImmutableState<T, S, E, C> fromState = data.read().currentRawState();
+        S fromStateId = data.read().currentState();
         logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
         Stopwatch sw = null;
         if(logger.isDebugEnabled()) {
             sw = new Stopwatch().start();
         }
         try {
-            beforeTransitionBegin(fromState.getStateId(), event, context);
-            fireEvent(new TransitionBeginEventImpl<T, S, E, C>(currentState.getStateId(), event, context, getThis()));
+            beforeTransitionBegin(fromStateId, event, context);
+            fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             
             executor.begin();
-            TransitionResult<T, S, E, C> result = FSM.newResult(false, currentState, null);
-            currentState.internalFire( FSM.newStateContext(this, currentState, event, context, result, executor) );
+            TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
+            fromState.internalFire( FSM.newStateContext(this, data, fromState, event, context, result, executor) );
             executor.execute();
             
             if(result.isAccepted()) {
-                lastState = currentState;
-            	currentState = result.getTargetState();
-            	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromState.getStateId(), currentState.getStateId(), 
+                data.write().lastState(fromStateId);
+                data.write().currentState(result.getTargetState().getStateId());
+            	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, data.read().currentState(), 
                       event, context, getThis()));
-                afterTransitionCompleted(fromState.getStateId(), currentState.getStateId(), event, context);
+                afterTransitionCompleted(fromStateId, data.read().currentState(), event, context);
             } else {
-            	fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromState.getStateId(), event, context, getThis()));
-                afterTransitionDeclined(fromState.getStateId(), event, context);
+            	fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
+                afterTransitionDeclined(fromStateId, event, context);
             }
         } catch(Exception e) {
-            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromState.getStateId(), 
-                    currentState.getStateId(), event, context, getThis()));
-            afterTransitionCausedException(e, fromState.getStateId(), currentState.getStateId(), event, context);
+            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromStateId, 
+                    data.read().currentState(), event, context, getThis()));
+            afterTransitionCausedException(e, fromStateId, data.read().currentState(), event, context);
         } finally {
             if(logger.isDebugEnabled()) {
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
@@ -180,39 +173,45 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected void internalSetState(S state) {
-        currentState = getRawStateFrom(state);
+        data.write().currentState(state);
     }
     
     @Override
     public ImmutableState<T, S, E, C> getCurrentRawState() {
-        return currentState;
+        return data.read().currentRawState();
     }
     
     @Override
     public ImmutableState<T, S, E, C> getLastRawState() {
-        return lastState;
+        return data.read().lastRawState();
+    }
+    
+    @Override
+    public ImmutableState<T, S, E, C> getInitialRawState() {
+        return data.read().initialRawState();
+    }
+    
+    @Override
+    @Deprecated
+    public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
+        return data.getRawStateFrom(stateId);
     }
     
     @Override
     public S getCurrentState() {
-        return currentState.getStateId();
+        return data.read().currentState();
     }
     
     @Override
     public S getLastState() {
-        return lastState.getStateId();
+        return data.read().lastState();
     }
     
     @Override
     public S getInitialState() {
-        return initialState.getStateId();
+        return data.read().initialState();
     }
 
-    @Override
-    public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
-        return states.get(stateId);
-    }
-    
     private void entryAll(ImmutableState<T, S, E, C> origin, StateContext<T, S, E, C> stateContext) {
     	Stack<ImmutableState<T, S, E, C>> stack = new Stack<ImmutableState<T, S, E, C>>();
 
@@ -236,9 +235,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
     	executor.begin();
     	StateContext<T, S, E, C> stateContext = FSM.newStateContext(
-    			this, getCurrentRawState(), getStartEvent(), context, null, executor);
-        entryAll(initialState, stateContext);
-        currentState = getCurrentRawState().enterByHistory(stateContext);
+    			this, data, data.read().currentRawState(), getStartEvent(), 
+    			context, null, executor);
+        entryAll(data.read().initialRawState(), stateContext);
+        ImmutableState<T, S, E, C> currentState = data.read().currentRawState();
+        ImmutableState<T, S, E, C> historyState = currentState.enterByHistory(stateContext);
+        data.write().currentState(historyState.getStateId());
         executor.execute();
         
         execute();
@@ -260,45 +262,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S getLastActiveChildStateOf(S parentStateId) {
-    	return lastActiveChildStateStore.get(parentStateId);
+    	return data.read().lastActiveChildStateOf(parentStateId);
     }
     
     @Override
-    public void setLastActiveChildState(S parentStateId, S childStateId) {
-    	lastActiveChildStateStore.put(parentStateId, childStateId);
-    }
-    
-    @Override
-    public List<S> getSubStatesOn(S parentState) {
-    	if(getRawStateFrom(parentState).isParallelState()) {
-    		return parallelStatesStore.get(parentState);
-    	} 
-    	return Collections.emptyList();
-    }
-    
-    @Override
-    public void setSubState(S parentState, S subState) {
-    	if(getRawStateFrom(parentState)!=null && getRawStateFrom(parentState).isParallelState()) {
-    		parallelStatesStore.put(parentState, subState);
-    	} else {
-    		logger.warn("Cannot set sub states on none parallel state {}."+parentState);
-    	}
-    }
-    
-    @Override
-    public void removeSubState(S parentState, S subState) {
-    	if(getRawStateFrom(parentState)!=null && getRawStateFrom(parentState).isParallelState()) {
-    		parallelStatesStore.remove(parentState, subState);
-    	} else {
-    		logger.warn("Cannot remove sub states on none parallel state {}."+parentState);
-    	}
-    }
-    
-    @Override
-    public void removeSubStatesOn(S parentState) {
-    	if(getRawStateFrom(parentState).isParallelState()) {
-    		parallelStatesStore.removeAll(parentState);
-    	} 
+    public List<S> getSubStatesOn(S parentStateId) {
+        return data.read().subStatesOn(parentStateId);
     }
     
     @Override
@@ -309,11 +278,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
     	executor.begin();
         StateContext<T, S, E, C> stateContext = FSM.newStateContext(
-                this, getCurrentRawState(), getTerminateEvent(), context, null, executor);
-        exitAll(getCurrentRawState(), stateContext);
+                this, data, data.read().currentRawState(), getTerminateEvent(), 
+                context, null, executor);
+        exitAll(data.read().currentRawState(), stateContext);
         executor.execute();
         
-        currentState = initialState;
+        data.write().currentState(data.read().initialState());
         status = StateMachineStatus.TERMINATED;
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
     }
@@ -332,10 +302,26 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return (T)this;
     }
     
+    void setTypeOfStateMachine(Class<? extends T> stateMachineType) {
+        data.setTypeOfStateMachine(stateMachineType);
+    }
+    
+    void setTypeOfState(Class<S> stateType) {
+        data.setTypeOfState(stateType);
+    }
+    
+    void setTypeOfEvent(Class<E> eventType) {
+        data.setTypeOfEvent(eventType);
+    }
+    
+    void setTypeOfContext(Class<C> contextType) {
+        data.setTypeOfContext(contextType);
+    }
+    
     @Override
     public void accept(Visitor<T, S, E, C> visitor) {
         visitor.visitOnEntry(this);
-        for(ImmutableState<T, S, E, C> state : states.values()) {
+        for(ImmutableState<T, S, E, C> state : data.getRawStates()) {
         	if(state.getParentState()==null)
         		state.accept(visitor);
         }
@@ -364,6 +350,27 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     public E getFinishEvent() {
     	return finishEvent;
+    }
+    
+    @Override
+    public StateMachineData<T, S, E, C> dumpSavedData() {
+        StateMachineData<T, S, E, C> savedData = null;
+        if(status==StateMachineStatus.IDLE) {
+            savedData = SquirrelProvider.getInstance().newInstance( 
+                    new TypeReference<StateMachineData<T, S, E, C>>(){}, 
+                    new Class[]{Map.class}, new Object[]{Collections.emptyMap()} );
+            savedData.dump(data);
+        } 
+        return savedData;
+    }
+    
+    @Override
+    public void loadSavedData(StateMachineData<T, S, E, C> savedData) {
+        if(status==StateMachineStatus.INITIALIZED || status==StateMachineStatus.TERMINATED) {
+            data.dump(savedData);
+            // ready to process event, no need to start again
+            status = StateMachineStatus.IDLE;
+        }
     }
     
     // leverage bridge method to call the method of actual listener

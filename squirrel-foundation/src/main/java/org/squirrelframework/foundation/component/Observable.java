@@ -44,7 +44,7 @@ public interface Observable {
 	 * Remove listener from observable subject.
 	 * @param eventType type of event
 	 * @param listener listener object
-	 * @param methodName name of listener method
+	 * @param method listener method
 	 */
 	void removeListener(Class<?> eventType, Object listener, Method method);
 	

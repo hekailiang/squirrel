@@ -62,11 +62,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private final Class<? extends T> stateMachineClazz;
     
-//    private final Class<S> stateClazz;
-//    
-//    private final Class<E> eventClazz;
-//    
-//    private final Class<C> contextClazz;
+    private final Class<S> stateClazz;
+    
+    private final Class<E> eventClazz;
+    
+    private final Class<C> contextClazz;
     
     private boolean prepared = false;
     
@@ -91,13 +91,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             "\" must be extended from AbstractStateMachine.class.");
         
         this.stateMachineClazz = stateMachineClazz;
+        this.stateClazz = stateClazz;
+        this.eventClazz = eventClazz;
+        this.contextClazz = contextClazz;
         this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
         
         initailContextEvents(eventClazz);
-//        this.stateClazz = stateClazz;
-//        this.eventClazz = eventClazz;
-//        this.contextClazz = contextClazz;
         methodCallParamTypes = new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
         this.contructor = ReflectUtils.getConstructor(stateMachineClazz, constParamTypes);
@@ -515,9 +515,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             System.arraycopy(extraParams, 0, parameters, 2, extraParams.length);
         }
         T stateMachine = postProcessStateMachine((Class<T>)stateMachineClazz, ReflectUtils.newInstance(contructor, parameters));
-        ((AbstractStateMachine<T, S, E, C>)stateMachine).setStartEvent(startEvent);
-        ((AbstractStateMachine<T, S, E, C>)stateMachine).setFinishEvent(finishEvent);
-        ((AbstractStateMachine<T, S, E, C>)stateMachine).setTerminateEvent(terminateEvent);
+        
+        AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
+        stateMachineImpl.setStartEvent(startEvent);
+        stateMachineImpl.setFinishEvent(finishEvent);
+        stateMachineImpl.setTerminateEvent(terminateEvent);
+        
+        stateMachineImpl.setTypeOfStateMachine(stateMachineClazz);
+        stateMachineImpl.setTypeOfState(stateClazz);
+        stateMachineImpl.setTypeOfEvent(eventClazz);
+        stateMachineImpl.setTypeOfContext(contextClazz);
+        
         return stateMachine;
     }
     

@@ -120,7 +120,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             for(ImmutableState<T, S, E, C> parallelState : getChildStates()) {
                 parallelState.entry(stateContext);
                 ImmutableState<T, S, E, C> subState = parallelState.enterByHistory(stateContext);
-                stateContext.getStateMachine().setSubState(getStateId(), subState.getStateId());
+                stateContext.getStateMachineData().write().subStateFor(getStateId(), subState.getStateId());
             }
         }
         logger.debug("State \""+getStateId()+"\" entry.");
@@ -139,7 +139,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     			}
     			subState.getParentState().exit(stateContext);
     		}
-    		stateContext.getStateMachine().removeSubStatesOn(getStateId());
+    		stateContext.getStateMachineData().write().removeSubStatesOn(getStateId());
     	}
     	
         for(final Action<T, S, E, C> exitAction : getExitActions()) {
@@ -155,7 +155,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         	}
         	if(getParentState().isRegion()) {
         		S grandParentId = getParentState().getParentState().getStateId();
-        		stateContext.getStateMachine().removeSubState(grandParentId, getStateId());
+        		stateContext.getStateMachineData().write().removeSubState(grandParentId, getStateId());
         	}
 		}
         logger.debug("State \""+getStateId()+"\" exit.");
@@ -344,8 +344,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     			TransitionResult<T, S, E, C> subTransitionResult = 
     					FSM.<T, S, E, C>newResult(false, parallelState, currentTransitionResult);
     			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(
-    					stateContext.getStateMachine(), parallelState, 
-    					stateContext.getEvent(), stateContext.getContext(), 
+    					stateContext.getStateMachine(), stateContext.getStateMachineData(), 
+    					parallelState, stateContext.getEvent(), stateContext.getContext(), 
     					subTransitionResult, stateContext.getExecutor());
     			parallelState.internalFire(subStateContext); 
     			if(subTransitionResult.isDeclined()) continue;
@@ -355,7 +355,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     				currentTransitionResult.setTargetState(subTransitionResult.getTargetState());
     				return;
     			}
-    			stateContext.getStateMachine().setSubState(getStateId(), subTransitionResult.getTargetState().getStateId());
+    			stateContext.getStateMachineData().write().subStateFor(getStateId(), subTransitionResult.getTargetState().getStateId());
 				// TODO-hhe: fire event to notify listeners???
 				if(subTransitionResult.getTargetState().isFinalState()) {
 					ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();
@@ -373,9 +373,9 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             				}
             			}
             			if(allReachedFinal) {
-            				StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), grandParentState, 
-                    				abstractStateMachine.getFinishEvent(), stateContext.getContext(), 
-                    				currentTransitionResult, stateContext.getExecutor());
+            				StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), 
+            				        stateContext.getStateMachineData(), grandParentState, abstractStateMachine.getFinishEvent(), 
+            				        stateContext.getContext(), currentTransitionResult, stateContext.getExecutor());
                     		grandParentState.internalFire(finishContext);
                     		return;
             			}
@@ -395,7 +395,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
                 			stateContext.getStateMachine();
     				StateContext<T, S, E, C> finishContext = FSM.newStateContext(
-    						stateContext.getStateMachine(), parentState, 
+    						stateContext.getStateMachine(), stateContext.getStateMachineData(),parentState, 
             				abstractStateMachine.getFinishEvent(), stateContext.getContext(), 
             				currentTransitionResult, stateContext.getExecutor());
             		parentState.internalFire(finishContext);

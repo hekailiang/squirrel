@@ -4,24 +4,27 @@ import java.util.List;
 
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.MutableStateMachine;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 
 import com.google.common.collect.Lists;
 
 class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateContext<T, S, E, C> {
-    private final MutableStateMachine<T, S, E, C> stateMachine;
+    private final StateMachine<T, S, E, C> stateMachine;
+    private final StateMachineData<T, S, E, C> stateMachineData;
     private final ImmutableState<T, S, E, C> sourceState;
     private final C context;
     private final E event;
     private final TransitionResult<T, S, E, C> result;
     private final ActionExecutor<T, S, E, C> executor;
     
-    StateContextImpl(MutableStateMachine<T, S, E, C> stateMachine, ImmutableState<T, S, E, C> sourceState, E event, C context, 
+    StateContextImpl(StateMachine<T, S, E, C> stateMachine, StateMachineData<T, S, E, C> stateMachineData,
+            ImmutableState<T, S, E, C> sourceState, E event, C context, 
     		TransitionResult<T, S, E, C> result, ActionExecutor<T, S, E, C> executor) {
         this.stateMachine = stateMachine;
+        this.stateMachineData = stateMachineData;
         this.sourceState = sourceState;
         this.event = event;
         this.context = context;
@@ -30,7 +33,7 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     }
     
     @Override
-    public MutableStateMachine<T, S, E, C> getStateMachine() {
+    public StateMachine<T, S, E, C> getStateMachine() {
         return stateMachine;
     }
 
@@ -51,9 +54,9 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     
     @Override
     public ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState) {
-    	S childStateId = stateMachine.getLastActiveChildStateOf(parentState.getStateId());
+    	S childStateId = stateMachineData.read().lastActiveChildStateOf(parentState.getStateId());
     	if(childStateId!=null) {
-    		return stateMachine.getRawStateFrom(childStateId);
+    		return stateMachineData.getRawStateFrom(childStateId);
     	} else {
     		return parentState.getInitialState();
     	}
@@ -61,14 +64,14 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     
     @Override
     public void setLastActiveChildState(ImmutableState<T, S, E, C> parentState, ImmutableState<T, S, E, C> childState) {
-    	stateMachine.setLastActiveChildState(parentState.getStateId(), childState.getStateId());
+    	stateMachineData.write().lastActiveChildStateFor(parentState.getStateId(), childState.getStateId());
     }
 
 	@Override
     public List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState) {
 		List<ImmutableState<T, S, E, C>> subStates = Lists.newArrayList();
 		for(S stateId : stateMachine.getSubStatesOn(parentState.getStateId())) {
-			subStates.add(stateMachine.getRawStateFrom(stateId));
+			subStates.add(stateMachineData.getRawStateFrom(stateId));
 		}
 	    return subStates;
     }
@@ -81,5 +84,10 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
 	@Override
     public ActionExecutor<T, S, E, C> getExecutor() {
 	    return executor;
+    }
+
+    @Override
+    public StateMachineData<T, S, E, C> getStateMachineData() {
+        return stateMachineData;
     }
 }

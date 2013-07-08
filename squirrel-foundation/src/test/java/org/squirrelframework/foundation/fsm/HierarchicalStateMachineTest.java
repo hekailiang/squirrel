@@ -449,6 +449,27 @@ public class HierarchicalStateMachineTest {
 	}
 	
 	@Test
+	public void testSavedData() {
+	    stateMachine.start(null);
+	    stateMachine.fire(HEvent.A12A1a1, 1);
+	    StateMachineData<HierachicalStateMachine, HState, HEvent, Integer> savedData = 
+	            stateMachine.dumpSavedData();
+	    stateMachine.terminate(null);
+	    
+	    assertThat(savedData.read().currentState(), is(equalTo(HState.A1a1)));
+        assertThat(savedData.read().initialState(), is(equalTo(HState.A)));
+        assertThat(savedData.read().lastState(), is(equalTo(HState.A1)));
+        
+        assertThat(savedData.read().lastActiveChildStateOf(HState.A), is(equalTo(HState.A1)));
+	    setup();
+	    
+	    stateMachine.loadSavedData(savedData);
+	    stateMachine.fire(HEvent.A12B3, 1);
+	    assertThat(stateMachine.consumeLog(), is(equalTo("leftA1a1.leftA1a.exitA1.exitA.transitA12B3.entryB.enterB3")));
+        assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B3)));
+	}
+	
+	@Test
 	public void testDeepHistoryState() {
 		stateMachine.start(null);
 		stateMachine.consumeLog();

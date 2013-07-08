@@ -26,45 +26,6 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void fire(E event, C context);
     
     /**
-     * @return current state id of state machine
-     */
-    S getCurrentState();
-    
-    /**
-     * @return last active state id of state machine
-     */
-    S getLastState();
-    
-    /**
-     * @param stateId the identify of state 
-     * @return raw state of the same state identify
-     */
-    ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
-    
-    /**
-     * @return current raw state of state machine
-     */
-    ImmutableState<T, S, E, C> getCurrentRawState();
-    
-    /**
-     * @return last active raw state of state machine
-     */
-    ImmutableState<T, S, E, C> getLastRawState();
-    
-    /**
-     * @param parentStateId id of parent state
-     * @return last active child state of the parent state
-     */
-    S getLastActiveChildStateOf(S parentStateId);
-    
-    List<S> getSubStatesOn(S parentState);
-    
-    /**
-     * @return id of state machine initial state
-     */
-    S getInitialState();
-    
-    /**
      * Start state machine under external context
      * @param context external context
      */
@@ -81,7 +42,59 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      */
     StateMachineStatus getStatus();
     
+    /**
+     * @return type-safe state machine instance
+     */
     T getThis();
+    
+    /**
+     * @return current state id of state machine
+     */
+    S getCurrentState();
+    
+    /**
+     * @return last active state id of state machine
+     */
+    S getLastState();
+
+    /**
+     * @return id of state machine initial state
+     */
+    S getInitialState();
+    
+    /**
+     * @param parentStateId id of parent state
+     * @return last active child state of the parent state
+     */
+    S getLastActiveChildStateOf(S parentStateId);
+    
+    /**
+     * @param parentStateId
+     * @return sub state of parallel state
+     */
+    List<S> getSubStatesOn(S parentStateId);
+    
+    /**
+     * @return current raw state of state machine
+     */
+    ImmutableState<T, S, E, C> getCurrentRawState();
+    
+    /**
+     * @return last active raw state of state machine
+     */
+    ImmutableState<T, S, E, C> getLastRawState();
+    
+    /**
+     * @return initial raw state of state machine
+     */
+    ImmutableState<T, S, E, C> getInitialRawState();
+    
+    @Deprecated
+    ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
+    
+    StateMachineData<T, S, E, C> dumpSavedData();
+    
+    void loadSavedData(StateMachineData<T, S, E, C> savedData);
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void stateMachineEvent(StateMachineEvent<T, S, E, C> event);
