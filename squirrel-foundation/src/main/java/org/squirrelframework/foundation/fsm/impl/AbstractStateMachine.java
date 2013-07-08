@@ -1,6 +1,5 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +20,6 @@ import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.util.Pair;
-import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Stopwatch;
@@ -373,114 +371,94 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
-    // leverage bridge method to call the method of actual listener
-    private static final Method STATEMACHINE_EVENT_METHOD = 
-            ReflectUtils.getMethod(StateMachineListener.class, "stateMachineEvent", new Class<?>[]{StateMachineEvent.class});
-    
     @Override
     public void addStateMachineListener(StateMachineListener<T, S, E, C> listener) {
-        addListener(StateMachineEvent.class, listener, STATEMACHINE_EVENT_METHOD);
+        addListener(StateMachineEvent.class, listener, StateMachineListener.STATEMACHINE_EVENT_METHOD);
     }
     
     @Override
     public void removeStateMachineListener(StateMachineListener<T, S, E, C> listener) {
-        removeListener(StateMachineEvent.class, listener, STATEMACHINE_EVENT_METHOD);
+        removeListener(StateMachineEvent.class, listener, StateMachineListener.STATEMACHINE_EVENT_METHOD);
     }
-    
-    private static final Method START_EVENT_METHOD = 
-            ReflectUtils.getMethod(StartListener.class, "started", new Class<?>[]{StartEvent.class});
     
     @Override
     public void addStartListener(StartListener<T, S, E, C> listener) {
-        addListener(StartEvent.class, listener, START_EVENT_METHOD);
+        addListener(StartEvent.class, listener, StartListener.START_EVENT_METHOD);
     }
     
     @Override
     public void removeStartListener(StartListener<T, S, E, C> listener) {
-        removeListener(StartEvent.class, listener, START_EVENT_METHOD);
+        removeListener(StartEvent.class, listener, StartListener.START_EVENT_METHOD);
     }
     
-    private static final Method TERMINATE_EVENT_METHOD = 
-            ReflectUtils.getMethod(TerminateListener.class, "terminated", new Class<?>[]{TerminateEvent.class});
-
     @Override
     public void addTerminateListener(TerminateListener<T, S, E, C> listener) {
-        addListener(TerminateEvent.class, listener, TERMINATE_EVENT_METHOD);
+        addListener(TerminateEvent.class, listener, TerminateListener.TERMINATE_EVENT_METHOD);
     }
     
     @Override
     public void removeTerminateListener(TerminateListener<T, S, E, C> listener) {
-        removeListener(TerminateEvent.class, listener, TERMINATE_EVENT_METHOD);
+        removeListener(TerminateEvent.class, listener, TerminateListener.TERMINATE_EVENT_METHOD);
     }
     
-    private static final Method STATEMACHINE_EXCEPTION_EVENT_METHOD = 
-            ReflectUtils.getMethod(StateMachineExceptionListener.class, 
-                    "stateMachineException", new Class<?>[]{StateMachineExceptionEvent.class});
-
     @Override
     public void addStateMachineExceptionListener(StateMachineExceptionListener<T, S, E, C> listener) {
-        addListener(StateMachineExceptionEvent.class, listener, STATEMACHINE_EXCEPTION_EVENT_METHOD);
+        addListener(StateMachineExceptionEvent.class, listener, 
+                StateMachineExceptionListener.STATEMACHINE_EXCEPTION_EVENT_METHOD);
     }
     
     @Override
     public void removeStateMachineExceptionListener(StateMachineExceptionListener<T, S, E, C> listener) {
-        removeListener(StateMachineExceptionEvent.class, listener, STATEMACHINE_EXCEPTION_EVENT_METHOD);
+        removeListener(StateMachineExceptionEvent.class, listener, 
+                StateMachineExceptionListener.STATEMACHINE_EXCEPTION_EVENT_METHOD);
     }
     
-    private static final Method TRANSITION_BEGIN_EVENT_METHOD = 
-            ReflectUtils.getMethod(TransitionBeginListener.class, 
-                    "transitionBegin", new Class<?>[]{TransitionBeginEvent.class});
-
     @Override
     public void addTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener) {
-        addListener(TransitionBeginEvent.class, listener, TRANSITION_BEGIN_EVENT_METHOD);
+        addListener(TransitionBeginEvent.class, listener, 
+                TransitionBeginListener.TRANSITION_BEGIN_EVENT_METHOD);
     }
     
     @Override
     public void removeTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener) {
-        removeListener(TransitionBeginEvent.class, listener, TRANSITION_BEGIN_EVENT_METHOD);
+        removeListener(TransitionBeginEvent.class, listener, 
+                TransitionBeginListener.TRANSITION_BEGIN_EVENT_METHOD);
     }
     
-    private static final Method TRANSITION_COMPLETE_EVENT_METHOD = 
-            ReflectUtils.getMethod(TransitionCompleteListener.class, 
-                    "transitionComplete", new Class<?>[]{TransitionCompleteEvent.class});
-
     @Override
     public void addTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener) {
-        addListener(TransitionCompleteEvent.class, listener, TRANSITION_COMPLETE_EVENT_METHOD);
+        addListener(TransitionCompleteEvent.class, listener, 
+                TransitionCompleteListener.TRANSITION_COMPLETE_EVENT_METHOD);
     }
     
     @Override
     public void removeTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener) {
-        removeListener(TransitionCompleteEvent.class, listener, TRANSITION_COMPLETE_EVENT_METHOD);
+        removeListener(TransitionCompleteEvent.class, listener, 
+                TransitionCompleteListener.TRANSITION_COMPLETE_EVENT_METHOD);
     }
     
-    private static final Method TRANSITION_EXCEPTION_EVENT_METHOD = 
-            ReflectUtils.getMethod(TransitionExceptionListener.class, 
-                    "transitionException", new Class<?>[]{TransitionExceptionEvent.class});
-
     @Override
     public void addTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener) {
-        addListener(TransitionExceptionEvent.class, listener, TRANSITION_EXCEPTION_EVENT_METHOD);
+        addListener(TransitionExceptionEvent.class, listener, 
+                TransitionExceptionListener.TRANSITION_EXCEPTION_EVENT_METHOD);
     }
     
     @Override
     public void removeTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener) {
-        removeListener(TransitionExceptionEvent.class, listener, TRANSITION_EXCEPTION_EVENT_METHOD);
+        removeListener(TransitionExceptionEvent.class, listener, 
+                TransitionExceptionListener.TRANSITION_EXCEPTION_EVENT_METHOD);
     }
     
-    private static final Method TRANSITION_DECLINED_EVENT_METHOD = 
-            ReflectUtils.getMethod(TransitionDeclinedListener.class, 
-                    "transitionDeclined", new Class<?>[]{TransitionDeclinedEvent.class});
-
     @Override
     public void addTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener) {
-        addListener(TransitionDeclinedEvent.class, listener, TRANSITION_DECLINED_EVENT_METHOD);
+        addListener(TransitionDeclinedEvent.class, listener, 
+                TransitionDeclinedListener.TRANSITION_DECLINED_EVENT_METHOD);
     }
     
     @Override
     public void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener) {
-        removeListener(TransitionDeclinedEvent.class, listener, TRANSITION_DECLINED_EVENT_METHOD);
+        removeListener(TransitionDeclinedEvent.class, listener, 
+                TransitionDeclinedListener.TRANSITION_DECLINED_EVENT_METHOD);
     }
     
     public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {

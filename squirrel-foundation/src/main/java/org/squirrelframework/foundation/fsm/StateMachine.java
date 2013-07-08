@@ -1,10 +1,12 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
+import org.squirrelframework.foundation.util.ReflectUtils;
 
 /**
  * Interface for finite state machine.
@@ -97,6 +99,10 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void loadSavedData(StateMachineData.Reader<T, S, E, C> savedData);
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        // leverage bridge method to call the method of actual listener
+        public static final Method STATEMACHINE_EVENT_METHOD = ReflectUtils.getMethod(
+                StateMachineListener.class, "stateMachineEvent", new Class<?>[]{StateMachineEvent.class});
+        
         void stateMachineEvent(StateMachineEvent<T, S, E, C> event);
     }
     interface StateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
@@ -106,6 +112,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeStateMachineListener(StateMachineListener<T, S, E, C> listener);
     
     interface StartListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method START_EVENT_METHOD = ReflectUtils.getMethod(
+                StartListener.class, "started", new Class<?>[]{StartEvent.class});
+        
         void started(StartEvent<T, S, E, C> event);
     }
     interface StartEvent <T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {}
@@ -113,6 +122,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeStartListener(StartListener<T, S, E, C> listener);
     
     interface TerminateListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method TERMINATE_EVENT_METHOD = ReflectUtils.getMethod(
+                TerminateListener.class, "terminated", new Class<?>[]{TerminateEvent.class});
+        
         void terminated(TerminateEvent<T, S, E, C> event);
     }
     interface TerminateEvent <T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {}
@@ -120,6 +132,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTerminateListener(TerminateListener<T, S, E, C> listener);
     
     interface StateMachineExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method STATEMACHINE_EXCEPTION_EVENT_METHOD = ReflectUtils.getMethod(
+                StateMachineExceptionListener.class, "stateMachineException", new Class<?>[]{StateMachineExceptionEvent.class});
+        
         void stateMachineException(StateMachineExceptionEvent<T, S, E, C> event);
     }
     interface StateMachineExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends StateMachineEvent<T, S, E, C> {
@@ -135,6 +150,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     }
     
     interface TransitionBeginListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method TRANSITION_BEGIN_EVENT_METHOD = ReflectUtils.getMethod(
+                TransitionBeginListener.class, "transitionBegin", new Class<?>[]{TransitionBeginEvent.class});
+        
         void transitionBegin(TransitionBeginEvent<T, S, E, C> event);
     }
     interface TransitionBeginEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
@@ -142,6 +160,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener);
     
     interface TransitionCompleteListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method TRANSITION_COMPLETE_EVENT_METHOD = ReflectUtils.getMethod(
+                TransitionCompleteListener.class, "transitionComplete", new Class<?>[]{TransitionCompleteEvent.class});
+        
         void transitionComplete(TransitionCompleteEvent<T, S, E, C> event);
     }
     interface TransitionCompleteEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {
@@ -151,6 +172,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener);
     
     interface TransitionExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method TRANSITION_EXCEPTION_EVENT_METHOD = ReflectUtils.getMethod(
+                TransitionExceptionListener.class, "transitionException", new Class<?>[]{TransitionExceptionEvent.class});
+        
         void transitionException(TransitionExceptionEvent<T, S, E, C> event);
     }
     interface TransitionExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {
@@ -161,6 +185,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener);
     
     interface TransitionDeclinedListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final Method TRANSITION_DECLINED_EVENT_METHOD = ReflectUtils.getMethod(
+                TransitionDeclinedListener.class, "transitionDeclined", new Class<?>[]{TransitionDeclinedEvent.class});
+        
         void transitionDeclined(TransitionDeclinedEvent<T, S, E, C> event);
     }
     interface TransitionDeclinedEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
@@ -168,6 +195,5 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener);
     
     void addExecActionListener(ExecActionLisenter<T, S, E, C> listener);
-	
 	void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener);
 }

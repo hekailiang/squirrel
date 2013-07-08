@@ -1,6 +1,5 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -9,7 +8,6 @@ import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.util.ReflectUtils;
 
 import com.google.common.base.Preconditions;
 
@@ -38,12 +36,9 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
         stack.peek().add(ExectionContext.get(action, from, to, event, context, stateMachine));
     }
 	
-	private static final Method EXECUTOR_EVENT_METHOD = 
-            ReflectUtils.getMethod(ExecActionLisenter.class, "beforeExecute", new Class<?>[]{ExecActionEvent.class});
-	
 	@Override
     public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
-		addListener(ExecActionEvent.class, listener, EXECUTOR_EVENT_METHOD);
+		addListener(ExecActionEvent.class, listener, ExecActionLisenter.EXECUTOR_EVENT_METHOD);
     }
 	
 	@Override

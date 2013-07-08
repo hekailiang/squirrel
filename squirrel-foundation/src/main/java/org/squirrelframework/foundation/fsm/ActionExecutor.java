@@ -1,7 +1,10 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.lang.reflect.Method;
+
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
+import org.squirrelframework.foundation.util.ReflectUtils;
 
 /**
  * State machine action executor. The action defined during state entry/exit and transition will be 
@@ -67,6 +70,8 @@ public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> ext
 	 * Action execution listener
 	 */
 	interface ExecActionLisenter<T extends StateMachine<T, S, E, C>, S, E, C> {
+	    public static final Method EXECUTOR_EVENT_METHOD = ReflectUtils.getMethod(
+	            ExecActionLisenter.class, "beforeExecute", new Class<?>[]{ExecActionEvent.class});
 		void beforeExecute(ExecActionEvent<T, S, E, C> event);
 	}
 }
