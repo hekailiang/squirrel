@@ -5,39 +5,7 @@ import java.util.List;
 
 public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
     
-    void dump(StateMachineData<T, S, E, C> src);
-    
-    /**
-     * @return type of state machine
-     */
-    Class<? extends T> getTypeOfStateMachine();
-    
-    void setTypeOfStateMachine(Class<? extends T> stateMachineType);
-    
-    /**
-     * @return type of state
-     */
-    Class<S> getTypeOfState();
-    
-    void setTypeOfState(Class<S> stateClass);
-    
-    /**
-     * @return type of event
-     */
-    Class<E> getTypeOfEvent();
-    
-    void setTypeOfEvent(Class<E> eventClass);
-    
-    /**
-     * @return type of context
-     */
-    Class<C> getTypeOfContext();
-    
-    void setTypeOfContext(Class<C> contextClass);
-    
-    Collection<ImmutableState<T, S, E, C>> getRawStates();
-    
-    Collection<S> getStates();
+    void dump(StateMachineData.Reader<T, S, E, C> src);
     
     /**
      * @param stateId the identify of state 
@@ -46,6 +14,8 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
     ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
     
     Reader<T, S, E, C> read();
+    
+    Writer<T, S, E, C> write();
     
     public interface Reader<T extends StateMachine<T, S, E, C>, S, E, C> {
         /**
@@ -91,9 +61,31 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
         ImmutableState<T, S, E, C> initialRawState();
         
         Collection<S> parallelStates();
+        
+        /**
+         * @return type of state machine
+         */
+        Class<? extends T> getTypeOfStateMachine();
+        
+        /**
+         * @return type of state
+         */
+        Class<S> getTypeOfState();
+        
+        /**
+         * @return type of event
+         */
+        Class<E> getTypeOfEvent();
+        
+        /**
+         * @return type of context
+         */
+        Class<C> getTypeOfContext();
+        
+        Collection<ImmutableState<T, S, E, C>> getRawStates();
+        
+        Collection<S> getStates();
     }
-    
-    Writer<T, S, E, C> write();
     
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {
         
@@ -115,5 +107,13 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
         void removeSubState(S parentStateId, S subStateId);
         
         void removeSubStatesOn(S parentStateId);
+        
+        void typeOfStateMachine(Class<? extends T> stateMachineType);
+        
+        void typeOfState(Class<S> stateClass);
+        
+        void typeOfEvent(Class<E> eventClass);
+        
+        void typeOfContext(Class<C> contextClass);
     }
 }

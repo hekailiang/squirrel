@@ -1,10 +1,12 @@
 package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -20,6 +22,8 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.util.TypeReference;
+
+import com.google.common.collect.Lists;
 
 public class ParallelStateMachineTest {
 	
@@ -316,6 +320,31 @@ public class ParallelStateMachineTest {
 		
 		stateMachine.terminate(null);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitC.exitTotal")));
+	}
+	
+	@Test
+	public void testSavedData() {
+	    stateMachine.start(null);
+        stateMachine.fire(PEvent.A1a2A1b, 1);
+        stateMachine.fire(PEvent.A1b2A1c, 1);
+        StateMachineData.Reader<ParallelStateMachine, PState, PEvent, Integer> savedData = 
+                stateMachine.dumpSavedData();
+        stateMachine.terminate(null);
+        assertThat(savedData.currentState(), is(equalTo(PState.A)));
+        assertThat(savedData.lastActiveChildStateOf(PState.A1), is(equalTo(PState.A1b)));
+        
+        List<PState> expectedResult = Lists.newArrayList(PState.A2b, PState.A1c);
+        assertThat(savedData.subStatesOn(PState.A), is(equalTo(expectedResult)));
+        
+        setup();
+        stateMachine.loadSavedData(savedData);
+        
+        stateMachine.fire(PEvent.A2b2A2c, 1);
+        assertThat(stateMachine.consumeLog(), is(equalTo("exitA2b.transitA2b2A2c.enterA2c.exitA1.exitA2.exitA.transitA2C.enterC")));
+        assertThat(stateMachine.getCurrentState(), is(equalTo(PState.C)));
+        
+        stateMachine.terminate(null);
+        assertThat(stateMachine.consumeLog(), is(equalTo("exitC.exitTotal")));
 	}
 	
 	@Test 

@@ -92,9 +92,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     @Deprecated
     ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
     
-    StateMachineData<T, S, E, C> dumpSavedData();
+    StateMachineData.Reader<T, S, E, C> dumpSavedData();
     
-    void loadSavedData(StateMachineData<T, S, E, C> savedData);
+    void loadSavedData(StateMachineData.Reader<T, S, E, C> savedData);
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         void stateMachineEvent(StateMachineEvent<T, S, E, C> event);

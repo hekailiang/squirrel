@@ -452,15 +452,15 @@ public class HierarchicalStateMachineTest {
 	public void testSavedData() {
 	    stateMachine.start(null);
 	    stateMachine.fire(HEvent.A12A1a1, 1);
-	    StateMachineData<HierachicalStateMachine, HState, HEvent, Integer> savedData = 
+	    StateMachineData.Reader<HierachicalStateMachine, HState, HEvent, Integer> savedData = 
 	            stateMachine.dumpSavedData();
 	    stateMachine.terminate(null);
 	    
-	    assertThat(savedData.read().currentState(), is(equalTo(HState.A1a1)));
-        assertThat(savedData.read().initialState(), is(equalTo(HState.A)));
-        assertThat(savedData.read().lastState(), is(equalTo(HState.A1)));
+	    assertThat(savedData.currentState(), is(equalTo(HState.A1a1)));
+        assertThat(savedData.initialState(), is(equalTo(HState.A)));
+        assertThat(savedData.lastState(), is(equalTo(HState.A1)));
         
-        assertThat(savedData.read().lastActiveChildStateOf(HState.A), is(equalTo(HState.A1)));
+        assertThat(savedData.lastActiveChildStateOf(HState.A), is(equalTo(HState.A1)));
 	    setup();
 	    
 	    stateMachine.loadSavedData(savedData);

@@ -44,28 +44,30 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
     
     @Override
-    public void dump(StateMachineData<T, S, E, C> src) {
-        this.setTypeOfStateMachine(src.getTypeOfStateMachine());
-        this.setTypeOfState(src.getTypeOfState());
-        this.setTypeOfEvent(src.getTypeOfEvent());
-        this.setTypeOfContext(src.getTypeOfContext());
+    public void dump(StateMachineData.Reader<T, S, E, C> src) {
+        this.typeOfStateMachine(src.getTypeOfStateMachine());
+        this.typeOfState(src.getTypeOfState());
+        this.typeOfEvent(src.getTypeOfEvent());
+        this.typeOfContext(src.getTypeOfContext());
         
-        this.write().currentState(src.read().currentState());
-        this.write().lastState(src.read().lastState());
-        this.write().initalState(src.read().initialState());
+        this.write().currentState(src.currentState());
+        this.write().lastState(src.lastState());
+        this.write().initalState(src.initialState());
         
         for(S state : src.getStates()) {
-            S lastActiveChildState = src.read().lastActiveChildStateOf(state);
+            S lastActiveChildState = src.lastActiveChildStateOf(state);
             if(lastActiveChildState!=null) {
                 this.write().lastActiveChildStateFor(state, lastActiveChildState);
             }
         }
         
-        for(S state : src.read().parallelStates()) {
-            List<S> subStates = src.read().subStatesOn(state);
+        for(S state : src.parallelStates()) {
+            List<S> subStates = src.subStatesOn(state);
             if(subStates!=null && !subStates.isEmpty()) {
                 for(S subState : subStates) {
-                    this.write().subStateFor(state, subState);
+                    // ignore parallel state check in subStateFor as no states for reference
+                    // this.write().subStateFor(state, subState);
+                    parallelStatesStore.put(state, subState);
                 }
             }
         }
@@ -106,7 +108,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         if(getRawStateFrom(parentStateId)!=null && getRawStateFrom(parentStateId).isParallelState()) {
             parallelStatesStore.put(parentStateId, subStateId);
         } else {
-            logger.warn("Cannot set sub states on none parallel state {}."+parentStateId);
+            logger.warn("Cannot set sub states on none parallel state {}.", parentStateId);
         }
     }
     
@@ -115,7 +117,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         if(getRawStateFrom(parentStateId)!=null && getRawStateFrom(parentStateId).isParallelState()) {
             parallelStatesStore.remove(parentStateId, subStateId);
         } else {
-            logger.warn("Cannot remove sub states on none parallel state {}."+parentStateId);
+            logger.warn("Cannot remove sub states on none parallel state {}.", parentStateId);
         }
     }
     
@@ -148,10 +150,8 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public List<S> subStatesOn(S parentStateId) {
-        if(getRawStateFrom(parentStateId).isParallelState()) {
-            return parallelStatesStore.get(parentStateId);
-        } 
-        return Collections.emptyList();
+        List<S> subStates = parallelStatesStore.get(parentStateId);
+        return subStates!=null ? subStates : Collections.<S>emptyList();
     }
     
     @Override
@@ -195,22 +195,22 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
     
     @Override
-    public void setTypeOfStateMachine(Class<? extends T> stateMachineType) {
+    public void typeOfStateMachine(Class<? extends T> stateMachineType) {
         this.stateMachineType = stateMachineType;
     }
     
     @Override
-    public void setTypeOfState(Class<S> stateClass) {
+    public void typeOfState(Class<S> stateClass) {
         this.stateType = stateClass;
     }
     
     @Override
-    public void setTypeOfEvent(Class<E> eventClass) {
+    public void typeOfEvent(Class<E> eventClass) {
         this.eventType = eventClass;
     }
     
     @Override
-    public void setTypeOfContext(Class<C> contextClass) {
+    public void typeOfContext(Class<C> contextClass) {
         this.contextType = contextClass;
     }
     

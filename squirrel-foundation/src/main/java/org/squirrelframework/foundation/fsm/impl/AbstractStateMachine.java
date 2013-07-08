@@ -303,25 +303,25 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     void setTypeOfStateMachine(Class<? extends T> stateMachineType) {
-        data.setTypeOfStateMachine(stateMachineType);
+        data.write().typeOfStateMachine(stateMachineType);
     }
     
     void setTypeOfState(Class<S> stateType) {
-        data.setTypeOfState(stateType);
+        data.write().typeOfState(stateType);
     }
     
     void setTypeOfEvent(Class<E> eventType) {
-        data.setTypeOfEvent(eventType);
+        data.write().typeOfEvent(eventType);
     }
     
     void setTypeOfContext(Class<C> contextType) {
-        data.setTypeOfContext(contextType);
+        data.write().typeOfContext(contextType);
     }
     
     @Override
     public void accept(Visitor<T, S, E, C> visitor) {
         visitor.visitOnEntry(this);
-        for(ImmutableState<T, S, E, C> state : data.getRawStates()) {
+        for(ImmutableState<T, S, E, C> state : data.read().getRawStates()) {
         	if(state.getParentState()==null)
         		state.accept(visitor);
         }
@@ -353,19 +353,19 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    public StateMachineData<T, S, E, C> dumpSavedData() {
+    public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         StateMachineData<T, S, E, C> savedData = null;
         if(status==StateMachineStatus.IDLE) {
             savedData = SquirrelProvider.getInstance().newInstance( 
                     new TypeReference<StateMachineData<T, S, E, C>>(){}, 
                     new Class[]{Map.class}, new Object[]{Collections.emptyMap()} );
-            savedData.dump(data);
+            savedData.dump(data.read());
         } 
-        return savedData;
+        return savedData.read();
     }
     
     @Override
-    public void loadSavedData(StateMachineData<T, S, E, C> savedData) {
+    public void loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
         if(status==StateMachineStatus.INITIALIZED || status==StateMachineStatus.TERMINATED) {
             data.dump(savedData);
             // ready to process event, no need to start again
