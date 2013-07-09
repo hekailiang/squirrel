@@ -94,9 +94,22 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     @Deprecated
     ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
     
+    /**
+     * Dump current state machine data. This operation can only be done when state machine status is 
+     * {@link StateMachineStatus#IDLE}, otherwise null will be returned.
+     * 
+     * @return dumped state machine data reader
+     */
     StateMachineData.Reader<T, S, E, C> dumpSavedData();
     
-    void loadSavedData(StateMachineData.Reader<T, S, E, C> savedData);
+    /**
+     * Load saved data for current state machine. The operation can only be done when state machine 
+     * status is {@link StateMachineStatus#INITIALIZED} or {@link StateMachineStatus#TERMINATED}.
+     * 
+     * @param savedData provided saved data
+     * @return true if load saved data success otherwise false
+     */
+    boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData);
     
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         // leverage bridge method to call the method of actual listener

@@ -22,6 +22,7 @@ import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.TypeReference;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
@@ -363,12 +364,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    public void loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
+    public boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
+        Preconditions.checkNotNull(savedData, "Saved data cannot be null");
         if(status==StateMachineStatus.INITIALIZED || status==StateMachineStatus.TERMINATED) {
             data.dump(savedData);
             // ready to process event, no need to start again
             status = StateMachineStatus.IDLE;
+            return true;
         }
+        return false;
     }
     
     @Override
