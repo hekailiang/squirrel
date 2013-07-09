@@ -52,7 +52,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.1.8&lt;/version&gt;
+    &lt;version&gt;0.1.9&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -90,8 +90,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <p>In order to create a state machine, user need to create state machine builder first. For example:   </p>
 
 <div class="highlight"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">builder</span> <span class="o">=</span>
-    <span class="n">StateMachineBuilderImpl</span><span class="o">.</span><span class="na">newStateMachineBuilder</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
-    <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </li>
 <li>
@@ -204,7 +203,7 @@ In order to declare state and event within <em><a href="https://github.com/State
 <span class="n">ConverterProvider</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyStateConverter</span><span class="o">());</span>
 </pre></div>
 
-<p>Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters.</p>
+<p><em>Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters. And also if the Event or State class is type of String or Enumeration, you don't need to implement or register a converter explictly at most of cases.</em></p>
 </li>
 <li>
 <p><strong>New State Machine Instance</strong><br>
@@ -337,7 +336,7 @@ During the lifecycle of the state machine, various events will be fired, e.g. </
 
 <p>User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,</p>
 
-<div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="n">StateMachineListener</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;()</span> <span class="o">{</span>
+<div class="highlight"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">addStateMachineListener</span><span class="o">(</span><span class="k">new</span> <span class="n">StateMachineListener</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;()</span> <span class="o">{</span>
         <span class="nd">@Override</span>
         <span class="kd">public</span> <span class="kt">void</span> <span class="nf">stateMachineEvent</span><span class="o">(</span><span class="n">StateMachineEvent</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
             <span class="c1">// ...</span>
@@ -422,7 +421,7 @@ For example, the following code is used to register an execution time monitor fo
     <span class="k">new</span> <span class="n">SquirrelPostProcessor</span><span class="o">&lt;</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{</span>
         <span class="nd">@Override</span>
         <span class="kd">public</span> <span class="kt">void</span> <span class="nf">postProcess</span><span class="o">(</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">component</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">component</span><span class="o">.</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="n">TransitionProgressMonitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;());</span>
+            <span class="n">component</span><span class="o">.</span><span class="na">addExecActionListener</span><span class="o">(</span><span class="k">new</span> <span class="n">TransitionProgressMonitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;());</span>
         <span class="o">}</span>
     <span class="o">}</span>
 <span class="o">);</span>
@@ -507,7 +506,11 @@ Sample code to create snake game state machine.</p>
 </ul><h2>
 <a name="release-notes" class="anchor" href="#release-notes"><span class="octicon octicon-link"></span></a>Release Notes</h2>
 
-<p><em>Version 0.1.8</em><br>
+<p><em>Version 0.1.9 - 2013-07-01</em><br>
+1. Add to <em>StateMachineBuilderFactory</em> simplify StateMachineBuilder creation<br>
+2. Deprecate StateMachineBuilderImpl.newStateMachineBuilder(...) methods</p>
+
+<p><em>Version 0.1.8 - 2013-06-08</em><br>
 1. Support <strong>linked state</strong> which also called substatemachine state<br>
 2. Rename addListener/removeListener of StateMachine to more specific name add*Listener/remove*Listener<br>
 3. Simplify converter registration for String and Enumeration type  </p>
