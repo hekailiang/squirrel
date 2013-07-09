@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.List;
 
 public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
-    
+    /**
+     * Dump source state machine data (expect transient data, such as states) into current state machine data
+     * @param src source state machine data
+     */
     void dump(StateMachineData.Reader<T, S, E, C> src);
     
     /**
@@ -65,26 +68,26 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
         /**
          * @return type of state machine
          */
-        Class<? extends T> getTypeOfStateMachine();
+        Class<? extends T> typeOfStateMachine();
         
         /**
          * @return type of state
          */
-        Class<S> getTypeOfState();
+        Class<S> typeOfState();
         
         /**
          * @return type of event
          */
-        Class<E> getTypeOfEvent();
+        Class<E> typeOfEvent();
         
         /**
          * @return type of context
          */
-        Class<C> getTypeOfContext();
+        Class<C> typeOfContext();
         
-        Collection<ImmutableState<T, S, E, C>> getRawStates();
+        Collection<ImmutableState<T, S, E, C>> rawStates();
         
-        Collection<S> getStates();
+        Collection<S> states();
     }
     
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {

@@ -336,7 +336,8 @@ public class ParallelStateMachineTest {
         List<PState> expectedResult = Lists.newArrayList(PState.A2b, PState.A1c);
         assertThat(savedData.subStatesOn(PState.A), is(equalTo(expectedResult)));
         
-        setup();
+        stateMachine = StateMachineBuilderFactory.create(savedData.typeOfStateMachine(), savedData.typeOfState(), 
+                savedData.typeOfEvent(), savedData.typeOfContext()).newStateMachine(PState.A);
         stateMachine.loadSavedData(savedData);
         
         stateMachine.fire(PEvent.A2b2A2c, 1);

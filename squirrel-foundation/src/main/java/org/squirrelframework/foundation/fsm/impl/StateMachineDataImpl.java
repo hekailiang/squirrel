@@ -45,16 +45,16 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public void dump(StateMachineData.Reader<T, S, E, C> src) {
-        this.typeOfStateMachine(src.getTypeOfStateMachine());
-        this.typeOfState(src.getTypeOfState());
-        this.typeOfEvent(src.getTypeOfEvent());
-        this.typeOfContext(src.getTypeOfContext());
+        this.write().typeOfStateMachine(src.typeOfStateMachine());
+        this.write().typeOfState(src.typeOfState());
+        this.write().typeOfEvent(src.typeOfEvent());
+        this.write().typeOfContext(src.typeOfContext());
         
         this.write().currentState(src.currentState());
         this.write().lastState(src.lastState());
         this.write().initalState(src.initialState());
         
-        for(S state : src.getStates()) {
+        for(S state : src.states()) {
             S lastActiveChildState = src.lastActiveChildStateOf(state);
             if(lastActiveChildState!=null) {
                 this.write().lastActiveChildStateFor(state, lastActiveChildState);
@@ -166,6 +166,9 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
+        if(states==null || states.isEmpty()) {
+            throw new RuntimeException("Cannot find raw states for "+stateId.toString()+".");
+        }
         return states.get(stateId);
     }
     
@@ -175,22 +178,22 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
 
     @Override
-    public Class<? extends T> getTypeOfStateMachine() {
+    public Class<? extends T> typeOfStateMachine() {
         return stateMachineType;
     }
 
     @Override
-    public Class<S> getTypeOfState() {
+    public Class<S> typeOfState() {
         return stateType;
     }
 
     @Override
-    public Class<E> getTypeOfEvent() {
+    public Class<E> typeOfEvent() {
         return eventType;
     }
 
     @Override
-    public Class<C> getTypeOfContext() {
+    public Class<C> typeOfContext() {
         return contextType;
     }
     
@@ -215,12 +218,12 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
     
     @Override
-    public Collection<ImmutableState<T, S, E, C>> getRawStates() {
+    public Collection<ImmutableState<T, S, E, C>> rawStates() {
         return states.values();
     }
 
     @Override
-    public Collection<S> getStates() {
+    public Collection<S> states() {
         return states.keySet();
     }
 
