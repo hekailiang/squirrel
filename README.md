@@ -406,6 +406,14 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 * State machine import and export
 * Support sendEvent(sync) and postEvent(async)
 
+## More Information  
+* For the **latest updates** follow [@hhe11][5]
+* For discussions or questions please join the [squirrel state machine group][4]
+* For any issue or requirement, please submit an [issue][6]
+
 [1]: http://en.wikipedia.org/wiki/UML_state_machine
 [2]: http://www.w3.org/TR/scxml/
 [3]: http://www.graphviz.org/
+[4]: http://groups.google.com/group/squirrel-state-machine
+[5]: https://twitter.com/hhe11
+[6]: https://github.com/hekailiang/squirrel/issues?state=open
