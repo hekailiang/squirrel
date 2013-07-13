@@ -39,6 +39,8 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
     
+    private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> linkStateData;
+    
     public StateMachineDataImpl(Map<S, ImmutableState<T, S, E, C>> states) {
         this.states = Collections.unmodifiableMap(states);
     }
@@ -73,6 +75,13 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         }
     }
     
+    private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> getLinkedStateData() {
+        if(linkStateData==null) {
+            linkStateData = Maps.newHashMap();
+        }
+        return linkStateData;
+    }
+    
     @Override
     public StateMachineData.Reader<T, S, E, C> read() {
         return this;
@@ -105,7 +114,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
 
     @Override
     public void subStateFor(S parentStateId, S subStateId) {
-        if(getRawStateFrom(parentStateId)!=null && getRawStateFrom(parentStateId).isParallelState()) {
+        if(rawStateFrom(parentStateId)!=null && rawStateFrom(parentStateId).isParallelState()) {
             parallelStatesStore.put(parentStateId, subStateId);
         } else {
             logger.warn("Cannot set sub states on none parallel state {}.", parentStateId);
@@ -114,7 +123,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public void removeSubState(S parentStateId, S subStateId) {
-        if(getRawStateFrom(parentStateId)!=null && getRawStateFrom(parentStateId).isParallelState()) {
+        if(rawStateFrom(parentStateId)!=null && rawStateFrom(parentStateId).isParallelState()) {
             parallelStatesStore.remove(parentStateId, subStateId);
         } else {
             logger.warn("Cannot remove sub states on none parallel state {}.", parentStateId);
@@ -123,7 +132,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public void removeSubStatesOn(S parentStateId) {
-        if(getRawStateFrom(parentStateId).isParallelState()) {
+        if(rawStateFrom(parentStateId).isParallelState()) {
             parallelStatesStore.removeAll(parentStateId);
         } 
     }
@@ -156,25 +165,22 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public ImmutableState<T, S, E, C> currentRawState() {
-        return getRawStateFrom(currentState);
+        return rawStateFrom(currentState);
     }
 
     @Override
     public ImmutableState<T, S, E, C> lastRawState() {
-        return getRawStateFrom(lastState);
+        return rawStateFrom(lastState);
     }
     
     @Override
-    public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
-        if(states==null || states.isEmpty()) {
-            throw new RuntimeException("Cannot find raw states for "+stateId.toString()+".");
-        }
+    public ImmutableState<T, S, E, C> rawStateFrom(S stateId) {
         return states.get(stateId);
     }
     
     @Override
     public ImmutableState<T, S, E, C> initialRawState() {
-        return getRawStateFrom(initialState);
+        return rawStateFrom(initialState);
     }
 
     @Override
@@ -230,5 +236,27 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     @Override
     public Collection<S> parallelStates() {
         return parallelStatesStore.keySet();
+    }
+
+    @Override
+    public Collection<S> linkedStates() {
+        if(linkStateData==null || linkStateData.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return linkStateData.keySet();
+    }
+
+    @Override
+    public StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState) {
+        if(linkStateData!=null && !linkStateData.isEmpty()) 
+            return linkStateData.get(linkedState);
+        
+        return null;
+    }
+
+    @Override
+    public void linkedStateDataOn(S linkedState,
+            StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData) {
+        getLinkedStateData().put(linkedState, linkStateData);
     }
 }

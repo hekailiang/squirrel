@@ -56,7 +56,7 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     public ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState) {
     	S childStateId = stateMachineData.read().lastActiveChildStateOf(parentState.getStateId());
     	if(childStateId!=null) {
-    		return stateMachineData.getRawStateFrom(childStateId);
+    		return stateMachineData.read().rawStateFrom(childStateId);
     	} else {
     		return parentState.getInitialState();
     	}
@@ -71,7 +71,7 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     public List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState) {
 		List<ImmutableState<T, S, E, C>> subStates = Lists.newArrayList();
 		for(S stateId : stateMachine.getSubStatesOn(parentState.getStateId())) {
-			subStates.add(stateMachineData.getRawStateFrom(stateId));
+			subStates.add(stateMachineData.read().rawStateFrom(stateId));
 		}
 	    return subStates;
     }

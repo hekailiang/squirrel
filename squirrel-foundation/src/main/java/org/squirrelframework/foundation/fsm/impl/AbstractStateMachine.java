@@ -12,6 +12,7 @@ import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
+import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -193,7 +194,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     @Deprecated
     public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
-        return data.getRawStateFrom(stateId);
+        return data.read().rawStateFrom(stateId);
     }
     
     @Override
@@ -359,15 +360,46 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     new TypeReference<StateMachineData<T, S, E, C>>(){}, 
                     new Class[]{Map.class}, new Object[]{Collections.emptyMap()} );
             savedData.dump(data.read());
+            
+            // process linked state if any
+            saveLinkedStateData(data.read(), savedData.write());
         } 
         return savedData.read();
     }
     
+    private void saveLinkedStateData(StateMachineData.Reader<T, S, E, C> src, StateMachineData.Writer<T, S, E, C> target) {
+        dumpLinkedStateFor(src.currentRawState(), target);
+//        dumpLinkedStateFor(src.lastRawState(), target);
+        // TODO-hhe: dump linked state info for last active child state
+        // TODO-hhe: dump linked state info for parallel state
+    }
+    
+    private void dumpLinkedStateFor(ImmutableState<T, S, E, C> rawState, StateMachineData.Writer<T, S, E, C> target) {
+        if(rawState!=null && rawState instanceof ImmutableLinkedState) {
+            ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
+            StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData = 
+                    linkedRawState.getLinkedStateMachine().dumpSavedData();
+            target.linkedStateDataOn(rawState.getStateId(), linkStateData);
+        }
+    }
+    
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
         Preconditions.checkNotNull(savedData, "Saved data cannot be null");
         if(status==StateMachineStatus.INITIALIZED || status==StateMachineStatus.TERMINATED) {
             data.dump(savedData);
+            
+            // process linked state if any
+            for(S linkedState : savedData.linkedStates()) {
+                StateMachineData.Reader linkedStateData = savedData.linkedStateDataOf(linkedState);
+                ImmutableState<T, S, E, C> rawState = data.read().rawStateFrom(linkedState);
+                if(linkedStateData!=null && rawState instanceof ImmutableLinkedState) {
+                    ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
+                    linkedRawState.getLinkedStateMachine().loadSavedData(linkedStateData);
+                }
+            }
+            
             // ready to process event, no need to start again
             status = StateMachineStatus.IDLE;
             return true;

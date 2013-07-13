@@ -23,12 +23,6 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
     void dump(StateMachineData.Reader<T, S, E, C> src);
     
     /**
-     * @param stateId the identify of state 
-     * @return raw state of the same state identify
-     */
-    ImmutableState<T, S, E, C> getRawStateFrom(S stateId);
-    
-    /**
      * @return state machine data reader
      */
     Reader<T, S, E, C> read();
@@ -82,6 +76,13 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
         ImmutableState<T, S, E, C> initialRawState();
         
         /**
+         * @param stateId the identify of state 
+         * @return raw state of the same state identify
+         */
+        ImmutableState<T, S, E, C> rawStateFrom(S stateId);
+
+        
+        /**
          * @return all the parallel states
          */
         Collection<S> parallelStates();
@@ -115,6 +116,13 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
          * @return all the states defined in the state machine
          */
         Collection<S> states();
+        
+        /**
+         * @return all linked states
+         */
+        Collection<S> linkedStates();
+        
+        Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
     }
     
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {
@@ -187,5 +195,12 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
          * @param contextClass
          */
         void typeOfContext(Class<C> contextClass);
+        
+        /**
+         * Write linked state data on specified linked state
+         * @param linkedState specified linked state
+         * @param linkStateData linked state data
+         */
+        void linkedStateDataOn(S linkedState, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData);
     }
 }

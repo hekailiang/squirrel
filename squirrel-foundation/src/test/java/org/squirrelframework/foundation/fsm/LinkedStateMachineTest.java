@@ -1,8 +1,11 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.Map;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.contains;
+
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -272,6 +275,36 @@ public class LinkedStateMachineTest {
         assertThat(linkedState.getLinkedStateMachine(), instanceOf(LinkedStateMachine.class));
         LinkedStateMachine linkedStateMachine = (LinkedStateMachine)linkedState.getLinkedStateMachine();
         LState linkedStateId = linkedStateMachine.getCurrentState();
+        assertThat(linkedStateId, equalTo(LState.A3));
+    }
+    
+    @Test
+    public void testSavedData() {
+        stateMachine.fire(LEvent.A12A2, 0);
+        assertThat(stateMachine.getCurrentState(), equalTo(LState.A));
+        assertThat(stateMachine.getCurrentRawState(), instanceOf(ImmutableLinkedState.class));
+        ImmutableLinkedState<TestStateMachine, LState, LEvent, Integer> linkedState = 
+                (ImmutableLinkedState<TestStateMachine, LState, LEvent, Integer>)stateMachine.getCurrentRawState();
+        assertThat(linkedState.getLinkedStateMachine(), instanceOf(LinkedStateMachine.class));
+        LinkedStateMachine linkedStateMachine = (LinkedStateMachine)linkedState.getLinkedStateMachine();
+        LState linkedStateId = linkedStateMachine.getCurrentState();
+        assertThat(linkedStateId, equalTo(LState.A2));
+        
+        StateMachineData.Reader<TestStateMachine, LState, LEvent, Integer> savedData = 
+                stateMachine.dumpSavedData();
+        assertThat(savedData.linkedStates(), contains(LState.A));
+        stateMachine.terminate(null);
+        
+        setup();
+        
+        stateMachine.loadSavedData(savedData);
+        stateMachine.fire(LEvent.A22A3, 0);
+        assertThat(stateMachine.getCurrentState(), equalTo(LState.A));
+        assertThat(stateMachine.getCurrentRawState(), instanceOf(ImmutableLinkedState.class));
+        linkedState = (ImmutableLinkedState<TestStateMachine, LState, LEvent, Integer>)stateMachine.getCurrentRawState();
+        assertThat(linkedState.getLinkedStateMachine(), instanceOf(LinkedStateMachine.class));
+        linkedStateMachine = (LinkedStateMachine)linkedState.getLinkedStateMachine();
+        linkedStateId = linkedStateMachine.getCurrentState();
         assertThat(linkedStateId, equalTo(LState.A3));
     }
 }
