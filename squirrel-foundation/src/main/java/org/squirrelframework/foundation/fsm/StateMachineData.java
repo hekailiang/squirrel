@@ -80,7 +80,6 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
          * @return raw state of the same state identify
          */
         ImmutableState<T, S, E, C> rawStateFrom(S stateId);
-
         
         /**
          * @return all the parallel states

@@ -1,9 +1,9 @@
 package org.squirrelframework.foundation.fsm;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.contains;
 
 import java.util.Map;
 
