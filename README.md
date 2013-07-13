@@ -304,7 +304,8 @@ visitor.convertDotFile("SnakeStateMachine");
 * **Save/Load State Machine Data**  
 User can save data of state machine when state machine is in idle status.
 ``` java
-StateMachineData.Reader<MyStateMachine, MyState, MyEvent, MyContext> savedData = stateMachine.dumpSavedData();
+StateMachineData.Reader<MyStateMachine, MyState, MyEvent, MyContext> 
+		savedData = stateMachine.dumpSavedData();
 ```  
 And also user can load above *savedData* into another state machine whose status is terminated or just initialized.
 ``` java 
@@ -402,7 +403,7 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 ## Release Notes  
-*Version 0.1.10 - 2013-07-01*  
+*Version 0.1.10 - 2013-07-13*  
 1.  Support save/load state machine data
   
 *Version 0.1.9  - 2013-07-01*  
