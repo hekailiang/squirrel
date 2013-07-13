@@ -15,7 +15,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.1.9</version>
+  	<version>0.1.10</version>
 </dependency>
 ``` 
 
@@ -301,6 +301,16 @@ stateMachine.accept(visitor);
 visitor.convertDotFile("SnakeStateMachine");
 ```
 	
+* **Save/Load State Machine Data**  
+User can save data of state machine when state machine is in idle status.
+``` java
+StateMachineData.Reader<MyStateMachine, MyState, MyEvent, MyContext> savedData = stateMachine.dumpSavedData();
+```  
+And also user can load above *savedData* into another state machine whose status is terminated or just initialized.
+``` java 
+newStateMachineInstance.loadSavedData(savedData);
+``` 
+
 * **State Machine Diagnose**  
 	User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.   
 	For example, the following code is used to register an execution time monitor for state machine of *MyStateMachine* type.
@@ -392,17 +402,19 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 ## Release Notes  
-*Version 0.1.9 - 2013-07-01*  
+*Version 0.1.10 - 2013-07-01*  
+1.  Support save/load state machine data
+  
+*Version 0.1.9  - 2013-07-01*  
 1. Add to *StateMachineBuilderFactory* simplify StateMachineBuilder creation  
 2. Deprecate StateMachineBuilderImpl.newStateMachineBuilder(...) methods
  
-*Version 0.1.8 - 2013-06-08*  
+*Version 0.1.8  - 2013-06-08*  
 1. Support **linked state** which also called substatemachine state  
 2. Rename addListener/removeListener of StateMachine to more specific name add\*Listener/remove\*Listener  
 3. Simplify converter registration for String and Enumeration type  
 
 ## Future Plan  
-* Support state persistence
 * State machine import and export
 * Support sendEvent(sync) and postEvent(async)
 

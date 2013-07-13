@@ -39,7 +39,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
     
-    private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> linkStateData;
+    private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> linkStateDataStore;
     
     public StateMachineDataImpl(Map<S, ImmutableState<T, S, E, C>> states) {
         this.states = Collections.unmodifiableMap(states);
@@ -76,10 +76,10 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
     
     private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> getLinkedStateData() {
-        if(linkStateData==null) {
-            linkStateData = Maps.newHashMap();
+        if(linkStateDataStore==null) {
+            linkStateDataStore = Maps.newHashMap();
         }
-        return linkStateData;
+        return linkStateDataStore;
     }
     
     @Override
@@ -240,16 +240,16 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
 
     @Override
     public Collection<S> linkedStates() {
-        if(linkStateData==null || linkStateData.isEmpty()) {
+        if(linkStateDataStore==null || linkStateDataStore.isEmpty()) {
             return Collections.emptySet();
         }
-        return linkStateData.keySet();
+        return linkStateDataStore.keySet();
     }
 
     @Override
     public StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState) {
-        if(linkStateData!=null && !linkStateData.isEmpty()) 
-            return linkStateData.get(linkedState);
+        if(linkStateDataStore!=null && !linkStateDataStore.isEmpty()) 
+            return linkStateDataStore.get(linkedState);
         
         return null;
     }
