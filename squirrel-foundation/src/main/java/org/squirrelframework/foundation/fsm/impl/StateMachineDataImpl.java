@@ -17,6 +17,8 @@ import com.google.common.collect.Maps;
 public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
 implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, StateMachineData.Writer<T, S, E, C> {
 
+    private static final long serialVersionUID = 4102325896046410596L;
+
     private static final Logger logger = LoggerFactory.getLogger(StateMachineDataImpl.class);
     
     private S currentState;
@@ -160,7 +162,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     @Override
     public List<S> subStatesOn(S parentStateId) {
         List<S> subStates = parallelStatesStore.get(parentStateId);
-        return subStates!=null ? subStates : Collections.<S>emptyList();
+        return subStates!=null ? Collections.unmodifiableList(subStates) : Collections.<S>emptyList();
     }
     
     @Override
@@ -225,17 +227,17 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public Collection<ImmutableState<T, S, E, C>> rawStates() {
-        return states.values();
+        return Collections.unmodifiableCollection(states.values());
     }
 
     @Override
     public Collection<S> states() {
-        return states.keySet();
+        return Collections.unmodifiableCollection(states.keySet());
     }
 
     @Override
     public Collection<S> parallelStates() {
-        return parallelStatesStore.keySet();
+        return Collections.unmodifiableCollection(parallelStatesStore.keySet());
     }
 
     @Override
@@ -243,7 +245,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         if(linkStateDataStore==null || linkStateDataStore.isEmpty()) {
             return Collections.emptySet();
         }
-        return linkStateDataStore.keySet();
+        return Collections.unmodifiableCollection(linkStateDataStore.keySet());
     }
 
     @Override

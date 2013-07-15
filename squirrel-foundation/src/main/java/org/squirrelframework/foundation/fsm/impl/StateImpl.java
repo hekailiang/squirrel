@@ -16,6 +16,7 @@ import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
 
@@ -132,7 +133,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             throw new UnsupportedOperationException("The final state should never be exited.");
     	}
     	if(isParallelState()) {
-    		List<ImmutableState<T, S, E, C>> subStates = stateContext.getSubStatesOn(this);
+    		List<ImmutableState<T, S, E, C>> subStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
     		for(ImmutableState<T, S, E, C> subState : subStates) {
     			if(!subState.isFinalState()) {
     				subState.exit(stateContext);
@@ -151,7 +152,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         if (getParentState() != null) {
         	// update historical state
         	if(getParentState().getHistoryType()!=HistoryType.NONE) {
-        		stateContext.setLastActiveChildState(getParentState(), this);
+        		stateContext.getStateMachineData().write().lastActiveChildStateFor(getParentState().getStateId(), getStateId());
         	}
         	if(getParentState().isRegion()) {
         		S grandParentId = getParentState().getParentState().getStateId();
@@ -232,7 +233,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     @Override
 	public ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext) {
 		this.entry(stateContext);
-		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
+		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
 		return lastActiveState == null ? this : lastActiveState.enterDeep(stateContext);
 	}
     
@@ -250,7 +251,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 	 * @return the entered state
 	 */
 	private ImmutableState<T, S, E, C> enterHistoryShallow(StateContext<T, S, E, C> stateContext) {
-		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
+		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
 		return lastActiveState != null ? lastActiveState.enterShallow(stateContext) : this;
 	}
     
@@ -273,7 +274,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 	 * @return the state
 	 */
 	private ImmutableState<T, S, E, C> enterHistoryDeep(StateContext<T, S, E, C> stateContext) {
-		final ImmutableState<T, S, E, C> lastActiveState = stateContext.getLastActiveChildStateOf(this);
+		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
 		return lastActiveState != null ? lastActiveState.enterDeep(stateContext) : this;
 	}
     
@@ -338,7 +339,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     		 * transition in response to the event. (Similarly, one child state may take a transition 
     		 * in response to an event, while another child ignores it.)
     		 */
-    		for(ImmutableState<T, S, E, C> parallelState : stateContext.getSubStatesOn(this)) {
+    		for(ImmutableState<T, S, E, C> parallelState : getSubStatesOn(this, stateContext.getStateMachineData().read())) {
     			if(parallelState.isFinalState()) continue;
     			// context isolation as entering a new region
     			TransitionResult<T, S, E, C> subTransitionResult = 
@@ -366,7 +367,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             		// to be in a final state, and a completion event is generated.
             		if(grandParentState!=null && grandParentState.isParallelState()) {
             			boolean allReachedFinal = true;
-            			for(ImmutableState<T, S, E, C> subState : stateContext.getSubStatesOn(grandParentState)) {
+            			for(ImmutableState<T, S, E, C> subState : getSubStatesOn(grandParentState, stateContext.getStateMachineData().read())) {
             				if(!subState.isFinalState()) {
             					allReachedFinal = false;
             					break;
@@ -538,5 +539,24 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             }
         }
         return null;
+    }
+    
+    private List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState, 
+            StateMachineData.Reader<T, S, E, C> read) {
+        List<ImmutableState<T, S, E, C>> subStates = Lists.newArrayList();
+        for(S stateId : read.subStatesOn(parentState.getStateId())) {
+            subStates.add(read.rawStateFrom(stateId));
+        }
+        return subStates;
+    }
+    
+    private ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState, 
+            StateMachineData.Reader<T, S, E, C> read) {
+        S childStateId = read.lastActiveChildStateOf(parentState.getStateId());
+        if(childStateId!=null) {
+            return read.rawStateFrom(childStateId);
+        } else {
+            return parentState.getInitialState();
+        }
     }
 }

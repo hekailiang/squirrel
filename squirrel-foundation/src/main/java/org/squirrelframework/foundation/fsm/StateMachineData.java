@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> {
+public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> extends Serializable {
     /**
      * Dump source state machine data (expect transient data, such as states) into current state machine data
      * @param src source state machine data

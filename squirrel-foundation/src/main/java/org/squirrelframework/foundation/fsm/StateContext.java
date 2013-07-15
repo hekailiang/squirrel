@@ -1,7 +1,5 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.List;
-
 /**
  * Then context of state machine when processing any events
  * 
@@ -38,26 +36,6 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
      * @return event 
      */
     E getEvent();
-    
-    /**
-     * Search state machine active child state store and return last active child state of parent state
-     * @param parentState parent state
-     * @return last active child state of parent state
-     */
-    ImmutableState<T, S, E, C> getLastActiveChildStateOf(ImmutableState<T, S, E, C> parentState);
-    
-    /**
-     * Update state machine active child state store
-     * @param parentState parent state
-     * @param childState last active child state
-     */
-    void setLastActiveChildState(ImmutableState<T, S, E, C> parentState, ImmutableState<T, S, E, C> childState);
-    
-    /**
-     * @param parentState parent state
-     * @return sub-states of parent parallel stae
-     */
-    List<ImmutableState<T, S, E, C>> getSubStatesOn(ImmutableState<T, S, E, C> parentState);
     
     /**
      * @return transition result
