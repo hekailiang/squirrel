@@ -1,6 +1,5 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -357,8 +356,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         StateMachineData<T, S, E, C> savedData = null;
         if(status==StateMachineStatus.IDLE) {
             savedData = SquirrelProvider.getInstance().newInstance( 
-                    new TypeReference<StateMachineData<T, S, E, C>>(){}, 
-                    new Class[]{Map.class}, new Object[]{Collections.emptyMap()} );
+                    new TypeReference<StateMachineData<T, S, E, C>>(){});
             savedData.dump(data.read());
             
             // process linked state if any

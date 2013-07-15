@@ -451,22 +451,23 @@ public class HierarchicalStateMachineTest {
 	@Test
 	public void testSavedData() {
 	    stateMachine.start(null);
-	    stateMachine.fire(HEvent.A12A1a1, 1);
+	    stateMachine.fire(HEvent.A12A3, 1);
+	    stateMachine.fire(HEvent.A32A1, 0);
 	    StateMachineData.Reader<HierachicalStateMachine, HState, HEvent, Integer> savedData = 
 	            stateMachine.dumpSavedData();
 	    stateMachine.terminate(null);
 	    
-	    assertThat(savedData.currentState(), is(equalTo(HState.A1a1)));
+	    assertThat(savedData.currentState(), is(equalTo(HState.A1)));
         assertThat(savedData.initialState(), is(equalTo(HState.A)));
-        assertThat(savedData.lastState(), is(equalTo(HState.A1)));
+        assertThat(savedData.lastState(), is(equalTo(HState.A3)));
         
-        assertThat(savedData.lastActiveChildStateOf(HState.A), is(equalTo(HState.A1)));
+        assertThat(savedData.lastActiveChildStateOf(HState.A), is(equalTo(HState.A3)));
 	    setup();
 	    
 	    stateMachine.loadSavedData(savedData);
-	    stateMachine.fire(HEvent.A12B3, 1);
-	    assertThat(stateMachine.consumeLog(), is(equalTo("leftA1a1.leftA1a.exitA1.exitA.transitA12B3.entryB.enterB3")));
-        assertThat(stateMachine.getCurrentState(), is(equalTo(HState.B3)));
+	    StateMachineData.Reader<HierachicalStateMachine, HState, HEvent, Integer> savedData2 = 
+                stateMachine.dumpSavedData();
+	    assertThat(savedData2.lastActiveChildStateOf(HState.A), is(equalTo(HState.A3)));
 	}
 	
 	@Test

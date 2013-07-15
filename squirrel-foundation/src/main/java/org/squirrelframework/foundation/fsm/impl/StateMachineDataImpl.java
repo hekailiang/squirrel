@@ -16,7 +16,7 @@ import com.google.common.collect.Maps;
 
 public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
 implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, StateMachineData.Writer<T, S, E, C> {
-
+    
     private static final long serialVersionUID = 4102325896046410596L;
 
     private static final Logger logger = LoggerFactory.getLogger(StateMachineDataImpl.class);
@@ -47,6 +47,17 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         this.states = Collections.unmodifiableMap(states);
     }
     
+    public StateMachineDataImpl() {
+        this.states = null;
+    }
+    
+    private Map<S, ImmutableState<T, S, E, C>> getStates() {
+        if(states==null) {
+            return Collections.emptyMap();
+        }
+        return states;
+    }
+    
     @Override
     public void dump(StateMachineData.Reader<T, S, E, C> src) {
         this.write().typeOfStateMachine(src.typeOfStateMachine());
@@ -58,7 +69,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         this.write().lastState(src.lastState());
         this.write().initalState(src.initialState());
         
-        for(S state : src.states()) {
+        for(S state : src.activeParentStates()) {
             S lastActiveChildState = src.lastActiveChildStateOf(state);
             if(lastActiveChildState!=null) {
                 this.write().lastActiveChildStateFor(state, lastActiveChildState);
@@ -160,6 +171,11 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
     
     @Override
+    public Collection<S> activeParentStates() {
+        return Collections.unmodifiableCollection(lastActiveChildStateStore.keySet());
+    }
+    
+    @Override
     public List<S> subStatesOn(S parentStateId) {
         List<S> subStates = parallelStatesStore.get(parentStateId);
         return subStates!=null ? Collections.unmodifiableList(subStates) : Collections.<S>emptyList();
@@ -177,7 +193,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public ImmutableState<T, S, E, C> rawStateFrom(S stateId) {
-        return states.get(stateId);
+        return getStates().get(stateId);
     }
     
     @Override
@@ -227,12 +243,12 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     @Override
     public Collection<ImmutableState<T, S, E, C>> rawStates() {
-        return Collections.unmodifiableCollection(states.values());
+        return Collections.unmodifiableCollection(getStates().values());
     }
 
     @Override
     public Collection<S> states() {
-        return Collections.unmodifiableCollection(states.keySet());
+        return Collections.unmodifiableCollection(getStates().keySet());
     }
 
     @Override

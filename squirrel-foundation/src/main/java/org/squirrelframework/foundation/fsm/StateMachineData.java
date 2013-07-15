@@ -56,6 +56,11 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
         S lastActiveChildStateOf(S parentStateId);
         
         /**
+         * @return all the active parent states
+         */
+        Collection<S> activeParentStates();
+        
+        /**
          * @param parentStateId
          * @return sub state of parallel state
          */
