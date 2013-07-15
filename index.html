@@ -37,7 +37,7 @@
 <h2>
 <a name="what-is-it" class="anchor" href="#what-is-it"><span class="octicon octicon-link"></span></a>What is it?</h2>
 
-<p><strong>squirrel-foundation</strong> provided an easy use, type safe and highly extensible <strong><a href="http://en.wikipedia.org/wiki/UML_state_machine">state machine</a></strong> implementation for Java.  </p>
+<p>Just like the squirrel, a <strong>small</strong>, <strong>agile</strong>, <strong>smart</strong>, <strong>alert</strong> and <strong>cute</strong> animal, squirrel-foundation is aimed to provide a <strong>lightweright</strong>, highly <strong>flexible</strong> and <strong>extensible</strong>, <strong>diagnosable</strong> and <strong>easy use</strong> Java state machine implementation for enterprise usage.  </p>
 
 <p>Here is the state machine diagram which describes the state change of an ATM:  </p>
 
@@ -52,7 +52,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.1.9&lt;/version&gt;
+    &lt;version&gt;0.1.10&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -406,6 +406,19 @@ SCXMLVisitor can be used to export state machine definition in <a href="http://w
 </pre></div>
 </li>
 <li>
+<p><strong>Save/Load State Machine Data</strong><br>
+User can save data of state machine when state machine is in idle status.</p>
+
+<div class="highlight"><pre><span class="n">StateMachineData</span><span class="o">.</span><span class="na">Reader</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> 
+    <span class="n">savedData</span> <span class="o">=</span> <span class="n">stateMachine</span><span class="o">.</span><span class="na">dumpSavedData</span><span class="o">();</span>
+</pre></div>
+
+<p>And also user can load above <em>savedData</em> into another state machine whose status is terminated or just initialized.</p>
+
+<div class="highlight"><pre><span class="n">newStateMachineInstance</span><span class="o">.</span><span class="na">loadSavedData</span><span class="o">(</span><span class="n">savedData</span><span class="o">);</span>
+</pre></div>
+</li>
+<li>
 <p><strong>State Machine Diagnose</strong><br>
 User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.<br>
 For example, the following code is used to register an execution time monitor for state machine of <em>MyStateMachine</em> type.</p>
@@ -506,11 +519,14 @@ Sample code to create snake game state machine.</p>
 </ul><h2>
 <a name="release-notes" class="anchor" href="#release-notes"><span class="octicon octicon-link"></span></a>Release Notes</h2>
 
-<p><em>Version 0.1.9 - 2013-07-01</em><br>
+<p><em>Version 0.1.10 - 2013-07-13</em><br>
+1.  Support save/load state machine data</p>
+
+<p><em>Version 0.1.9  - 2013-07-01</em><br>
 1. Add to <em>StateMachineBuilderFactory</em> simplify StateMachineBuilder creation<br>
 2. Deprecate StateMachineBuilderImpl.newStateMachineBuilder(...) methods</p>
 
-<p><em>Version 0.1.8 - 2013-06-08</em><br>
+<p><em>Version 0.1.8  - 2013-06-08</em><br>
 1. Support <strong>linked state</strong> which also called substatemachine state<br>
 2. Rename addListener/removeListener of StateMachine to more specific name add*Listener/remove*Listener<br>
 3. Simplify converter registration for String and Enumeration type  </p>
@@ -519,9 +535,18 @@ Sample code to create snake game state machine.</p>
 <a name="future-plan" class="anchor" href="#future-plan"><span class="octicon octicon-link"></span></a>Future Plan</h2>
 
 <ul>
-<li>Support state persistence</li>
 <li>State machine import and export</li>
 <li>Support sendEvent(sync) and postEvent(async)</li>
+</ul><h2>
+<a name="more-information" class="anchor" href="#more-information"><span class="octicon octicon-link"></span></a>More Information</h2>
+
+<ul>
+<li>For the <strong>latest updates</strong> follow <a href="https://twitter.com/hhe11">@hhe11</a>
+</li>
+<li>For discussions or questions please join the <a href="http://groups.google.com/group/squirrel-state-machine">squirrel state machine group</a>
+</li>
+<li>For any issue or requirement, please submit an <a href="https://github.com/hekailiang/squirrel/issues?state=open">issue</a>
+</li>
 </ul>
       </section>
     </div>
