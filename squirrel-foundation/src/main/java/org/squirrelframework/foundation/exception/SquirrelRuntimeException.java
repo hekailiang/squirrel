@@ -17,6 +17,11 @@ public class SquirrelRuntimeException extends RuntimeException {
         this.errorMessage = String.format("%08d : %s.", getErrorCodeId(), errorCode.getDescription());
     }
     
+    public SquirrelRuntimeException(Throwable targetException, ErrorCodes errorCode) {
+        this(errorCode);
+        this.targetException = targetException;
+    }
+    
     public SquirrelRuntimeException(ErrorCodes errorCode, Object...parameters) {
         this.errorCodeId = errorCode.getCode();
         this.errorMessage = String.format("%08d : %s.", getErrorCodeId(), 

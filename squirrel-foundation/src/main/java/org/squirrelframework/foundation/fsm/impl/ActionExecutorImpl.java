@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Stack;
 
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
+import org.squirrelframework.foundation.exception.ErrorCodes;
+import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutor;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -121,7 +123,13 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 		}
 
 		public void run() {
-			action.execute(from, to, event, context, stateMachine);
+		    try {
+		        action.execute(from, to, event, context, stateMachine);
+		    } catch (Exception e) {
+		        // wrapper any exception into transition exception
+		        throw new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
+		                from, to, event, context, stateMachine);
+		    }
 		}
 	}
 }

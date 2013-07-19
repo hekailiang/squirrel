@@ -362,7 +362,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             // process linked state if any
             saveLinkedStateData(data.read(), savedData.write());
         } 
-        return savedData.read();
+        return savedData==null ? null : savedData.read();
     }
     
     private void saveLinkedStateData(StateMachineData.Reader<T, S, E, C> src, StateMachineData.Writer<T, S, E, C> target) {

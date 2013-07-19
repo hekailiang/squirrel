@@ -18,6 +18,7 @@ public enum ErrorCodes {
     ILLEGAL_CLASS_NAME(10014, "illegal class name"),
     CLASS_NOT_FOUND(10015, "class '%s' not found"),
     METHOD_UNEXPECTED_PARAMETERS(10016, "Method requires unexpected parameters."),
+    FSM_TRANSITION_ERROR(10017, "Method requires unexpected parameters."),
     
     // reserved error code from 10000-19999
     INTERNAL_ERROR (19998, "internal error."),
