@@ -28,6 +28,14 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void fire(E event, C context);
     
     /**
+     * Test transition result under circumstance
+     * @param event test event
+     * @param context text context
+     * @return test transition result
+     */
+    S test(E event, C context);
+    
+    /**
      * Start state machine under external context
      * @param context external context
      */

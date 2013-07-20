@@ -17,6 +17,8 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 	
 	protected final Stack<List<ExectionContext<T, S, E, C>>> stack = new Stack<List<ExectionContext<T, S, E, C>>>();
 	
+	private boolean dummyExecution = false;
+	
 	@Override
     public void begin() {
 		List<ExectionContext<T, S, E, C>> executionContext = new ArrayList<ExectionContext<T, S, E, C>>();
@@ -28,7 +30,9 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 		List<ExectionContext<T, S, E, C>> executionContexts = stack.pop();
         for (int i=0, size=executionContexts.size(); i<size; ++i) {
         	fireEvent(ExecActionEventImpl.get(i+1, size, executionContexts.get(i)));
-        	executionContexts.get(i).run();
+        	if(!dummyExecution) {
+        	    executionContexts.get(i).run();
+        	}
         }
     }
 
@@ -132,4 +136,9 @@ class ActionExecutorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Ab
 		    }
 		}
 	}
+
+    @Override
+    public void setDummyExecution(boolean dummyExecution) {
+        this.dummyExecution = dummyExecution;
+    }
 }

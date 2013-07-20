@@ -33,6 +33,12 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
      */
     Writer<T, S, E, C> write();
     
+    boolean isLock();
+    
+    void lock();
+    
+    void unlock();
+    
     public interface Reader<T extends StateMachine<T, S, E, C>, S, E, C> {
         /**
          * @return current state id of state machine
@@ -128,6 +134,8 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
         Collection<S> linkedStates();
         
         Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
+        
+        StateMachineStatus stateMachineStatus();
     }
     
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {
@@ -207,5 +215,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          * @param linkStateData linked state data
          */
         void linkedStateDataOn(S linkedState, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData);
+        
+        void stateMachineStatus(StateMachineStatus status);
     }
 }

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineData;
+import org.squirrelframework.foundation.fsm.StateMachineStatus;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
@@ -39,7 +40,11 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     private Class<C> contextType;
     
+    private StateMachineStatus status = StateMachineStatus.INITIALIZED;
+    
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
+    
+    private transient boolean lock;
     
     private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> linkStateDataStore;
     
@@ -68,6 +73,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
         this.write().currentState(src.currentState());
         this.write().lastState(src.lastState());
         this.write().initalState(src.initialState());
+        this.write().stateMachineStatus(src.stateMachineStatus());
         
         for(S state : src.activeParentStates()) {
             S lastActiveChildState = src.lastActiveChildStateOf(state);
@@ -277,4 +283,30 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
             StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData) {
         getLinkedStateData().put(linkedState, linkStateData);
     }
+
+    @Override
+    public void stateMachineStatus(StateMachineStatus status) {
+        this.status = status;
+    }
+
+    @Override
+    public StateMachineStatus stateMachineStatus() {
+        return status;
+    }
+    
+    @Override
+    public boolean isLock() {
+        return lock;
+    }
+
+    @Override
+    public void lock() {
+        lock = true;
+    }
+
+    @Override
+    public void unlock() {
+        lock = false;
+    }
+
 }

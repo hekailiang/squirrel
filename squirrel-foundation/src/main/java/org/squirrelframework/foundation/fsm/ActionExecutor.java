@@ -30,6 +30,13 @@ public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> ext
 	void execute();
 	
 	/**
+	 * Set dummy execution true will cause no action being actually invoked when calling {@link ActionExecutor#execute()}.
+	 * 
+	 * @param dummyExecution
+	 */
+	void setDummyExecution(boolean dummyExecution);
+	
+	/**
 	 * Add action and all the execution parameters into execution context;
 	 * 
 	 * @param action activity to be executed

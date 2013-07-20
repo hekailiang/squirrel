@@ -50,8 +50,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
-    private StateMachineStatus status = StateMachineStatus.INITIALIZED;
-    
     private boolean autoStart = true;
     
     private final LinkedList<Pair<E, C>> queuedEvents = Lists.newLinkedList();
@@ -82,6 +80,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             sw = new Stopwatch().start();
         }
         try {
+            data.lock();
             beforeTransitionBegin(fromStateId, event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             
@@ -105,6 +104,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     data.read().currentState(), event, context, getThis()));
             afterTransitionCausedException(e, fromStateId, data.read().currentState(), event, context);
         } finally {
+            data.unlock();
             if(logger.isDebugEnabled()) {
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
                         "\" tooks "+sw.stop().elapsedMillis()+"ms.");
@@ -126,38 +126,52 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private void execute() {
         if (isIdel()) {
             try {
-                status = StateMachineStatus.BUSY;
+                setStatus(StateMachineStatus.BUSY);
                 processQueuedEvents();
             } finally {
-            	if(status==StateMachineStatus.BUSY)
-            		status = StateMachineStatus.IDLE;
+            	if(getStatus()==StateMachineStatus.BUSY)
+            	    setStatus(StateMachineStatus.IDLE);
             }
         }
     }
     
     @Override
     public void fire(E event, C context) {
-        if(status==StateMachineStatus.INITIALIZED) {
+        if(getStatus()==StateMachineStatus.INITIALIZED) {
             if(autoStart) {
                 start(context);
             } else {
                 throw new RuntimeException("The state machine is not running.");
             }
         }
-        if(status==StateMachineStatus.TERMINATED) {
+        if(getStatus()==StateMachineStatus.TERMINATED) {
             throw new RuntimeException("The state machine is already terminated.");
         }
         queuedEvents.addLast(new Pair<E, C>(event, context));
         execute();
     }
     
+    @Override
+    public S test(E event, C context) {
+        S testResult = null;
+        StateMachineData.Reader<T, S, E, C> oldData = dumpSavedData();
+        executor.setDummyExecution(true);
+        try {
+            fire(event, context);
+            testResult = data.read().currentState();
+        } finally {
+            loadSavedData(oldData);
+            executor.setDummyExecution(false);
+        }
+        return testResult;
+    }
+    
     protected boolean isIdel() {
     	return getStatus()!=StateMachineStatus.BUSY;
     }
     
-    protected void afterTransitionCausedException(Exception e, S fromState, S toState, 
-            E event, C context) {
-        status = StateMachineStatus.ERROR;
+    protected void afterTransitionCausedException(Exception e, S fromState, S toState, E event, C context) {
+        setStatus(StateMachineStatus.ERROR);
         logger.error("Transition from state \""+fromState+"\" to state \""+toState+
                 "\" on event \""+event+"\" failed, which is caused by exception \""+e.getMessage()+"\".");
     }
@@ -230,7 +244,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	if(isStarted()) {
             return;
         }
-    	status = StateMachineStatus.IDLE;
+    	setStatus(StateMachineStatus.IDLE);
         
     	executor.begin();
     	StateContext<T, S, E, C> stateContext = FSM.newStateContext(
@@ -247,16 +261,20 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private boolean isStarted() {
-        return status==StateMachineStatus.IDLE || status==StateMachineStatus.BUSY;
+        return getStatus()==StateMachineStatus.IDLE || getStatus()==StateMachineStatus.BUSY;
     }
     
     private boolean isTerminiated() {
-    	return status==StateMachineStatus.TERMINATED;
+    	return getStatus()==StateMachineStatus.TERMINATED;
     }
     
     @Override
     public StateMachineStatus getStatus() {
-        return status;
+        return data.read().stateMachineStatus();
+    }
+    
+    protected void setStatus(StateMachineStatus status) {
+        data.write().stateMachineStatus(status);
     }
     
     @Override
@@ -283,7 +301,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         executor.execute();
         
         data.write().currentState(data.read().initialState());
-        status = StateMachineStatus.TERMINATED;
+        setStatus(StateMachineStatus.TERMINATED);
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
     }
     
@@ -354,7 +372,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         StateMachineData<T, S, E, C> savedData = null;
-        if(status==StateMachineStatus.IDLE) {
+        if(!data.isLock()) {
             savedData = SquirrelProvider.getInstance().newInstance( 
                     new TypeReference<StateMachineData<T, S, E, C>>(){});
             savedData.dump(data.read());
@@ -385,7 +403,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
         Preconditions.checkNotNull(savedData, "Saved data cannot be null");
-        if(status==StateMachineStatus.INITIALIZED || status==StateMachineStatus.TERMINATED) {
+        if(!data.isLock()) {
             data.dump(savedData);
             
             // process linked state if any
@@ -397,9 +415,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     linkedRawState.getLinkedStateMachine().loadSavedData(linkedStateData);
                 }
             }
-            
-            // ready to process event, no need to start again
-            status = StateMachineStatus.IDLE;
             return true;
         }
         return false;
