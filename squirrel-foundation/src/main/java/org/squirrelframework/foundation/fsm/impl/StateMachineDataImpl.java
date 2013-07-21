@@ -44,7 +44,7 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
     
-    private transient boolean lock;
+    private transient int lock = 0;
     
     private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> linkStateDataStore;
     
@@ -295,18 +295,23 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     }
     
     @Override
-    public boolean isLock() {
-        return lock;
+    public boolean isLocked() {
+        return lock!=0;
+    }
+    
+    @Override
+    public boolean isUnlocked() {
+        return lock==0;
     }
 
     @Override
     public void lock() {
-        lock = true;
+        lock++;
     }
 
     @Override
     public void unlock() {
-        lock = false;
+        if(lock>0) lock--;
     }
 
 }

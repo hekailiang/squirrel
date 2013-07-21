@@ -33,7 +33,9 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
      */
     Writer<T, S, E, C> write();
     
-    boolean isLock();
+    boolean isLocked();
+    
+    boolean isUnlocked();
     
     void lock();
     

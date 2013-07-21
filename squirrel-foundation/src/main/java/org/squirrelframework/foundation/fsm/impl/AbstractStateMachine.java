@@ -372,7 +372,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         StateMachineData<T, S, E, C> savedData = null;
-        if(!data.isLock()) {
+        if(data.isUnlocked()) {
             savedData = SquirrelProvider.getInstance().newInstance( 
                     new TypeReference<StateMachineData<T, S, E, C>>(){});
             savedData.dump(data.read());
@@ -403,7 +403,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
         Preconditions.checkNotNull(savedData, "Saved data cannot be null");
-        if(!data.isLock()) {
+        if(data.isUnlocked()) {
             data.dump(savedData);
             
             // process linked state if any
