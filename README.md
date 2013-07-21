@@ -417,7 +417,9 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 
 ## Future Plan  
 * State machine import and export
-* Support sendEvent(sync) and postEvent(async)
+* Provide thread-safe implementation
+* Support sendEvent(sync) and postEvent(async)  
+* Automatic expose as WebService
 
 ## More Information  
 * For the **latest updates** follow [@hhe11][5]
