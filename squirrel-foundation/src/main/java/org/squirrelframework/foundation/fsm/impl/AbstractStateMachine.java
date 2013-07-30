@@ -153,6 +153,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S test(E event, C context) {
+        if(data.read().stateMachineStatus()==StateMachineStatus.BUSY || 
+           data.read().stateMachineStatus()==StateMachineStatus.ERROR ||
+           data.read().stateMachineStatus()==StateMachineStatus.TERMINATED) {
+            throw new RuntimeException("Cannot test state machine under "+data.read().stateMachineStatus()+" state.");
+        }
+        
         S testResult = null;
         StateMachineData.Reader<T, S, E, C> oldData = dumpSavedData();
         executor.setDummyExecution(true);
