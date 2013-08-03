@@ -28,6 +28,7 @@ import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineWithoutContext;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -98,7 +99,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
         
         initailContextEvents(eventClazz);
-        methodCallParamTypes = new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz};
+        boolean isContextInsensitive = StateMachineWithoutContext.class.isAssignableFrom(stateMachineClazz);
+        methodCallParamTypes = isContextInsensitive ? 
+                new Class<?>[]{stateClazz, stateClazz, eventClazz} : 
+                new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
         this.contructor = ReflectUtils.getConstructor(stateMachineClazz, constParamTypes);
     }

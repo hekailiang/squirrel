@@ -427,6 +427,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
+    public boolean isContextSensitive() {
+        return true;
+    }
+    
+    @Override
     public void addStateMachineListener(StateMachineListener<T, S, E, C> listener) {
         addListener(StateMachineEvent.class, listener, StateMachineListener.STATEMACHINE_EVENT_METHOD);
     }

@@ -119,6 +119,11 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      */
     boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData);
     
+    /**
+     * @return whether state machine is context sensitive
+     */
+    boolean isContextSensitive();
+    
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         // leverage bridge method to call the method of actual listener
         public static final Method STATEMACHINE_EVENT_METHOD = ReflectUtils.getMethod(

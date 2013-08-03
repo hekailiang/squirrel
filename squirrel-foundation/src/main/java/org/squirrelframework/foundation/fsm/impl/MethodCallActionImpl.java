@@ -34,12 +34,14 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     
     @Override
     public void execute(S from, S to, E event, C context, T stateMachine) {
+        Object[] params = stateMachine.isContextSensitive() ? 
+                new Object[]{from, to, event, context} : new Object[]{from, to, event};
         if(logExecTime && logger.isDebugEnabled()) {
             Stopwatch sw = new Stopwatch().start();
-            ReflectUtils.invoke(method, stateMachine, new Object[]{from, to, event, context});
+            ReflectUtils.invoke(method, stateMachine, params);
             logger.debug("Execute Method \""+methodDesc+"\" tooks "+sw.stop().elapsedMillis()+"ms.");
         } else {
-            ReflectUtils.invoke(method, stateMachine, new Object[]{from, to, event, context});
+            ReflectUtils.invoke(method, stateMachine, params);
         }
     }
     

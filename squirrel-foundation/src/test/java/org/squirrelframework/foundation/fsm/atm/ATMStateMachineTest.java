@@ -54,27 +54,27 @@ public class ATMStateMachineTest {
     
     @Test
     public void testIdelToInService() {
-        stateMachine.start(null);
+        stateMachine.start();
         assertThat(stateMachine.consumeLog(), is(equalTo("entryIdle")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.Idle)));
         
-        stateMachine.fire("Connected", null);
+        stateMachine.fire("Connected");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitIdle.transitFromIdleToLoadingOnConnected.entryLoading")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.Loading)));
         
-        stateMachine.fire("LoadSuccess", null);
+        stateMachine.fire("LoadSuccess");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitLoading.transitFromLoadingToInServiceOnLoadSuccess.entryInService")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.InService)));
         
-        stateMachine.fire("Shutdown", null);
+        stateMachine.fire("Shutdown");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitInService.transitFromInServiceToOutOfServiceOnShutdown.entryOutOfService")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.OutOfService)));
         
-        stateMachine.fire("ConnectionLost", null);
+        stateMachine.fire("ConnectionLost");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitOutOfService.transitFromOutOfServiceToDisconnectedOnConnectionLost.entryDisconnected")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.Disconnected)));
         
-        stateMachine.fire("ConnectionRestored", null);
+        stateMachine.fire("ConnectionRestored");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitDisconnected.transitFromDisconnectedToInServiceOnConnectionRestored.entryInService")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.InService)));
     }

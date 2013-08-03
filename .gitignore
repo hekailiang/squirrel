@@ -1,5 +1,7 @@
 *.class
 
+**/.idea/*
+*.iml
 .project
 .classpath
 ~*
