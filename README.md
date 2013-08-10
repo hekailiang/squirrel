@@ -15,7 +15,7 @@ squirrel-foundation has been deployed to maven central repository, so you only n
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.1.10</version>
+  	<version>0.2.1</version>
 </dependency>
 ``` 
 
@@ -403,8 +403,13 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 ## Release Notes  
+*Version 0.2.1 - 2013-08-10*  
+1. Support test State machine transition result  
+2. Add *StateMachineWithoutContext* class to simplify state machine usage without need of context  
+3. Bug fixed for state machine data dump
+
 *Version 0.1.10 - 2013-07-13*  
-1.  Support save/load state machine data
+1. Support save/load state machine data
   
 *Version 0.1.9  - 2013-07-01*  
 1. Add to *StateMachineBuilderFactory* simplify StateMachineBuilder creation  
