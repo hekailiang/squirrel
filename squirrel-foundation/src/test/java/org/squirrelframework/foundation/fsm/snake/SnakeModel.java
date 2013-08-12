@@ -11,7 +11,7 @@ public class SnakeModel {
 	
 	private Point fruitPoint;
 	
-	private SnakeDirection direction = SnakeDirection.DOWN;
+	private SnakeDirection direction = SnakeDirection.UP;
 	
 	public Point peekFirst() {
 		return snakePoints.peekFirst();
