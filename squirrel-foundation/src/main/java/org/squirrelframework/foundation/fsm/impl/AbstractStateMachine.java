@@ -57,7 +57,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private final ActionExecutor<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutor<T, S, E, C>>(){});
     
-    private final StateMachineData<T, S, E, C> data;
+    protected final StateMachineData<T, S, E, C> data;
     
     private E startEvent, finishEvent, terminateEvent;
     
@@ -156,7 +156,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(data.read().stateMachineStatus()==StateMachineStatus.BUSY || 
            data.read().stateMachineStatus()==StateMachineStatus.ERROR ||
            data.read().stateMachineStatus()==StateMachineStatus.TERMINATED) {
-            throw new RuntimeException("Cannot test state machine under "+data.read().stateMachineStatus()+" state.");
+            throw new RuntimeException("Cannot test state machine under "+data.read().stateMachineStatus()+" status.");
         }
         
         S testResult = null;
@@ -166,6 +166,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             fire(event, context);
             testResult = data.read().currentState();
         } finally {
+            queuedEvents.clear();
             loadSavedData(oldData);
             executor.setDummyExecution(false);
         }
