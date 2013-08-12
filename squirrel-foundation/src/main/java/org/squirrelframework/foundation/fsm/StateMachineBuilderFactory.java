@@ -13,9 +13,10 @@ import org.squirrelframework.foundation.util.TypeReference;
  */
 public class StateMachineBuilderFactory {
     
-    public static <T extends StateMachineWithoutContext<T, S, E>, S, E> StateMachineBuilder<T, S, E, Void> create(
+    @SuppressWarnings("unchecked")
+    public static <T extends StateMachineWithoutContext<T, S, E>, S, E> StateMachineBuilder<T, S, E, T> create(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz) {
-        return create(stateMachineClazz, stateClazz, eventClazz, Void.class, new Class<?>[0]);
+        return create(stateMachineClazz, stateClazz, eventClazz, (Class<T>)stateMachineClazz, new Class<?>[0]);
     }
     
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(

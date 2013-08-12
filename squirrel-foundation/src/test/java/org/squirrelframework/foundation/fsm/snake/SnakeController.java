@@ -14,9 +14,9 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineWithoutContext;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
+import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
 import org.squirrelframework.foundation.util.TypeReference;
 
 /**
@@ -55,7 +55,7 @@ import org.squirrelframework.foundation.util.TypeReference;
 	@Transit(from="RIGHT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
 	@Transit(from="RIGHT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection")
 })
-public class SnakeController extends AbstractStateMachine<SnakeController, SnakeState, SnakeEvent, SnakeContext> {
+public class SnakeController extends AbstractStateMachineWithoutContext<SnakeController, SnakeState, SnakeEvent> {
 	
 	public enum SnakeState {
 		NEW, UP, LEFT, RIGHT, DOWN, MOVE, PAUSE, GAMEOVER
@@ -65,10 +65,10 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 		PRESS_START, TURN_UP, TURN_LEFT, TURN_RIGHT, TURN_DOWN, MOVE_AHEAD, PRESS_PAUSE, BODY_COLLAPSED
 	}
 	
-	public static class InBorderCondition implements Condition<SnakeContext> {
+	public static class InBorderCondition implements Condition<SnakeController> {
 		@Override
-        public boolean isSatisfied(SnakeContext context) {
-			Point nextPoint = computeNextPoint(context.getSnakePos(), context.getDirection());
+        public boolean isSatisfied(SnakeController context) {
+			Point nextPoint = computeNextPoint(context.getSnakeModel().peekFirst(), context.getSnakeModel().getDirection());
 			return nextPoint.x >= 0 && nextPoint.x < GameConfigure.COL_COUNT && 
 					nextPoint.y >= 0 && nextPoint.y < GameConfigure.ROW_COUNT;
         }
@@ -79,15 +79,16 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 	private Random random = new Random();
 	
 	protected SnakeController (
-            ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeContext> initialState,
-            Map<SnakeState, ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeContext>> states) {
+            ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeController> initialState,
+            Map<SnakeState, ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeController>> states) {
 	    super(initialState, states);
     }
 	
-	protected void onStart(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
+	protected void onStart(SnakeState from, SnakeState to, SnakeEvent event) {
 		snakeModel.clear();
-		snakeModel.push(context.getSnakePos());
-		snakeModel.setDirection(context.getDirection());
+		Point startPoint = new Point(GameConfigure.COL_COUNT / 2, GameConfigure.ROW_COUNT / 2);
+		snakeModel.push(startPoint);
+		snakeModel.setDirection(getSnakeModel().getDirection());
 		
 		// generate random fruit point
 		snakeModel.spawnFruit(getNextFruitIndex());
@@ -97,10 +98,10 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 		return random.nextInt(GameConfigure.COL_COUNT * GameConfigure.ROW_COUNT - snakeModel.length());
 	}
 	
-	protected void onMove(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
-		Point nextSnakePoint = computeNextPoint(context.getSnakePos(), context.getDirection());
+	protected void onMove(SnakeState from, SnakeState to, SnakeEvent event) {
+		Point nextSnakePoint = computeNextPoint(getSnakeModel().peekFirst(), getSnakeModel().getDirection());
 		if(snakeModel.getSnakePoints().contains(nextSnakePoint)) {
-			fire(SnakeEvent.BODY_COLLAPSED, context);
+			fire(SnakeEvent.BODY_COLLAPSED);
 		} else if (nextSnakePoint.equals(snakeModel.getFruitPos())) {
 			snakeModel.spawnFruit(getNextFruitIndex());
 		} else if (snakeModel.length()>=GameConfigure.MIN_SNAKE_LENGTH) {
@@ -109,15 +110,15 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 		snakeModel.push(nextSnakePoint);
 	}
 	
-	protected void onPause(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
+	protected void onPause(SnakeState from, SnakeState to, SnakeEvent event) {
 		
 	}
 	
-	protected void onResume(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
+	protected void onResume(SnakeState from, SnakeState to, SnakeEvent event) {
 		
 	}
 	
-	protected void onChangeDirection(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
+	protected void onChangeDirection(SnakeState from, SnakeState to, SnakeEvent event) {
 	    snakeModel.setDirection(getSnakeDirection(to));
 	}
 	
@@ -135,7 +136,7 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 		return SnakeDirection.UP;
 	}
 	
-	protected void onEnd(SnakeState from, SnakeState to, SnakeEvent event, SnakeContext context) {
+	protected void onEnd(SnakeState from, SnakeState to, SnakeEvent event) {
 		
 	}
 	
@@ -167,8 +168,8 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 	
 	public void export() {
 	    // export snake game state machine
-	    DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext>>() {} );
+	    DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeController> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeController>>() {} );
         this.accept(visitor);
         visitor.convertDotFile("SnakeStateMachine");
 	}

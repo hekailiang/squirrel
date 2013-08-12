@@ -10,13 +10,13 @@ import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
 public class Main {
     
     public static void main(String[] args) {
-        StateMachineBuilder<SnakeController, SnakeState, SnakeEvent, SnakeContext> builder = 
-                StateMachineBuilderFactory.create(SnakeController.class, SnakeState.class, SnakeEvent.class, SnakeContext.class);
+        StateMachineBuilder<SnakeController, SnakeState, SnakeEvent, SnakeController> builder = 
+                StateMachineBuilderFactory.create(SnakeController.class, SnakeState.class, SnakeEvent.class);
         SnakeController controller = builder.newStateMachine(SnakeState.NEW);
         final SnakeGame snake = new SnakeGame(controller);
-        controller.addTransitionCompleteListener(new StateMachine.TransitionCompleteListener<SnakeController, SnakeState, SnakeEvent, SnakeContext>() {
+        controller.addTransitionCompleteListener(new StateMachine.TransitionCompleteListener<SnakeController, SnakeState, SnakeEvent, SnakeController>() {
             @Override
-            public void transitionComplete(TransitionCompleteEvent<SnakeController, SnakeState, SnakeEvent, SnakeContext> event) {
+            public void transitionComplete(TransitionCompleteEvent<SnakeController, SnakeState, SnakeEvent, SnakeController> event) {
                 snake.repaint();
                 snake.setTitle("Greedy Snake("+event.getStateMachine().getSnakeModel().length()+"): "+
                         event.getSourceState()+"--["+event.getCause()+"]--"+event.getTargetState());
