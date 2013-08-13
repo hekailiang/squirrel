@@ -35,6 +35,12 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     InternalTransitionBuilder<T, S, E, C> internalTransition();
     
+    ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority);
+    
+    LocalTransitionBuilder<T, S, E, C> localTransition(int priority);
+    
+    InternalTransitionBuilder<T, S, E, C> internalTransition(int priority);
+    
     /**
      * Define a new state in state machine model
      * @param stateId id of new state

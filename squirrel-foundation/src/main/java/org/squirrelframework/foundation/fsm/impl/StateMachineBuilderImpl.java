@@ -29,6 +29,7 @@ import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineWithoutContext;
+import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -166,20 +167,35 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition() {
-        checkState();
-        return FSM.newExternalTransitionBuilder(states);
+        return externalTransition(TransitionPriority.NORMAL);
     }
     
     @Override
     public LocalTransitionBuilder<T, S, E, C> localTransition() {
-    	checkState();
-        return FSM.newLocalTransitionBuilder(states);
+        return localTransition(TransitionPriority.NORMAL);
     }
 
 	@Override
     public InternalTransitionBuilder<T, S, E, C> internalTransition() {
-		checkState();
-        return FSM.newInternalTransitionBuilder(states);
+        return internalTransition(TransitionPriority.NORMAL);
+    }
+	
+	@Override
+    public ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority) {
+        checkState();
+        return FSM.newExternalTransitionBuilder(states, priority);
+    }
+    
+    @Override
+    public LocalTransitionBuilder<T, S, E, C> localTransition(int priority) {
+        checkState();
+        return FSM.newLocalTransitionBuilder(states, priority);
+    }
+
+    @Override
+    public InternalTransitionBuilder<T, S, E, C> internalTransition(int priority) {
+        checkState();
+        return FSM.newInternalTransitionBuilder(states, priority);
     }
     
     private void addStateEntryExitMethodCallAction(String methodName, Class<?>[] parameterTypes, 
@@ -247,11 +263,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         // if no existed transition is matched then create a new transition
         To<T, S, E, C> toBuilder = null;
         if(transit.type()==TransitionType.INTERNAL) {
-        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = FSM.newInternalTransitionBuilder(states);
+        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = FSM.newInternalTransitionBuilder(states, transit.priority());
             toBuilder = transitionBuilder.within(fromState);
         } else {
-        	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ?
-        			FSM.newLocalTransitionBuilder(states) : FSM.newExternalTransitionBuilder(states);
+        	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ? 
+        	        FSM.newLocalTransitionBuilder(states, transit.priority()) : 
+        	            FSM.newExternalTransitionBuilder(states, transit.priority());
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
             boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinalState();
             toBuilder = isTargetFinal ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);

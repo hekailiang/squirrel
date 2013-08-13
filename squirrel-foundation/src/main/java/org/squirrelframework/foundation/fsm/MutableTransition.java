@@ -17,4 +17,6 @@ public interface MutableTransition<T extends StateMachine<T, S, E, C>, S, E, C> 
     void setEvent(E event);
     
     void setType(TransitionType type);
+    
+    void setPriority(int priority);
 }

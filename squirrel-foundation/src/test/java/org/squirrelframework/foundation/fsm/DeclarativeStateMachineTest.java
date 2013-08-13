@@ -34,7 +34,8 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     @Transitions({
         @Transit(from="A", to="B", on="ToB", callMethod="fromStateAToStateBOnGotoB"),
         @Transit(from="A", to="A", on="InternalA", callMethod="fromStateAToStateAOnInternalA", type=TransitionType.INTERNAL),
-        @Transit(from="B", to="#StateC", on="ToC"),
+        @Transit(from="B", to="D", on="ToC"),
+        @Transit(from="B", to="#StateC", on="ToC", priority=TransitionPriority.HIGH),
         @Transit(from="C", to="D", on="ToD", when=ExcellentCondition.class),
         @Transit(from="D", to="A", on="ToA", callMethod="transitionWithException"),
         @Transit(from="D", to="Final", on="ToEnd", callMethod="fromStateDToFinalOnToEnd", isTargetFinal=true)

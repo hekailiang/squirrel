@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm.impl;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -105,7 +106,14 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     @Override
     public List<ImmutableTransition<T, S, E, C>> getTransitions(E event) {
     	if(transitions==null) return Collections.emptyList();
-        return Lists.newArrayList(getTransitions().get(event));
+    	List<ImmutableTransition<T, S, E, C>> result = Lists.newArrayList(getTransitions().get(event));
+    	Collections.sort(result, new Comparator<ImmutableTransition<T, S, E, C>>() {
+            @Override
+            public int compare(ImmutableTransition<T, S, E, C> o1, ImmutableTransition<T, S, E, C> o2) {
+                return o2.getPriority()-o1.getPriority();
+            }
+        });
+    	return result;
     }
     
     @Override

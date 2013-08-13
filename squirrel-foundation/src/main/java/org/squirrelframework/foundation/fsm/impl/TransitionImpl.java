@@ -26,6 +26,8 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     private Condition<C> condition = Conditions.always();
     
     private TransitionType type = TransitionType.EXTERNAL;
+    
+    private int priority;
 
     @Override
     public ImmutableState<T, S, E, C> getSourceState() {
@@ -100,6 +102,16 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     @Override
     public void setType(TransitionType type) {
         this.type = type;
+    }
+    
+    @Override
+    public int getPriority() {
+        return priority;
+    }
+    
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
     
     private void doTransit(ImmutableState<T, S, E, C> source, ImmutableState<T, S, E, C> target, StateContext<T, S, E, C> stateContext) {

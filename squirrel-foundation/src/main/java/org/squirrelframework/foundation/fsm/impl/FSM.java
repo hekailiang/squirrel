@@ -67,21 +67,21 @@ final class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> ExternalTransitionBuilder<T, S, E, C> newExternalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states) {
+            Map<S, MutableState<T, S, E, C>> states, int priority) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class }, new Object[] { states, TransitionType.EXTERNAL });
+                new Class[] { Map.class, TransitionType.class, int.class}, new Object[] { states, TransitionType.EXTERNAL, priority });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> LocalTransitionBuilder<T, S, E, C> newLocalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states) {
+            Map<S, MutableState<T, S, E, C>> states, int priority) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class }, new Object[] { states, TransitionType.LOCAL });
+                new Class[] { Map.class, TransitionType.class, int.class }, new Object[] { states, TransitionType.LOCAL, priority });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> InternalTransitionBuilder<T, S, E, C> newInternalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states) {
+            Map<S, MutableState<T, S, E, C>> states, int priority) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class }, new Object[] { states, TransitionType.INTERNAL });
+                new Class[] { Map.class, TransitionType.class, int.class }, new Object[] { states, TransitionType.INTERNAL, priority });
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> EntryExitActionBuilder<T, S, E, C> newEntryExitActionBuilder(

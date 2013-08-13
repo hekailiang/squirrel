@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
+import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 
 @Target({ TYPE })
@@ -27,4 +28,6 @@ public @interface Transit {
     TransitionType type() default TransitionType.EXTERNAL;
 
     String callMethod() default "";
+    
+    int priority() default TransitionPriority.NORMAL;
 }

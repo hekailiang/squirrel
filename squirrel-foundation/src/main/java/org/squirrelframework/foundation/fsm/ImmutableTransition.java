@@ -61,6 +61,8 @@ public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C
      */
     TransitionType getType();
     
+    int getPriority();
+    
     boolean isMatch(S fromState, S toState, E event);
     
     boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type);

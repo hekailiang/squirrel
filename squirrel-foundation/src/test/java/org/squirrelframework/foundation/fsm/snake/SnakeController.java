@@ -39,11 +39,10 @@ import org.squirrelframework.foundation.util.TypeReference;
 	@Transit(from="NEW", to="MOVE", on="PRESS_START", callMethod="onStart"),
     @Transit(from = "GAMEOVER", to = "MOVE", on = "PRESS_START", callMethod = "onStart"),
     @Transit(from = "MOVE", to = "GAMEOVER", on = "MOVE_AHEAD", callMethod = "onEnd"),
-    @Transit(from = "MOVE", to = "GAMEOVER", on = "BODY_COLLAPSED", callMethod = "onEnd"),
-    @Transit(from = "UP", to = "UP", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-    @Transit(from = "DOWN", to = "DOWN", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-    @Transit(from = "LEFT", to = "LEFT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-    @Transit(from = "RIGHT", to = "RIGHT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
+    @Transit(from = "UP", to = "UP", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.ContinueRunningCondition.class),
+    @Transit(from = "DOWN", to = "DOWN", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.ContinueRunningCondition.class),
+    @Transit(from = "LEFT", to = "LEFT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.ContinueRunningCondition.class),
+    @Transit(from = "RIGHT", to = "RIGHT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.ContinueRunningCondition.class),
 	@Transit(from="MOVE", to="PAUSE", on="PRESS_PAUSE", callMethod="onPause"),
 	@Transit(from="PAUSE", to="MOVE", on="PRESS_PAUSE", callMethod="onResume"),
 	@Transit(from="UP", to="LEFT", on="TURN_LEFT", callMethod="onChangeDirection"),
@@ -62,15 +61,17 @@ public class SnakeController extends AbstractStateMachineWithoutContext<SnakeCon
 	}
 	
 	public enum SnakeEvent {
-		PRESS_START, TURN_UP, TURN_LEFT, TURN_RIGHT, TURN_DOWN, MOVE_AHEAD, PRESS_PAUSE, BODY_COLLAPSED
+		PRESS_START, TURN_UP, TURN_LEFT, TURN_RIGHT, TURN_DOWN, MOVE_AHEAD, PRESS_PAUSE
 	}
 	
-	public static class InBorderCondition implements Condition<SnakeController> {
+	public static class ContinueRunningCondition implements Condition<SnakeController> {
 		@Override
         public boolean isSatisfied(SnakeController context) {
 			Point nextPoint = computeNextPoint(context.getSnakeModel().peekFirst(), context.getSnakeModel().getDirection());
-			return nextPoint.x >= 0 && nextPoint.x < GameConfigure.COL_COUNT && 
+			boolean insideBorder = nextPoint.x >= 0 && nextPoint.x < GameConfigure.COL_COUNT && 
 					nextPoint.y >= 0 && nextPoint.y < GameConfigure.ROW_COUNT;
+			boolean bodyNotCollapsed = context.getSnakeModel().getSnakePoints().contains(nextPoint)==false;
+			return insideBorder && bodyNotCollapsed;
         }
 	}
 	
@@ -100,9 +101,7 @@ public class SnakeController extends AbstractStateMachineWithoutContext<SnakeCon
 	
 	protected void onMove(SnakeState from, SnakeState to, SnakeEvent event) {
 		Point nextSnakePoint = computeNextPoint(getSnakeModel().peekFirst(), getSnakeModel().getDirection());
-		if(snakeModel.getSnakePoints().contains(nextSnakePoint)) {
-			fire(SnakeEvent.BODY_COLLAPSED);
-		} else if (nextSnakePoint.equals(snakeModel.getFruitPos())) {
+		if (nextSnakePoint.equals(snakeModel.getFruitPos())) {
 			snakeModel.spawnFruit(getNextFruitIndex());
 		} else if (snakeModel.length()>=GameConfigure.MIN_SNAKE_LENGTH) {
 			snakeModel.removeLast();

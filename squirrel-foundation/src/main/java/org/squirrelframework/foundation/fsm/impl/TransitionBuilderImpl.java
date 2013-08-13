@@ -32,9 +32,12 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     private final TransitionType transitionType;
     
-    TransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType) {
+    private final int priority;
+    
+    TransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType, int priority) {
         this.states = states;
         this.transitionType = transitionType;
+        this.priority = priority;
     }
     
     @Override
@@ -52,6 +55,7 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
         transition = sourceState.addTransitionOn(event);
         transition.setTargetState(targetState);
         transition.setType(transitionType);
+        transition.setPriority(priority);
         return this;
     }
 
