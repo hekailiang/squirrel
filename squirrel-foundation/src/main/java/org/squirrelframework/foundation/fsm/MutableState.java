@@ -27,4 +27,6 @@ public interface MutableState<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void setFinal(boolean isFinal);
     
     void setCompositeType(StateCompositeType compositeType);
+    
+    void prioritizeTransitions();
 }

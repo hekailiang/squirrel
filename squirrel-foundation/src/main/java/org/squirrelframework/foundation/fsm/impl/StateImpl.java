@@ -106,14 +106,20 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     @Override
     public List<ImmutableTransition<T, S, E, C>> getTransitions(E event) {
     	if(transitions==null) return Collections.emptyList();
-    	List<ImmutableTransition<T, S, E, C>> result = Lists.newArrayList(getTransitions().get(event));
-    	Collections.sort(result, new Comparator<ImmutableTransition<T, S, E, C>>() {
-            @Override
-            public int compare(ImmutableTransition<T, S, E, C> o1, ImmutableTransition<T, S, E, C> o2) {
-                return o2.getPriority()-o1.getPriority();
-            }
-        });
-    	return result;
+    	return Lists.newArrayList(getTransitions().get(event));
+    }
+    
+    @Override
+    public void prioritizeTransitions() {
+        for(E key : getTransitions().keySet()) {
+            List<ImmutableTransition<T, S, E, C>> trans = transitions.get(key);
+            Collections.sort(trans, new Comparator<ImmutableTransition<T, S, E, C>>() {
+                @Override
+                public int compare(ImmutableTransition<T, S, E, C> o1, ImmutableTransition<T, S, E, C> o2) {
+                    return o2.getPriority()-o1.getPriority();
+                }
+            });
+        }
     }
     
     @Override

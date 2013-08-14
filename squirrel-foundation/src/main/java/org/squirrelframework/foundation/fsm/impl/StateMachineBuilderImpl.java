@@ -386,6 +386,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         install(new DeclareTransitionFunction());
         // install all the extension method call when state machine builder freeze
         installExtensionMethods();
+        // prioritize transitions
+        prioritizeTransitions();
         // install final state actions
         installFinalStateActions();
         // verify correctness of state machine
@@ -457,6 +459,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 addStateEntryExitMethodCallAction(entryMethodCallCandidates[i], 
                         methodCallParamTypes, state, true);
             }
+        }
+    }
+    
+    private void prioritizeTransitions() {
+        for(MutableState<T, S, E, C> state : states.values()) {
+            if(state.isFinalState()) continue;
+            state.prioritizeTransitions();
         }
     }
     
