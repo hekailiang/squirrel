@@ -11,7 +11,6 @@ import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.TransitionType;
@@ -105,13 +104,4 @@ final class FSM {
 		return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionResult<T, S, E, C>>() {}).
 				setAccepted(accepted).setTargetState(targetState).setParent(parent);
 	}
-    
-    @Deprecated
-    static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
-                Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
-                Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
-        return SquirrelProvider.getInstance().newInstance(new TypeReference<StateMachineBuilder<T, S, E, C>>() {}, 
-                new Class[] { Class.class, Class.class, Class.class, Class.class, Class[].class }, 
-                new Object[] { stateMachineClazz, stateClazz, eventClazz, contextClazz, extraConstParamTypes });
-    }
 }

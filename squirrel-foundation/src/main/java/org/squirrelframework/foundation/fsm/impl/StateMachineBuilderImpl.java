@@ -127,19 +127,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     	}
     }
     
-    @Deprecated
-    public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
-            Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, Class<C> contextClazz) {
-        return newStateMachineBuilder(stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
-    }
-    
-    @Deprecated
-    public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> newStateMachineBuilder(
-            Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
-            Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
-        return FSM.newStateMachineBuilder(stateMachineClazz, stateClazz, eventClazz, contextClazz, extraConstParamTypes);
-    }
-    
     private Class<?>[] getConstParamTypes(Class<?>[] extraConstParamTypes) {
         Class<?>[] parameterTypes = null;
         if(extraConstParamTypes!=null) {
