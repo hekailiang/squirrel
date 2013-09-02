@@ -28,7 +28,6 @@ import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
-import org.squirrelframework.foundation.fsm.StateMachineWithoutContext;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
@@ -85,7 +84,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private E startEvent, finishEvent, terminateEvent;
     
     private StateMachineBuilderImpl(Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
-            Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
+            Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
+            Class<?>... extraConstParamTypes) {
         Preconditions.checkArgument(isInstantiableType(stateMachineClazz), "The state machine class \""
                 + stateMachineClazz.getName() + "\" cannot be instantiated.");
         Preconditions.checkArgument(isStateMachineType(stateMachineClazz), 
@@ -100,7 +100,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
         
         initailContextEvents(eventClazz);
-        boolean isContextInsensitive = StateMachineWithoutContext.class.isAssignableFrom(stateMachineClazz);
         methodCallParamTypes = isContextInsensitive ? 
                 new Class<?>[]{stateClazz, stateClazz, eventClazz} : 
                 new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz};

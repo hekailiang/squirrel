@@ -15,19 +15,25 @@ public class StateMachineBuilderFactory {
     
     public static <T extends StateMachineWithoutContext<T, S, E>, S, E> StateMachineBuilder<T, S, E, Void> create(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz) {
-        return create(stateMachineClazz, stateClazz, eventClazz, Void.class, new Class<?>[0]);
+        return create(stateMachineClazz, stateClazz, eventClazz, Void.class, true, new Class<?>[0]);
     }
     
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, Class<C> contextClazz) {
-        return create(stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
+        return create(stateMachineClazz, stateClazz, eventClazz, contextClazz, false, new Class<?>[0]);
+    }
+    
+    public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(
+            Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, 
+            Class<C> contextClazz, Class<?>... extraConstParamTypes) {
+        return create(stateMachineClazz, stateClazz, eventClazz, contextClazz, false, extraConstParamTypes);
     }
      
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(
-            Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
-            Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
+            Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, 
+            Class<C> contextClazz, boolean isContextInsensitive, Class<?>... extraConstParamTypes) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<StateMachineBuilder<T, S, E, C>>() {}, 
-                new Class[] { Class.class, Class.class, Class.class, Class.class, Class[].class }, 
-                new Object[] { stateMachineClazz, stateClazz, eventClazz, contextClazz, extraConstParamTypes });
+                new Class[] { Class.class, Class.class, Class.class, Class.class, boolean.class, Class[].class }, 
+                new Object[] { stateMachineClazz, stateClazz, eventClazz, contextClazz, isContextInsensitive, extraConstParamTypes });
     }
 }
