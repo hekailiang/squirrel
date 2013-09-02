@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import org.squirrelframework.foundation.util.Pair;
+
 /**
  * This class is used to hold all the internal data of state machine. User can dump a state machine data 
  * through {@link StateMachineData#dump(Reader)} which means take a snapshot of state machine or save the 
@@ -138,6 +140,8 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
         Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
         
         StateMachineStatus stateMachineStatus();
+        
+        int queuedEventSize();
     }
     
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {
@@ -219,5 +223,11 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
         void linkedStateDataOn(S linkedState, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData);
         
         void stateMachineStatus(StateMachineStatus status);
+        
+        void addEvent(Pair<E, C> eventInfo);
+        
+        Pair<E, C> removeEvent();
+        
+        void clearEvent();
     }
 }

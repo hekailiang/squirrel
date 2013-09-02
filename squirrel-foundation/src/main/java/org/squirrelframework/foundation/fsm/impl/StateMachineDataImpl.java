@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +12,10 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
+import org.squirrelframework.foundation.util.Pair;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
@@ -43,6 +46,8 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     private StateMachineStatus status = StateMachineStatus.INITIALIZED;
     
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
+    
+    private final transient LinkedList<Pair<E, C>> queuedEvents = Lists.newLinkedList();
     
     private transient int lock = 0;
     
@@ -312,6 +317,26 @@ implements StateMachineData<T, S, E, C>, StateMachineData.Reader<T, S, E, C>, St
     @Override
     public void unlock() {
         if(lock>0) lock--;
+    }
+    
+    @Override
+    public int queuedEventSize() {
+        return queuedEvents.size();
+    }
+
+    @Override
+    public void addEvent(Pair<E, C> eventInfo) {
+        queuedEvents.addLast(eventInfo);
+    }
+
+    @Override
+    public Pair<E, C> removeEvent() {
+        return queuedEvents.removeLast();
+    }
+
+    @Override
+    public void clearEvent() {
+        queuedEvents.clear();
     }
 
 }

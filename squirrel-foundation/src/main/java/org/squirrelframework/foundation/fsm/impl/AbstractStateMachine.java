@@ -1,6 +1,5 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -24,7 +23,6 @@ import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 
 /**
  * The Abstract state machine provide several extension ability to cover different extension granularity. 
@@ -51,8 +49,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private boolean autoStart = true;
-    
-    private final LinkedList<Pair<E, C>> queuedEvents = Lists.newLinkedList();
     
     private final ActionExecutor<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutor<T, S, E, C>>(){});
@@ -112,13 +108,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
-    protected int getQueuedEventSize() {
-        return queuedEvents.size();
-    }
-    
     private void processQueuedEvents() {
-        while (getQueuedEventSize() > 0) {
-            Pair<E, C> eventInfo = queuedEvents.removeFirst();
+        while (data.read().queuedEventSize() > 0) {
+            Pair<E, C> eventInfo = data.write().removeEvent();
             processEvent(eventInfo.first(), eventInfo.second());
         }
     }
@@ -147,7 +139,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(getStatus()==StateMachineStatus.TERMINATED) {
             throw new RuntimeException("The state machine is already terminated.");
         }
-        queuedEvents.addLast(new Pair<E, C>(event, context));
+        data.write().addEvent(new Pair<E, C>(event, context));
         execute();
     }
     
@@ -166,7 +158,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             fire(event, context);
             testResult = data.read().currentState();
         } finally {
-            queuedEvents.clear();
+            data.write().clearEvent();
             loadSavedData(oldData);
             executor.setDummyExecution(false);
         }
