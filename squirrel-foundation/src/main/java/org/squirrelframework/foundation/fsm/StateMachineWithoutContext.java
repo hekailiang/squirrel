@@ -8,7 +8,7 @@ package org.squirrelframework.foundation.fsm;
  * @param <S> type of State
  * @param <E> type of Event
  */
-public interface StateMachineWithoutContext<T extends StateMachineWithoutContext<T, S, E>, S, E> extends StateMachine<T, S, E, T> {
+public interface StateMachineWithoutContext<T extends StateMachineWithoutContext<T, S, E>, S, E> extends StateMachine<T, S, E, Void> {
     
     /**
      * Fire event

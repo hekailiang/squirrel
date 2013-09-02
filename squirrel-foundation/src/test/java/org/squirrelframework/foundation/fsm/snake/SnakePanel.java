@@ -16,10 +16,13 @@ public class SnakePanel extends JPanel {
     
     private static final Font FONT = new Font("Tahoma", Font.BOLD, 25);
     
-	private SnakeController controller;
+    private SnakeController controller;
+    
+	private SnakeModel model;
 	
-	public SnakePanel(SnakeController controller) {
-		this.controller = controller;
+	public SnakePanel(SnakeController controller, SnakeModel model) {
+	    this.controller = controller;
+		this.model = model;
 		setPreferredSize(new Dimension(GameConfigure.COL_COUNT * GameConfigure.CELL_SIZE, 
 				GameConfigure.ROW_COUNT * GameConfigure.CELL_SIZE));
 		setBackground(Color.BLACK);
@@ -28,8 +31,6 @@ public class SnakePanel extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-		SnakeModel model = controller.getSnakeModel();
 		
 		// draw snake body
 		g.setColor(Color.GREEN);

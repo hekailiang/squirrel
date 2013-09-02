@@ -15,7 +15,9 @@ public class SnakeGame extends JFrame {
     
     private SnakePanel panel;
     
-    private SnakeController snakeController;
+    private SnakeController gameController;
+    
+    private SnakeModel gameModel = new SnakeModel();
     
     private ConcurrentLinkedQueue<SnakeEvent> directionsQueue = new ConcurrentLinkedQueue<SnakeEvent>();
     
@@ -25,8 +27,8 @@ public class SnakeGame extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 		
-		this.snakeController = controller;
-		this.panel = new SnakePanel(snakeController);
+		this.gameController = controller;
+		this.panel = new SnakePanel(gameController, gameModel);
 		add(panel, BorderLayout.CENTER);
 		
 		addKeyListener(new KeyAdapter() {
@@ -56,12 +58,12 @@ public class SnakeGame extends JFrame {
 					break;
 				
 				case KeyEvent.VK_P:
-					snakeController.fire(SnakeEvent.PRESS_PAUSE);
+					gameController.fire(SnakeEvent.PRESS_PAUSE, gameModel);
 					break;
 				
 				case KeyEvent.VK_ENTER:
 				    directionsQueue.clear();
-					snakeController.fire(SnakeEvent.PRESS_START);
+					gameController.fire(SnakeEvent.PRESS_START, gameModel);
 					break;
 				}
 			}
@@ -73,6 +75,10 @@ public class SnakeGame extends JFrame {
 		setVisible(true);
     }
     
+    public SnakeModel getGameData() {
+        return gameModel;
+    }
+    
     /**
 	 * Starts the game running.
 	 */
@@ -80,9 +86,9 @@ public class SnakeGame extends JFrame {
 		for(;;) {
 			long start = System.nanoTime();
 			
-			snakeController.fire(SnakeEvent.MOVE_AHEAD);
+			gameController.fire(SnakeEvent.MOVE_AHEAD, gameModel);
 			if(directionsQueue.size()>0) {
-			    snakeController.fire(directionsQueue.poll());
+			    gameController.fire(directionsQueue.poll(), gameModel);
 			} 
 			
 			long delta = (System.nanoTime() - start) / 1000000L;

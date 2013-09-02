@@ -14,7 +14,7 @@ import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineWithoutContext;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -54,7 +54,7 @@ import org.squirrelframework.foundation.util.TypeReference;
 	@Transit(from="RIGHT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
 	@Transit(from="RIGHT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection")
 })
-public class SnakeController extends AbstractStateMachineWithoutContext<SnakeController, SnakeState, SnakeEvent> {
+public class SnakeController extends AbstractStateMachine<SnakeController, SnakeState, SnakeEvent, SnakeModel> {
 	
 	public enum SnakeState {
 		NEW, UP, LEFT, RIGHT, DOWN, MOVE, PAUSE, GAMEOVER
@@ -64,60 +64,58 @@ public class SnakeController extends AbstractStateMachineWithoutContext<SnakeCon
 		PRESS_START, TURN_UP, TURN_LEFT, TURN_RIGHT, TURN_DOWN, MOVE_AHEAD, PRESS_PAUSE
 	}
 	
-	public static class ContinueRunningCondition implements Condition<SnakeController> {
+	public static class ContinueRunningCondition implements Condition<SnakeModel> {
 		@Override
-        public boolean isSatisfied(SnakeController context) {
-			Point nextPoint = computeNextPoint(context.getSnakeModel().peekFirst(), context.getSnakeModel().getDirection());
+        public boolean isSatisfied(SnakeModel context) {
+			Point nextPoint = computeNextPoint(context.peekFirst(), context.getDirection());
 			boolean insideBorder = nextPoint.x >= 0 && nextPoint.x < GameConfigure.COL_COUNT && 
 					nextPoint.y >= 0 && nextPoint.y < GameConfigure.ROW_COUNT;
-			boolean bodyNotCollapsed = context.getSnakeModel().getSnakePoints().contains(nextPoint)==false;
+			boolean bodyNotCollapsed = context.getSnakePoints().contains(nextPoint)==false;
 			return insideBorder && bodyNotCollapsed;
         }
 	}
 	
-	private SnakeModel snakeModel = new SnakeModel();
-	
 	private Random random = new Random();
 	
 	protected SnakeController (
-            ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeController> initialState,
-            Map<SnakeState, ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeController>> states) {
+            ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeModel> initialState,
+            Map<SnakeState, ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeModel>> states) {
 	    super(initialState, states);
     }
 	
-	protected void onStart(SnakeState from, SnakeState to, SnakeEvent event) {
+	protected void onStart(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel snakeModel) {
 		snakeModel.clear();
 		Point startPoint = new Point(GameConfigure.COL_COUNT / 2, GameConfigure.ROW_COUNT / 2);
 		snakeModel.push(startPoint);
-		snakeModel.setDirection(getSnakeModel().getDirection());
+		snakeModel.setDirection(snakeModel.getDirection());
 		
 		// generate random fruit point
-		snakeModel.spawnFruit(getNextFruitIndex());
+		snakeModel.spawnFruit(getNextFruitIndex(snakeModel));
 	}
 	
-	private int getNextFruitIndex() {
+	private int getNextFruitIndex(SnakeModel snakeModel) {
 		return random.nextInt(GameConfigure.COL_COUNT * GameConfigure.ROW_COUNT - snakeModel.length());
 	}
 	
-	protected void onMove(SnakeState from, SnakeState to, SnakeEvent event) {
-		Point nextSnakePoint = computeNextPoint(getSnakeModel().peekFirst(), getSnakeModel().getDirection());
+	protected void onMove(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel snakeModel) {
+		Point nextSnakePoint = computeNextPoint(snakeModel.peekFirst(), snakeModel.getDirection());
 		if (nextSnakePoint.equals(snakeModel.getFruitPos())) {
-			snakeModel.spawnFruit(getNextFruitIndex());
+			snakeModel.spawnFruit(getNextFruitIndex(snakeModel));
 		} else if (snakeModel.length()>=GameConfigure.MIN_SNAKE_LENGTH) {
 			snakeModel.removeLast();
 		}
 		snakeModel.push(nextSnakePoint);
 	}
 	
-	protected void onPause(SnakeState from, SnakeState to, SnakeEvent event) {
+	protected void onPause(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel snakeModel) {
 		
 	}
 	
-	protected void onResume(SnakeState from, SnakeState to, SnakeEvent event) {
+	protected void onResume(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel snakeModel) {
 		
 	}
 	
-	protected void onChangeDirection(SnakeState from, SnakeState to, SnakeEvent event) {
+	protected void onChangeDirection(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel snakeModel) {
 	    snakeModel.setDirection(getSnakeDirection(to));
 	}
 	
@@ -135,12 +133,8 @@ public class SnakeController extends AbstractStateMachineWithoutContext<SnakeCon
 		return SnakeDirection.UP;
 	}
 	
-	protected void onEnd(SnakeState from, SnakeState to, SnakeEvent event) {
+	protected void onEnd(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel context) {
 		
-	}
-	
-	public SnakeModel getSnakeModel() {
-		return snakeModel;
 	}
 	
 	public static Point computeNextPoint(Point snakePos, SnakeDirection direction) {
@@ -167,8 +161,8 @@ public class SnakeController extends AbstractStateMachineWithoutContext<SnakeCon
 	
 	public void export() {
 	    // export snake game state machine
-	    DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeController> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeController>>() {} );
+	    DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeModel> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeModel>>() {} );
         this.accept(visitor);
         visitor.convertDotFile("SnakeStateMachine");
 	}

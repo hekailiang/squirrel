@@ -30,7 +30,7 @@ public class ATMStateMachineTest {
     
     @Before
     public void setup() {
-        StateMachineBuilder<ATMStateMachine, ATMState, String, ATMStateMachine> builder = StateMachineBuilderFactory.create(
+        StateMachineBuilder<ATMStateMachine, ATMState, String, Void> builder = StateMachineBuilderFactory.create(
                 ATMStateMachine.class, ATMState.class, String.class);
         builder.externalTransition().from(ATMState.Idle).to(ATMState.Loading).on("Connected");
         builder.externalTransition().from(ATMState.Loading).to(ATMState.Disconnected).on("ConnectionClosed");
@@ -81,8 +81,8 @@ public class ATMStateMachineTest {
     
     @Test
     public void exportATMStateMachine() {
-        SCXMLVisitor<ATMStateMachine, ATMState, String, ATMStateMachine> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<SCXMLVisitor<ATMStateMachine, ATMState, String, ATMStateMachine>>() {} );
+        SCXMLVisitor<ATMStateMachine, ATMState, String, Void> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<SCXMLVisitor<ATMStateMachine, ATMState, String, Void>>() {} );
         stateMachine.accept(visitor);
         visitor.convertSCXMLFile("ATMStateMachine", true);
     }
