@@ -2,7 +2,7 @@ squirrel-foundation
 ========
 
 ## What is it?  
-Just like the squirrel, a **small**, **agile**, **smart**, **alert** and **cute** animal, squirrel-foundation is aimed to provide a **lightweright**, highly **flexible** and **extensible**, **diagnosable** and **easy use** Java state machine implementation for enterprise usage.  
+Just like the squirrel, a **small**, **agile**, **smart**, **alert** and **cute** animal, squirrel-foundation is aimed to provide a **lightweright**, highly **flexible** and **extensible**, **diagnosable**, **easy use** and **type safe** Java state machine implementation for enterprise usage.  
 
 Here is the state machine diagram which describes the state change of an ATM:  
 
