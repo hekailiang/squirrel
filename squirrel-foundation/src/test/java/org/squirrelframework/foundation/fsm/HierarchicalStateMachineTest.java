@@ -320,10 +320,10 @@ public class HierarchicalStateMachineTest {
         SquirrelPostProcessorProvider.getInstance().register(HierachicalStateMachine.class, 
         		new TypeReference<TransitionExecTimeMonitor<HierachicalStateMachine, HState, HEvent, Integer>>() {});
         SquirrelPostProcessorProvider.getInstance().register(
-        		new TypeReference<ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer>>(){}, 
-        		new SquirrelPostProcessor<ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer>>() {
+        		new TypeReference<ActionExecutionService<HierachicalStateMachine, HState, HEvent, Integer>>(){}, 
+        		new SquirrelPostProcessor<ActionExecutionService<HierachicalStateMachine, HState, HEvent, Integer>>() {
 			@Override
-            public void postProcess(ActionExecutor<HierachicalStateMachine, HState, HEvent, Integer> component) {
+            public void postProcess(ActionExecutionService<HierachicalStateMachine, HState, HEvent, Integer> component) {
 				component.addExecActionListener(new TransitionProgressMonitor<HierachicalStateMachine, HState, HEvent, Integer>());
             }
 		});

@@ -3,13 +3,16 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
-import org.squirrelframework.foundation.fsm.ActionExecutor;
-import org.squirrelframework.foundation.fsm.ActionExecutor.ExecActionLisenter;
+import org.squirrelframework.foundation.fsm.ActionExecutionService;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionLisenter;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateContext;
@@ -46,16 +49,26 @@ import com.google.common.base.Stopwatch;
  */
 public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements StateMachine<T, S, E, C> {
     
+    static {
+        SquirrelProvider.getInstance().register(ActionExecutionService.class, SynchronizedExecutionService.class);
+    }
+    
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private boolean autoStart = true;
     
-    private final ActionExecutor<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
-    		new TypeReference<ActionExecutor<T, S, E, C>>(){});
+    private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
+    		new TypeReference<ActionExecutionService<T, S, E, C>>(){});
     
     protected final StateMachineData<T, S, E, C> data;
     
+    private volatile StateMachineStatus status = StateMachineStatus.INITIALIZED;
+    
+    private LinkedBlockingQueue<Pair<E, C>> queuedEvents = new LinkedBlockingQueue<Pair<E, C>>();
+    
     private E startEvent, finishEvent, terminateEvent;
+    
+    private final Lock processingLock = new ReentrantLock();
     
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
         data = SquirrelProvider.getInstance().newInstance( 
@@ -68,7 +81,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private void processEvent(E event, C context) {
-        data.lock();
+        processingLock.lock();
         ImmutableState<T, S, E, C> fromState = data.read().currentRawState();
         S fromStateId = data.read().currentState();
         logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
@@ -83,11 +96,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             executor.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
             fromState.internalFire( FSM.newStateContext(this, data, fromState, event, context, result, executor) );
-            executor.execute();
-            
             if(result.isAccepted()) {
                 data.write().lastState(fromStateId);
                 data.write().currentState(result.getTargetState().getStateId());
+            }
+            executor.execute();
+            
+            if(result.isAccepted()) {
             	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, data.read().currentState(), 
                       event, context, getThis()));
                 afterTransitionCompleted(fromStateId, data.read().currentState(), event, context);
@@ -104,22 +119,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
                         "\" tooks "+sw.stop().elapsedMillis()+"ms.");
             }
-            data.unlock();
+            processingLock.unlock();
         }
     }
     
-    private void processQueuedEvents() {
-        while (data.read().queuedEventSize() > 0) {
-            Pair<E, C> eventInfo = data.write().removeEvent();
-            processEvent(eventInfo.first(), eventInfo.second());
-        }
-    }
-    
-    private void execute() {
+    private void processEvents() {
         if (isIdel()) {
+            setStatus(StateMachineStatus.BUSY);
             try {
-                setStatus(StateMachineStatus.BUSY);
-                processQueuedEvents();
+                Pair<E, C> eventInfo = null;
+                while ((eventInfo=queuedEvents.poll())!=null) {
+                    processEvent(eventInfo.first(), eventInfo.second());
+                }
             } finally {
             	if(getStatus()==StateMachineStatus.BUSY)
             	    setStatus(StateMachineStatus.IDLE);
@@ -139,28 +150,33 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(getStatus()==StateMachineStatus.TERMINATED) {
             throw new RuntimeException("The state machine is already terminated.");
         }
-        data.write().addEvent(new Pair<E, C>(event, context));
-        execute();
+        queuedEvents.add(new Pair<E, C>(event, context));
+        processEvents();
     }
     
     @Override
     public S test(E event, C context) {
-        if(data.read().stateMachineStatus()==StateMachineStatus.BUSY || 
-           data.read().stateMachineStatus()==StateMachineStatus.ERROR ||
-           data.read().stateMachineStatus()==StateMachineStatus.TERMINATED) {
-            throw new RuntimeException("Cannot test state machine under "+data.read().stateMachineStatus()+" status.");
+        if( getStatus()==StateMachineStatus.ERROR || getStatus()==StateMachineStatus.TERMINATED) {
+            throw new RuntimeException("Cannot test state machine under "+status+" status.");
         }
         
         S testResult = null;
-        StateMachineData.Reader<T, S, E, C> oldData = dumpSavedData();
-        executor.setDummyExecution(true);
-        try {
-            fire(event, context);
-            testResult = data.read().currentState();
-        } finally {
-            data.write().clearEvent();
-            loadSavedData(oldData);
-            executor.setDummyExecution(false);
+        if(processingLock.tryLock()) {
+            StateMachineStatus orgStatus = null;
+            StateMachineData.Reader<T, S, E, C> oldData = null;
+            try {
+                orgStatus = getStatus();
+                oldData = dumpSavedData();
+                executor.setDummyExecution(true);
+                fire(event, context);
+                testResult = data.read().currentState();
+            } finally {
+                queuedEvents.clear();
+                loadSavedData(oldData);
+                setStatus(orgStatus);
+                executor.setDummyExecution(false);
+                processingLock.unlock();
+            }
         }
         return testResult;
     }
@@ -182,10 +198,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected void afterTransitionDeclined(S fromState, E event, C context) {
-    }
-    
-    protected void internalSetState(S state) {
-        data.write().currentState(state);
     }
     
     @Override
@@ -239,7 +251,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 	}
     
     @Override
-    public void start(C context) {
+    public synchronized void start(C context) {
     	if(isStarted()) {
             return;
         }
@@ -255,7 +267,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         data.write().currentState(historyState.getStateId());
         executor.execute();
         
-        execute();
+        processEvents();
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
     }
     
@@ -269,11 +281,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public StateMachineStatus getStatus() {
-        return data.read().stateMachineStatus();
+        return status;
     }
     
     protected void setStatus(StateMachineStatus status) {
-        data.write().stateMachineStatus(status);
+        this.status = status;
     }
     
     @Override
@@ -287,7 +299,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    public void terminate(C context) {
+    public synchronized void terminate(C context) {
     	if(isTerminiated()) {
             return;
         }
@@ -299,7 +311,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         exitAll(data.read().currentRawState(), stateContext);
         executor.execute();
         
-        data.write().currentState(data.read().initialState());
         setStatus(StateMachineStatus.TERMINATED);
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
     }
@@ -371,13 +382,17 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         StateMachineData<T, S, E, C> savedData = null;
-        if(data.isUnlocked()) {
-            savedData = SquirrelProvider.getInstance().newInstance( 
-                    new TypeReference<StateMachineData<T, S, E, C>>(){});
-            savedData.dump(data.read());
-            
-            // process linked state if any
-            saveLinkedStateData(data.read(), savedData.write());
+        if(processingLock.tryLock()) {
+            try {
+                savedData = SquirrelProvider.getInstance().newInstance( 
+                        new TypeReference<StateMachineData<T, S, E, C>>(){});
+                savedData.dump(data.read());
+                
+                // process linked state if any
+                saveLinkedStateData(data.read(), savedData.write());
+            } finally {
+                processingLock.unlock();
+            }
         } 
         return savedData==null ? null : savedData.read();
     }
@@ -402,19 +417,24 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
         Preconditions.checkNotNull(savedData, "Saved data cannot be null");
-        if(data.isUnlocked()) {
-            data.dump(savedData);
-            
-            // process linked state if any
-            for(S linkedState : savedData.linkedStates()) {
-                StateMachineData.Reader linkedStateData = savedData.linkedStateDataOf(linkedState);
-                ImmutableState<T, S, E, C> rawState = data.read().rawStateFrom(linkedState);
-                if(linkedStateData!=null && rawState instanceof ImmutableLinkedState) {
-                    ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
-                    linkedRawState.getLinkedStateMachine().loadSavedData(linkedStateData);
+        if(processingLock.tryLock()) {
+            try {
+                data.dump(savedData);
+                
+                // process linked state if any
+                for(S linkedState : savedData.linkedStates()) {
+                    StateMachineData.Reader linkedStateData = savedData.linkedStateDataOf(linkedState);
+                    ImmutableState<T, S, E, C> rawState = data.read().rawStateFrom(linkedState);
+                    if(linkedStateData!=null && rawState instanceof ImmutableLinkedState) {
+                        ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
+                        linkedRawState.getLinkedStateMachine().loadSavedData(linkedStateData);
+                    }
                 }
+                setStatus(StateMachineStatus.IDLE);
+                return true;
+            } finally {
+                processingLock.unlock();
             }
-            return true;
         }
         return false;
     }

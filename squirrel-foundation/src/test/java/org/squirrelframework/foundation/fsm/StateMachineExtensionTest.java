@@ -124,50 +124,72 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
 
         protected void entryA(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.entryA(from, to, event, context);
+            System.out.println("entryA");
         }
 
         protected void entryB(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.entryB(from, to, event, context);
+            System.out.println("entryB");
         }
 
         protected void entryC(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.entryC(from, to, event, context);
+            System.out.println("entryC");
         }
 
         protected void entryD(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.entryD(from, to, event, context);
+            System.out.println("entryD");
         }
 
         protected void transitFromAToBOnToB(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.transitFromAToBOnToB(from, to, event, context);
+            System.out.println("transitFromAToBOnToB");
         }
 
         protected void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.transitFromBToCOnToCBase(from, to, event, context);
+            System.out.println("transitFromBToCOnToC");
         }
 
         protected void transitFromCToDOnToD(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.transitFromCToDOnToD(from, to, event, context);
+            System.out.println("transitFromCToDOnToD");
         }
 
         protected void transitFromDToFinalOnToEnd(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.transitFromDToFinalOnToEnd(from, to, event, context);
+            System.out.println("transitFromDToFinalOnToEnd");
         }
 
         protected void exitA(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.exitA(from, to, event, context);
+            System.out.println("exitA");
         }
 
         protected void exitB(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.exitB(from, to, event, context);
+            System.out.println("exitB");
         }
 
         protected void exitC(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.exitC(from, to, event, context);
+            System.out.println("exitC");
         }
 
         protected void exitD(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.exitD(from, to, event, context);
+            System.out.println("exitD");
+        }
+        
+        public synchronized void start(Integer context) {
+            System.out.println("start");
+            super.start(context);
+        }
+        
+        public synchronized void terminate(Integer context) {
+            System.out.println("terminate");
+            super.terminate(context);
         }
     }
     
@@ -188,7 +210,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
     }
     
     @Test
-    public void testTransitions() {
+    public void testTransitions() throws InterruptedException {
         stateMachine.fire(ToB, null);
         assertThat(stateMachine.getCurrentState(), equalTo(B));
         
@@ -199,6 +221,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         assertThat(stateMachine.getCurrentState(), equalTo(D));
         
         stateMachine.fire(ToEnd, null);
+        
+        Thread.sleep(100);
         assertThat(stateMachine.getStatus(), equalTo(StateMachineStatus.TERMINATED));
     }
     

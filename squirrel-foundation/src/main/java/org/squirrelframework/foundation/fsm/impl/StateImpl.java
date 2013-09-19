@@ -144,7 +144,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     @Override
     public void exit(final StateContext<T, S, E, C> stateContext) {
     	if(isFinalState()) {
-            throw new UnsupportedOperationException("The final state should never be exited.");
+            return;
     	}
     	if(isParallelState()) {
     		List<ImmutableState<T, S, E, C>> subStates = getSubStatesOn(this, stateContext.getStateMachineData().read());

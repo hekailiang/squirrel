@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.ActionExecutor;
+import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.Actions;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MutableState;
@@ -28,7 +28,7 @@ final class FSM {
     static <T extends StateMachine<T, S, E, C>, S, E, C> StateContext<T, S, E, C> newStateContext(
             StateMachine<T, S, E, C> stateMachine, StateMachineData<T, S, E, C> data,
             ImmutableState<T, S, E, C> sourceState, E event, C context, 
-            TransitionResult<T, S, E, C> result, ActionExecutor<T, S, E, C> executor) {
+            TransitionResult<T, S, E, C> result, ActionExecutionService<T, S, E, C> executor) {
         return new StateContextImpl<T, S, E, C>(stateMachine, data, sourceState, event, context, result, executor);
     }
 

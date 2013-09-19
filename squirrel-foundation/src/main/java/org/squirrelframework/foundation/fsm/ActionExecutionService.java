@@ -18,7 +18,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> extends Observable {
+public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> extends Observable {
 	/**
 	 * Begin a action execution collection in the stack.
 	 */
@@ -30,7 +30,7 @@ public interface ActionExecutor<T extends StateMachine<T, S, E, C>, S, E, C> ext
 	void execute();
 	
 	/**
-	 * Set dummy execution true will cause no action being actually invoked when calling {@link ActionExecutor#execute()}.
+	 * Set dummy execution true will cause no action being actually invoked when calling {@link ActionExecutionService#execute()}.
 	 * 
 	 * @param dummyExecution
 	 */

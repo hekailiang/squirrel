@@ -45,5 +45,5 @@ public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     /**
      * @return action executor
      */
-    ActionExecutor<T, S, E, C> getExecutor();
+    ActionExecutionService<T, S, E, C> getExecutor();
 }
