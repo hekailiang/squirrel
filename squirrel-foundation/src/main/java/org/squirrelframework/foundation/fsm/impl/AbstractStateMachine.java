@@ -57,6 +57,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean autoStart = true;
     
+    private boolean autoTerminate = true;
+    
     private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutionService<T, S, E, C>>(){});
     
@@ -105,7 +107,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             if(result.isAccepted()) {
             	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, data.read().currentState(), 
                       event, context, getThis()));
-                afterTransitionCompleted(fromStateId, data.read().currentState(), event, context);
+                afterTransitionCompleted(fromStateId, getCurrentState(), event, context);
             } else {
             	fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
                 afterTransitionDeclined(fromStateId, event, context);
@@ -152,6 +154,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
         queuedEvents.add(new Pair<E, C>(event, context));
         processEvents();
+        
+        if(autoTerminate && getCurrentRawState().isRootState() 
+                && getCurrentRawState().isFinalState()) {
+            terminate(context);
+        }
     }
     
     @Override

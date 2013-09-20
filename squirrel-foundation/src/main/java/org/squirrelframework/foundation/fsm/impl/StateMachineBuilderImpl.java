@@ -458,15 +458,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private void installFinalStateActions() {
         for(MutableState<T, S, E, C> state : states.values()) {
             if(!state.isFinalState()) continue;
-            // terminate state machine when enter root final state
-            if(state.isRootState()) {
-                state.addEntryAction(new Action<T, S, E, C>() {
-                    @Override
-                    public void execute(S from, S to, E event, C context, T stateMachine) {
-                        stateMachine.terminate(context);
-                    }
-                });
-            }
             // defensive code: final state cannot be exited anymore
             state.addExitAction(new Action<T, S, E, C>() {
                 @Override
