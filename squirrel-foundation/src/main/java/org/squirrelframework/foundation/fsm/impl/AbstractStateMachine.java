@@ -83,7 +83,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private void processEvent(E event, C context) {
-        processingLock.lock();
         ImmutableState<T, S, E, C> fromState = data.read().currentRawState();
         S fromStateId = data.read().currentState();
         logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
@@ -91,6 +90,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(logger.isDebugEnabled()) {
             sw = new Stopwatch().start();
         }
+        processingLock.lock();
         try {
             beforeTransitionBegin(fromStateId, event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
