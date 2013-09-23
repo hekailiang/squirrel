@@ -214,17 +214,32 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public ImmutableState<T, S, E, C> getCurrentRawState() {
-        return data.read().currentRawState();
+        processingLock.lock();
+        try {
+            return data.read().currentRawState();
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override
     public ImmutableState<T, S, E, C> getLastRawState() {
-        return data.read().lastRawState();
+        processingLock.lock();
+        try {
+            return data.read().lastRawState();
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override
     public ImmutableState<T, S, E, C> getInitialRawState() {
-        return data.read().initialRawState();
+        processingLock.lock();
+        try {
+            return data.read().initialRawState();
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override
@@ -235,17 +250,32 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S getCurrentState() {
-        return data.read().currentState();
+        processingLock.lock();
+        try {
+            return data.read().currentState();
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override
     public S getLastState() {
-        return data.read().lastState();
+        processingLock.lock();
+        try {
+            return data.read().lastState();
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override
     public S getInitialState() {
-        return data.read().initialState();
+        processingLock.lock();
+        try {
+            return data.read().initialState();
+        } finally {
+            processingLock.unlock();
+        }
     }
 
     private void entryAll(ImmutableState<T, S, E, C> origin, StateContext<T, S, E, C> stateContext) {
@@ -302,12 +332,22 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S getLastActiveChildStateOf(S parentStateId) {
-    	return data.read().lastActiveChildStateOf(parentStateId);
+        processingLock.lock();
+        try {
+            return data.read().lastActiveChildStateOf(parentStateId);
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override
     public List<S> getSubStatesOn(S parentStateId) {
-        return data.read().subStatesOn(parentStateId);
+        processingLock.lock();
+        try {
+            return data.read().subStatesOn(parentStateId);
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     @Override

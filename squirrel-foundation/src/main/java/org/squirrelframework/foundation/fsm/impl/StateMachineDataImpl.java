@@ -35,13 +35,13 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     private final ArrayListMultimap<S, S> parallelStatesStore = ArrayListMultimap
             .create();
 
-    private volatile Class<? extends T> stateMachineType;
+    private Class<? extends T> stateMachineType;
 
-    private volatile Class<S> stateType;
+    private Class<S> stateType;
 
-    private volatile Class<E> eventType;
+    private Class<E> eventType;
 
-    private volatile Class<C> contextType;
+    private Class<C> contextType;
 
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
 

@@ -365,7 +365,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
-    private void prepare() {
+    private synchronized void prepare() {
+        if(prepared) return;
         // install all the declare states, states must be installed before installing transition and extension methods
         install(new DeclareStateFunction());
         // install all the declare transitions
