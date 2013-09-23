@@ -90,7 +90,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(logger.isDebugEnabled()) {
             sw = new Stopwatch().start();
         }
-        processingLock.lock();
         try {
             beforeTransitionBegin(fromStateId, event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
@@ -121,21 +120,27 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
                         "\" tooks "+sw.stop().elapsedMillis()+"ms.");
             }
-            processingLock.unlock();
         }
     }
     
     private void processEvents() {
         if (isIdel()) {
+            processingLock.lock();
             setStatus(StateMachineStatus.BUSY);
             try {
                 Pair<E, C> eventInfo = null;
                 while ((eventInfo=queuedEvents.poll())!=null) {
+                    // response to cancel operation
+                    if(Thread.interrupted()) {
+                        queuedEvents.clear();
+                        break;
+                    }
                     processEvent(eventInfo.first(), eventInfo.second());
                 }
             } finally {
             	if(getStatus()==StateMachineStatus.BUSY)
             	    setStatus(StateMachineStatus.IDLE);
+            	processingLock.unlock();
             }
         }
     }
