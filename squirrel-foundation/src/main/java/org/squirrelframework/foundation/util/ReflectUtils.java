@@ -45,10 +45,10 @@ public class ReflectUtils {
         try {
             field = clazz.getDeclaredField(fieldName);
             if (logger.isTraceEnabled()) {
-                logger.trace("found field "+fieldName+" in "+clazz.getName());
+                logger.trace("found field "+fieldName+" in "+getClassNameSafe(clazz));
             }
         } catch (SecurityException e) {
-            throw new SquirrelRuntimeException(e, ErrorCodes.NOT_ALLOW_ACCESS_FIELD, clazz.getName(), fieldName);
+            throw new SquirrelRuntimeException(e, ErrorCodes.NOT_ALLOW_ACCESS_FIELD, getClassNameSafe(clazz), fieldName);
         } catch (NoSuchFieldException e) {
             if (clazz.getSuperclass()!=null) {
                 return getField(clazz.getSuperclass(), fieldName, original);
@@ -69,10 +69,10 @@ public class ReflectUtils {
         try {
             method = clazz.getDeclaredMethod(methodName, parameterTypes);
             if (logger.isTraceEnabled()) {
-                logger.trace("found method "+clazz.getName()+"."+methodName+"("+Arrays.toString(parameterTypes)+")");
+                logger.trace("found method "+getClassNameSafe(clazz)+"."+methodName+"("+Arrays.toString(parameterTypes)+")");
             }
         } catch (SecurityException e) {
-            throw new SquirrelRuntimeException(e, ErrorCodes.NOT_ALLOW_ACCESS_METHOD, clazz.getName(), methodName, getParameterTypesText(parameterTypes));
+            throw new SquirrelRuntimeException(e, ErrorCodes.NOT_ALLOW_ACCESS_METHOD, getClassNameSafe(clazz), methodName, getParameterTypesText(parameterTypes));
         } catch (NoSuchMethodException e) {
             if (clazz.getSuperclass()!=null) {
                 return getMethod(clazz.getSuperclass(), methodName, parameterTypes, original);
@@ -263,7 +263,7 @@ public class ReflectUtils {
         }
 
         if (logger.isTraceEnabled()) {
-            logger.trace("creating new instance for class '"+clazz.getName()+"' with args "+Arrays.toString(args));
+            logger.trace("creating new instance for class '"+getClassNameSafe(clazz)+"' with args "+Arrays.toString(args));
         }
         if (constructor==null) {
             if (logger.isTraceEnabled()) logger.trace("getting default constructor");
@@ -280,7 +280,7 @@ public class ReflectUtils {
             return constructor.newInstance(args);
 
         } catch (Throwable t) {
-            throw new SquirrelRuntimeException(t, ErrorCodes.CONSTRUCT_NEW_INSTANCE_ERROR, clazz.getName(), Arrays.toString(args));
+            throw new SquirrelRuntimeException(t, ErrorCodes.CONSTRUCT_NEW_INSTANCE_ERROR, getClassNameSafe(clazz), Arrays.toString(args));
         } finally {
             constructor.setAccessible(oldAccessible);
         }
@@ -517,6 +517,13 @@ public class ReflectUtils {
         } catch (ClassNotFoundException e) {
             throw new SquirrelRuntimeException(e, ErrorCodes.CLASS_NOT_FOUND, className);
         }
+    }
+
+    private static String getClassNameSafe(Class maybeNullClazz) {
+        if (maybeNullClazz == null)
+            return null;
+        else
+            return maybeNullClazz.getName();
     }
     
     /**
