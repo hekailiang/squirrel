@@ -519,7 +519,7 @@ public class ReflectUtils {
         }
     }
 
-    private static String getClassNameSafe(Class maybeNullClazz) {
+    private static String getClassNameSafe(Class<?> maybeNullClazz) {
         if (maybeNullClazz == null)
             return null;
         else

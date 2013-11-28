@@ -152,7 +152,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     			if(!subState.isFinalState()) {
     				subState.exit(stateContext);
     			}
-    			subState.getParentState().exit(stateContext);
+    			if(subState.getParentState()!=this)
+    			    subState.getParentState().exit(stateContext);
     		}
     		stateContext.getStateMachineData().write().removeSubStatesOn(getStateId());
     	}
@@ -420,7 +421,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         }
         
         // fire to super state
-        if(currentTransitionResult.isDeclined() && getParentState()!=null && !getParentState().isRegion()) {
+        if(currentTransitionResult.isDeclined() && getParentState()!=null && 
+                !getParentState().isRegion() && !getParentState().isParallelState()) {
         	logger.debug("Internal notify the same event to parent state");
         	getParentState().internalFire(stateContext);
         }
@@ -524,7 +526,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             } else if(hasChildStates()) {
                 throw new RuntimeException("Final state cannot have child states.");
             }
-        } 
+        }
         
         // make sure that every event can only trigger one transition happen at one time
         if(transitions!=null) {
