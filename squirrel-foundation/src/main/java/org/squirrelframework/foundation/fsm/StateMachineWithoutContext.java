@@ -21,14 +21,4 @@ public interface StateMachineWithoutContext<T extends StateMachineWithoutContext
      * @param event
      */
     S test(E event);
-    
-    /**
-     * Start state machine
-     */
-    void start();
-    
-    /**
-     * Terminate state machine
-     */
-    void terminate();
 }

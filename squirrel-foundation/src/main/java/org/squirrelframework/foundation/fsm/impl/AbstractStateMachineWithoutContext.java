@@ -24,16 +24,6 @@ public abstract class AbstractStateMachineWithoutContext<T extends StateMachineW
     }
     
     @Override
-    public void start() {
-        super.start(null);
-    }
-    
-    @Override
-    public void terminate() {
-        super.terminate(null);
-    }
-    
-    @Override
     public boolean isContextSensitive() {
         return false;
     }

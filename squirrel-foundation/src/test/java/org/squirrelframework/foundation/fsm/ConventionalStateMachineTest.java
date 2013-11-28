@@ -345,9 +345,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     @Test
     public void testDeclaredEventType() {
     	InOrder callSequence = Mockito.inOrder(monitor);
-    	stateMachine.start(null);
+    	stateMachine.start();
     	callSequence.verify(monitor, Mockito.times(1)).entryA(null, A, Started, null);
-    	stateMachine.terminate(null);
+    	stateMachine.terminate();
     	
     	callSequence.verify(monitor, Mockito.times(1)).exitA(A, null, Terminated, null);
     }

@@ -42,10 +42,20 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void start(C context);
     
     /**
+     * Start state machine without context
+     */
+    void start();
+    
+    /**
      * Terminate state machine under external context
      * @param context external context
      */
     void terminate(C context);
+    
+    /**
+     * Terminate state machine without context
+     */
+    void terminate();
     
     /**
      * @return current status of state machine

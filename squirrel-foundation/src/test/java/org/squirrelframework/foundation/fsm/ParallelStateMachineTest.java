@@ -278,7 +278,7 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testInitialParallelStates() {
-		stateMachine.start(null);
+		stateMachine.start();
 		assertThat(stateMachine.consumeLog(), is(equalTo("enterTotal.enterA.enterA1.enterA1a.enterA2.enterA2b")));
 		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
 		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1a, PState.A2b));
@@ -292,7 +292,7 @@ public class ParallelStateMachineTest {
 				stateMachine.consumeLog();
 			}
 		});
-		stateMachine.start(null);
+		stateMachine.start();
 		stateMachine.consumeLog();
 		stateMachine.fire(PEvent.A1a2A1b, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1a.transitA1a2A1b.enterA1b")));
@@ -305,7 +305,7 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testEnterSubFinalState() {
-		stateMachine.start(null);
+		stateMachine.start();
 		stateMachine.consumeLog();
 		stateMachine.fire(PEvent.A1a2A1b, 1);
 		stateMachine.consumeLog();
@@ -324,7 +324,7 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testSavedData() {
-	    stateMachine.start(null);
+	    stateMachine.start();
         stateMachine.fire(PEvent.A1a2A1b, 1);
         stateMachine.fire(PEvent.A1b2A1c, 1);
         StateMachineData.Reader<ParallelStateMachine, PState, PEvent, Integer> savedData = 
@@ -344,13 +344,13 @@ public class ParallelStateMachineTest {
         assertThat(stateMachine.consumeLog(), is(equalTo("exitA2b.transitA2b2A2c.enterA2c.exitA1.exitA2.exitA.transitA2C.enterC")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(PState.C)));
         
-        stateMachine.terminate(null);
+        stateMachine.terminate();
         assertThat(stateMachine.consumeLog(), is(equalTo("exitC.exitTotal")));
 	}
 	
 	@Test 
 	public void testParallelSubStateExit() {
-		stateMachine.start(null);
+		stateMachine.start();
 		stateMachine.consumeLog();
 		stateMachine.fire(PEvent.A1a2B, 1);
 		assertThat(stateMachine.consumeLog(), is(equalTo("exitA1a.exitA1.exitA2b.exitA2.exitA.transitA1a2B.enterB")));
@@ -359,7 +359,7 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testHistoricalState() {
-		stateMachine.start(null);
+		stateMachine.start();
 		assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
 		assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1a, PState.A2b));
 		

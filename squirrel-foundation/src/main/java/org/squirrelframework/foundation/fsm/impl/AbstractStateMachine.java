@@ -313,6 +313,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
     }
     
+    @Override
+    public void start() {
+        start(null);
+    }
+    
     private boolean isStarted() {
         return getStatus()==StateMachineStatus.IDLE || getStatus()==StateMachineStatus.BUSY;
     }
@@ -365,6 +370,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
         setStatus(StateMachineStatus.TERMINATED);
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
+    }
+    
+    @Override
+    public void terminate() {
+        terminate(null);
     }
     
     private void exitAll(ImmutableState<T, S, E, C> current, StateContext<T, S, E, C> stateContext) {

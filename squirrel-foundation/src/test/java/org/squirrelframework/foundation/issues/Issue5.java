@@ -40,7 +40,7 @@ public class Issue5 {
             }
         });
  
-        fsm.start(null);
+        fsm.start();
  
         // run random events firing to see how transactions goes
         final List<Ev> possibleEvents = Arrays.asList(Ev.values());
@@ -76,7 +76,7 @@ public class Issue5 {
             }
         });
  
-        fsm.start(null);
+        fsm.start();
         List<St> subStates = fsm.getSubStatesOn(St.Root);
         assertThat(subStates, containsInAnyOrder(St.St1_1, St.St2_1));
         
