@@ -11,6 +11,8 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 
 ## Maven  
 squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.
+
+Latest Released Version:
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
@@ -18,6 +20,16 @@ squirrel-foundation has been deployed to maven central repository, so you only n
   	<version>0.2.1</version>
 </dependency>
 ``` 
+
+Latest Snapshot Version:
+```maven
+<dependency>
+	<groupId>org.squirrelframework</groupId>
+  	<artifactId>squirrel-foundation</artifactId>
+  	<version>0.2.2-SNAPSHOT</version>
+</dependency>
+``` 
+
 
 ## User Guide 
 
