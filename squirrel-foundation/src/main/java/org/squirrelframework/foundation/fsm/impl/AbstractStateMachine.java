@@ -124,7 +124,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private void processEvents() {
-        if (isIdel()) {
+        if (isIdle()) {
             processingLock.lock();
             setStatus(StateMachineStatus.BUSY);
             try {
@@ -193,7 +193,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return testResult;
     }
     
-    protected boolean isIdel() {
+    protected boolean isIdle() {
     	return getStatus()!=StateMachineStatus.BUSY;
     }
     
