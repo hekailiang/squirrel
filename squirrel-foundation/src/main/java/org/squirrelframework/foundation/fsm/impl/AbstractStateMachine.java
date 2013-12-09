@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -243,9 +244,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    @Deprecated
     public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
         return data.read().rawStateFrom(stateId);
+    }
+    
+    @Override
+    public Collection<ImmutableState<T, S, E, C>> getAllRawStates() {
+        return data.read().rawStates();
+    }
+    
+    @Override
+    public Collection<S> getAllStates() {
+        return data.read().states();
     }
     
     @Override
