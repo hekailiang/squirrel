@@ -186,18 +186,29 @@ void defineSequentialStatesOn(S parentStateId, S... childStateIds);
 ```  
 
 * **Define Parallel State**  
-The parallel state encapsulates a set of child states which are simultaneously active when the parent element is active. The  parallel state can be defined through API or annotation both. e.g.   
+The parallel state encapsulates a set of child states which are simultaneously active when the parent element is active. The  parallel state can be defined through API or annotation both. e.g.  
+![ParallelStateMachine](http://hekailiang.github.io/squirrel/images/ParallelStates.png)     
 ```java  
-	// defines two child states "A1" and "A2" under parent parallel state "A"
-	builder.defineParallelStatesOn(MyState.A, MyState.A1, MyState.A2)
+	// defines two region states "RegionState1" and "RegionState2" under parent parallel state "Root"
+	builder.defineParallelStatesOn(MyState.Root, MyState.RegionState1, MyState.RegionState2);
+	
+	builder.defineSequentialStatesOn(MyState.RegionState1, MyState.State11, MyState.State12);
+	builder.externalTransition().from(MyState.State11).to(MyState.State12).on(MyEvent.Event1);
+	
+	builder.defineSequentialStatesOn(MyState.RegionState2, MyState.State21, MyState.State22);
+	builder.externalTransition().from(MyState.State21).to(MyState.State22).on(MyEvent.Event2);
 ```
-or
+or  
 ```java  
 @States({
-		@State(name="A", entryCallMethod="enterA", exitCallMethod="exitA", compositeType=StateCompositeType.PARALLEL),
-		@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1"),
-		@State(parent="A", name="A2", entryCallMethod="enterA2", exitCallMethod="exitA2")
+		@State(name="Root", entryCallMethod="enterRoot", exitCallMethod="exitRoot", compositeType=StateCompositeType.PARALLEL),
+		@State(parent="Root", name="RegionState1", entryCallMethod="enterRegionState1", exitCallMethod="exitRegionState1"),
+		@State(parent="Root", name="RegionState2", entryCallMethod="enterRegionState2", exitCallMethod="exitRegionState2")
 })
+```
+To get current sub states of the parallel state
+```java
+stateMachine.getSubStatesOn(MyState.Root); // return list of current sub states of parallel state
 ```
 
 * **Using History States to Save and Restore the Current State**  
@@ -209,7 +220,7 @@ Both API and annotation are supported to define history type of state. e.g.
 ```
 or
 ```java  
-	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)
+	@State(parent="A", name="A1", entryCallMethod="enterA1", 	exitCallMethod="exitA1", historyType=HistoryType.DEEP)
 ```
 
 * **Transition Types**  
