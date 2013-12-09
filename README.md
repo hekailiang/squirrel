@@ -187,7 +187,7 @@ void defineSequentialStatesOn(S parentStateId, S... childStateIds);
 
 * **Define Parallel State**  
 The parallel state encapsulates a set of child states which are simultaneously active when the parent element is active. The  parallel state can be defined through API or annotation both. e.g.  
-![ParallelStateMachine](http://hekailiang.github.io/squirrel/images/ParallelStates.png)     
+![ParallelStates](https://github.com/hekailiang/squirrel/blob/gh-pages/images/ParallelStates.png)     
 ```java  
 	// defines two region states "RegionState1" and "RegionState2" under parent parallel state "Root"
 	builder.defineParallelStatesOn(MyState.Root, MyState.RegionState1, MyState.RegionState2);
