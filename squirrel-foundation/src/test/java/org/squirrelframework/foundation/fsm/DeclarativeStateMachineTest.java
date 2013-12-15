@@ -37,6 +37,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         @Transit(from="B", to="D", on="ToC"),
         @Transit(from="B", to="#StateC", on="ToC", priority=TransitionPriority.HIGH),
         @Transit(from="C", to="D", on="ToD", when=ExcellentCondition.class),
+        @Transit(from="C", to="D", on="ToD", whenMvel="FailedCondition:::(context!=null && context>=0 && context<60)"),
         @Transit(from="D", to="A", on="ToA", callMethod="transitionWithException"),
         @Transit(from="D", to="Final", on="ToEnd", callMethod="fromStateDToFinalOnToEnd", isTargetFinal=true)
     })
@@ -52,6 +53,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         void fromStateAToStateAOnInternalA(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToDWhenExcellentCondition(TestState from, TestState to, TestEvent event, Integer context);
+        void transitFromCToDOnToDWhenFailedCondition(TestState from, TestState to, TestEvent event, Integer context);
         void transitionWithException(TestState from, TestState to, TestEvent event, Integer context);
         void fromStateDToFinalOnToEnd(TestState from, TestState to, TestEvent event, Integer context);
 
@@ -75,6 +77,11 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         @Override
         public boolean isSatisfied(Integer context) {
             return context!=null && context>80;
+        }
+
+        @Override
+        public String name() {
+            return "ExcellentCondition";
         }
 
     }
@@ -206,6 +213,12 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
             super.terminate(context);
             monitor.terminate(context);
         }
+
+        @Override
+        public void transitFromCToDOnToDWhenFailedCondition(TestState from,
+                TestState to, TestEvent event, Integer context) {
+            monitor.transitFromCToDOnToDWhenFailedCondition(from, to, event, context);
+        }
     }
 
     @Mock 
@@ -301,11 +314,11 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         InOrder callSequence = Mockito.inOrder(monitor);
         stateMachine.fire(TestEvent.ToB, null);
         stateMachine.fire(TestEvent.ToC, null);
-        stateMachine.fire(TestEvent.ToD, 80);
+        stateMachine.fire(TestEvent.ToD, -10);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(
-                TestState.C, TestEvent.ToD, 80);
+                TestState.C, TestEvent.ToD, -10);
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionDeclined(
-                TestState.C, TestEvent.ToD, 80);
+                TestState.C, TestEvent.ToD, -10);
         assertThat(stateMachine.getCurrentState(), equalTo(TestState.C));
 
         stateMachine.fire(TestEvent.ToD, 81);
@@ -319,6 +332,26 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 null, TestState.D, TestEvent.ToD, 81);
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
                 TestState.C, TestState.D, TestEvent.ToD, 81);
+        assertThat(stateMachine.getCurrentState(), equalTo(TestState.D));
+    }
+    
+    @Test
+    public void testConditionMvelTransition() {
+        InOrder callSequence = Mockito.inOrder(monitor);
+        stateMachine.fire(TestEvent.ToB, null);
+        stateMachine.fire(TestEvent.ToC, null);
+
+        stateMachine.fire(TestEvent.ToD, 41);
+        callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(
+                TestState.C, TestEvent.ToD, 41);
+        callSequence.verify(monitor, Mockito.times(1)).exitC(
+                TestState.C, null, TestEvent.ToD, 41);
+        callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToDWhenFailedCondition(
+                TestState.C, TestState.D, TestEvent.ToD, 41);
+        callSequence.verify(monitor, Mockito.times(1)).entryStateD(
+                null, TestState.D, TestEvent.ToD, 41);
+        callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(
+                TestState.C, TestState.D, TestEvent.ToD, 41);
         assertThat(stateMachine.getCurrentState(), equalTo(TestState.D));
     }
 

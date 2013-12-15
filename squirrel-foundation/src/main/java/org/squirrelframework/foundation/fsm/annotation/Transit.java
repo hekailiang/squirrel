@@ -24,6 +24,8 @@ public @interface Transit {
 
     @SuppressWarnings("rawtypes")
     Class<? extends Condition> when() default Conditions.Always.class;
+    
+    String whenMvel() default "";
 
     TransitionType type() default TransitionType.EXTERNAL;
 

@@ -14,6 +14,11 @@ public class Conditions {
         public boolean isSatisfied(C context) {
             return true;
         }
+
+        @Override
+        public String name() {
+            return "_Always";
+        }
     }
     
     public static <C> Condition<C> always()  {
@@ -24,6 +29,11 @@ public class Conditions {
         @Override
         public boolean isSatisfied(C context) {
             return false;
+        }
+        
+        @Override
+        public String name() {
+            return "_Never";
         }
     }
     
@@ -36,6 +46,11 @@ public class Conditions {
             @Override
             public boolean isSatisfied(C context) {
                 return first.isSatisfied(context) && second.isSatisfied(context);
+            }
+            
+            @Override
+            public String name() {
+                return first.name()+"_and"+second.name();
             }
         };
     }
@@ -51,6 +66,18 @@ public class Conditions {
                 }
                 return true;
             }
+
+            @Override
+            public String name() {
+                String name = null;
+                for(Condition<C> c : conditions) {
+                    if(name==null) 
+                        name=c.name();
+                    else 
+                        name = name+"_and"+c.name();
+                }
+                return name;
+            }
         };
     }
 
@@ -59,6 +86,11 @@ public class Conditions {
             @Override
             public boolean isSatisfied(C context) {
                 return first.isSatisfied(context) || second.isSatisfied(context);
+            }
+
+            @Override
+            public String name() {
+                return first.name()+"_or"+second.name();
             }
         };
     }
@@ -74,6 +106,18 @@ public class Conditions {
                 }
                 return false;
             }
+            
+            @Override
+            public String name() {
+                String name = null;
+                for(Condition<C> c : conditions) {
+                    if(name==null) 
+                        name=c.name();
+                    else 
+                        name = name+"_or"+c.name();
+                }
+                return name;
+            }
         };
     }
 
@@ -83,6 +127,11 @@ public class Conditions {
             public boolean isSatisfied(C context) {
                 return !condition.isSatisfied(context);
             }
+
+            @Override
+            public String name() {
+                return "_not"+condition.name();
+            }
         };
     }
 
@@ -91,6 +140,11 @@ public class Conditions {
             @Override
             public boolean isSatisfied(C context) {
                 return first.isSatisfied(context) ^ second.isSatisfied(context);
+            }
+
+            @Override
+            public String name() {
+                return first.name()+"_xor"+second.name();
             }
         };
     }

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
+import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
@@ -25,6 +26,7 @@ import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
+import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
@@ -81,6 +83,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private Map<String, String> stateAliasToDescription = null;
     
+    private MvelScriptManager scriptManager = null;
+    
     private E startEvent, finishEvent, terminateEvent;
     
     private StateMachineBuilderImpl(Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
@@ -98,6 +102,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.contextClazz = contextClazz;
         this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
+        this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
         initailContextEvents(eventClazz);
         methodCallParamTypes = isContextInsensitive ? 
@@ -169,19 +174,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
 	@Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority) {
         checkState();
-        return FSM.newExternalTransitionBuilder(states, priority);
+        return FSM.newExternalTransitionBuilder(states, priority, scriptManager);
     }
     
     @Override
     public LocalTransitionBuilder<T, S, E, C> localTransition(int priority) {
         checkState();
-        return FSM.newLocalTransitionBuilder(states, priority);
+        return FSM.newLocalTransitionBuilder(states, priority, scriptManager);
     }
 
     @Override
     public InternalTransitionBuilder<T, S, E, C> internalTransition(int priority) {
         checkState();
-        return FSM.newInternalTransitionBuilder(states, priority);
+        return FSM.newInternalTransitionBuilder(states, priority, scriptManager);
     }
     
     private void addStateEntryExitMethodCallAction(String methodName, Class<?>[] parameterTypes, 
@@ -249,12 +254,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         // if no existed transition is matched then create a new transition
         To<T, S, E, C> toBuilder = null;
         if(transit.type()==TransitionType.INTERNAL) {
-        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = FSM.newInternalTransitionBuilder(states, transit.priority());
+        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = FSM.newInternalTransitionBuilder(states, transit.priority(), scriptManager);
             toBuilder = transitionBuilder.within(fromState);
         } else {
         	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ? 
-        	        FSM.newLocalTransitionBuilder(states, transit.priority()) : 
-        	            FSM.newExternalTransitionBuilder(states, transit.priority());
+        	        FSM.newLocalTransitionBuilder(states, transit.priority(), scriptManager) : 
+        	            FSM.newExternalTransitionBuilder(states, transit.priority(), scriptManager);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
             boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinalState();
             toBuilder = isTargetFinal ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
@@ -266,6 +271,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 Constructor<?> constructor = transit.when().getDeclaredConstructor();
                 constructor.setAccessible(true);
                 c = (Condition<C>)constructor.newInstance();
+            } else if(StringUtils.isNotEmpty(transit.whenMvel())) {
+                c = FSM.newMvelCondition(transit.whenMvel(), scriptManager);
             }
         } catch (Exception e) {
             logger.error("Instantiate Condition \""+transit.when().getName()+"\" failed.");
@@ -404,10 +411,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 stateConverter.convertToString(toState.getStateId()) : StringUtils.capitalize(toState.toString());
         String eventName = eventConverter!=null ? eventConverter.convertToString(event) : 
             StringUtils.capitalize(event.toString());
-        
-        Class<?> condClass = transition.getCondition().getClass();
-        String conditionName = condClass.isAnonymousClass() ? 
-                "Condition$"+StringUtils.substringAfterLast(condClass.getName(), "$") : condClass.getSimpleName();
+        String conditionName = transition.getCondition().name();
         
         return new String[] { 
                 "transitFrom"+fromStateName+"To"+toStateName+"On"+eventName+"When"+conditionName,

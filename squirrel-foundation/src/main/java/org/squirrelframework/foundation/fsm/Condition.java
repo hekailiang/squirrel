@@ -13,4 +13,6 @@ public interface Condition<C> {
      * @return whether the context satisfied current condition
      */
     boolean isSatisfied(C context);
+    
+    String name();
 }

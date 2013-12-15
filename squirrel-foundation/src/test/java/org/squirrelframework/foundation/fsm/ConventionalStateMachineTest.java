@@ -38,8 +38,8 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         void transitFromAToAOnInternalA(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromAToBOnToB(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context);
-        void transitFromCToDOnToDWhenCondition$1(TestState from, TestState to, TestEvent event, Integer context);
-        void transitFromCToDOnToDWhenCondition$2(TestState from, TestState to, TestEvent event, Integer context);
+        void transitFromCToDOnToDWhenMvelExp(TestState from, TestState to, TestEvent event, Integer context);
+        void transitFromCToDOnToDWhenBetween60To80(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToD(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToD(TestState from, TestState to, TestEvent event, Integer context);
         
@@ -115,12 +115,12 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
             monitor.transitFromBToCOnToC(from, to, event, context);
         }
 
-        protected void transitFromCToDOnToDWhenCondition$1(TestState from, TestState to, TestEvent event, Integer context) {
-            monitor.transitFromCToDOnToDWhenCondition$1(from, to, event, context);
+        protected void transitFromCToDOnToDWhenMvelExp(TestState from, TestState to, TestEvent event, Integer context) {
+            monitor.transitFromCToDOnToDWhenMvelExp(from, to, event, context);
         }
         
-        protected void transitFromCToDOnToDWhenCondition$2(TestState from, TestState to, TestEvent event, Integer context) {
-            monitor.transitFromCToDOnToDWhenCondition$2(from, to, event, context);
+        protected void transitFromCToDOnToDWhenBetween60To80(TestState from, TestState to, TestEvent event, Integer context) {
+            monitor.transitFromCToDOnToDWhenBetween60To80(from, to, event, context);
             throw new ConventionalStateMachineException();
         }
         
@@ -214,16 +214,16 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         builder.externalTransition().from(A).to(B).on(ToB);
         builder.internalTransition().within(A).on(InternalA);
         builder.externalTransition().from(B).to(C).on(ToC);
-        builder.externalTransition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
-            @Override
-            public boolean isSatisfied(Integer context) {
-                return context!=null && context>80;
-            }
-        });
+        builder.externalTransition().from(C).to(D).on(ToD).whenMvel("MvelExp:::(context!=null && context>80)");
         builder.externalTransition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
             @Override
             public boolean isSatisfied(Integer context) {
                 return context!=null && context>=60 && context<=80;
+            }
+
+            @Override
+            public String name() {
+                return "Between60To80";
             }
         });
         builder.externalTransition().from(D).toFinal(Final).on(ToEnd);
@@ -296,8 +296,8 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).beforeExitAny(C, null, ToD, 81);
         callSequence.verify(monitor, Mockito.times(1)).exitC(C, null, ToD, 81);
         callSequence.verify(monitor, Mockito.times(1)).afterExitAny(C, null, ToD, 81);
-        callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToDWhenCondition$1(C, D, ToD, 81);
-        callSequence.verify(monitor, Mockito.times(0)).transitFromCToDOnToDWhenCondition$2(C, D, ToD, 81);
+        callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToDWhenMvelExp(C, D, ToD, 81);
+        callSequence.verify(monitor, Mockito.times(0)).transitFromCToDOnToDWhenBetween60To80(C, D, ToD, 81);
         callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToD(C, D, ToD, 81);
         callSequence.verify(monitor, Mockito.times(1)).transitFromCToAnyOnToD(C, D, ToD, 81);
         callSequence.verify(monitor, Mockito.times(1)).transitFromCToD(C, D, ToD, 81);
@@ -311,14 +311,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     
     @Test(expected=ConventionalStateMachineException.class)
     public void testTransitionWithException() {
-        InOrder callSequence = Mockito.inOrder(monitor);
         stateMachine.fire(ToB, null);
         stateMachine.fire(ToC, null);
         stateMachine.fire(ToD, 60);
-        
-        callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(D, ToD, 60);
-        callSequence.verify(monitor, Mockito.times(1)).exitD(D, null, ToD, 60);
-        callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToDWhenCondition$2(D, A, ToD, 60);
     }
     
     @Test

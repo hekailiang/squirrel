@@ -6,9 +6,11 @@ import java.util.Map;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.Actions;
+import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
+import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineData;
@@ -20,10 +22,7 @@ import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 import org.squirrelframework.foundation.util.TypeReference;
 
-final class FSM {
-
-    private FSM() {
-    }
+abstract class FSM {
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> StateContext<T, S, E, C> newStateContext(
             StateMachine<T, S, E, C> stateMachine, StateMachineData<T, S, E, C> data,
@@ -66,21 +65,24 @@ final class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> ExternalTransitionBuilder<T, S, E, C> newExternalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority) {
+            Map<S, MutableState<T, S, E, C>> states, int priority, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class, int.class}, new Object[] { states, TransitionType.EXTERNAL, priority });
+                new Class[] { Map.class, TransitionType.class, int.class, MvelScriptManager.class }, 
+                new Object[] { states, TransitionType.EXTERNAL, priority, scriptManager });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> LocalTransitionBuilder<T, S, E, C> newLocalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority) {
+            Map<S, MutableState<T, S, E, C>> states, int priority, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class, int.class }, new Object[] { states, TransitionType.LOCAL, priority });
+                new Class[] { Map.class, TransitionType.class, int.class, MvelScriptManager.class }, 
+                new Object[] { states, TransitionType.LOCAL, priority, scriptManager });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> InternalTransitionBuilder<T, S, E, C> newInternalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority) {
+            Map<S, MutableState<T, S, E, C>> states, int priority, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class, int.class }, new Object[] { states, TransitionType.INTERNAL, priority });
+                new Class[] { Map.class, TransitionType.class, int.class, MvelScriptManager.class }, 
+                new Object[] { states, TransitionType.INTERNAL, priority, scriptManager });
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> EntryExitActionBuilder<T, S, E, C> newEntryExitActionBuilder(
@@ -104,4 +106,9 @@ final class FSM {
 		return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionResult<T, S, E, C>>() {}).
 				setAccepted(accepted).setTargetState(targetState).setParent(parent);
 	}
+    
+    static <C> Condition<C> newMvelCondition(String expression, MvelScriptManager scriptManager) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelConditionImpl<C>>() {}, 
+                new Class<?>[]{String.class, MvelScriptManager.class}, new Object[]{expression, scriptManager});
+    }
 }

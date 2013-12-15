@@ -20,4 +20,11 @@ public interface On<T extends StateMachine<T, S, E, C>, S, E, C> extends When<T,
 	 * @return When clause builder
 	 */
     When<T, S, E, C> when(Condition<C> condition);
+    
+    /**
+     * Add condition for the transition
+     * @param expression mvel expression
+     * @return When clause builder
+     */
+    When<T, S, E, C> whenMvel(String expression);
 }

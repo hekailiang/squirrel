@@ -65,6 +65,11 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
                     public boolean isSatisfied(ParserContext context) {
                         return context.nextChar!=null && context.nextChar.equals(STAR);
                     }
+
+                    @Override
+                    public String name() {
+                        return "Cond1";
+                    }
                 });
         
         builder.externalTransition().from(ParserState.COMMENT).to(ParserState.RULE).on(STAR).when(
@@ -72,6 +77,11 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
                     @Override
                     public boolean isSatisfied(ParserContext context) {
                         return context.nextChar!=null && context.nextChar.equals(SLASH);
+                    }
+
+                    @Override
+                    public String name() {
+                        return "Cond2";
                     }
                 });
         builder.externalTransition().from(ParserState.SELECTOR).to(ParserState.PROPERTY).on(BRACKET_BEG);

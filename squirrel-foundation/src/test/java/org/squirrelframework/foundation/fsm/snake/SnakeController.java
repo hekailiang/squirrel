@@ -73,6 +73,11 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 			boolean bodyNotCollapsed = context.getSnakePoints().contains(nextPoint)==false;
 			return insideBorder && bodyNotCollapsed;
         }
+
+        @Override
+        public String name() {
+            return "ContinueRunningCondition";
+        }
 	}
 	
 	private Random random = new Random();

@@ -1,8 +1,8 @@
 package org.squirrelframework.foundation.component;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -25,7 +25,7 @@ public class SquirrelProvider implements SquirrelSingleton {
         SquirrelProvider.instance = instance;
     }
 
-    private Map<Class<?>, Class<?>> implementationRegistry = new HashMap<Class<?>, Class<?>>();
+    private Map<Class<?>, Class<?>> implementationRegistry = new ConcurrentHashMap<Class<?>, Class<?>>();
 
     public <T> T newInstance(TypeReference<T> typeRef) {
         return newInstance(typeRef, null, null);

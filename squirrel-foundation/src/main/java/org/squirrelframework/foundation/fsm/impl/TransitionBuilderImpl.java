@@ -8,6 +8,7 @@ import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
+import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
@@ -34,10 +35,14 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     private final int priority;
     
-    TransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType, int priority) {
+    private final MvelScriptManager scriptManager;
+    
+    TransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType, 
+            int priority, MvelScriptManager scriptManager) {
         this.states = states;
         this.transitionType = transitionType;
         this.priority = priority;
+        this.scriptManager = scriptManager;
     }
     
     @Override
@@ -83,6 +88,12 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     @Override
     public When<T, S, E, C> when(Condition<C> condition) {
         transition.setCondition(condition);
+        return this;
+    }
+    
+    @Override
+    public When<T, S, E, C> whenMvel(String expression) {
+        transition.setCondition(FSM.<C>newMvelCondition(expression, scriptManager));
         return this;
     }
     
