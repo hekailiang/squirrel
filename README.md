@@ -36,7 +36,7 @@ Latest Snapshot Version:
 ### Get Starting  
 **squirrel-foundation** supports both fluent API and declarative manner to declare a state machine, and also enable user to define the action methods in a straightforward manner. 
 
-* **StateMahcine** interface takes four generic type parameters.  
+* **StateMachine** interface takes four generic type parameters.  
 	* **T** stands for the type of implemented state machine.
 	* **S** stands for the type of implemented state.
 	* **E** stands for the type of implemented event.
@@ -69,9 +69,19 @@ An **internal transition** is build inside state 'A' on event 'WithinA' perform 
             public boolean isSatisfied(MyContext context) {
                 return context!=null && context.getValue()>80;
             }
+            
+			@Override
+			public String name() {
+				return "MyCondition";
+			}
     });
 ```
-An **conditional transition** is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction.
+An **conditional transition** is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction. User can also use [MVEL][7](a powerful expression language) to describe condition in the following way.  
+```java
+	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).whenMvel(
+		"MyCondition:::(context!=null && context.getValue()>80)");
+```
+**Note:** Characters ':::' use to separate condition name and condition expression.  
 ```java
 builder.onEntry(MyState.A).perform(Lists.newArrayList(action1, action2))
 ```
@@ -148,10 +158,10 @@ Then register these converters to *ConverterProvider*. e.g.
 ConverterProvider.INSTANCE.register(MyEvent.class, new MyEventConverter());
 ConverterProvider.INSTANCE.register(MyState.class, new MyStateConverter());
 ```  
-	*Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters. And also if the Event or State class is type of String or Enumeration, you don't need to implement or register a converter explictly at most of cases.*
+	*Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters. And also if the Event or State class is type of String or Enumeration, you don't need to implement or register a converter explicitly at most of cases.*
 	
 * **New State Machine Instance**  
-After user defined state machine behavior, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.
+After user defined state machine behaviour, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.
 ```java
 T newStateMachine(S initialStateId, Object... extraParams);
 ```
@@ -460,3 +470,4 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 [4]: http://groups.google.com/group/squirrel-state-machine
 [5]: https://twitter.com/hhe11
 [6]: https://github.com/hekailiang/squirrel/issues?state=open
+[7]: http://mvel.codehaus.org/
