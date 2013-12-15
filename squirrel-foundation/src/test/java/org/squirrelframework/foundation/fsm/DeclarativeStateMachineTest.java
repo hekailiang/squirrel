@@ -193,7 +193,6 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         public void afterTransitionCausedException(Exception e, TestState fromState, 
                 TestState toState, TestEvent event, Integer context) {
             super.afterTransitionCausedException(e, fromState, toState, event, context);
-            throw new DeclarativeStateMachineException();
         }
 
         @Override
@@ -323,7 +322,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         assertThat(stateMachine.getCurrentState(), equalTo(TestState.D));
     }
 
-    @Test(expected=DeclarativeStateMachineException.class)
+    @Test
     public void testTransitionWithException() {
         InOrder callSequence = Mockito.inOrder(monitor);
         stateMachine.fire(TestEvent.ToB, null);
@@ -337,6 +336,8 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                 TestState.D, null, TestEvent.ToA, 50);
         callSequence.verify(monitor, Mockito.times(1)).transitionWithException(
                 TestState.D, TestState.A, TestEvent.ToA, 50);
+        
+        assertThat(stateMachine.getCurrentState(), equalTo(TestState.D));
     }
 
     @Test

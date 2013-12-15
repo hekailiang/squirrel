@@ -98,13 +98,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             executor.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
             fromState.internalFire( FSM.newStateContext(this, data, fromState, event, context, result, executor) );
-            if(result.isAccepted()) {
-                data.write().lastState(fromStateId);
-                data.write().currentState(result.getTargetState().getStateId());
-            }
             executor.execute();
             
             if(result.isAccepted()) {
+                data.write().lastState(fromStateId);
+                data.write().currentState(result.getTargetState().getStateId());
             	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, data.read().currentState(), 
                       event, context, getThis()));
                 afterTransitionCompleted(fromStateId, getCurrentState(), event, context);
