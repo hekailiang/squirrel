@@ -73,11 +73,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private boolean prepared = false;
     
-    private Constructor<? extends T> contructor = null;
+    private final Constructor<? extends T> contructor;
     
-    protected Converter<S> stateConverter = null;
+    protected final Converter<S> stateConverter;
     
-    protected Converter<E> eventConverter = null;
+    protected final Converter<E> eventConverter;
     
     private final Class<?>[] methodCallParamTypes;
     
@@ -386,6 +386,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         installFinalStateActions();
         // verify correctness of state machine
         verifyStateMachineDefinition();
+        
         prepared = true;
     }
     
