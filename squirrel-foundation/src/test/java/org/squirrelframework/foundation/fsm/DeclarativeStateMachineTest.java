@@ -73,17 +73,11 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         void terminate(Integer context);
     }
 
-    static class ExcellentCondition implements Condition<Integer> {
+    static class ExcellentCondition extends AbstractCondition<Integer> {
         @Override
         public boolean isSatisfied(Integer context) {
             return context!=null && context>80;
         }
-
-        @Override
-        public String name() {
-            return "ExcellentCondition";
-        }
-
     }
 
     @SuppressWarnings("serial")

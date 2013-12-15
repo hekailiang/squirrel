@@ -5,11 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.DotVisitor;
-import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.*;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -64,7 +60,7 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 		PRESS_START, TURN_UP, TURN_LEFT, TURN_RIGHT, TURN_DOWN, MOVE_AHEAD, PRESS_PAUSE
 	}
 	
-	public static class ContinueRunningCondition implements Condition<SnakeModel> {
+	public static class ContinueRunningCondition extends AbstractCondition<SnakeModel> {
 		@Override
         public boolean isSatisfied(SnakeModel context) {
 			Point nextPoint = computeNextPoint(context.peekFirst(), context.getDirection());
@@ -72,11 +68,6 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 					nextPoint.y >= 0 && nextPoint.y < GameConfigure.ROW_COUNT;
 			boolean bodyNotCollapsed = context.getSnakePoints().contains(nextPoint)==false;
 			return insideBorder && bodyNotCollapsed;
-        }
-
-        @Override
-        public String name() {
-            return "ContinueRunningCondition";
         }
 	}
 	
