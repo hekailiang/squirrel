@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 
-public class MvelConditionImpl<C> implements Condition<C> {
+class MvelConditionImpl<C> implements Condition<C> {
     
     public final static String separatorChars = ":::";
     
@@ -17,7 +17,7 @@ public class MvelConditionImpl<C> implements Condition<C> {
     
     private final MvelScriptManager scriptManager;
     
-    public MvelConditionImpl(String script, MvelScriptManager scriptManager) {
+    MvelConditionImpl(String script, MvelScriptManager scriptManager) {
         String[] arrays = StringUtils.split(script, separatorChars);
         if(arrays.length==2) {
             this.name = arrays[0].trim();

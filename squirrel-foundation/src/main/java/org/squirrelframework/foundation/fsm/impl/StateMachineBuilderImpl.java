@@ -608,14 +608,14 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public EntryExitActionBuilder<T, S, E, C> onEntry(S stateId) {
         checkState();
         MutableState<T, S, E, C> state = FSM.getState(states, stateId);
-        return FSM.newEntryExitActionBuilder(state, true);
+        return FSM.newEntryExitActionBuilder(state, true, scriptManager);
     }
 
     @Override
     public EntryExitActionBuilder<T, S, E, C> onExit(S stateId) {
         checkState();
         MutableState<T, S, E, C> state = FSM.getState(states, stateId);
-        return FSM.newEntryExitActionBuilder(state, false);
+        return FSM.newEntryExitActionBuilder(state, false, scriptManager);
     }
 
     private class DeclareTransitionFunction implements Function<Class<?>, Void> {

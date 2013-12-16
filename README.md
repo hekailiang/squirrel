@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.2-SNAPSHOT</version>
+  	<version>0.2.2.1-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -81,7 +81,7 @@ An **conditional transition** is built from state 'C' to state 'D' on event 'GoT
 	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).whenMvel(
 		"MyCondition:::(context!=null && context.getValue()>80)");
 ```
-**Note:** Characters ':::' use to separate condition name and condition expression.  
+**Note:** Characters ':::' use to separate condition name and condition expression. The 'context' is the predefined variable point to current Context object.    
 ```java
 builder.onEntry(MyState.A).perform(Lists.newArrayList(action1, action2))
 ```

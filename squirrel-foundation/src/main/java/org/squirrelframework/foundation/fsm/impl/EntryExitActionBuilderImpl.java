@@ -5,6 +5,7 @@ import java.util.List;
 import org.squirrelframework.foundation.component.SquirrelComponent;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.MutableState;
+import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
 
@@ -15,9 +16,13 @@ class EntryExitActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     
     private final MutableState<T, S, E, C> state;
     
-    EntryExitActionBuilderImpl(MutableState<T, S, E, C> state, boolean isEntryAction) {
+    private final MvelScriptManager scriptManager;
+    
+    EntryExitActionBuilderImpl(MutableState<T, S, E, C> state, 
+            boolean isEntryAction, MvelScriptManager scriptManager) {
         this.state = state;
         this.isEntryAction = isEntryAction;
+        this.scriptManager = scriptManager;
     }
 
     @Override
@@ -36,5 +41,11 @@ class EntryExitActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
         } else {
             state.addExitActions(actions);
         }
+    }
+
+    @Override
+    public void performMvel(String expression) {
+        Action<T, S, E, C> action = FSM.newMvelAction(expression, scriptManager);
+        perform(action);
     }
 }

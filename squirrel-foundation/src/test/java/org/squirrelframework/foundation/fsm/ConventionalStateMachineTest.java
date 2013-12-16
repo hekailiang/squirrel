@@ -60,6 +60,8 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         void afterTransitionCausedException(Exception e, int transitionStatus, TestState fromState, 
                 TestState toState, TestEvent event, Integer context);
         
+        void mvelAction(TestState from, TestState to, TestEvent event, Integer context);
+        
         void terminate();
     }
     
@@ -67,7 +69,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     static class ConventionalStateMachineException extends RuntimeException {
     }
     
-    static class ConventionalStateMachine extends AbstractStateMachine<ConventionalStateMachine, TestState, TestEvent, Integer> {
+    public static class ConventionalStateMachine extends AbstractStateMachine<ConventionalStateMachine, TestState, TestEvent, Integer> {
         
         private final CallSequenceMonitor monitor;
         
@@ -168,6 +170,10 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
             monitor.afterExitAny(from, to, event, context);
         }
         
+        public void mvelAction(TestState from, TestState to, TestEvent event, Integer context) {
+            monitor.mvelAction(from, to, event, context);
+        }
+        
         @Override
         public void beforeTransitionBegin(TestState from, TestEvent event, Integer context) {
             super.beforeTransitionBegin(from, event, context);
@@ -226,7 +232,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                 return "Between60To80";
             }
         });
-        builder.externalTransition().from(D).toFinal(Final).on(ToEnd);
+        builder.externalTransition().from(D).toFinal(Final).on(ToEnd).performMvel(
+                "stateMachine.mvelAction(from, to, event, context);"
+        );
         stateMachine = builder.newStateMachine(A, monitor);
     }
     
@@ -330,6 +338,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         stateMachine.fire(ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(D, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).exitD(D, null, ToEnd, null);
+        callSequence.verify(monitor, Mockito.times(1)).mvelAction(D, Final, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).transitFromDToFinalOnToEnd(D, Final, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionCompleted(D, Final, ToEnd, null);
         callSequence.verify(monitor, Mockito.times(1)).terminate();

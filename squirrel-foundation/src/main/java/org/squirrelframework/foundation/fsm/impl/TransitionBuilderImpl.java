@@ -49,6 +49,12 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     public void perform(Action<T, S, E, C> action) {
         transition.addAction(action);
     }
+    
+    @Override
+    public void performMvel(String expression) {
+        Action<T, S, E, C> action = FSM.newMvelAction(expression, scriptManager);
+        transition.addAction(action);
+    }
 
     @Override
     public void perform(List<Action<T, S, E, C>> actions) {
@@ -93,7 +99,8 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     @Override
     public When<T, S, E, C> whenMvel(String expression) {
-        transition.setCondition(FSM.<C>newMvelCondition(expression, scriptManager));
+        Condition<C> cond = FSM.newMvelCondition(expression, scriptManager);
+        transition.setCondition(cond);
         return this;
     }
     

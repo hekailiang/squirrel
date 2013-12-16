@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
+import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.Actions;
 import org.squirrelframework.foundation.fsm.Condition;
@@ -86,9 +87,10 @@ abstract class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> EntryExitActionBuilder<T, S, E, C> newEntryExitActionBuilder(
-            MutableState<T, S, E, C> state, boolean isEntryAction) {
+            MutableState<T, S, E, C> state, boolean isEntryAction, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<EntryExitActionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { MutableState.class, boolean.class }, new Object[] { state, isEntryAction });
+                new Class[] { MutableState.class, boolean.class, MvelScriptManager.class}, 
+                new Object[] { state, isEntryAction, scriptManager});
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionImpl<T, S, E, C> newMethodCallAction(
@@ -109,6 +111,11 @@ abstract class FSM {
     
     static <C> Condition<C> newMvelCondition(String expression, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelConditionImpl<C>>() {}, 
+                new Class<?>[]{String.class, MvelScriptManager.class}, new Object[]{expression, scriptManager});
+    }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> Action<T, S, E, C> newMvelAction(String expression, MvelScriptManager scriptManager) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelActionImpl<T, S, E, C>>() {}, 
                 new Class<?>[]{String.class, MvelScriptManager.class}, new Object[]{expression, scriptManager});
     }
 }

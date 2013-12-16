@@ -21,6 +21,13 @@ public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
 	 * @param action performed action
 	 */
     void perform(Action<T, S, E, C> action);
+    
+    /**
+     * Define mvel action to be performed during transition
+     * @param expression mvel expression
+     */
+    void performMvel(String expression);
+    
     /**
      * Define actions to be performed during transition
      * @param actions performed actions
