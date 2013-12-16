@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.squirrelframework.foundation.fsm.TestEvent.ToA;
 import static org.squirrelframework.foundation.fsm.TestEvent.ToB;
 import static org.squirrelframework.foundation.fsm.TestEvent.ToC;
 import static org.squirrelframework.foundation.fsm.TestEvent.ToD;
@@ -60,7 +61,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
     @State(name="B", entryCallMethod="afterEntryB")
     @Transitions({
         @Transit(from="A", to="B", on="ToB", callMethod="testAToBOnToB"),
-        @Transit(from="C", to="D", on="ToD", callMethod="transitFromCToDOnToDWithNormalPriority", priority=TransitionPriority.NORMAL)
+        @Transit(from="C", to="D", on="ToD", callMethod="transitFromCToDOnToDWithNormalPriority", priority=TransitionPriority.NORMAL),
+        @Transit(from="D", to="B", on="ToA")
     })
     interface DeclarativeStateMachine extends StateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> {
     }
@@ -74,7 +76,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         @Transit(from="B", to="C", on="ToC"),
         @Transit(from="A", to="B", on="ToB", callMethod="beforeTransitToB"),
         @Transit(from="A", to="B", on="ToB", callMethod="afterTransitToB"),
-        @Transit(from="C", to="D", on="ToD", callMethod="transitFromCToDOnToDWithHighPriority", priority=TransitionPriority.HIGH)
+        @Transit(from="C", to="D", on="ToD", callMethod="transitFromCToDOnToDWithHighPriority", priority=TransitionPriority.HIGH),
+        @Transit(from="D", to="A", on="ToA", priority=TransitionPriority.HIGH)
     })
     static class StateMachineImpl extends AbstractDeclarativeStateMachine {
 
@@ -273,5 +276,15 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToDWithHighPriority(C, D, ToD, null);
         callSequence.verify(monitor, Mockito.times(1)).transitFromCToDOnToD(C, D, ToD, null);
         callSequence.verify(monitor, Mockito.times(1)).entryD(null, D, ToD, null);
+    }
+    
+    @Test
+    // original transition D-[ToA, Always, 1]->B was override to D-[ToA, Always, 1000]->A
+    public void testTransitionPriority2() {
+        stateMachine.fire(ToB, null);
+        stateMachine.fire(ToC, null);
+        stateMachine.fire(ToD, null);
+        stateMachine.fire(ToA, null);
+        assertThat(stateMachine.getCurrentState(), equalTo(A));
     }
 }
