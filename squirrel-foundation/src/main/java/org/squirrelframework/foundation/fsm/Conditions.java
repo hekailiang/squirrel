@@ -47,7 +47,7 @@ public class Conditions {
             
             @Override
             public String name() {
-                return first.name()+"_and"+second.name();
+                return first.name()+"And"+second.name();
             }
         };
     }
@@ -71,7 +71,7 @@ public class Conditions {
                     if(name==null) 
                         name=c.name();
                     else 
-                        name = name+"_and"+c.name();
+                        name = name+"And"+c.name();
                 }
                 return name;
             }
@@ -87,7 +87,7 @@ public class Conditions {
 
             @Override
             public String name() {
-                return first.name()+"_or"+second.name();
+                return first.name()+"Or"+second.name();
             }
         };
     }
@@ -111,7 +111,7 @@ public class Conditions {
                     if(name==null) 
                         name=c.name();
                     else 
-                        name = name+"_or"+c.name();
+                        name = name+"Or"+c.name();
                 }
                 return name;
             }
@@ -127,7 +127,7 @@ public class Conditions {
 
             @Override
             public String name() {
-                return "_not"+condition.name();
+                return "Not"+condition.name();
             }
         };
     }
@@ -141,7 +141,7 @@ public class Conditions {
 
             @Override
             public String name() {
-                return first.name()+"_xor"+second.name();
+                return first.name()+"Xor"+second.name();
             }
         };
     }
