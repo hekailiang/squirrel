@@ -9,6 +9,13 @@ import java.util.List;
  */
 public class Conditions {
     
+    public static abstract class AbstractCondition<C> implements Condition<C> {
+        @Override
+        public String name() {
+            return getClass().getSimpleName();
+        }
+    }
+    
     public static class Always<C> extends AbstractCondition<C> {
         @Override
         public boolean isSatisfied(C context) {

@@ -5,7 +5,11 @@ import java.util.Map;
 import java.util.Random;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.*;
+import org.squirrelframework.foundation.fsm.Conditions.AbstractCondition;
+import org.squirrelframework.foundation.fsm.DotVisitor;
+import org.squirrelframework.foundation.fsm.HistoryType;
+import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
