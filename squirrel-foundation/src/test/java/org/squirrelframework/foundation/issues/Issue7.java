@@ -12,7 +12,8 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class Issue7 {
-    @Test public void performsTransactionOnEventFromAction() {
+    @Test 
+    public void performsTransactionOnEventFromAction() {
         FSM fsm = createFSM();
         fsm.fire(Event.GoWild);
         assertEquals(State.GoneWild, fsm.getCurrentState());
@@ -38,7 +39,7 @@ public class Issue7 {
         builder.onEntry(State.GoneWild).perform(new Action<FSM, State, Event, Void>() {
             @Override
             public void execute(State from, State to, Event event, Void context, FSM stateMachine) {
-                throw new RuntimeException("Oops!");
+                // throw new RuntimeException("Oops!");
             }
         });
         return builder.newStateMachine(State.Calm);
