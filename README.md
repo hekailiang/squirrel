@@ -261,7 +261,7 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 * **State Machine Lifecycle Events**  
 During the lifecycle of the state machine, various events will be fired, e.g. 
 ```  
-|--StateMachineEvent 							/* Base event of all state machine event */   
+|--StateMachineEvent 						/* Base event of all state machine event */   
        |--StartEvent							/* Fired when state machine started      */ 
        |--TerminateEvent						/* Fired when state machine terminated   */ 
        |--TransitionEvent						/* Base event of all transition event    */ 
