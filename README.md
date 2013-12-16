@@ -261,14 +261,14 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 * **State Machine Lifecycle Events**  
 During the lifecycle of the state machine, various events will be fired, e.g. 
 ```  
-|--StateMachineEvent 						/* Base event of all state machine event */   
+|--StateMachineEvent 							/* Base event of all state machine event */   
        |--StartEvent							/* Fired when state machine started      */ 
        |--TerminateEvent						/* Fired when state machine terminated   */ 
-          |--TransitionEvent					/* Base event of all transition event    */ 
-             |--TransitionBeginEvent			/* Fired when transition began           */ 
-             |--TransitionCompleteEvent			/* Fired when transition completed       */ 
-             |--TransitionExceptionEvent		/* Fired when transition threw exception */ 
-             |--TransitionDeclinedListener		/* Fired when transition declined        */ 
+       |--TransitionEvent						/* Base event of all transition event    */ 
+       		|--TransitionBeginEvent				/* Fired when transition began           */ 
+            |--TransitionCompleteEvent			/* Fired when transition completed       */ 
+            |--TransitionExceptionEvent			/* Fired when transition threw exception */ 
+            |--TransitionDeclinedListener		/* Fired when transition declined        */ 
 ```
 User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
 ```java
