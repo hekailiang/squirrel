@@ -9,15 +9,10 @@ import java.util.List;
  */
 public class Conditions {
     
-    public static class Always<C> implements Condition<C> {
+    public static class Always<C> extends AbstractCondition<C> {
         @Override
         public boolean isSatisfied(C context) {
             return true;
-        }
-
-        @Override
-        public String name() {
-            return "_Always";
         }
     }
     
@@ -25,15 +20,10 @@ public class Conditions {
         return new Always<C>();
     }
     
-    public static class Never<C> implements Condition<C> {
+    public static class Never<C> extends AbstractCondition<C> {
         @Override
         public boolean isSatisfied(C context) {
             return false;
-        }
-        
-        @Override
-        public String name() {
-            return "_Never";
         }
     }
     
