@@ -240,7 +240,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(states.get(fromState)!=null) {
             MutableState<T, S, E, C> theFromState = states.get(fromState);
             for(ImmutableTransition<T, S, E, C> t : theFromState.getAllTransitions()) {
-                if(t.isMatch(fromState, toState, event, transit.when(), transit.type())) {
+                if(t.isMatch(fromState, toState, event, transit.priority(), transit.when(), transit.type())) {
                     MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)t;
                     Method method = findMethodCallAction(stateMachineClazz, transit.callMethod(), methodCallParamTypes);
                     if(method!=null) {

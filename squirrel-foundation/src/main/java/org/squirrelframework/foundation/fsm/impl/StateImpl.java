@@ -545,7 +545,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             List<ImmutableTransition<T, S, E, C>> allTransitions) {
         for(ImmutableTransition<T, S, E, C> t : allTransitions) {
             if(target==t || t.getCondition().getClass()==Conditions.Never.class) continue;
-            if(t.isMatch(target.getSourceState().getStateId(), target.getTargetState().getStateId(), target.getEvent())) {
+            if(t.isMatch(target.getSourceState().getStateId(), target.getTargetState().getStateId(), 
+                    target.getEvent(), target.getPriority())) {
                 if(t.getCondition().getClass()==Conditions.Always.class) 
                     return target;
                 if(target.getCondition().getClass()==Conditions.Always.class)

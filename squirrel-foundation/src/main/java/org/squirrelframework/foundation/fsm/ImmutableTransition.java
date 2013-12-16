@@ -63,9 +63,9 @@ public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C
     
     int getPriority();
     
-    boolean isMatch(S fromState, S toState, E event);
+    boolean isMatch(S fromState, S toState, E event, int priority);
     
-    boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type);
+    boolean isMatch(S fromState, S toState, E event, int priority, Class<?> condClazz, TransitionType type);
     
     /**
      * Notify transition when receiving event

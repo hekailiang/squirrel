@@ -222,7 +222,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     }
     
     @Override
-    public boolean isMatch(S fromState, S toState, E event) {
+    public boolean isMatch(S fromState, S toState, E event, int priority) {
         if(toState==null && !getTargetState().isFinalState())
             return false;
         if(toState!=null && !getTargetState().isFinalState() && 
@@ -230,12 +230,14 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
             return false;
         if(!getEvent().equals(event)) 
             return false;
+        if(getPriority()!=priority)
+            return false;
         return true;
     }
     
     @Override
-    public boolean isMatch(S fromState, S toState, E event, Class<?> condClazz, TransitionType type) {
-        if(!isMatch(fromState, toState, event))
+    public boolean isMatch(S fromState, S toState, E event, int priority, Class<?> condClazz, TransitionType type) {
+        if(!isMatch(fromState, toState, event, priority))
             return false;
         if(getCondition().getClass()!=condClazz)
             return false;
@@ -247,7 +249,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     @Override
     public String toString() {
         return sourceState + "-[" + event.toString() +", "+
-                condition.name()+ "]->" + targetState;
+                condition.name()+", "+priority+"]->" + targetState;
     }
 
     @Override
