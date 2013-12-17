@@ -94,9 +94,9 @@ abstract class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionImpl<T, S, E, C> newMethodCallAction(
-            Method method) {
+            Method method, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MethodCallActionImpl<T, S, E, C>>() {}, 
-                new Class[] { Method.class }, new Object[] { method });
+                new Class[] { Method.class, MvelScriptManager.class }, new Object[] { method, scriptManager });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> Actions<T, S, E, C> newActions() {

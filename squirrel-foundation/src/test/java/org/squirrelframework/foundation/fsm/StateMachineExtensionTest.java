@@ -21,6 +21,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.squirrelframework.foundation.fsm.annotation.ExecuteWhen;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -37,6 +38,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         
         void transitFromAToBOnToB(TestState from, TestState to, TestEvent event, Integer context);
         void testAToBOnToB(TestState from, TestState to, TestEvent event, Integer context);
+        void conditionalTransitToB(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromBToCOnToCBase(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromBToCOnToCOverride(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToD(TestState from, TestState to, TestEvent event, Integer context);
@@ -75,6 +77,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
     @Transitions({
         @Transit(from="B", to="C", on="ToC"),
         @Transit(from="A", to="B", on="ToB", callMethod="beforeTransitToB"),
+        @Transit(from="A", to="B", on="ToB", callMethod="conditionalTransitToB"),
         @Transit(from="A", to="B", on="ToB", callMethod="afterTransitToB"),
         @Transit(from="C", to="D", on="ToD", callMethod="transitFromCToDOnToDWithHighPriority", priority=TransitionPriority.HIGH),
         @Transit(from="D", to="A", on="ToA", priority=TransitionPriority.HIGH)
@@ -118,6 +121,11 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         
         protected void transitFromCToDOnToDWithNormalPriority(TestState from, TestState to, TestEvent event, Integer context) {
             monitor.transitFromCToDOnToDWithHighPriority(from, to, event, context);
+        }
+        
+        @ExecuteWhen("context!=null && context>80")
+        protected void conditionalTransitToB(TestState from, TestState to, TestEvent event, Integer context) {
+            monitor.conditionalTransitToB(from, to, event, context);
         }
         
         @Override
@@ -249,6 +257,20 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).beforeEntryB(null, B, ToB, null);
         callSequence.verify(monitor, Mockito.times(1)).entryB(null, B, ToB, null);
         callSequence.verify(monitor, Mockito.times(1)).afterEntryB(null, B, ToB, null);
+    }
+    
+    @Test
+    public void testExecuteWhenNotSatisfied() {
+        InOrder callSequence = Mockito.inOrder(monitor);
+        stateMachine.fire(TestEvent.ToB, 10);
+        callSequence.verify(monitor, Mockito.times(0)).conditionalTransitToB(A, B, ToB, 10);
+    }
+    
+    @Test
+    public void testExecuteWhenSatisfied() {
+        InOrder callSequence = Mockito.inOrder(monitor);
+        stateMachine.fire(TestEvent.ToB, 90);
+        callSequence.verify(monitor, Mockito.times(1)).conditionalTransitToB(A, B, ToB, 90);
     }
     
     @Test

@@ -83,7 +83,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private Map<String, String> stateAliasToDescription = null;
     
-    private MvelScriptManager scriptManager = null;
+    private final MvelScriptManager scriptManager;
     
     private E startEvent, finishEvent, terminateEvent;
     
@@ -193,7 +193,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             MutableState<T, S, E, C> mutableState, boolean isEntryAction) {
         Method method = findMethodCallAction(stateMachineClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method);
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
             if(isEntryAction) {
                 mutableState.addEntryAction(methodCallAction);
             } else {
@@ -206,7 +206,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             MutableTransition<T, S, E, C> mutableTransition) {
         Method method = findMethodCallAction(stateMachineClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method);
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
             mutableTransition.addAction(methodCallAction);
         }
     }
@@ -244,7 +244,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                     MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)t;
                     Method method = findMethodCallAction(stateMachineClazz, transit.callMethod(), methodCallParamTypes);
                     if(method!=null) {
-                        mutableTransition.addAction(FSM.<T, S, E, C>newMethodCallAction(method));
+                        Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+                        mutableTransition.addAction(methodCallAction);
                     }
                     return;
                 }
@@ -283,7 +284,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!Strings.isNullOrEmpty(transit.callMethod())) {
             Method method = findMethodCallAction(stateMachineClazz, transit.callMethod(), methodCallParamTypes);
             if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method);
+                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 whenBuilder.perform(methodCallAction);
             }
         }
@@ -323,7 +324,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!Strings.isNullOrEmpty(state.entryCallMethod())) {
             Method method = findMethodCallAction(stateMachineClazz, state.entryCallMethod(), methodCallParamTypes);
             if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method);
+                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 onEntry(stateId).perform(methodCallAction);
             }
         }
@@ -331,7 +332,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!Strings.isNullOrEmpty(state.exitCallMethod())) {
             Method method = findMethodCallAction(stateMachineClazz, state.exitCallMethod(), methodCallParamTypes);
             if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method);
+                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 onExit(stateId).perform(methodCallAction);
             }
         }
