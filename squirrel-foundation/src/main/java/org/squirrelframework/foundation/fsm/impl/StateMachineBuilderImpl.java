@@ -32,6 +32,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -87,6 +88,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private E startEvent, finishEvent, terminateEvent;
     
+    @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
             Class<?>... extraConstParamTypes) {
@@ -97,17 +99,38 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             "\" must be extended from AbstractStateMachine.class.");
         
         this.stateMachineClazz = stateMachineClazz;
-        this.stateClazz = stateClazz;
-        this.eventClazz = eventClazz;
-        this.contextClazz = contextClazz;
-        this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
-        this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
+        
+        Class<?> k = stateMachineClazz;
+        StateMachineParamters genericsParamteres = null;
+        while(genericsParamteres==null && isStateMachineType(k)) {
+            genericsParamteres = stateMachineClazz.getAnnotation(StateMachineParamters.class);
+            k = k.getSuperclass();
+        }
+        if(stateClazz==Object.class && genericsParamteres!=null && stateClazz.isAssignableFrom(genericsParamteres.stateType())) {
+            this.stateClazz = (Class<S>) genericsParamteres.stateType();
+            this.stateConverter = (Converter<S>) ConverterProvider.INSTANCE.getConverter(genericsParamteres.stateType());
+        } else {
+            this.stateClazz = stateClazz;
+            this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
+        }
+        if(eventClazz==Object.class && genericsParamteres!=null && eventClazz.isAssignableFrom(genericsParamteres.eventType())) {
+            this.eventClazz = (Class<E>) genericsParamteres.eventType();
+            this.eventConverter = (Converter<E>) ConverterProvider.INSTANCE.getConverter(genericsParamteres.eventType());
+        } else {
+            this.eventClazz = eventClazz;
+            this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
+        }
+        if(contextClazz==Object.class && genericsParamteres!=null && contextClazz.isAssignableFrom(genericsParamteres.contextType())) {
+            this.contextClazz = (Class<C>) genericsParamteres.contextType();
+        } else {
+            this.contextClazz = contextClazz;
+        }
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
         initailContextEvents(eventClazz);
         methodCallParamTypes = isContextInsensitive ? 
-                new Class<?>[]{stateClazz, stateClazz, eventClazz} : 
-                new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz};
+                new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
+                new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
         this.contructor = ReflectUtils.getConstructor(stateMachineClazz, constParamTypes);
     }

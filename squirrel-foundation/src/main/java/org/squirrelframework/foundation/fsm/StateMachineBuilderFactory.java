@@ -23,6 +23,11 @@ public class StateMachineBuilderFactory {
         return create(stateMachineClazz, stateClazz, eventClazz, contextClazz, false, new Class<?>[0]);
     }
     
+    public static <T extends UntypedStateMachine> StateMachineBuilder<UntypedStateMachine, Object, Object, Object> create(
+            Class<? extends UntypedStateMachine> stateMachineClazz) {
+        return create(stateMachineClazz, Object.class, Object.class, Object.class, false, new Class<?>[0]);
+    }
+    
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz, 
             Class<C> contextClazz, Class<?>... extraConstParamTypes) {
