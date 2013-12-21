@@ -28,8 +28,12 @@ public class StateMachineBuilderFactory {
     }
     
     public static UntypedStateMachineBuilder create(Class<? extends UntypedStateMachine> stateMachineClazz) {
+        return create(stateMachineClazz, new Class[0]);
+    }
+    
+    public static UntypedStateMachineBuilder create(Class<? extends UntypedStateMachine> stateMachineClazz, Class<?>... extraConstParamTypes) {
         final StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder = 
-                create(stateMachineClazz, Object.class, Object.class, Object.class, false, new Class<?>[0]);
+                create(stateMachineClazz, Object.class, Object.class, Object.class, false, extraConstParamTypes);
         return (UntypedStateMachineBuilder) Proxy.newProxyInstance(
                 UntypedStateMachineBuilder.class.getClassLoader(), 
                 new Class[]{UntypedStateMachineBuilder.class}, 
