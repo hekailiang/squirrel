@@ -111,17 +111,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             genericsParamteres = stateMachineClazz.getAnnotation(StateMachineParamters.class);
             k = k.getSuperclass();
         }
-        if(stateClazz==Object.class && genericsParamteres!=null && stateClazz.isAssignableFrom(genericsParamteres.stateType())) {
+        if(stateClazz==Object.class && genericsParamteres!=null) {
             this.stateClazz = (Class<S>) genericsParamteres.stateType();
         } else {
             this.stateClazz = stateClazz;
         }
-        if(eventClazz==Object.class && genericsParamteres!=null && eventClazz.isAssignableFrom(genericsParamteres.eventType())) {
+        if(eventClazz==Object.class && genericsParamteres!=null) {
             this.eventClazz = (Class<E>) genericsParamteres.eventType();
         } else {
             this.eventClazz = eventClazz;
         }
-        if(contextClazz==Object.class && genericsParamteres!=null && contextClazz.isAssignableFrom(genericsParamteres.contextType())) {
+        if(contextClazz==Object.class && genericsParamteres!=null) {
             this.contextClazz = (Class<C>) genericsParamteres.contextType();
         } else {
             this.contextClazz = contextClazz;
