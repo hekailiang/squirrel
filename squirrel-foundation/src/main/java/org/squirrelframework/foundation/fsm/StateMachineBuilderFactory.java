@@ -1,5 +1,9 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.lang.reflect.Method;
+
+import org.mockito.cglib.proxy.InvocationHandler;
+import org.mockito.cglib.proxy.Proxy;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.util.TypeReference;
 
@@ -23,9 +27,19 @@ public class StateMachineBuilderFactory {
         return create(stateMachineClazz, stateClazz, eventClazz, contextClazz, false, new Class<?>[0]);
     }
     
-    public static <T extends UntypedStateMachine> StateMachineBuilder<UntypedStateMachine, Object, Object, Object> create(
-            Class<? extends UntypedStateMachine> stateMachineClazz) {
-        return create(stateMachineClazz, Object.class, Object.class, Object.class, false, new Class<?>[0]);
+    public static UntypedStateMachineBuilder create(Class<? extends UntypedStateMachine> stateMachineClazz) {
+        final StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder = 
+                create(stateMachineClazz, Object.class, Object.class, Object.class, false, new Class<?>[0]);
+        return (UntypedStateMachineBuilder) Proxy.newProxyInstance(
+                UntypedStateMachineBuilder.class.getClassLoader(), 
+                new Class[]{UntypedStateMachineBuilder.class}, 
+                new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args)
+                            throws Throwable {
+                        return method.invoke(builder, args);
+                    }
+                });
     }
     
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(

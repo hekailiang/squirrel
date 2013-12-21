@@ -576,4 +576,9 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             return parentState.getInitialState();
         }
     }
+
+    @Override
+    public ImmutableState<T, S, E, C> getThis() {
+        return this;
+    }
 }

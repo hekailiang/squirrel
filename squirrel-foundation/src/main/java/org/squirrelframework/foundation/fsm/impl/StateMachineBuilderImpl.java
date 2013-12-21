@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mockito.cglib.proxy.InvocationHandler;
+import org.mockito.cglib.proxy.Proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelPostProcessor;
@@ -23,15 +25,18 @@ import org.squirrelframework.foundation.fsm.EventKind;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
+import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
+import org.squirrelframework.foundation.fsm.MutableUntypedState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -108,23 +113,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         if(stateClazz==Object.class && genericsParamteres!=null && stateClazz.isAssignableFrom(genericsParamteres.stateType())) {
             this.stateClazz = (Class<S>) genericsParamteres.stateType();
-            this.stateConverter = (Converter<S>) ConverterProvider.INSTANCE.getConverter(genericsParamteres.stateType());
         } else {
             this.stateClazz = stateClazz;
-            this.stateConverter = ConverterProvider.INSTANCE.getConverter(stateClazz);
         }
         if(eventClazz==Object.class && genericsParamteres!=null && eventClazz.isAssignableFrom(genericsParamteres.eventType())) {
             this.eventClazz = (Class<E>) genericsParamteres.eventType();
-            this.eventConverter = (Converter<E>) ConverterProvider.INSTANCE.getConverter(genericsParamteres.eventType());
         } else {
             this.eventClazz = eventClazz;
-            this.eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
         }
         if(contextClazz==Object.class && genericsParamteres!=null && contextClazz.isAssignableFrom(genericsParamteres.contextType())) {
             this.contextClazz = (Class<C>) genericsParamteres.contextType();
         } else {
             this.contextClazz = contextClazz;
         }
+        this.stateConverter = ConverterProvider.INSTANCE.getConverter(this.stateClazz);
+        this.eventConverter = ConverterProvider.INSTANCE.getConverter(this.eventClazz);
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
         initailContextEvents(eventClazz);
@@ -162,7 +165,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             parameterTypes = new Class<?>[2];
         }
         // add fixed constructor parameters
-        parameterTypes[0] = ImmutableState.class;
+        parameterTypes[0] = (UntypedStateMachine.class.isAssignableFrom(stateMachineClazz)) ? 
+                ImmutableUntypedState.class : ImmutableState.class;
         parameterTypes[1] = Map.class;
         
         //  add additional constructor parameters extended by derived state machine implementation 
@@ -410,8 +414,41 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         installFinalStateActions();
         // verify correctness of state machine
         verifyStateMachineDefinition();
+        // proxy untyped states
+        proxyUntypedStates();
         
         prepared = true;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void proxyUntypedStates() {
+        if(UntypedStateMachine.class.isAssignableFrom(stateMachineClazz)) {
+            Map<S, MutableState<T, S, E, C>> untypedStates = Maps.newHashMap();
+            for(final MutableState<T, S, E, C> state : states.values()) {
+                MutableUntypedState untypedState = (MutableUntypedState) Proxy.newProxyInstance(
+                        MutableUntypedState.class.getClassLoader(), 
+                        new Class[]{MutableUntypedState.class, ImmutableUntypedState.class}, 
+                        new InvocationHandler() {
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args)
+                                    throws Throwable {
+                                if (method.getName().equals("getStateId")) {
+                                    return state.getStateId();
+                                } else if(method.getName().equals("getThis")) {
+                                    return state.getThis();
+                                } else if(method.getName().equals("equals")) {
+                                    return state.equals(args[0]);
+                                } else if(method.getName().equals("hashCode")) {
+                                    return state.hashCode();
+                                } 
+                                return method.invoke(state, args);
+                            }
+                        });
+                untypedStates.put(state.getStateId(), (MutableState<T, S, E, C>) untypedState);
+            }
+            states.clear();
+            states.putAll(untypedStates);
+        }
     }
     
     private String[] getEntryExitStateMethodNames(ImmutableState<T, S, E, C> state, boolean isEntry) {

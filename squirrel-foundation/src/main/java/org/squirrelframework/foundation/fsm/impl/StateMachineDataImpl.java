@@ -205,7 +205,8 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public ImmutableState<T, S, E, C> rawStateFrom(S stateId) {
-        return getStates().get(stateId);
+        ImmutableState<T, S, E, C> rawState = getStates().get(stateId);
+        return rawState!=null ? rawState.getThis() : null;
     }
 
     @Override

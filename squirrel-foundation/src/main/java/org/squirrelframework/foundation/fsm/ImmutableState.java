@@ -148,4 +148,6 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      * Verify state correctness
      */
     void verify();
+    
+    ImmutableState<T, S, E, C> getThis();
 }

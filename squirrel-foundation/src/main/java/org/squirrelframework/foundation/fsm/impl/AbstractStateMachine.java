@@ -73,7 +73,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private final Lock processingLock = new ReentrantLock();
     
-    protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ImmutableState<T, S, E, C>> states) {
+    protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         data = SquirrelProvider.getInstance().newInstance( 
                 new TypeReference<StateMachineData<T, S, E, C>>(){}, 
                 new Class[]{Map.class}, new Object[]{states} );

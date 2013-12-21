@@ -22,9 +22,7 @@ public class UntypedStateMachineTest {
     })
     @StateMachineParamters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     static class UntypedStateMachineSample extends AbstractUntypedStateMachine {
-        protected UntypedStateMachineSample(
-                ImmutableState<UntypedStateMachine, Object, Object, Object> initialState,
-                Map<Object, ImmutableState<UntypedStateMachine, Object, Object, Object>> states) {
+        protected UntypedStateMachineSample(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
             super(initialState, states);
         }
         
@@ -35,8 +33,7 @@ public class UntypedStateMachineTest {
     
     @Test
     public void testUntypedStateMachine() {
-        StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder = 
-            StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
         UntypedStateMachine fsm = builder.newStateMachine("a");
         Assert.assertTrue(fsm.getCurrentState().equals("a"));
         fsm.fire(TestEvent.toB, 1);
