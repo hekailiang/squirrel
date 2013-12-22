@@ -1,9 +1,9 @@
 package org.squirrelframework.foundation.fsm;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
-import org.mockito.cglib.proxy.InvocationHandler;
-import org.mockito.cglib.proxy.Proxy;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.util.TypeReference;
 

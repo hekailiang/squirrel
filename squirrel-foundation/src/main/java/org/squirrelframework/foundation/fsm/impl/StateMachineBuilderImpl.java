@@ -2,15 +2,15 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mockito.cglib.proxy.InvocationHandler;
-import org.mockito.cglib.proxy.Proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelPostProcessor;
@@ -37,9 +37,9 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -444,7 +444,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                                 return method.invoke(state, args);
                             }
                         });
-                untypedStates.put(state.getStateId(), (MutableState<T, S, E, C>) untypedState);
+                untypedStates.put(state.getStateId(), MutableState.class.cast(untypedState));
             }
             states.clear();
             states.putAll(untypedStates);

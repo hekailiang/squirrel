@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.2.1-SNAPSHOT</version>
+  	<version>0.2.2.2-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -74,12 +74,12 @@ An **internal transition** is build inside state 'A' on event 'WithinA' perform 
 			public String name() {
 				return "MyCondition";
 			}
-    });
+    }).callMethod("myInternalTransitionCall");
 ```
-An **conditional transition** is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction. User can also use [MVEL][7](a powerful expression language) to describe condition in the following way.  
+An **conditional transition** is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction, then call action method "myInternalTransitionCall". User can also use [MVEL][7](a powerful expression language) to describe condition in the following way.  
 ```java
 	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).whenMvel(
-		"MyCondition:::(context!=null && context.getValue()>80)");
+		"MyCondition:::(context!=null && context.getValue()>80)").callMethod("myInternalTransitionCall");
 ```
 **Note:** Characters ':::' use to separate condition name and condition expression. The 'context' is the predefined variable point to current Context object.    
 ```java
@@ -177,8 +177,44 @@ To create a new state machine instance from state machine builder, you need to p
 * **Fire Events**  
 	After state machine was created, user can fire events along with context to trigger transition inside state machine. e.g.
 	```java
-	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));
+	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));	
 	```
+* **Untyped State Machine**  
+	In order to simplify state machine usage, and avoid too many generic types (e.g. StateMachine\<T, S, E, C\>) which makes code hard to read, but still keep important part of type safety feature on transition action execution, UntypedStateMachine was implemented for this purpose.
+	```java
+	enum TestEvent {
+        toA, toB, toC, toD
+    }
+    
+	@Transitions({
+        @Transit(from="A", to="B", on="toB", callMethod="fromAToB"),
+        @Transit(from="B", to="C", on="toC"),
+        @Transit(from="C", to="D", on="toD")
+    })
+    @StateMachineParamters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
+    static class UntypedStateMachineSample extends AbstractUntypedStateMachine {
+        
+        protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
+        	Map<Object, ImmutableUntypedState> states) {
+            super(initialState, states);
+        }
+        
+        protected void fromAToB(String from, String to, TestEvent event, Integer context) {
+            // transition action still type safe ...
+        }
+        
+        protected void transitFromDToAOntoA(String from, String to, TestEvent event, Integer context) {
+            // transition action still type safe ...
+        }
+    }
+    
+	UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
+		UntypedStateMachineSample.class);
+	// state machine builder not type safe anymore
+    builder.externalTransition().from("D").to("A").on(TestEvent.toA);
+    UntypedStateMachine fsm = builder.newStateMachine("A");
+	```
+	**@StateMachineParamters** is used to declare state machine generic parameter types. **AbstractUntypedStateMachine** is the base class of any untyped state machine.
 
 ### Advanced Feature
 * **Define Hierarchical State**  
@@ -378,7 +414,6 @@ newStateMachineInstance.loadSavedData(savedData);
 	```java
 	builderOfTestStateMachine.definedLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1);
 	```
-
 ### Examples  
 * **ATM State Machine**  
 The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.  
@@ -434,6 +469,37 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	}
 	```
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
+### Integration Exmaples
+Squirrel state machine does not have any heavy dependencies, so basically it should be highly embedable.
+* **Spring Framework Integration**  
+To Integrate with Spring IoC container, basically user can add @Configurable annotation on the state machine implementation class, e.g.
+```java
+	interface StateMachineBean extends StateMachine<StateMachineBean, MyState, MyEvent, MyContext> {
+		...
+	}
+
+	@Configurable(preConstruction=true)
+	abstract class AbstractStateMachineBean extends AbstractStateMachine<StateMachineBean, MyState, 		MyEvent, MyContext> implements StateMachineBean {
+		@Autowired
+  		private ApplicationContext applicationContext;
+		...
+	}
+	
+	public class TypedStateMachineA extends AbstractStateMachineBean {
+  		@Autowired
+  		// some other managed beans...
+	}
+	
+	public class TypedStateMachineB extends AbstractStateMachineBean {
+  		@Autowired
+  		// some other managed beans...
+	}
+	
+	TypedStateMachineA fsmA = StateMachineBuilderFactory.create(TypedStateMachineA.class, 
+		MyState.class, MyEvent.class, MyContext.class).newStateMachine(MyState.Initial);
+	TypedStateMachineA fsmB = StateMachineBuilderFactory.create(TypedStateMachineB.class, 
+		MyState.class, MyEvent.class, MyContext.class).newStateMachine(MyState.Initial);
+```  
 
 ## Release Notes  
 *Version 0.2.1 - 2013-08-10*  
