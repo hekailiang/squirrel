@@ -1,36 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Squirrel State Machine : squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java." />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Squirrel State Machine by hekailiang</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Squirrel State Machine</title>
   </head>
-
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/hekailiang/squirrel">View on GitHub</a>
+      <header>
+        <h1>Squirrel State Machine</h1>
+        <p>squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java.</p>
+      </header>
 
-          <h1 id="project_title">Squirrel State Machine</h1>
-          <h2 id="project_tagline">squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java.</h2>
+      <div id="banner">
+        <span id="logo"></span>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/hekailiang/squirrel/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/hekailiang/squirrel/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+        <a href="https://github.com/hekailiang/squirrel" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/hekailiang/squirrel/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/hekailiang/squirrel/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
         <h1>
 <a name="squirrel-foundation" class="anchor" href="#squirrel-foundation"><span class="octicon octicon-link"></span></a>squirrel-foundation</h1>
 
@@ -63,7 +71,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.2-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;0.2.2.2-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -77,7 +85,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 
 <ul>
 <li>
-<p><strong>StateMahcine</strong> interface takes four generic type parameters.  </p>
+<p><strong>StateMachine</strong> interface takes four generic type parameters.  </p>
 
 <ul>
 <li>
@@ -124,10 +132,21 @@ After state machine builder was created, we can use fluent API to define state/t
         <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSatisfied</span><span class="o">(</span><span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
             <span class="k">return</span> <span class="n">context</span><span class="o">!=</span><span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">context</span><span class="o">.</span><span class="na">getValue</span><span class="o">()&gt;</span><span class="mi">80</span><span class="o">;</span>
         <span class="o">}</span>
-<span class="o">});</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">String</span> <span class="nf">name</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"MyCondition"</span><span class="o">;</span>
+        <span class="o">}</span>
+<span class="o">}).</span><span class="na">callMethod</span><span class="o">(</span><span class="s">"myInternalTransitionCall"</span><span class="o">);</span>
 </pre></div>
 
-<p>An <strong>conditional transition</strong> is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction.</p>
+<p>An <strong>conditional transition</strong> is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction, then call action method "myInternalTransitionCall". User can also use <a href="http://mvel.codehaus.org/">MVEL</a>(a powerful expression language) to describe condition in the following way.  </p>
+
+<div class="highlight highlight-java"><pre><span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">C</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">D</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">GoToD</span><span class="o">).</span><span class="na">whenMvel</span><span class="o">(</span>
+    <span class="s">"MyCondition:::(context!=null &amp;&amp; context.getValue()&gt;80)"</span><span class="o">).</span><span class="na">callMethod</span><span class="o">(</span><span class="s">"myInternalTransitionCall"</span><span class="o">);</span>
+</pre></div>
+
+<p><strong>Note:</strong> Characters ':::' use to separate condition name and condition expression. The 'context' is the predefined variable point to current Context object.    </p>
 
 <div class="highlight highlight-java"><pre><span class="n">builder</span><span class="o">.</span><span class="na">onEntry</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">perform</span><span class="o">(</span><span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="n">action1</span><span class="o">,</span> <span class="n">action2</span><span class="o">))</span>
 </pre></div>
@@ -214,11 +233,11 @@ In order to declare state and event within <em><a href="https://github.com/State
 <span class="n">ConverterProvider</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyStateConverter</span><span class="o">());</span>
 </pre></div>
 
-<p><em>Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters. And also if the Event or State class is type of String or Enumeration, you don't need to implement or register a converter explictly at most of cases.</em></p>
+<p><em>Note: If you only use fluent API to define state machine, there is no need to implement corresponding converters. And also if the Event or State class is type of String or Enumeration, you don't need to implement or register a converter explicitly at most of cases.</em></p>
 </li>
 <li>
 <p><strong>New State Machine Instance</strong><br>
-After user defined state machine behavior, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.</p>
+After user defined state machine behaviour, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.</p>
 
 <div class="highlight highlight-java"><pre><span class="n">T</span> <span class="nf">newStateMachine</span><span class="o">(</span><span class="n">S</span> <span class="n">initialStateId</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">extraParams</span><span class="o">);</span>
 </pre></div>
@@ -241,8 +260,47 @@ After user defined state machine behavior, user could create a new state machine
 <p><strong>Fire Events</strong><br>
 After state machine was created, user can fire events along with context to trigger transition inside state machine. e.g.</p>
 
-<div class="highlight highlight-java"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>
+<div class="highlight highlight-java"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>   
 </pre></div>
+</li>
+<li>
+<p><strong>Untyped State Machine</strong><br>
+In order to simplify state machine usage, and avoid too many generic types (e.g. StateMachine&lt;T, S, E, C&gt;) which makes code hard to read, but still keep important part of type safety feature on transition action execution, UntypedStateMachine was implemented for this purpose.</p>
+
+<div class="highlight highlight-java"><pre><span class="kd">enum</span> <span class="n">TestEvent</span> <span class="o">{</span>
+    <span class="n">toA</span><span class="o">,</span> <span class="n">toB</span><span class="o">,</span> <span class="n">toC</span><span class="o">,</span> <span class="n">toD</span>
+<span class="o">}</span>
+
+<span class="nd">@Transitions</span><span class="o">({</span>
+    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"B"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"toB"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"fromAToB"</span><span class="o">),</span>
+    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"B"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"C"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"toC"</span><span class="o">),</span>
+    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"C"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"D"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"toD"</span><span class="o">)</span>
+<span class="o">})</span>
+<span class="nd">@StateMachineParamters</span><span class="o">(</span><span class="n">stateType</span><span class="o">=</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">eventType</span><span class="o">=</span><span class="n">TestEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">contextType</span><span class="o">=</span><span class="n">Integer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">static</span> <span class="kd">class</span> <span class="nc">UntypedStateMachineSample</span> <span class="kd">extends</span> <span class="n">AbstractUntypedStateMachine</span> <span class="o">{</span>
+
+    <span class="kd">protected</span> <span class="nf">UntypedStateMachineSample</span><span class="o">(</span><span class="n">ImmutableUntypedState</span> <span class="n">initialState</span><span class="o">,</span> 
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">ImmutableUntypedState</span><span class="o">&gt;</span> <span class="n">states</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">initialState</span><span class="o">,</span> <span class="n">states</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">fromAToB</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">TestEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// transition action still type safe ...</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">transitFromDToAOntoA</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">TestEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// transition action still type safe ...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">UntypedStateMachineBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span>
+    <span class="n">UntypedStateMachineSample</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="c1">// state machine builder not type safe anymore</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="s">"D"</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="s">"A"</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">TestEvent</span><span class="o">.</span><span class="na">toA</span><span class="o">);</span>
+<span class="n">UntypedStateMachine</span> <span class="n">fsm</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="s">"A"</span><span class="o">);</span>
+</pre></div>
+
+<p><em>@StateMachineParamters</em> is used to declare state machine generic parameter types. <em>AbstractUntypedStateMachine</em> is the base class of any untyped state machine.</p>
 </li>
 </ul><h3>
 <a name="advanced-feature" class="anchor" href="#advanced-feature"><span class="octicon octicon-link"></span></a>Advanced Feature</h3>
@@ -349,11 +407,11 @@ During the lifecycle of the state machine, various events will be fired, e.g. </
 <pre><code>|--StateMachineEvent                        /* Base event of all state machine event */   
    |--StartEvent                            /* Fired when state machine started      */ 
    |--TerminateEvent                        /* Fired when state machine terminated   */ 
-      |--TransitionEvent                    /* Base event of all transition event    */ 
-         |--TransitionBeginEvent            /* Fired when transition began           */ 
-         |--TransitionCompleteEvent         /* Fired when transition completed       */ 
-         |--TransitionExceptionEvent        /* Fired when transition threw exception */ 
-         |--TransitionDeclinedListener      /* Fired when transition declined        */ 
+   |--TransitionEvent                       /* Base event of all transition event    */ 
+        |--TransitionBeginEvent             /* Fired when transition began           */ 
+        |--TransitionCompleteEvent          /* Fired when transition completed       */ 
+        |--TransitionExceptionEvent         /* Fired when transition threw exception */ 
+        |--TransitionDeclinedListener       /* Fired when transition declined        */ 
 </code></pre>
 
 <p>User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,</p>
@@ -477,11 +535,10 @@ The linked state can be defined by following sample code.</p>
 
 <div class="highlight highlight-java"><pre><span class="n">builderOfTestStateMachine</span><span class="o">.</span><span class="na">definedLinkedState</span><span class="o">(</span><span class="n">LState</span><span class="o">.</span><span class="na">A</span><span class="o">,</span> <span class="n">builderOfLinkedStateMachine</span><span class="o">,</span> <span class="n">LState</span><span class="o">.</span><span class="na">A1</span><span class="o">);</span>
 </pre></div>
-</li>
-</ul><h3>
-<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
 
-<ul>
+<h3>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
+</li>
 <li><p><strong>ATM State Machine</strong><br>
 The sample code could be found in package <em>"org.squirrelframework.foundation.fsm.atm"</em>.  </p></li>
 <li>
@@ -537,6 +594,42 @@ Sample code to create snake game state machine.</p>
 </pre></div>
 
 <p>This example can be found in package <em>"org.squirrelframework.foundation.fsm.snake"</em>. </p>
+
+<h3>
+<a name="integration-exmaples" class="anchor" href="#integration-exmaples"><span class="octicon octicon-link"></span></a>Integration Exmaples</h3>
+
+<p>Squirrel state machine does not have any heavy dependencies, so basically it should be highly embedable.</p>
+</li>
+<li>
+<p><strong>Spring Framework Integration</strong><br>
+To Integrate with Spring IoC container, basically user can add @Configurable annotation on the state machine implementation class, e.g.</p>
+
+<div class="highlight highlight-java"><pre><span class="kd">interface</span> <span class="nc">StateMachineBean</span> <span class="kd">extends</span> <span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">StateMachineBean</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="nd">@Configurable</span><span class="o">(</span><span class="n">preConstruction</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span>
+<span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractStateMachineBean</span> <span class="kd">extends</span> <span class="n">AbstractStateMachine</span><span class="o">&lt;</span><span class="n">StateMachineBean</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span>         <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">StateMachineBean</span> <span class="o">{</span>
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">;</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TypedStateMachineA</span> <span class="kd">extends</span> <span class="n">AbstractStateMachineBean</span> <span class="o">{</span>
+    <span class="nd">@Autowired</span>
+    <span class="c1">// some other managed beans...</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TypedStateMachineB</span> <span class="kd">extends</span> <span class="n">AbstractStateMachineBean</span> <span class="o">{</span>
+    <span class="nd">@Autowired</span>
+    <span class="c1">// some other managed beans...</span>
+<span class="o">}</span>
+
+<span class="n">TypedStateMachineA</span> <span class="n">fsmA</span> <span class="o">=</span> <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TypedStateMachineA</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
+    <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">newStateMachine</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">Initial</span><span class="o">);</span>
+<span class="n">TypedStateMachineA</span> <span class="n">fsmB</span> <span class="o">=</span> <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TypedStateMachineB</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
+    <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">newStateMachine</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">Initial</span><span class="o">);</span>
+</pre></div>
 </li>
 </ul><h2>
 <a name="release-notes" class="anchor" href="#release-notes"><span class="octicon octicon-link"></span></a>Release Notes</h2>
@@ -579,17 +672,12 @@ Sample code to create snake game state machine.</p>
 </li>
 </ul>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Squirrel State Machine maintained by <a href="https://github.com/hekailiang">hekailiang</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/hekailiang">hekailiang</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
       </footer>
     </div>
-
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
-
   </body>
 </html>
