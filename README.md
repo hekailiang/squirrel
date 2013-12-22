@@ -214,7 +214,8 @@ To create a new state machine instance from state machine builder, you need to p
     builder.externalTransition().from("D").to("A").on(TestEvent.toA);
     UntypedStateMachine fsm = builder.newStateMachine("A");
 	```
-	*@StateMachineParamters* is used to declare state machine generic parameter types. *AbstractUntypedStateMachine* is the base class of any untyped state machine.
+	*@StateMachineParamters* is used to declare state machine generic parameter types.  
+	*AbstractUntypedStateMachine* is the base class of any untyped state machine.
 
 ### Advanced Feature
 * **Define Hierarchical State**  
