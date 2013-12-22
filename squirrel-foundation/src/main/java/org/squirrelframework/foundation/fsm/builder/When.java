@@ -16,6 +16,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  * @param <C> type of Context
  */
 public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
+    
 	/**
 	 * Define action to be performed during transition
 	 * @param action performed action
@@ -23,14 +24,20 @@ public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
     void perform(Action<T, S, E, C> action);
     
     /**
-     * Define mvel action to be performed during transition
-     * @param expression mvel expression
-     */
-    void performMvel(String expression);
-    
-    /**
      * Define actions to be performed during transition
      * @param actions performed actions
      */
     void perform(List<Action<T, S, E, C>> actions);
+    
+    /**
+     * Define mvel action to be performed during transition
+     * @param expression mvel expression
+     */
+    void evalMvel(String expression);
+    
+    /**
+     * Define action method to be called during transition
+     * @param methodName method name
+     */
+    void callMethod(String methodName);
 }

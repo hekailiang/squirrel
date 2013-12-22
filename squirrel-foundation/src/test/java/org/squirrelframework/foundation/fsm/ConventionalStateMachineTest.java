@@ -37,7 +37,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         
         void transitFromAToAOnInternalA(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromAToBOnToB(TestState from, TestState to, TestEvent event, Integer context);
-        void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context);
+        void fromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToDWhenMvelExp(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToDWhenBetween60To80(TestState from, TestState to, TestEvent event, Integer context);
         void transitFromCToDOnToD(TestState from, TestState to, TestEvent event, Integer context);
@@ -113,8 +113,8 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
             monitor.transitFromAToBOnToB(from, to, event, context);
         }
 
-        protected void transitFromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context) {
-            monitor.transitFromBToCOnToC(from, to, event, context);
+        protected void fromBToCOnToC(TestState from, TestState to, TestEvent event, Integer context) {
+            monitor.fromBToCOnToC(from, to, event, context);
         }
 
         protected void transitFromCToDOnToDWhenMvelExp(TestState from, TestState to, TestEvent event, Integer context) {
@@ -219,7 +219,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                         TestEvent.class, Integer.class, CallSequenceMonitor.class);
         builder.externalTransition().from(A).to(B).on(ToB);
         builder.internalTransition().within(A).on(InternalA);
-        builder.externalTransition().from(B).to(C).on(ToC);
+        builder.externalTransition().from(B).to(C).on(ToC).callMethod("fromBToCOnToC");
         builder.externalTransition().from(C).to(D).on(ToD).whenMvel("MvelExp:::(context!=null && context>80)");
         builder.externalTransition().from(C).to(D).on(ToD).when(new Condition<Integer>() {
             @Override
@@ -232,7 +232,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                 return "Between60To80";
             }
         });
-        builder.externalTransition().from(D).toFinal(Final).on(ToEnd).performMvel(
+        builder.externalTransition().from(D).toFinal(Final).on(ToEnd).evalMvel(
                 "stateMachine.mvelAction(from, to, event, context);"
         );
         stateMachine = builder.newStateMachine(A, monitor);
@@ -294,6 +294,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         stateMachine.fire(ToB, null);
         stateMachine.fire(ToC, null);
         stateMachine.fire(ToD, 50);
+        callSequence.verify(monitor, Mockito.times(1)).fromBToCOnToC(B, C, ToC, null);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(C, ToD, 50);
         callSequence.verify(monitor, Mockito.times(1)).afterTransitionDeclined(C, ToD, 50);
         assertThat(stateMachine.getCurrentState(), equalTo(TestState.C));

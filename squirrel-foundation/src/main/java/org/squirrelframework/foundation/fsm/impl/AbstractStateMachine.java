@@ -514,6 +514,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return true;
     }
     
+    public Class<C> typeOfContext() {
+        return data.read().typeOfContext();
+    }
+    
+    public Class<E> typeOfEvent() {
+        return data.read().typeOfEvent();
+    }
+    
+    public Class<S> typeOfState() {
+        return data.read().typeOfState();
+    }
+    
     @Override
     public void addStateMachineListener(StateMachineListener<T, S, E, C> listener) {
         addListener(StateMachineEvent.class, listener, StateMachineListener.STATEMACHINE_EVENT_METHOD);

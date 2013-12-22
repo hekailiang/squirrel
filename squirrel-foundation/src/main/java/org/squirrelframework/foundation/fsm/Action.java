@@ -23,4 +23,6 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
      * @param stateMachine the state machine
      */
     void execute(S from, S to, E event, C context, T stateMachine);
+    
+    public interface Proxy<T extends StateMachine<T, S, E, C>, S, E, C> extends Action<T, S, E, C> {}
 }

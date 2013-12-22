@@ -51,14 +51,20 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     }
     
     @Override
-    public void performMvel(String expression) {
+    public void perform(List<Action<T, S, E, C>> actions) {
+        transition.addActions(actions);
+    }
+    
+    @Override
+    public void evalMvel(String expression) {
         Action<T, S, E, C> action = FSM.newMvelAction(expression, scriptManager);
         transition.addAction(action);
     }
-
+    
     @Override
-    public void perform(List<Action<T, S, E, C>> actions) {
-        transition.addActions(actions);
+    public void callMethod(final String methodName) {
+        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName, scriptManager);
+        transition.addAction(action);
     }
 
     @Override

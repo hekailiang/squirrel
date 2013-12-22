@@ -69,7 +69,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private final Map<S, MutableState<T, S, E, C>> states = Maps.newHashMap();
     
-    private final Class<? extends T> stateMachineClazz;
+    private final Class<? extends T> stateMachineImplClazz;
     
     private final Class<S> stateClazz;
     
@@ -94,21 +94,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private E startEvent, finishEvent, terminateEvent;
     
     @SuppressWarnings("unchecked")
-    private StateMachineBuilderImpl(Class<? extends T> stateMachineClazz, Class<S> stateClazz, 
+    private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
             Class<?>... extraConstParamTypes) {
-        Preconditions.checkArgument(isInstantiableType(stateMachineClazz), "The state machine class \""
-                + stateMachineClazz.getName() + "\" cannot be instantiated.");
-        Preconditions.checkArgument(isStateMachineType(stateMachineClazz), 
-            "The implementation class of state machine \"" + stateMachineClazz.getName() + 
+        Preconditions.checkArgument(isInstantiableType(stateMachineImplClazz), "The state machine class \""
+                + stateMachineImplClazz.getName() + "\" cannot be instantiated.");
+        Preconditions.checkArgument(isStateMachineType(stateMachineImplClazz), 
+            "The implementation class of state machine \"" + stateMachineImplClazz.getName() + 
             "\" must be extended from AbstractStateMachine.class.");
         
-        this.stateMachineClazz = stateMachineClazz;
+        this.stateMachineImplClazz = stateMachineImplClazz;
         
-        Class<?> k = stateMachineClazz;
+        Class<?> k = stateMachineImplClazz;
         StateMachineParamters genericsParamteres = null;
         while(genericsParamteres==null && isStateMachineType(k)) {
-            genericsParamteres = stateMachineClazz.getAnnotation(StateMachineParamters.class);
+            genericsParamteres = stateMachineImplClazz.getAnnotation(StateMachineParamters.class);
             k = k.getSuperclass();
         }
         if(stateClazz==Object.class && genericsParamteres!=null) {
@@ -135,7 +135,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
-        this.contructor = ReflectUtils.getConstructor(stateMachineClazz, constParamTypes);
+        this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
     }
     
     protected void initailContextEvents(Class<E> eventClazz) {
@@ -165,7 +165,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             parameterTypes = new Class<?>[2];
         }
         // add fixed constructor parameters
-        parameterTypes[0] = (UntypedStateMachine.class.isAssignableFrom(stateMachineClazz)) ? 
+        parameterTypes[0] = (UntypedStateMachine.class.isAssignableFrom(stateMachineImplClazz)) ? 
                 ImmutableUntypedState.class : ImmutableState.class;
         parameterTypes[1] = Map.class;
         
@@ -218,7 +218,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private void addStateEntryExitMethodCallAction(String methodName, Class<?>[] parameterTypes, 
             MutableState<T, S, E, C> mutableState, boolean isEntryAction) {
-        Method method = findMethodCallAction(stateMachineClazz, methodName, parameterTypes);
+        Method method = findMethodCallAction(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
             Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
             if(isEntryAction) {
@@ -231,7 +231,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private void addTransitionMethodCallAction(String methodName, Class<?>[] parameterTypes, 
             MutableTransition<T, S, E, C> mutableTransition) {
-        Method method = findMethodCallAction(stateMachineClazz, methodName, parameterTypes);
+        Method method = findMethodCallAction(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
             Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
             mutableTransition.addAction(methodCallAction);
@@ -269,7 +269,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             for(ImmutableTransition<T, S, E, C> t : theFromState.getAllTransitions()) {
                 if(t.isMatch(fromState, toState, event, transit.priority(), transit.when(), transit.type())) {
                     MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)t;
-                    Method method = findMethodCallAction(stateMachineClazz, transit.callMethod(), methodCallParamTypes);
+                    Method method = findMethodCallAction(stateMachineImplClazz, transit.callMethod(), methodCallParamTypes);
                     if(method!=null) {
                         Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                         mutableTransition.addAction(methodCallAction);
@@ -309,7 +309,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         When<T, S, E, C> whenBuilder = c!=null ? onBuilder.when(c) : onBuilder;
         
         if(!Strings.isNullOrEmpty(transit.callMethod())) {
-            Method method = findMethodCallAction(stateMachineClazz, transit.callMethod(), methodCallParamTypes);
+            Method method = findMethodCallAction(stateMachineImplClazz, transit.callMethod(), methodCallParamTypes);
             if(method!=null) {
                 Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 whenBuilder.perform(methodCallAction);
@@ -349,7 +349,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         if(!Strings.isNullOrEmpty(state.entryCallMethod())) {
-            Method method = findMethodCallAction(stateMachineClazz, state.entryCallMethod(), methodCallParamTypes);
+            Method method = findMethodCallAction(stateMachineImplClazz, state.entryCallMethod(), methodCallParamTypes);
             if(method!=null) {
                 Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 onEntry(stateId).perform(methodCallAction);
@@ -357,7 +357,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         if(!Strings.isNullOrEmpty(state.exitCallMethod())) {
-            Method method = findMethodCallAction(stateMachineClazz, state.exitCallMethod(), methodCallParamTypes);
+            Method method = findMethodCallAction(stateMachineImplClazz, state.exitCallMethod(), methodCallParamTypes);
             if(method!=null) {
                 Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 onExit(stateId).perform(methodCallAction);
@@ -381,7 +381,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private void install(Function<Class<?>, Void> func) {
         Stack<Class<?>> stack = new Stack<Class<?>>();
-        stack.push(stateMachineClazz);
+        stack.push(stateMachineImplClazz);
         while(!stack.isEmpty()) {
             Class<?> k = stack.pop();
             func.apply(k);
@@ -422,7 +422,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @SuppressWarnings("unchecked")
     private void proxyUntypedStates() {
-        if(UntypedStateMachine.class.isAssignableFrom(stateMachineClazz)) {
+        if(UntypedStateMachine.class.isAssignableFrom(stateMachineImplClazz)) {
             Map<S, MutableState<T, S, E, C>> untypedStates = Maps.newHashMap();
             for(final MutableState<T, S, E, C> state : states.values()) {
                 MutableUntypedState untypedState = (MutableUntypedState) Proxy.newProxyInstance(
@@ -566,7 +566,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         return null;
     }
     
-    private Method findMethodCallAction(Class<?> target, String methodName, Class<?>[] parameterTypes) {
+    static Method findMethodCallAction(Class<?> target, String methodName, Class<?>[] parameterTypes) {
         // TODO-hhe: cache action method in a map and try to get from cache first
         return searchMethod(target, AbstractStateMachine.class, methodName, parameterTypes);
     }
@@ -588,14 +588,14 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(extraParams!=null) {
             System.arraycopy(extraParams, 0, parameters, 2, extraParams.length);
         }
-        T stateMachine = postProcessStateMachine((Class<T>)stateMachineClazz, ReflectUtils.newInstance(contructor, parameters));
+        T stateMachine = postProcessStateMachine((Class<T>)stateMachineImplClazz, ReflectUtils.newInstance(contructor, parameters));
         
         AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
         stateMachineImpl.setStartEvent(startEvent);
         stateMachineImpl.setFinishEvent(finishEvent);
         stateMachineImpl.setTerminateEvent(terminateEvent);
         
-        stateMachineImpl.setTypeOfStateMachine(stateMachineClazz);
+        stateMachineImpl.setTypeOfStateMachine(stateMachineImplClazz);
         stateMachineImpl.setTypeOfState(stateClazz);
         stateMachineImpl.setTypeOfEvent(eventClazz);
         stateMachineImpl.setTypeOfContext(contextClazz);

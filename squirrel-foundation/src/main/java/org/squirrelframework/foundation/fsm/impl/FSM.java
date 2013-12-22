@@ -99,6 +99,12 @@ abstract class FSM {
                 new Class[] { Method.class, MvelScriptManager.class }, new Object[] { method, scriptManager });
     }
     
+    static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionProxyImpl<T, S, E, C> newMethodCallActionProxy(
+            String methodName, MvelScriptManager scriptManager) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<MethodCallActionProxyImpl<T, S, E, C>>() {}, 
+                new Class[] { String.class, MvelScriptManager.class }, new Object[] { methodName, scriptManager });
+    }
+    
     static <T extends StateMachine<T, S, E, C>, S, E, C> Actions<T, S, E, C> newActions() {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<Actions<T, S, E, C>>() {});
     }
