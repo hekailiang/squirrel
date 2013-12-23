@@ -85,10 +85,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void processEvent(E event, C context) {
         ImmutableState<T, S, E, C> fromState = data.read().currentRawState();
-        S fromStateId = data.read().currentState();
-        logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
+        S fromStateId = data.read().currentState(), toStateId = null;
         Stopwatch sw = null;
         if(logger.isDebugEnabled()) {
+            logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
             sw = new Stopwatch().start();
         }
         try {
@@ -98,12 +98,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             executor.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
             fromState.internalFire( FSM.newStateContext(this, data, fromState, event, context, result, executor) );
+            toStateId = result.getTargetState().getStateId();
             executor.execute();
             
             if(result.isAccepted()) {
                 data.write().lastState(fromStateId);
-                data.write().currentState(result.getTargetState().getStateId());
-            	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, data.read().currentState(), 
+                data.write().currentState(toStateId);
+            	fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, toStateId, 
                       event, context, getThis()));
                 afterTransitionCompleted(fromStateId, getCurrentState(), event, context);
             } else {
@@ -112,11 +113,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             }
         } catch(Exception e) {
             setStatus(StateMachineStatus.ERROR);
-            logger.error("Transition from state \""+fromState+"\" to state \""+data.read().currentState()+
+            logger.error("Transition from state \""+fromState+"\" to state \""+toStateId+
                     "\" on event \""+event+"\" failed, which is caused by exception \""+e.getMessage()+"\".");
             fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromStateId, 
                     data.read().currentState(), event, context, getThis()));
-            afterTransitionCausedException(e, fromStateId, data.read().currentState(), event, context);
+            afterTransitionCausedException(e, fromStateId, toStateId, event, context);
         } finally {
             if(logger.isDebugEnabled()) {
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
