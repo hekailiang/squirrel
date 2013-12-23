@@ -14,7 +14,7 @@ import com.google.common.collect.Iterators;
  * @author Henry.He
  *
  */
-public class EventMediator implements SquirrelComponent {
+public class PolymorphismEventDispatcher implements SquirrelComponent {
     
     private LinkedHashSet<ListenerMethod> listeners = null;
     

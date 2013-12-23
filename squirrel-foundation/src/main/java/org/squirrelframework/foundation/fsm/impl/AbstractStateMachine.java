@@ -119,6 +119,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 logger.debug("Transition from state \""+fromState+"\" on event \""+event+
                         "\" tooks "+sw.stop().elapsedMillis()+"ms.");
             }
+            fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
+            afterTransitionEnd(fromStateId, getCurrentState(), event, context);
         }
     }
     
@@ -208,37 +210,25 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     protected void afterTransitionCompleted(S fromState, S toState, E event, C context) {
     }
     
+    protected void afterTransitionEnd(S fromState, S toState, E event, C context) {
+    }
+    
     protected void afterTransitionDeclined(S fromState, E event, C context) {
     }
     
     @Override
     public ImmutableState<T, S, E, C> getCurrentRawState() {
-        processingLock.lock();
-        try {
-            return data.read().currentRawState();
-        } finally {
-            processingLock.unlock();
-        }
+        return getRawStateFrom(getCurrentState());
     }
     
     @Override
     public ImmutableState<T, S, E, C> getLastRawState() {
-        processingLock.lock();
-        try {
-            return data.read().lastRawState();
-        } finally {
-            processingLock.unlock();
-        }
+        return getRawStateFrom(getLastState());
     }
     
     @Override
     public ImmutableState<T, S, E, C> getInitialRawState() {
-        processingLock.lock();
-        try {
-            return data.read().initialRawState();
-        } finally {
-            processingLock.unlock();
-        }
+        return getRawStateFrom(getInitialState());
     }
     
     @Override
@@ -616,6 +606,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 TransitionDeclinedListener.TRANSITION_DECLINED_EVENT_METHOD);
     }
     
+    @Override
+    public void addTransitionEndListener(TransitionEndListener<T, S, E, C> listener) {
+        addListener(TransitionEndListener.class, listener, 
+                TransitionEndListener.TRANSITION_END_EVENT_METHOD);
+    }
+    
+    @Override
+    public void removeTransitionEndListener(TransitionEndListener<T, S, E, C> listener) {
+        removeListener(TransitionEndListener.class, listener, 
+                TransitionEndListener.TRANSITION_END_EVENT_METHOD);
+    }
+    
     public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
     	executor.addExecActionListener(listener);
     }
@@ -738,6 +740,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public static class TransitionDeclinedEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
     extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionDeclinedEvent<T, S, E, C> {
         public TransitionDeclinedEventImpl(S sourceState, E event, C context,T stateMachine) {
+            super(sourceState, event, context, stateMachine);
+        }
+    }
+    
+    public static class TransitionEndEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
+    extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionEndEvent<T, S, E, C> {
+        public TransitionEndEventImpl(S sourceState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
         }
     }

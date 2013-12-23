@@ -295,9 +295,10 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 	})
 	```
 
-* **State Machine Lifecycle Events**  
-During the lifecycle of the state machine, various events will be fired, e.g. 
+* **Polymorphism Event Dispatch**  
+During the lifecycle of the state machine, various events will be fired, e.g.   
 ```  
+State Machine Lifecycle Events
 |--StateMachineEvent 						/* Base event of all state machine event */   
        |--StartEvent							/* Fired when state machine started      */ 
        |--TerminateEvent						/* Fired when state machine terminated   */ 
@@ -305,7 +306,8 @@ During the lifecycle of the state machine, various events will be fired, e.g.
        		|--TransitionBeginEvent				/* Fired when transition began           */ 
             |--TransitionCompleteEvent			/* Fired when transition completed       */ 
             |--TransitionExceptionEvent			/* Fired when transition threw exception */ 
-            |--TransitionDeclinedListener		/* Fired when transition declined        */ 
+            |--TransitionDeclinedEvent			/* Fired when transition declined        */ 
+            |--TransitionEndEvent				/* Fired when transition end no matter declined or complete */ 
 ```
 User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
 ```java
@@ -316,6 +318,29 @@ stateMachine.addStateMachineListener(new StateMachineListener<MyStateMachine, My
 			}
 	});
 ```
+**And** User can also add a listener to listen TransitionEvent through StateMachine.addTransitionListener, which means all events fired during each state transition including TransitionBeginEvent, TransitionCompleteEvent and TransitionEndEvent will be caught by this listener.  
+**Or** user can add specific listener e.g. TransitionDeclinedListener to listen TransitionDeclinedEvent when transition request was declined.  
+
+* **Transition Extension Methods**   
+Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed to be extended in customer state machine implementation class.
+```java
+	protected void afterTransitionCausedException(Exception e, S fromState, S toState, E event, C context) {
+    }
+    
+	protected void beforeTransitionBegin(S fromState, E event, C context) {
+    }
+    
+    protected void afterTransitionCompleted(S fromState, S toState, E event, C context) {
+    }
+    
+    protected void afterTransitionEnd(S fromState, S toState, E event, C context) {
+    }
+    
+    protected void afterTransitionDeclined(S fromState, E event, C context) {
+    }
+```
+Typically, user can hook in your business processing logic in these extension methods during each state transition, while the various event listener serves as boundary of state machine based control system, which can interact with external modules (e.g. UI, Auditing, ESB and so on).  
+For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module through TransitionExceptionEvent.
 
 * **State Machine PostProcessor**  
 	User can register post processor for specific type of state machine in order to adding post process logic after state machine instantiated, e.g.  

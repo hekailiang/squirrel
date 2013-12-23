@@ -21,7 +21,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     
     private E event;
     
-    private Actions<T, S, E, C> actions = FSM.newActions();
+    private final Actions<T, S, E, C> actions = FSM.newActions();
     
     private Condition<C> condition = Conditions.always();
     

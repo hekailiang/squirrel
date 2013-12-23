@@ -67,7 +67,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private static final Logger logger = LoggerFactory.getLogger(StateMachineBuilderImpl.class);
     
-    private final Map<S, MutableState<T, S, E, C>> states = Maps.newHashMap();
+    private final Map<S, MutableState<T, S, E, C>> states = Maps.newConcurrentMap();
     
     private final Class<? extends T> stateMachineImplClazz;
     

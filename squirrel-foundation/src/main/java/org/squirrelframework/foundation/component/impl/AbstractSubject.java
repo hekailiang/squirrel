@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.event.EventMediator;
+import org.squirrelframework.foundation.event.PolymorphismEventDispatcher;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -12,7 +12,7 @@ public abstract class AbstractSubject implements Observable {
 	
 	private boolean notifiable = true;
 	
-	private EventMediator eventMediator;
+	private PolymorphismEventDispatcher eventDispatcher;
 
 	@Override
     public boolean isNotifiable() {
@@ -26,10 +26,10 @@ public abstract class AbstractSubject implements Observable {
 
 	@Override
     public void addListener(Class<?> eventType, Object listener, Method method) {
-		if (eventMediator == null) {
-            eventMediator = SquirrelProvider.getInstance().newInstance(EventMediator.class);
+		if (eventDispatcher == null) {
+            eventDispatcher = SquirrelProvider.getInstance().newInstance(PolymorphismEventDispatcher.class);
         }
-        eventMediator.register(eventType, listener, method);
+        eventDispatcher.register(eventType, listener, method);
     }
 
 	@Override
@@ -40,8 +40,8 @@ public abstract class AbstractSubject implements Observable {
 
 	@Override
     public void removeListener(Class<?> eventType, Object listener, Method method) {
-		if (eventMediator != null) {
-            eventMediator.unregister(eventType, listener, method);
+		if (eventDispatcher != null) {
+            eventDispatcher.unregister(eventType, listener, method);
         }
     }
 
@@ -53,21 +53,21 @@ public abstract class AbstractSubject implements Observable {
 
 	@Override
     public void removeListener(Class<?> eventType, Object listener) {
-		if (eventMediator != null) {
-            eventMediator.unregister(eventType, listener);
+		if (eventDispatcher != null) {
+            eventDispatcher.unregister(eventType, listener);
         }
     }
 
 	@Override
     public void removeAllListeners() {
-		if (eventMediator != null)
-            eventMediator.unregisterAll();
+		if (eventDispatcher != null)
+            eventDispatcher.unregisterAll();
     }
 
 	@Override
     public void fireEvent(SquirrelEvent event) {
-		if (eventMediator != null && isNotifiable()) {
-            eventMediator.fireEvent(event);
+		if (eventDispatcher != null && isNotifiable()) {
+            eventDispatcher.fireEvent(event);
         }
     }
 }
