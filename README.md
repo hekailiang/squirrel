@@ -180,7 +180,7 @@ To create a new state machine instance from state machine builder, you need to p
 	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));	
 	```
 * **Untyped State Machine**  
-	In order to simplify state machine usage, and avoid too many generic types (e.g. StateMachine\<T, S, E, C\>) which makes code hard to read, but still keep important part of type safety feature on transition action execution, UntypedStateMachine was implemented for this purpose.
+	In order to simplify state machine usage, and avoid too many generic types (e.g. StateMachine\<T, S, E, C\>) which may make code hard to read in some case, but still keep important part of type safety feature on transition action execution, UntypedStateMachine was implemented for this purpose.
 	```java
 	enum TestEvent {
         toA, toB, toC, toD

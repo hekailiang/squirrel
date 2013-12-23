@@ -37,7 +37,8 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
                     new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz} : 
                     new Class<?>[]{stateClazz, stateClazz, eventClazz};
                     
-            Method method = StateMachineBuilderImpl.findMethodCallAction(stateMachineClazz, methodName, methodCallParamTypes);
+            Method method = StateMachineBuilderImpl.findMethodCallActionInternal( 
+                    stateMachineClazz, methodName, methodCallParamTypes );
             delegator = FSM.newMethodCallAction(method, scriptManager);
         }
         delegator.execute(from, to, event, context, stateMachine);
