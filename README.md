@@ -59,9 +59,9 @@ builder.externalTransition().from(MyState.A).to(MyState.B).on(MyEvent.GoToB);
 ```
 An **external transition** is built between state 'A' to state 'B' and triggered on received event 'GoToB'.
 ```java
-builder.internalTransition().within(MyState.A).on(MyEvent.WithinA).perform(myAction);
+builder.internalTransition(TransitionPriority.HIGH).within(MyState.A).on(MyEvent.WithinA).perform(myAction);
 ```
-An **internal transition** is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered.
+An **internal transition** with priority set to high is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered. The transition priority is used to override original transition when state machine extended.
 ```java
 	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
 		new Condition<MyContext>() {
