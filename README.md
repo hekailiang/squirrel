@@ -88,8 +88,27 @@ builder.onEntry(MyState.A).perform(Lists.newArrayList(action1, action2))
 A list of state entry actions is defined.
 
 * **Method Call Action**  
-	User can define actions during define transitions or state entry actions. However, the actions will be scattered over the definitions method blocks and other classes. Moreover, other user cannot override the actions. Thus, squirrel-foundation also support define method call actions within state machine implementation in a **Convention Over Configuration** manner.  
-	Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain phase. e.g.  
+	User can define anonymous actions during define transitions or state entry/exit. However, the action code will be scattered over many places which may make code hard to maintain. Moreover, other user cannot override the actions. So squirrel-foundation also support to define state machine method call action which comes along with state machine class itself.   
+	```java
+	StateMachineBuilder<...> builder = ...;
+	builder.externalTransition().from(A).to(B).on(toB).callMethod("fromAToB");
+	```
+	or
+	```java
+	@Transitions({
+    	@Transit(from="A", to="B", on="toB", callMethod="fromAToB"),
+    	...
+    })
+    class StateMachineSample extends AbstractStateMachine<...> {
+    	...
+    	protected void fromAToB(MyState from, MyState to, MyEvent event, MyContext context) {
+    		// method with signature "fromAToB(MyState, MyState, MyEvent, MyContext)" 
+    		// will be invoked during transition
+    		...
+    	}
+    } 
+	```	
+	Moreover, squirrel-foundation also support define method call actions in a **Convention Over Configuration** manner. Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain phase. e.g.  
 	```java
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
@@ -192,7 +211,7 @@ To create a new state machine instance from state machine builder, you need to p
         @Transit(from="C", to="D", on="toD")
     })
     @StateMachineParamters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
-    static class UntypedStateMachineSample extends AbstractUntypedStateMachine {
+    class UntypedStateMachineSample extends AbstractUntypedStateMachine {
         
         protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
         	Map<Object, ImmutableUntypedState> states) {
