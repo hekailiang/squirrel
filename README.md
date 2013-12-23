@@ -340,7 +340,7 @@ Each transition event also has corresponding extension method on AbstractStateMa
     }
 ```
 Typically, user can hook in your business processing logic in these extension methods during each state transition, while the various event listener serves as boundary of state machine based control system, which can interact with external modules (e.g. UI, Auditing, ESB and so on).  
-For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module through TransitionExceptionEvent.
+For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module to display error message  through TransitionExceptionEvent.
 
 * **State Machine PostProcessor**  
 	User can register post processor for specific type of state machine in order to adding post process logic after state machine instantiated, e.g.  
