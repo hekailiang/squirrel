@@ -314,8 +314,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         entryAll(data.read().initialRawState(), stateContext);
         ImmutableState<T, S, E, C> currentState = data.read().currentRawState();
         ImmutableState<T, S, E, C> historyState = currentState.enterByHistory(stateContext);
-        data.write().currentState(historyState.getStateId());
         executor.execute();
+        data.write().currentState(historyState.getStateId());
         
         processEvents();
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
