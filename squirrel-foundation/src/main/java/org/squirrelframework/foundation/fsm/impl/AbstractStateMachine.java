@@ -111,6 +111,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 afterTransitionDeclined(fromStateId, event, context);
             }
         } catch(Exception e) {
+            setStatus(StateMachineStatus.ERROR);
+            logger.error("Transition from state \""+fromState+"\" to state \""+data.read().currentState()+
+                    "\" on event \""+event+"\" failed, which is caused by exception \""+e.getMessage()+"\".");
             fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromStateId, 
                     data.read().currentState(), event, context, getThis()));
             afterTransitionCausedException(e, fromStateId, data.read().currentState(), event, context);
@@ -158,6 +161,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(getStatus()==StateMachineStatus.TERMINATED) {
             throw new RuntimeException("The state machine is already terminated.");
         }
+        if(getStatus()==StateMachineStatus.ERROR) {
+            throw new RuntimeException("The state machine is corruptted.");
+        }
         queuedEvents.add(new Pair<E, C>(event, context));
         processEvents();
         
@@ -199,9 +205,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected void afterTransitionCausedException(Exception e, S fromState, S toState, E event, C context) {
-        setStatus(StateMachineStatus.ERROR);
-        logger.error("Transition from state \""+fromState+"\" to state \""+toState+
-                "\" on event \""+event+"\" failed, which is caused by exception \""+e.getMessage()+"\".");
     }
     
     protected void beforeTransitionBegin(S fromState, E event, C context) {
