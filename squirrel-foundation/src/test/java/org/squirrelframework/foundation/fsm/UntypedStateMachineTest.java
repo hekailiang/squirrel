@@ -3,7 +3,6 @@ package org.squirrelframework.foundation.fsm;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -32,12 +31,13 @@ public class UntypedStateMachineTest {
     })
     @StateMachineParamters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     static class UntypedStateMachineSample extends AbstractUntypedStateMachine {
-        CallSequenceMonitor monitor;
+        
+        @Mock
+        private CallSequenceMonitor monitor;
         
         protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
-                Map<Object, ImmutableUntypedState> states, CallSequenceMonitor monitor) {
+                Map<Object, ImmutableUntypedState> states) {
             super(initialState, states);
-            this.monitor = monitor;
         }
         
         protected void fromAToB(String from, String to, TestEvent event, Integer context) {
@@ -47,23 +47,20 @@ public class UntypedStateMachineTest {
         protected void transitFromdToaOntoA(String from, String to, TestEvent event, Integer context) {
             monitor.transitFromdToaOntoA(from, to, event, context);
         }
-    }
-    
-    @Mock
-    private CallSequenceMonitor monitor;
-    
-    @Before
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
+        
+        public CallSequenceMonitor getMonitor() {
+            return monitor;
+        }
     }
     
     @Test
     public void testUntypedStateMachine() {
-        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
-                UntypedStateMachineSample.class, CallSequenceMonitor.class);
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
         builder.externalTransition().from("d").to("a").on(TestEvent.toA);
-        UntypedStateMachine fsm = builder.newStateMachine("a", monitor);
+        UntypedStateMachineSample fsm = builder.newUntypedStateMachine("a", UntypedStateMachineSample.class);
         
+        MockitoAnnotations.initMocks(fsm);
+        CallSequenceMonitor monitor = fsm.getMonitor();
         InOrder callSequence = Mockito.inOrder(monitor);
         Assert.assertTrue(fsm.getCurrentState().equals("a"));
         fsm.fire(TestEvent.toB, 1);
@@ -78,5 +75,4 @@ public class UntypedStateMachineTest {
         callSequence.verify(monitor, Mockito.times(1)).fromAToB("a", "b", TestEvent.toB, 1);
         callSequence.verify(monitor, Mockito.times(1)).transitFromdToaOntoA("d", "a", TestEvent.toA, 4);
     }
-
 }
