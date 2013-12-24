@@ -156,10 +156,12 @@ public class UntypedStateMachineTest {
         final AtomicInteger tdCallTimes = new AtomicInteger(0);
         
         @TransitionEnd
+        @TransitionComplete
         public void transitionEnd() {
             teCallTimes.incrementAndGet();
         }
         
+        @TransitionEnd
         @TransitionBegin
         public void transitionBegin(TestEvent event) {
             Assert.assertTrue(event==TestEvent.toB);
@@ -192,8 +194,8 @@ public class UntypedStateMachineTest {
         fsm.fire(TestEvent.toB, 1);
         // TransitionBegin, TransitionDeclined, TransitionEnd
         fsm.fire(TestEvent.toB, 2);
-        Assert.assertTrue(listenTarget.tbCallTimes.get()==2);
-        Assert.assertTrue(listenTarget.teCallTimes.get()==2);
+        Assert.assertTrue(listenTarget.tbCallTimes.get()==4);
+        Assert.assertTrue(listenTarget.teCallTimes.get()==3);
         Assert.assertTrue(listenTarget.tcCallTimes.get()==1);
         Assert.assertTrue(listenTarget.tdCallTimes.get()==1);
         
