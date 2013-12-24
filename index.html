@@ -70,7 +70,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.2.2-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;0.2.2.3-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -449,8 +449,42 @@ During the lifecycle of the state machine, various events will be fired, e.g.   
 <p><strong>And</strong> User can also add a listener to listen TransitionEvent through StateMachine.addTransitionListener, which means all events fired during each state transition including TransitionBeginEvent, TransitionCompleteEvent and TransitionEndEvent will be caught by this listener.<br><strong>Or</strong> user can add specific listener e.g. TransitionDeclinedListener to listen TransitionDeclinedEvent when transition request was declined.  </p>
 </li>
 <li>
+<p><strong>Declarative Event Listener</strong><br>
+To simplify state machine usage, more important to support non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     </p>
+
+<div class="highlight highlight-java"><pre><span class="kd">static</span> <span class="kd">class</span> <span class="nc">ExtenalModule</span> <span class="o">{</span>
+    <span class="nd">@TransitionEnd</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionEnd</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// method annotated with TransitionEnd will be invoked when transition end...</span>
+    <span class="o">}</span>
+
+    <span class="nd">@TransitionBegin</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionBegin</span><span class="o">(</span><span class="n">TestEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// method annotated with TransitionBegin will be invoked when transition begin...</span>
+    <span class="o">}</span>
+
+    <span class="nd">@TransitionComplete</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionComplete</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">TestEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// method annotated with TransitionComplete will be invoked when transition complete...</span>
+    <span class="o">}</span>
+
+    <span class="nd">@TransitionDecline</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionDeclined</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">TestEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// method annotated with TransitionDecline will be invoked when transition declined...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">ExtenalModule</span> <span class="n">externalModule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExtenalModule</span><span class="o">();</span>
+<span class="n">fsm</span><span class="o">.</span><span class="na">addDeclarativeListener</span><span class="o">(</span><span class="n">externalModule</span><span class="o">);</span>
+<span class="o">...</span>
+<span class="n">fsm</span><span class="o">.</span><span class="na">removeDeclarativeListener</span><span class="o">(</span><span class="n">externalModule</span><span class="o">);</span>
+</pre></div>
+
+<p>By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will be automatically matched to corresponding event. User can find sample code in <em>org.squirrelframework.foundation.fsm.UntypedStateMachineTest</em>.</p>
+</li>
+<li>
 <p><strong>Transition Extension Methods</strong><br>
-Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed to be extended in customer state machine implementation class.</p>
+Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed to be extended in customer state machine implementation class.  </p>
 
 <div class="highlight highlight-java"><pre><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterTransitionCausedException</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">,</span> <span class="n">S</span> <span class="n">fromState</span><span class="o">,</span> <span class="n">S</span> <span class="n">toState</span><span class="o">,</span> <span class="n">E</span> <span class="n">event</span><span class="o">,</span> <span class="n">C</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
 <span class="o">}</span>
