@@ -602,6 +602,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         stateMachineImpl.setTypeOfState(stateClazz);
         stateMachineImpl.setTypeOfEvent(eventClazz);
         stateMachineImpl.setTypeOfContext(contextClazz);
+        stateMachineImpl.setScriptManager(scriptManager);
         
         return stateMachine;
     }

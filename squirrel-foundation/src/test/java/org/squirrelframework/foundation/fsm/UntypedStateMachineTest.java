@@ -154,6 +154,7 @@ public class UntypedStateMachineTest {
         final AtomicInteger tbCallTimes = new AtomicInteger(0);
         final AtomicInteger tcCallTimes = new AtomicInteger(0);
         final AtomicInteger tdCallTimes = new AtomicInteger(0);
+        final AtomicInteger tcCallTimesCausedByToD = new AtomicInteger(0);
         
         @TransitionEnd
         @TransitionComplete
@@ -177,6 +178,11 @@ public class UntypedStateMachineTest {
             tcCallTimes.incrementAndGet();
         }
         
+        @TransitionComplete(condition="event.name().equals(\"toD\")")
+        public void transitionCompleteCausedByToD() {
+            tcCallTimesCausedByToD.incrementAndGet();
+        }
+        
         @TransitionDecline
         public void transitionDeclined(String from, TestEvent event, Integer context) {
             Assert.assertTrue(from.equals("b"));
@@ -198,6 +204,7 @@ public class UntypedStateMachineTest {
         Assert.assertTrue(listenTarget.teCallTimes.get()==3);
         Assert.assertTrue(listenTarget.tcCallTimes.get()==1);
         Assert.assertTrue(listenTarget.tdCallTimes.get()==1);
+        Assert.assertTrue(listenTarget.tcCallTimesCausedByToD.get()==0);
         
         fsm.removeDeclarativeListener(listenTarget);
         Assert.assertTrue(((AbstractSubject)fsm).getListenerSize()==0);
