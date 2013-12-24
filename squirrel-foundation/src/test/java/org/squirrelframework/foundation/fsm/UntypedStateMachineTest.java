@@ -11,8 +11,15 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.squirrelframework.foundation.fsm.StateMachine.StateMachineEvent;
+import org.squirrelframework.foundation.fsm.StateMachine.StateMachineListener;
+import org.squirrelframework.foundation.fsm.StateMachine.TransitionBeginEvent;
+import org.squirrelframework.foundation.fsm.StateMachine.TransitionBeginListener;
+import org.squirrelframework.foundation.fsm.StateMachine.TransitionCompleteEvent;
+import org.squirrelframework.foundation.fsm.StateMachine.TransitionCompleteListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndListener;
+import org.squirrelframework.foundation.fsm.StateMachine.TransitionEvent;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -90,16 +97,50 @@ public class UntypedStateMachineTest {
     }
     
     @Test
-    public void testTransitionEndEvent() {
-        final AtomicInteger callTimes = new AtomicInteger(0);;
+    public void testTransitionEvent() {
+        final AtomicInteger smCallTimes = new AtomicInteger(0);
+        final AtomicInteger tCallTimes  = new AtomicInteger(0);
+        final AtomicInteger teCallTimes = new AtomicInteger(0);
+        final AtomicInteger tbCallTimes = new AtomicInteger(0);
+        final AtomicInteger tcCallTimes = new AtomicInteger(0);
+        fsm.addStateMachineListener(new StateMachineListener<UntypedStateMachine, Object, Object, Object>() {
+            @Override
+            public void stateMachineEvent(StateMachineEvent<UntypedStateMachine, Object, Object, Object> event) {
+                smCallTimes.incrementAndGet();
+            }
+        });
+        fsm.addListener(TransitionEvent.class, new StateMachineListener<UntypedStateMachine, Object, Object, Object>() {
+            @Override
+            public void stateMachineEvent(StateMachineEvent<UntypedStateMachine, Object, Object, Object> event) {
+                tCallTimes.incrementAndGet();
+            }
+        }, "stateMachineEvent");
         fsm.addTransitionEndListener(new TransitionEndListener<UntypedStateMachine, Object, Object, Object>() {
             @Override
             public void transitionEnd(TransitionEndEvent<UntypedStateMachine, Object, Object, Object> event) {
-                callTimes.incrementAndGet();
+                teCallTimes.incrementAndGet();
             }
         });
+        fsm.addTransitionBeginListener(new TransitionBeginListener<UntypedStateMachine, Object, Object, Object>() {
+            @Override
+            public void transitionBegin(TransitionBeginEvent<UntypedStateMachine, Object, Object, Object> event) {
+                tbCallTimes.incrementAndGet();
+            }
+        });
+        fsm.addTransitionCompleteListener(new TransitionCompleteListener<UntypedStateMachine, Object, Object, Object>() {
+            @Override
+            public void transitionComplete(TransitionCompleteEvent<UntypedStateMachine, Object, Object, Object> event) {
+                tcCallTimes.incrementAndGet();
+            }
+        });
+        // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
+        // TransitionBegin, TransitionDeclined, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
-        Assert.assertTrue(callTimes.get()==2);
+        Assert.assertTrue(smCallTimes.get()==7);
+        Assert.assertTrue( tCallTimes.get()==6);
+        Assert.assertTrue(teCallTimes.get()==2);
+        Assert.assertTrue(tbCallTimes.get()==2);
+        Assert.assertTrue(tcCallTimes.get()==1);
     }
 }
