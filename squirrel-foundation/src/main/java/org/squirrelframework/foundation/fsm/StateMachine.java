@@ -178,6 +178,10 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
 //        }
 //    }
     
+    void addDeclarativeListener(Object listener);
+    
+    void removeDeclarativeListener(Object listener);
+    
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         // leverage bridge method to call the method of actual listener
         public static final Method STATEMACHINE_EVENT_METHOD = ReflectUtils.getMethod(
@@ -230,8 +234,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     }
     
     interface TransitionBeginListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "transitionBegin";
         public static final Method TRANSITION_BEGIN_EVENT_METHOD = ReflectUtils.getMethod(
-                TransitionBeginListener.class, "transitionBegin", new Class<?>[]{TransitionBeginEvent.class});
+                TransitionBeginListener.class, METHOD_NAME, new Class<?>[]{TransitionBeginEvent.class});
         
         void transitionBegin(TransitionBeginEvent<T, S, E, C> event);
     }
@@ -239,9 +244,14 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void addTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener);
     void removeTransitionBeginListener(TransitionBeginListener<T, S, E, C> listener);
     
+    public interface DeclarativeLisener {
+        Object getListenTarget();
+    }
+    
     interface TransitionCompleteListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "transitionComplete";
         public static final Method TRANSITION_COMPLETE_EVENT_METHOD = ReflectUtils.getMethod(
-                TransitionCompleteListener.class, "transitionComplete", new Class<?>[]{TransitionCompleteEvent.class});
+                TransitionCompleteListener.class, METHOD_NAME, new Class<?>[]{TransitionCompleteEvent.class});
         
         void transitionComplete(TransitionCompleteEvent<T, S, E, C> event);
     }
@@ -252,8 +262,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionCompleteListener(TransitionCompleteListener<T, S, E, C> listener);
     
     interface TransitionExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "transitionException";
         public static final Method TRANSITION_EXCEPTION_EVENT_METHOD = ReflectUtils.getMethod(
-                TransitionExceptionListener.class, "transitionException", new Class<?>[]{TransitionExceptionEvent.class});
+                TransitionExceptionListener.class, METHOD_NAME, new Class<?>[]{TransitionExceptionEvent.class});
         
         void transitionException(TransitionExceptionEvent<T, S, E, C> event);
     }
@@ -265,8 +276,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener);
     
     interface TransitionDeclinedListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "transitionDeclined";
         public static final Method TRANSITION_DECLINED_EVENT_METHOD = ReflectUtils.getMethod(
-                TransitionDeclinedListener.class, "transitionDeclined", new Class<?>[]{TransitionDeclinedEvent.class});
+                TransitionDeclinedListener.class, METHOD_NAME, new Class<?>[]{TransitionDeclinedEvent.class});
         
         void transitionDeclined(TransitionDeclinedEvent<T, S, E, C> event);
     }
@@ -275,8 +287,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener);
     
     interface TransitionEndListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "transitionEnd";
         public static final Method TRANSITION_END_EVENT_METHOD = ReflectUtils.getMethod(
-                TransitionEndListener.class, "transitionEnd", new Class<?>[]{TransitionEndEvent.class});
+                TransitionEndListener.class, METHOD_NAME, new Class<?>[]{TransitionEndEvent.class});
         
         void transitionEnd(TransitionEndEvent<T, S, E, C> event);
     }

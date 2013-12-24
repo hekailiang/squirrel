@@ -9,7 +9,5 @@ import java.lang.annotation.Target;
 @Target({METHOD})
 @Retention(RUNTIME)
 public @interface TransitionException {
-    String causedBy() default "";
-    Class<?> typeOf() default Object.class;
-    Class<? extends Throwable> exception() default Throwable.class;
+    String condition() default "";
 }

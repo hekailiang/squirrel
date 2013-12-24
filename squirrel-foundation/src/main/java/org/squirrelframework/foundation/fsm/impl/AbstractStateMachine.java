@@ -1,5 +1,8 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
+import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionLisenter;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
@@ -22,11 +26,19 @@ import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
+import org.squirrelframework.foundation.fsm.annotation.TransitionBegin;
+import org.squirrelframework.foundation.fsm.annotation.TransitionComplete;
+import org.squirrelframework.foundation.fsm.annotation.TransitionDecline;
+import org.squirrelframework.foundation.fsm.annotation.TransitionEnd;
+import org.squirrelframework.foundation.fsm.annotation.TransitionException;
 import org.squirrelframework.foundation.util.Pair;
+import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 
 /**
  * The Abstract state machine provide several extension ability to cover different extension granularity. 
@@ -518,6 +530,121 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     public Class<S> typeOfState() {
         return data.read().typeOfState();
+    }
+    
+    private Object newTransitionListenerProxy(final Object listenTarget, 
+            final Method declarativeListenerMethod, final Class<?> listenerInterface) {
+        final String listenerMethodName = ReflectUtils.getStatic(
+                ReflectUtils.getField(listenerInterface, "METHOD_NAME")).toString();
+        final Object proxyListener = Proxy.newProxyInstance(StateMachine.class.getClassLoader(), 
+                new Class<?>[]{listenerInterface, DeclarativeLisener.class}, 
+                new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        if(method.getName().equals("getListenTarget")) {
+                            return listenTarget;
+                        } else if(method.getName().equals(listenerMethodName)) {
+                            Class<?>[] parameterTypes = declarativeListenerMethod.getParameterTypes();
+                            if(parameterTypes.length == 0) {
+                                return ReflectUtils.invoke(declarativeListenerMethod, listenTarget);
+                            } else {
+                                @SuppressWarnings("unchecked")
+                                TransitionEvent<T, S, E, C> event = (TransitionEvent<T, S, E, C>)args[0];
+                                List<Object> parameterValues = Lists.newArrayList();
+                                boolean isSourceStateSet = false;
+                                for(Class<?> parameterType : parameterTypes) {
+                                    if(parameterType.isAssignableFrom(typeOfState()) && !isSourceStateSet) {
+                                        parameterValues.add(event.getSourceState());
+                                        isSourceStateSet = true;
+                                    } else if(event instanceof TransitionCompleteEvent && parameterType.isAssignableFrom(typeOfState())) {
+                                        parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
+                                    } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(typeOfState())) {
+                                        parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
+                                    } else if(parameterType.isAssignableFrom(typeOfEvent())) {
+                                        parameterValues.add(event.getCause());
+                                    } else if(parameterType.isAssignableFrom(typeOfContext())) {
+                                        parameterValues.add(event.getContext());
+                                    } else if(parameterType.isAssignableFrom(this.getClass())) {
+                                        parameterValues.add(event.getStateMachine());
+                                    } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
+                                        parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getException());
+                                    } else {
+                                        parameterValues.add(null);
+                                    }
+                                }
+                                return ReflectUtils.invoke(declarativeListenerMethod, listenTarget, parameterValues.toArray());
+                            }
+                        } else if(method.getName().equals("equals")) {
+                            return declarativeListenerMethod.equals(args[0]);
+                        } else if(method.getName().equals("hashCode")) {
+                            return declarativeListenerMethod.hashCode();
+                        } else if(method.getName().equals("toString")) {
+                            return declarativeListenerMethod.toString();
+                        } 
+                        throw new UnsupportedOperationException("Cannot invoke method "+method.getName()+".");
+                    }
+                });
+        
+        return proxyListener;
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public void addDeclarativeListener(Object listenTarget) {
+        List<String> visitedMethods = Lists.newArrayList();
+        for(final Method declarativeListenerMethod : listenTarget.getClass().getMethods()) {
+            String methodSignature = declarativeListenerMethod.toString();
+            if(visitedMethods.contains(methodSignature)) continue;
+            visitedMethods.add(methodSignature);
+            
+            TransitionBegin tb = declarativeListenerMethod.getAnnotation(TransitionBegin.class);
+            if(tb!=null) {
+                TransitionBeginListener<T, S, E, C> tbListener = (TransitionBeginListener<T, S, E, C>)
+                        newTransitionListenerProxy(listenTarget, declarativeListenerMethod, TransitionBeginListener.class);
+                addTransitionBeginListener(tbListener);
+            }
+            
+            TransitionComplete tc = declarativeListenerMethod.getAnnotation(TransitionComplete.class);
+            if(tc!=null) {
+                TransitionCompleteListener<T, S, E, C> tcListener = (TransitionCompleteListener<T, S, E, C>)
+                        newTransitionListenerProxy(listenTarget, declarativeListenerMethod, TransitionCompleteListener.class);
+                addTransitionCompleteListener(tcListener);
+            }
+            
+            TransitionDecline td = declarativeListenerMethod.getAnnotation(TransitionDecline.class);
+            if(td!=null) {
+                TransitionDeclinedListener<T, S, E, C> tdListener = (TransitionDeclinedListener<T, S, E, C>)
+                        newTransitionListenerProxy(listenTarget, declarativeListenerMethod, TransitionDeclinedListener.class);
+                addTransitionDeclinedListener(tdListener);
+            }
+            
+            TransitionEnd te = declarativeListenerMethod.getAnnotation(TransitionEnd.class);
+            if(te!=null) {
+                TransitionEndListener<T, S, E, C> teListener = (TransitionEndListener<T, S, E, C>)
+                        newTransitionListenerProxy(listenTarget, declarativeListenerMethod, TransitionEndListener.class);
+                addTransitionEndListener(teListener);
+            }
+            
+            TransitionException tex = declarativeListenerMethod.getAnnotation(TransitionException.class);
+            if(tex!=null) {
+                TransitionExceptionListener<T, S, E, C> texListener = (TransitionExceptionListener<T, S, E, C>)
+                        newTransitionListenerProxy(listenTarget, declarativeListenerMethod, TransitionExceptionListener.class);
+                addTransitionExceptionListener(texListener);
+            }
+        }
+    }
+    
+    @Override
+    public void removeDeclarativeListener(final Object listenTarget) {
+        if (eventDispatcher!=null) {
+            eventDispatcher.unregister(new Predicate<ListenerMethod>() {
+                @Override
+                public boolean apply(ListenerMethod input) {
+                    return (input.getTarget() instanceof DeclarativeLisener) && 
+                          ((DeclarativeLisener)input.getTarget()).getListenTarget()==listenTarget;
+                }
+            });
+        }
     }
     
     @Override

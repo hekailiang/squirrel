@@ -9,6 +9,5 @@ import java.lang.annotation.Target;
 @Target({METHOD})
 @Retention(RUNTIME)
 public @interface TransitionBegin {
-    String causedBy() default "";
-    Class<?> typeOf() default Object.class;
+    String condition() default "";
 }

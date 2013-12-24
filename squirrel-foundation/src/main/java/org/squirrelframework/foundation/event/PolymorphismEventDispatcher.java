@@ -25,6 +25,12 @@ public class PolymorphismEventDispatcher implements SquirrelComponent {
         listeners.add(new ListenerMethod(eventType, listener, method));
     }
     
+    public void unregister(Predicate<ListenerMethod> predicate) {
+        if (listeners != null) {
+            Iterators.removeIf(listeners.iterator(), predicate);
+        }
+    }
+            
     public void unregister(final Class<?> eventType, final Object target) {
         if (listeners != null) {
             Iterators.removeIf(listeners.iterator(), new Predicate<ListenerMethod>() {
@@ -62,5 +68,9 @@ public class PolymorphismEventDispatcher implements SquirrelComponent {
                 listenerArray[i].invokeMethod(event);
             }
         }
+    }
+    
+    public int getListenerSize() {
+        return listeners!=null ? listeners.size() : 0;
     }
 }

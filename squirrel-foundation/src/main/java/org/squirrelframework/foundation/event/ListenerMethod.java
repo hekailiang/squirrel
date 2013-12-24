@@ -62,8 +62,16 @@ public class ListenerMethod {
         return hash;
     }
     
-    Class<?> getEventType() {
+    public Class<?> getEventType() {
         return eventType;
+    }
+    
+    public Object getTarget() {
+        return target;
+    }
+    
+    public Method getMethod() {
+        return method;
     }
     
     @Override

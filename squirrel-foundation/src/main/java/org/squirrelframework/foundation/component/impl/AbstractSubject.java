@@ -12,7 +12,7 @@ public abstract class AbstractSubject implements Observable {
 	
 	private boolean notifiable = true;
 	
-	private PolymorphismEventDispatcher eventDispatcher;
+	protected PolymorphismEventDispatcher eventDispatcher;
 
 	@Override
     public boolean isNotifiable() {
@@ -43,6 +43,10 @@ public abstract class AbstractSubject implements Observable {
 		if (eventDispatcher != null) {
             eventDispatcher.unregister(eventType, listener, method);
         }
+    }
+	
+	public int getListenerSize() {
+        return eventDispatcher.getListenerSize();
     }
 
 	@Override
