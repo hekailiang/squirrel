@@ -612,7 +612,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void addTransitionEndListener(TransitionEndListener<T, S, E, C> listener) {
-        addListener(TransitionEndListener.class, listener, 
+        addListener(TransitionEndEvent.class, listener, 
                 TransitionEndListener.TRANSITION_END_EVENT_METHOD);
     }
     

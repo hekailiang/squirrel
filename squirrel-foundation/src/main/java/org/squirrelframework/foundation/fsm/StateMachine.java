@@ -278,7 +278,7 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
         public static final Method TRANSITION_END_EVENT_METHOD = ReflectUtils.getMethod(
                 TransitionEndListener.class, "transitionEnd", new Class<?>[]{TransitionEndEvent.class});
         
-        void transitionEnd(TransitionDeclinedEvent<T, S, E, C> event);
+        void transitionEnd(TransitionEndEvent<T, S, E, C> event);
     }
     interface TransitionEndEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
     void addTransitionEndListener(TransitionEndListener<T, S, E, C> listener);
