@@ -161,17 +161,25 @@ public class UntypedStateMachineTest {
         }
         
         @TransitionBegin
-        public void transitionBegin() {
+        public void transitionBegin(TestEvent event) {
+            Assert.assertTrue(event==TestEvent.toB);
             tbCallTimes.incrementAndGet();
         }
         
         @TransitionComplete
-        public void transitionComplete() {
+        public void transitionComplete(String from, String to, TestEvent event, Integer context) {
+            Assert.assertTrue(from.equals("a"));
+            Assert.assertTrue(to.equals("b"));
+            Assert.assertTrue(event==TestEvent.toB);
+            Assert.assertTrue(context==1);
             tcCallTimes.incrementAndGet();
         }
         
         @TransitionDecline
-        public void transitionDeclined() {
+        public void transitionDeclined(String from, TestEvent event, Integer context) {
+            Assert.assertTrue(from.equals("b"));
+            Assert.assertTrue(event==TestEvent.toB);
+            Assert.assertTrue(context==2);
             tdCallTimes.incrementAndGet();
         }
     }
@@ -183,7 +191,7 @@ public class UntypedStateMachineTest {
         // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
         // TransitionBegin, TransitionDeclined, TransitionEnd
-        fsm.fire(TestEvent.toB, 1);
+        fsm.fire(TestEvent.toB, 2);
         Assert.assertTrue(listenTarget.tbCallTimes.get()==2);
         Assert.assertTrue(listenTarget.teCallTimes.get()==2);
         Assert.assertTrue(listenTarget.tcCallTimes.get()==1);
