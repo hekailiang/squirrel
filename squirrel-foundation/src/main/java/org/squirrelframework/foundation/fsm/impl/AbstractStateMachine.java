@@ -573,20 +573,27 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     if(parameterTypes.length == 0) {
                         return ReflectUtils.invoke(listenerMethod, listenTarget);
                     }
+                    // parameter values infer
                     List<Object> parameterValues = Lists.newArrayList();
-                    boolean isSourceStateSet = false;
+                    boolean isSourceStateSet = false, isTargetStateSet=false, isEventSet=false, isContextSet=false;
                     for(Class<?> parameterType : parameterTypes) {
-                        if(parameterType.isAssignableFrom(typeOfState()) && !isSourceStateSet) {
+                        if(!isSourceStateSet && parameterType.isAssignableFrom(typeOfState())) {
                             parameterValues.add(event.getSourceState());
                             isSourceStateSet = true;
-                        } else if(event instanceof TransitionCompleteEvent && parameterType.isAssignableFrom(typeOfState())) {
+                        } else if(!isTargetStateSet && event instanceof TransitionCompleteEvent && 
+                                parameterType.isAssignableFrom(typeOfState())) {
                             parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
-                        } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(typeOfState())) {
+                            isTargetStateSet = true;
+                        } else if(!isTargetStateSet && event instanceof TransitionExceptionEvent && 
+                                parameterType.isAssignableFrom(typeOfState()) && !isTargetStateSet) {
                             parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
-                        } else if(parameterType.isAssignableFrom(typeOfEvent())) {
+                            isTargetStateSet = true;
+                        } else if(!isEventSet && parameterType.isAssignableFrom(typeOfEvent())) {
                             parameterValues.add(event.getCause());
-                        } else if(parameterType.isAssignableFrom(typeOfContext())) {
+                            isEventSet = true;
+                        } else if(!isContextSet && parameterType.isAssignableFrom(typeOfContext())) {
                             parameterValues.add(event.getContext());
+                            isContextSet = true;
                         } else if(parameterType.isAssignableFrom(this.getClass())) {
                             parameterValues.add(event.getStateMachine());
                         } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
