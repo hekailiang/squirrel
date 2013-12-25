@@ -310,7 +310,7 @@ public class HierarchicalStateMachineTest {
 	
 	HierachicalStateMachine stateMachine;
 	
-	StateMachineLogger monitor;
+	StateMachineLogger fsmLogger;
 	
 	@BeforeClass
 	public static void beforeTest() {
@@ -326,7 +326,7 @@ public class HierarchicalStateMachineTest {
 	
 	@After
 	public void teardown() {
-	    monitor.terminateMonitor();
+	    fsmLogger.terminateLogging();
 		if(stateMachine.getStatus()!=StateMachineStatus.TERMINATED)
 			stateMachine.terminate(null);
 		System.out.println("-------------------------------------------------");
@@ -348,8 +348,8 @@ public class HierarchicalStateMachineTest {
 		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);		
 		
 		stateMachine = builder.newStateMachine(HState.A);
-		monitor = new StateMachineLogger(stateMachine);
-		monitor.startMonitor();
+		fsmLogger = new StateMachineLogger(stateMachine);
+		fsmLogger.startLogging();
 	}
 	
 	@Test

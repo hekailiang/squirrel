@@ -26,11 +26,11 @@ public class StateMachineLogger {
 	    this.stateMachineName = stateMachine.getClass().getSimpleName();
 	}
 	
-	public void startMonitor() {
+	public void startLogging() {
 	    stateMachine.addDeclarativeListener(this);
 	}
 	
-	public void terminateMonitor() {
+	public void terminateLogging() {
 	    stateMachine.removeDeclarativeListener(this);
 	}
 

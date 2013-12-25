@@ -464,23 +464,24 @@ newStateMachineInstance.loadSavedData(savedData);
 ``` 
 
 * **State Machine Diagnose**  
-	User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.   
-	For example, the following code is used to register an execution time monitor for state machine of *MyStateMachine* type.
+	*StateMachineLogger* is used to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on, e.g.  
 	```java
-	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, 
-        		new TypeReference<TransitionExecTimeMonitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
-	```  
-	The following code is used to monitor transition progress by adding a *TransitionProgressMonitor* to *ActionExecutor* to monitor transition action execution.
-	```java
-	SquirrelPostProcessorProvider.getInstance().register(
-        new TypeReference<ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext>>(){}, 
-        new SquirrelPostProcessor<ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext>>() {
-			@Override
-            public void postProcess(ActionExecutor<MyStateMachine, MyState, MyEvent, MyContext> component) {
-				component.addExecActionListener(new TransitionProgressMonitor<MyStateMachine, MyState, MyEvent, MyContext>());
-            }
-        }
-	);
+	StateMachine<?,?,?,?> stateMachine = builder.newStateMachine(HState.A);
+	StateMachineLogger fsmLogger = new StateMachineLogger(stateMachine);
+	fsmLogger.startLogging();
+	...
+	stateMachine.fire(HEvent.B2A, 1);
+	...
+	fsmLogger.terminateLogging();
+	----------------------------------------------------------------------------------------
+	Console Log:
+	HierachicalStateMachine: Transition from "B2a" on "B2A" with context "1" begin.
+	Before execute method call action "leftB2a" (1 of 6).
+	Before execute method call action "exitB2" (2 of 6).
+	...
+	Before execute method call action "entryA1" (6 of 6).
+	HierachicalStateMachine: Transition from "B2a" to "A1" on "B2A" complete which took 2ms.
+	...
 	```   
 	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
 	```java
