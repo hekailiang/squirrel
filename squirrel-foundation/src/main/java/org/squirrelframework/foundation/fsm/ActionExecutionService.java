@@ -52,13 +52,13 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	 * Add action execution listener which can be used for monitoring execution
 	 * @param listener action execution listener
 	 */
-	void addExecActionListener(ExecActionLisenter<T, S, E, C> listener);
+	void addExecActionListener(ExecActionListener<T, S, E, C> listener);
 	
 	/**
 	 * Remove action execution listener
 	 * @param listener action execution listener
 	 */
-	void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener);
+	void removeExecActionListener(ExecActionListener<T, S, E, C> listener);
 	
 	/**
 	 * Action execution event
@@ -76,10 +76,10 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	/**
 	 * Action execution listener
 	 */
-	interface ExecActionLisenter<T extends StateMachine<T, S, E, C>, S, E, C> {
+	interface ExecActionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
 	    public static final String METHOD_NAME = "beforeExecute";
 	    public static final Method METHOD = ReflectUtils.getMethod(
-	            ExecActionLisenter.class, METHOD_NAME, new Class<?>[]{ExecActionEvent.class});
+	            ExecActionListener.class, METHOD_NAME, new Class<?>[]{ExecActionEvent.class});
 		void beforeExecute(ExecActionEvent<T, S, E, C> event);
 	}
 }

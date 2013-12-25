@@ -44,12 +44,12 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     }
     
     @Override
-    public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
-        addListener(ExecActionEvent.class, listener, ExecActionLisenter.METHOD);
+    public void addExecActionListener(ExecActionListener<T, S, E, C> listener) {
+        addListener(ExecActionEvent.class, listener, ExecActionListener.METHOD);
     }
     
     @Override
-    public void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
+    public void removeExecActionListener(ExecActionListener<T, S, E, C> listener) {
         removeListener(ExecActionEvent.class, listener);
     }
     

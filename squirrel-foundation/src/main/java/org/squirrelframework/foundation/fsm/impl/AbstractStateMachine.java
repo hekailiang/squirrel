@@ -17,7 +17,8 @@ import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionLisenter;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.*;
+import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
@@ -27,6 +28,7 @@ import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
+import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
@@ -539,7 +541,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return data.read().typeOfState();
     }
     
-    private Object newTransitionListenerProxy(final Object listenTarget, 
+    private Object newListenerMethodProxy(final Object listenTarget, 
             final Method listenerMethod, final Class<?> listenerInterface, final String condition) {
         final String listenerMethodName = ReflectUtils.getStatic(
                 ReflectUtils.getField(listenerInterface, "METHOD_NAME")).toString();
@@ -549,60 +551,17 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 if(method.getName().equals("getListenTarget")) {
                     return listenTarget;
                 } else if(method.getName().equals(listenerMethodName)) {
-                    Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
-                    @SuppressWarnings("unchecked")
-                    TransitionEvent<T, S, E, C> event = (TransitionEvent<T, S, E, C>)args[0];
-                    final Map<String, Object> variables = Maps.newHashMap();
-                    variables.put("from", event.getSourceState());
-                    variables.put("event", event.getCause());
-                    variables.put("context", event.getContext());
-                    variables.put("stateMachine", event.getStateMachine());
-                    if(event instanceof TransitionCompleteEvent) {
-                        variables.put("to", ((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
-                    } else if(event instanceof TransitionExceptionEvent) {
-                        variables.put("to", ((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
-                        variables.put("exception", ((TransitionExceptionEvent<T, S, E, C>)event).getException());
+                    if(args[0] instanceof TransitionEvent) {
+                        @SuppressWarnings("unchecked")
+                        TransitionEvent<T, S, E, C> event = (TransitionEvent<T, S, E, C>)args[0];
+                        return invokeTransitionListenerMethod(listenTarget, listenerMethod, condition, event);
+                    } else if(args[0] instanceof ExecActionEvent) {
+                        @SuppressWarnings("unchecked")
+                        ExecActionEvent<T, S, E, C> event = (ExecActionEvent<T, S, E, C>)args[0];
+                        return invokeActionListenerMethod(listenTarget, listenerMethod, condition, event);
+                    } else {
+                        throw new IllegalArgumentException("Unable to recognize argument type "+args[0].getClass().getName()+".");
                     }
-                    
-                    boolean isSatisfied = true;
-                    if(condition!=null && condition.length()>0) {
-                        isSatisfied = scriptManager.evalBoolean(condition, variables);
-                    }
-                    if(!isSatisfied) return null;
-                    
-                    if(parameterTypes.length == 0) {
-                        return ReflectUtils.invoke(listenerMethod, listenTarget);
-                    }
-                    // parameter values infer
-                    List<Object> parameterValues = Lists.newArrayList();
-                    boolean isSourceStateSet = false, isTargetStateSet=false, isEventSet=false, isContextSet=false;
-                    for(Class<?> parameterType : parameterTypes) {
-                        if(!isSourceStateSet && parameterType.isAssignableFrom(typeOfState())) {
-                            parameterValues.add(event.getSourceState());
-                            isSourceStateSet = true;
-                        } else if(!isTargetStateSet && event instanceof TransitionCompleteEvent && 
-                                parameterType.isAssignableFrom(typeOfState())) {
-                            parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
-                            isTargetStateSet = true;
-                        } else if(!isTargetStateSet && event instanceof TransitionExceptionEvent && 
-                                parameterType.isAssignableFrom(typeOfState()) && !isTargetStateSet) {
-                            parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
-                            isTargetStateSet = true;
-                        } else if(!isEventSet && parameterType.isAssignableFrom(typeOfEvent())) {
-                            parameterValues.add(event.getCause());
-                            isEventSet = true;
-                        } else if(!isContextSet && parameterType.isAssignableFrom(typeOfContext())) {
-                            parameterValues.add(event.getContext());
-                            isContextSet = true;
-                        } else if(parameterType.isAssignableFrom(AbstractStateMachine.this.getClass())) {
-                            parameterValues.add(event.getStateMachine());
-                        } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
-                            parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getException());
-                        } else {
-                            parameterValues.add(null);
-                        }
-                    }
-                    return ReflectUtils.invoke(listenerMethod, listenTarget, parameterValues.toArray());
                 } else if(method.getName().equals("equals")) {
                     return super.equals(args[0]);
                 } else if(method.getName().equals("hashCode")) {
@@ -619,48 +578,163 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return proxyListener;
     }
     
+    private Object invokeActionListenerMethod(final Object listenTarget, 
+            final Method listenerMethod, final String condition, 
+            final ExecActionEvent<T, S, E, C> event) {
+        Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
+        
+        final Map<String, Object> variables = Maps.newHashMap();
+        variables.put("from", event.getFrom());
+        variables.put("to", event.getTo());
+        variables.put("event", event.getEvent());
+        variables.put("context", event.getContext());
+        variables.put("stateMachine", event.getStateMachine());
+        
+        boolean isSatisfied = true;
+        if(condition!=null && condition.length()>0) {
+            isSatisfied = scriptManager.evalBoolean(condition, variables);
+        }
+        if(!isSatisfied) return null;
+        
+        if(parameterTypes.length == 0) {
+            return ReflectUtils.invoke(listenerMethod, listenTarget);
+        }
+        // parameter values infer
+        List<Object> parameterValues = Lists.newArrayList();
+        boolean isSourceStateSet = false, isTargetStateSet=false, isEventSet=false, isContextSet=false;
+        for(Class<?> parameterType : parameterTypes) {
+            if(!isSourceStateSet && parameterType.isAssignableFrom(typeOfState())) {
+                parameterValues.add(event.getFrom());
+                isSourceStateSet = true;
+            } else if(!isTargetStateSet && parameterType.isAssignableFrom(typeOfState())) {
+                parameterValues.add(event.getTo());
+                isTargetStateSet = true;
+            } else if(!isEventSet && parameterType.isAssignableFrom(typeOfEvent())) {
+                parameterValues.add(event.getEvent());
+                isEventSet = true;
+            } else if(!isContextSet && parameterType.isAssignableFrom(typeOfContext())) {
+                parameterValues.add(event.getContext());
+                isContextSet = true;
+            } else if(parameterType.isAssignableFrom(AbstractStateMachine.this.getClass())) {
+                parameterValues.add(event.getStateMachine());
+            } else if(parameterType.isAssignableFrom(Action.class)) {
+                parameterValues.add(event.getExecutionTarget());
+            } else if(parameterType==int[].class) {
+                parameterValues.add(event.getMOfN());
+            } else {
+                parameterValues.add(null);
+            }
+        }
+        return ReflectUtils.invoke(listenerMethod, listenTarget, parameterValues.toArray());
+    }
+    
+    private Object invokeTransitionListenerMethod(final Object listenTarget, 
+            final Method listenerMethod, final String condition, 
+            final TransitionEvent<T, S, E, C> event) {
+        Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
+        
+        final Map<String, Object> variables = Maps.newHashMap();
+        variables.put("from", event.getSourceState());
+        variables.put("event", event.getCause());
+        variables.put("context", event.getContext());
+        variables.put("stateMachine", event.getStateMachine());
+        if(event instanceof TransitionCompleteEvent) {
+            variables.put("to", ((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
+        } else if(event instanceof TransitionExceptionEvent) {
+            variables.put("to", ((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
+            variables.put("exception", ((TransitionExceptionEvent<T, S, E, C>)event).getException());
+        }
+        
+        boolean isSatisfied = true;
+        if(condition!=null && condition.length()>0) {
+            isSatisfied = scriptManager.evalBoolean(condition, variables);
+        }
+        if(!isSatisfied) return null;
+        
+        if(parameterTypes.length == 0) {
+            return ReflectUtils.invoke(listenerMethod, listenTarget);
+        }
+        // parameter values infer
+        List<Object> parameterValues = Lists.newArrayList();
+        boolean isSourceStateSet = false, isTargetStateSet=false, isEventSet=false, isContextSet=false;
+        for(Class<?> parameterType : parameterTypes) {
+            if(!isSourceStateSet && parameterType.isAssignableFrom(typeOfState())) {
+                parameterValues.add(event.getSourceState());
+                isSourceStateSet = true;
+            } else if(!isTargetStateSet && event instanceof TransitionCompleteEvent && 
+                    parameterType.isAssignableFrom(typeOfState())) {
+                parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
+                isTargetStateSet = true;
+            } else if(!isTargetStateSet && event instanceof TransitionExceptionEvent && 
+                    parameterType.isAssignableFrom(typeOfState()) && !isTargetStateSet) {
+                parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
+                isTargetStateSet = true;
+            } else if(!isEventSet && parameterType.isAssignableFrom(typeOfEvent())) {
+                parameterValues.add(event.getCause());
+                isEventSet = true;
+            } else if(!isContextSet && parameterType.isAssignableFrom(typeOfContext())) {
+                parameterValues.add(event.getContext());
+                isContextSet = true;
+            } else if(parameterType.isAssignableFrom(AbstractStateMachine.this.getClass())) {
+                parameterValues.add(event.getStateMachine());
+            } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
+                parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getException());
+            } else {
+                parameterValues.add(null);
+            }
+        }
+        return ReflectUtils.invoke(listenerMethod, listenTarget, parameterValues.toArray());
+    }
+    
     @Override
     @SuppressWarnings("unchecked")
-    public void addDeclarativeListener(Object listenTarget) {
+    public void addDeclarativeListener(final Object listenTarget) {
         List<String> visitedMethods = Lists.newArrayList();
-        for(final Method dm : listenTarget.getClass().getMethods()) {
-            String methodSignature = dm.toString();
+        for(final Method dMethod : listenTarget.getClass().getMethods()) {
+            String methodSignature = dMethod.toString();
             if(visitedMethods.contains(methodSignature)) continue;
             visitedMethods.add(methodSignature);
             
-            OnTransitionBegin tb = dm.getAnnotation(OnTransitionBegin.class);
+            OnTransitionBegin tb = dMethod.getAnnotation(OnTransitionBegin.class);
             if(tb!=null) {
                 TransitionBeginListener<T, S, E, C> tbListener = (TransitionBeginListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionBeginListener.class, tb.when());
+                        newListenerMethodProxy(listenTarget, dMethod, TransitionBeginListener.class, tb.when());
                 addTransitionBeginListener(tbListener);
             }
             
-            OnTransitionComplete tc = dm.getAnnotation(OnTransitionComplete.class);
+            OnTransitionComplete tc = dMethod.getAnnotation(OnTransitionComplete.class);
             if(tc!=null) {
                 TransitionCompleteListener<T, S, E, C> tcListener = (TransitionCompleteListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionCompleteListener.class, tc.when());
+                        newListenerMethodProxy(listenTarget, dMethod, TransitionCompleteListener.class, tc.when());
                 addTransitionCompleteListener(tcListener);
             }
             
-            OnTransitionDecline td = dm.getAnnotation(OnTransitionDecline.class);
+            OnTransitionDecline td = dMethod.getAnnotation(OnTransitionDecline.class);
             if(td!=null) {
                 TransitionDeclinedListener<T, S, E, C> tdListener = (TransitionDeclinedListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionDeclinedListener.class, td.when());
+                        newListenerMethodProxy(listenTarget, dMethod, TransitionDeclinedListener.class, td.when());
                 addTransitionDeclinedListener(tdListener);
             }
             
-            OnTransitionEnd te = dm.getAnnotation(OnTransitionEnd.class);
+            OnTransitionEnd te = dMethod.getAnnotation(OnTransitionEnd.class);
             if(te!=null) {
                 TransitionEndListener<T, S, E, C> teListener = (TransitionEndListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionEndListener.class, te.when());
+                        newListenerMethodProxy(listenTarget, dMethod, TransitionEndListener.class, te.when());
                 addTransitionEndListener(teListener);
             }
             
-            OnTransitionException tex = dm.getAnnotation(OnTransitionException.class);
+            OnTransitionException tex = dMethod.getAnnotation(OnTransitionException.class);
             if(tex!=null) {
                 TransitionExceptionListener<T, S, E, C> texListener = (TransitionExceptionListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionExceptionListener.class, tex.when());
+                        newListenerMethodProxy(listenTarget, dMethod, TransitionExceptionListener.class, tex.when());
                 addTransitionExceptionListener(texListener);
+            }
+            
+            OnActionExecute ad = dMethod.getAnnotation(OnActionExecute.class);
+            if(ad!=null) {
+                ExecActionListener<T, S, E, C> adListener = (ExecActionListener<T, S, E, C>)
+                        newListenerMethodProxy(listenTarget, dMethod, ExecActionListener.class, ad.when());
+                addExecActionListener(adListener);
             }
         }
     }
@@ -768,14 +842,16 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         removeListener(TransitionEndListener.class, listener, TransitionEndListener.METHOD);
     }
     
-    public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
+    @Override
+    public void addExecActionListener(ExecActionListener<T, S, E, C> listener) {
     	executor.addExecActionListener(listener);
     }
 	
-	public void removeExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
+    @Override
+	public void removeExecActionListener(ExecActionListener<T, S, E, C> listener) {
 		executor.removeExecActionListener(listener);
 	}
-	
+    
 	private interface DeclarativeLisener {
         Object getListenTarget();
     }

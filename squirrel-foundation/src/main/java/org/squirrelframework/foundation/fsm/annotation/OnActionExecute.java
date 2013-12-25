@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Target({METHOD})
 @Retention(RUNTIME)
-public @interface OnActionDone {
+public @interface OnActionExecute {
     String when() default "";
 }

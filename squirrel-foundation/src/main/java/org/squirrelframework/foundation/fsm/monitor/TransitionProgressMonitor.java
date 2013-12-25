@@ -5,7 +5,7 @@ import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionEve
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.impl.MethodCallActionImpl;
 
-public class TransitionProgressMonitor<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionExecutionService.ExecActionLisenter<T, S, E, C> {
+public class TransitionProgressMonitor<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionExecutionService.ExecActionListener<T, S, E, C> {
 	@Override
     public void beforeExecute(ExecActionEvent<T, S, E, C> event) {
 	    if(event.getExecutionTarget() instanceof MethodCallActionImpl) {
