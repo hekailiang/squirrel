@@ -273,6 +273,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                     if(method!=null) {
                         Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                         mutableTransition.addAction(methodCallAction);
+                    } else if(logger.isInfoEnabled()){
+                        logger.warn("Cannot find method '"+transit.callMethod()+"' with parameters '"+
+                                methodCallParamTypes+"' in class "+stateMachineImplClazz+".");
                     }
                     return;
                 }
@@ -353,6 +356,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             if(method!=null) {
                 Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 onEntry(stateId).perform(methodCallAction);
+            } else if(logger.isInfoEnabled()){
+                logger.warn("Cannot find method '"+state.entryCallMethod()+"' with parameters '"+
+                        methodCallParamTypes+"' in class "+stateMachineImplClazz+".");
             }
         }
         
@@ -361,6 +367,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             if(method!=null) {
                 Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
                 onExit(stateId).perform(methodCallAction);
+            } else if(logger.isInfoEnabled()){
+                logger.warn("Cannot find method '"+state.exitCallMethod()+"' with parameters '"+
+                        methodCallParamTypes+"' in class "+stateMachineImplClazz+".");
             }
         }
         rememberStateAlias(state);
@@ -568,9 +577,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     static Method findMethodCallActionInternal(Class<?> target, String methodName, Class<?>[] parameterTypes) {
         Method method = searchMethod(target, AbstractStateMachine.class, methodName, parameterTypes);
-        if(method==null && logger.isInfoEnabled()) {
-            logger.warn("Cannot find method '"+methodName+"' with parameters '"+parameterTypes+"' in class "+target+".");
-        }
         return method;
     }
     

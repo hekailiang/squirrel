@@ -11,7 +11,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.annotation.EventType;
@@ -20,8 +19,6 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.monitor.TransitionExecTimeMonitor;
-import org.squirrelframework.foundation.fsm.monitor.TransitionProgressMonitor;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class HierarchicalStateMachineTest {
@@ -313,20 +310,12 @@ public class HierarchicalStateMachineTest {
 	
 	HierachicalStateMachine stateMachine;
 	
+	StateMachineLogger monitor;
+	
 	@BeforeClass
 	public static void beforeTest() {
 		ConverterProvider.INSTANCE.register(HEvent.class, new Converter.EnumConverter<HEvent>(HEvent.class));
         ConverterProvider.INSTANCE.register(HState.class, new Converter.EnumConverter<HState>(HState.class));
-        SquirrelPostProcessorProvider.getInstance().register(HierachicalStateMachine.class, 
-        		new TypeReference<TransitionExecTimeMonitor<HierachicalStateMachine, HState, HEvent, Integer>>() {});
-        SquirrelPostProcessorProvider.getInstance().register(
-        		new TypeReference<ActionExecutionService<HierachicalStateMachine, HState, HEvent, Integer>>(){}, 
-        		new SquirrelPostProcessor<ActionExecutionService<HierachicalStateMachine, HState, HEvent, Integer>>() {
-			@Override
-            public void postProcess(ActionExecutionService<HierachicalStateMachine, HState, HEvent, Integer> component) {
-				component.addExecActionListener(new TransitionProgressMonitor<HierachicalStateMachine, HState, HEvent, Integer>());
-            }
-		});
 	}
 	
 	@AfterClass
@@ -337,11 +326,11 @@ public class HierarchicalStateMachineTest {
 	
 	@After
 	public void teardown() {
+	    monitor.terminateMonitor();
 		if(stateMachine.getStatus()!=StateMachineStatus.TERMINATED)
 			stateMachine.terminate(null);
 		System.out.println("-------------------------------------------------");
 	}
-	
 	
 	@Before
     public void setup() {
@@ -359,6 +348,8 @@ public class HierarchicalStateMachineTest {
 		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);		
 		
 		stateMachine = builder.newStateMachine(HState.A);
+		monitor = new StateMachineLogger(stateMachine);
+		monitor.startMonitor();
 	}
 	
 	@Test

@@ -2,6 +2,8 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -9,6 +11,8 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import com.google.common.base.Preconditions;
 
 public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
+    
+    private static final Logger logger = LoggerFactory.getLogger(MethodCallActionProxyImpl.class);
     
     private final String methodName;
     
@@ -33,13 +37,26 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
             Class<E> eventClazz = stateMachine.typeOfEvent();
             Class<C> contextClazz = stateMachine.typeOfContext();
             
-            Class<?>[] methodCallParamTypes = isContextSensitive ? 
+            final Class<?>[] methodCallParamTypes = isContextSensitive ? 
                     new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz} : 
                     new Class<?>[]{stateClazz, stateClazz, eventClazz};
                     
             Method method = StateMachineBuilderImpl.findMethodCallActionInternal( 
                     stateMachineClazz, methodName, methodCallParamTypes );
-            delegator = FSM.newMethodCallAction(method, scriptManager);
+            if(method!=null) {
+                delegator = FSM.newMethodCallAction(method, scriptManager);
+            } else {
+                if(logger.isInfoEnabled()){
+                    logger.warn("Cannot find method '"+methodName+"' with parameters '"+
+                        methodCallParamTypes+"' in class "+stateMachineClazz+".");
+                }
+                delegator = new Action<T, S, E, C>() {
+                    @Override
+                    public void execute(S from, S to, E event, C context, T stateMachine) {
+                        // do nothing, dummy action
+                    }
+                };
+            }
         }
         delegator.execute(from, to, event, context, stateMachine);
     }
