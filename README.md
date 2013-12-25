@@ -340,17 +340,23 @@ stateMachine.addStateMachineListener(new StateMachineListener<MyStateMachine, My
 **And** User can also add a listener to listen TransitionEvent through StateMachine.addTransitionListener, which means all events fired during each state transition including TransitionBeginEvent, TransitionCompleteEvent and TransitionEndEvent will be caught by this listener.  
 **Or** user can add specific listener e.g. TransitionDeclinedListener to listen TransitionDeclinedEvent when transition request was declined.  
 * **Declarative Event Listener**  
-To simplify state machine usage, more important to support non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     
+Adding above event listener to state machine sometime annoying to user, and too many generic types also makes code ugly to read. To simplify state machine usage, more important to provide a non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     
 ```java
 	static class ExtenalModule {
         @TransitionEnd
         public void transitionEnd() {
             // method annotated with TransitionEnd will be invoked when transition end...
+            // the method must be public and return nothing
         }
         
         @TransitionBegin
         public void transitionBegin(TestEvent event) {
             // method annotated with TransitionBegin will be invoked when transition begin...
+        }
+        
+		@TransitionBegin(condition="event.name().equals(\"toB\")")
+        public void transitionBeginConditional() {
+            // method will be invoked when transition begin while transition caused by event "toB"
         }
         
         @TransitionComplete
@@ -369,7 +375,7 @@ To simplify state machine usage, more important to support non-invasive integrat
     ...
     fsm.removeDeclarativeListener(externalModule);
 ```
-By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will be automatically matched to corresponding event. User can find sample code in *org.squirrelframework.foundation.fsm.UntypedStateMachineTest*.
+By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will automatically be inferred to match corresponding event. User can find sample code in *org.squirrelframework.foundation.fsm.UntypedStateMachineTest*.
 
 * **Transition Extension Methods**   
 Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed to be extended in customer state machine implementation class.  
