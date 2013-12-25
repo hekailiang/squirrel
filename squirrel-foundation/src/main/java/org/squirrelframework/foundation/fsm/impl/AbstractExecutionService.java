@@ -13,7 +13,8 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 
 import com.google.common.base.Preconditions;
 
-public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements ActionExecutionService<T, S, E, C> {
+public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> 
+    extends AbstractSubject implements ActionExecutionService<T, S, E, C> {
 
     protected final Stack<List<ExectionContext<T, S, E, C>>> stack = new Stack<List<ExectionContext<T, S, E, C>>>();
     
@@ -35,8 +36,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     public void execute() {
         List<ExectionContext<T, S, E, C>> executionContexts = stack.pop();
         for (int i=0, size=executionContexts.size(); i<size; ++i) {
-            fireEvent(ExecActionEventImpl.get(i+1, size, executionContexts.get(i)));
             if(!dummyExecution) {
+                fireEvent(ExecActionEventImpl.get(i+1, size, executionContexts.get(i)));
                 executionContexts.get(i).run();
             }
         }
@@ -44,7 +45,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     @Override
     public void addExecActionListener(ExecActionLisenter<T, S, E, C> listener) {
-        addListener(ExecActionEvent.class, listener, ExecActionLisenter.EXECUTOR_EVENT_METHOD);
+        addListener(ExecActionEvent.class, listener, ExecActionLisenter.METHOD);
     }
     
     @Override
