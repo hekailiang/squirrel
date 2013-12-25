@@ -11,8 +11,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
@@ -42,7 +40,6 @@ import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -71,8 +68,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     static {
         SquirrelProvider.getInstance().register(ActionExecutionService.class, SynchronizedExecutionService.class);
     }
-    
-    private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private boolean autoStart = true;
     
@@ -106,11 +101,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private void processEvent(E event, C context) {
         ImmutableState<T, S, E, C> fromState = data.read().currentRawState();
         S fromStateId = data.read().currentState(), toStateId = null;
-        Stopwatch sw = null;
-        if(logger.isDebugEnabled()) {
-            logger.debug("Transition from state \""+fromState+"\" on event \""+event+"\" begins.");
-            sw = new Stopwatch().start();
-        }
         try {
             beforeTransitionBegin(fromStateId, event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
@@ -133,16 +123,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             }
         } catch(Exception e) {
             setStatus(StateMachineStatus.ERROR);
-            logger.error("Transition from state \""+fromState+"\" to state \""+toStateId+
-                    "\" on event \""+event+"\" failed, which is caused by exception \""+e.getMessage()+"\".");
             afterTransitionCausedException(e, fromStateId, toStateId, event, context);
             fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromStateId, 
                     data.read().currentState(), event, context, getThis()));
         } finally {
-            if(logger.isDebugEnabled()) {
-                logger.debug("Transition from state \""+fromState+"\" on event \""+event+
-                        "\" tooks "+sw.stop().elapsedMillis()+"ms.");
-            }
             afterTransitionEnd(fromStateId, getCurrentState(), event, context);
             fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
         }
