@@ -27,11 +27,11 @@ import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
-import org.squirrelframework.foundation.fsm.annotation.TransitionBegin;
-import org.squirrelframework.foundation.fsm.annotation.TransitionComplete;
-import org.squirrelframework.foundation.fsm.annotation.TransitionDecline;
-import org.squirrelframework.foundation.fsm.annotation.TransitionEnd;
-import org.squirrelframework.foundation.fsm.annotation.TransitionException;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionEnd;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionException;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -628,38 +628,38 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             if(visitedMethods.contains(methodSignature)) continue;
             visitedMethods.add(methodSignature);
             
-            TransitionBegin tb = dm.getAnnotation(TransitionBegin.class);
+            OnTransitionBegin tb = dm.getAnnotation(OnTransitionBegin.class);
             if(tb!=null) {
                 TransitionBeginListener<T, S, E, C> tbListener = (TransitionBeginListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionBeginListener.class, tb.condition());
+                        newTransitionListenerProxy(listenTarget, dm, TransitionBeginListener.class, tb.when());
                 addTransitionBeginListener(tbListener);
             }
             
-            TransitionComplete tc = dm.getAnnotation(TransitionComplete.class);
+            OnTransitionComplete tc = dm.getAnnotation(OnTransitionComplete.class);
             if(tc!=null) {
                 TransitionCompleteListener<T, S, E, C> tcListener = (TransitionCompleteListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionCompleteListener.class, tc.condition());
+                        newTransitionListenerProxy(listenTarget, dm, TransitionCompleteListener.class, tc.when());
                 addTransitionCompleteListener(tcListener);
             }
             
-            TransitionDecline td = dm.getAnnotation(TransitionDecline.class);
+            OnTransitionDecline td = dm.getAnnotation(OnTransitionDecline.class);
             if(td!=null) {
                 TransitionDeclinedListener<T, S, E, C> tdListener = (TransitionDeclinedListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionDeclinedListener.class, td.condition());
+                        newTransitionListenerProxy(listenTarget, dm, TransitionDeclinedListener.class, td.when());
                 addTransitionDeclinedListener(tdListener);
             }
             
-            TransitionEnd te = dm.getAnnotation(TransitionEnd.class);
+            OnTransitionEnd te = dm.getAnnotation(OnTransitionEnd.class);
             if(te!=null) {
                 TransitionEndListener<T, S, E, C> teListener = (TransitionEndListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionEndListener.class, te.condition());
+                        newTransitionListenerProxy(listenTarget, dm, TransitionEndListener.class, te.when());
                 addTransitionEndListener(teListener);
             }
             
-            TransitionException tex = dm.getAnnotation(TransitionException.class);
+            OnTransitionException tex = dm.getAnnotation(OnTransitionException.class);
             if(tex!=null) {
                 TransitionExceptionListener<T, S, E, C> texListener = (TransitionExceptionListener<T, S, E, C>)
-                        newTransitionListenerProxy(listenTarget, dm, TransitionExceptionListener.class, tex.condition());
+                        newTransitionListenerProxy(listenTarget, dm, TransitionExceptionListener.class, tex.when());
                 addTransitionExceptionListener(texListener);
             }
         }

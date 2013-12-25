@@ -343,28 +343,28 @@ stateMachine.addStateMachineListener(new StateMachineListener<MyStateMachine, My
 Adding above event listener to state machine sometime annoying to user, and too many generic types also makes code ugly to read. To simplify state machine usage, more important to provide a non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     
 ```java
 	static class ExtenalModule {
-        @TransitionEnd
+        @OnTransitionEnd
         public void transitionEnd() {
             // method annotated with TransitionEnd will be invoked when transition end...
             // the method must be public and return nothing
         }
         
-        @TransitionBegin
+        @OnTransitionBegin
         public void transitionBegin(TestEvent event) {
             // method annotated with TransitionBegin will be invoked when transition begin...
         }
         
-		@TransitionBegin(condition="event.name().equals(\"toB\")")
+		@OnTransitionBegin(when="event.name().equals(\"toB\")")
         public void transitionBeginConditional() {
             // method will be invoked when transition begin while transition caused by event "toB"
         }
         
-        @TransitionComplete
+        @OnTransitionComplete
         public void transitionComplete(String from, String to, TestEvent event, Integer context) {
             // method annotated with TransitionComplete will be invoked when transition complete...
         }
         
-        @TransitionDecline
+        @OnTransitionDecline
         public void transitionDeclined(String from, TestEvent event, Integer context) {
             // method annotated with TransitionDecline will be invoked when transition declined...
         }

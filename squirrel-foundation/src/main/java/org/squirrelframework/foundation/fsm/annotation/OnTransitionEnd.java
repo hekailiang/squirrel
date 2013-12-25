@@ -6,8 +6,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Transition end listener annotation
+ * @author Henry.He
+ *
+ */
 @Target({METHOD})
 @Retention(RUNTIME)
-public @interface TransitionComplete {
-    String condition() default "";
+public @interface OnTransitionEnd {
+    String when() default "";
 }

@@ -23,10 +23,10 @@ import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEvent;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
-import org.squirrelframework.foundation.fsm.annotation.TransitionBegin;
-import org.squirrelframework.foundation.fsm.annotation.TransitionComplete;
-import org.squirrelframework.foundation.fsm.annotation.TransitionDecline;
-import org.squirrelframework.foundation.fsm.annotation.TransitionEnd;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionEnd;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
 
@@ -156,20 +156,20 @@ public class UntypedStateMachineTest {
         final AtomicInteger tdCallTimes = new AtomicInteger(0);
         final AtomicInteger tcCallTimesCausedByToD = new AtomicInteger(0);
         
-        @TransitionEnd
-        @TransitionComplete
+        @OnTransitionEnd
+        @OnTransitionComplete
         public void transitionEnd() {
             teCallTimes.incrementAndGet();
         }
         
-        @TransitionEnd
-        @TransitionBegin
+        @OnTransitionEnd
+        @OnTransitionBegin
         public void transitionBegin(TestEvent event) {
             Assert.assertTrue(event==TestEvent.toB);
             tbCallTimes.incrementAndGet();
         }
         
-        @TransitionComplete
+        @OnTransitionComplete
         public void transitionComplete(String from, String to, TestEvent event, Integer context) {
             Assert.assertTrue(from.equals("a"));
             Assert.assertTrue(to.equals("b"));
@@ -178,12 +178,12 @@ public class UntypedStateMachineTest {
             tcCallTimes.incrementAndGet();
         }
         
-        @TransitionComplete(condition="event.name().equals(\"toD\")")
+        @OnTransitionComplete(when="event.name().equals(\"toD\")")
         public void transitionCompleteCausedByToD() {
             tcCallTimesCausedByToD.incrementAndGet();
         }
         
-        @TransitionDecline
+        @OnTransitionDecline
         public void transitionDeclined(String from, TestEvent event, Integer context) {
             Assert.assertTrue(from.equals("b"));
             Assert.assertTrue(event==TestEvent.toB);
@@ -226,18 +226,18 @@ public class UntypedStateMachineTest {
         final AtomicInteger tcCallTimes = new AtomicInteger(0);
         final AtomicInteger tdCallTimes = new AtomicInteger(0);
         
-        @TransitionEnd
+        @OnTransitionEnd
         public void transitionEnd() {
             teCallTimes.incrementAndGet();
         }
         
-        @TransitionBegin
+        @OnTransitionBegin
         public void transitionBegin(String from, String event) {
             Assert.assertTrue(event.equals("toB"));
             tbCallTimes.incrementAndGet();
         }
         
-        @TransitionComplete
+        @OnTransitionComplete
         public void transitionComplete(String from, String to, String event, String context) {
             Assert.assertTrue(from.equals("a"));
             Assert.assertTrue(to.equals("b"));
@@ -246,7 +246,7 @@ public class UntypedStateMachineTest {
             tcCallTimes.incrementAndGet();
         }
         
-        @TransitionDecline
+        @OnTransitionDecline
         public void transitionDeclined(String from, String event, String context) {
             Assert.assertTrue(from.equals("b"));
             Assert.assertTrue(event.equals("toB"));

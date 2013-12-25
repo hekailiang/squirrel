@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Target({METHOD})
 @Retention(RUNTIME)
-public @interface TransitionException {
-    String condition() default "";
+public @interface OnTransitionDecline {
+    String when() default "";
 }
