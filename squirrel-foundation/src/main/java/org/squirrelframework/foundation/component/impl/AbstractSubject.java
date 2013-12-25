@@ -4,15 +4,18 @@ import java.lang.reflect.Method;
 
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
+import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.event.PolymorphismEventDispatcher;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 import org.squirrelframework.foundation.util.ReflectUtils;
+
+import com.google.common.base.Predicate;
 
 public abstract class AbstractSubject implements Observable {
 	
 	private boolean notifiable = true;
 	
-	protected PolymorphismEventDispatcher eventDispatcher;
+	private PolymorphismEventDispatcher eventDispatcher;
 
 	@Override
     public boolean isNotifiable() {
@@ -37,6 +40,12 @@ public abstract class AbstractSubject implements Observable {
 		Method method = ReflectUtils.getFirstMethodOfName(listener.getClass(), methodName);
         addListener(eventType, listener, method);
     }
+	
+	public void removeListener(Predicate<ListenerMethod> predicate) {
+	    if (eventDispatcher != null) {
+            eventDispatcher.unregister(predicate);
+        }
+	}
 
 	@Override
     public void removeListener(Class<?> eventType, Object listener, Method method) {
@@ -45,8 +54,9 @@ public abstract class AbstractSubject implements Observable {
         }
     }
 	
+	@Override
 	public int getListenerSize() {
-        return eventDispatcher.getListenerSize();
+        return eventDispatcher!=null ? eventDispatcher.getListenerSize() : 0;
     }
 
 	@Override

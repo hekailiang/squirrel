@@ -11,7 +11,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionBeginEvent;
@@ -22,12 +21,12 @@ import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEvent;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
-import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionEnd;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
 
@@ -223,7 +222,8 @@ public class UntypedStateMachineTest {
         Assert.assertTrue(listenTarget.tcCallTimesCausedByToD.get()==0);
         
         fsm.removeDeclarativeListener(listenTarget);
-        Assert.assertTrue(((AbstractSubject)fsm).getListenerSize()==0);
+        Assert.assertTrue(fsm.getListenerSize()==0);
+        Assert.assertTrue(fsm.getExecutorListenerSize()==0);
     }
     
     @Transitions({
@@ -289,6 +289,7 @@ public class UntypedStateMachineTest {
         Assert.assertTrue(listenTarget.tdCallTimes.get()==1);
         
         fsm2.removeDeclarativeListener(listenTarget);
-        Assert.assertTrue(((AbstractSubject)fsm2).getListenerSize()==0);
+        Assert.assertTrue(fsm2.getListenerSize()==0);
+        Assert.assertTrue(fsm2.getExecutorListenerSize()==0);
     }
 }

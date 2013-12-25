@@ -13,12 +13,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.event.ListenerMethod;
-import org.squirrelframework.foundation.fsm.ActionExecutionService;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.*;
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.ActionExecutionService;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionListener;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
@@ -741,15 +743,26 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void removeDeclarativeListener(final Object listenTarget) {
-        if (eventDispatcher!=null) {
-            eventDispatcher.unregister(new Predicate<ListenerMethod>() {
-                @Override
-                public boolean apply(ListenerMethod input) {
-                    return (input.getTarget() instanceof DeclarativeLisener) && 
-                          ((DeclarativeLisener)input.getTarget()).getListenTarget()==listenTarget;
-                }
-            });
-        }
+        removeDeclarativeListener(this, listenTarget);
+        removeDeclarativeListener(executor, listenTarget);
+    }
+    
+    /**
+     * Internal use only
+     * @return ActionExecutionService
+     */
+    public int getExecutorListenerSize() {
+        return executor.getListenerSize();
+    }
+    
+    private void removeDeclarativeListener(Observable observable, final Object listenTarget) {
+        observable.removeListener(new Predicate<ListenerMethod>() {
+            @Override
+            public boolean apply(ListenerMethod input) {
+                return (input.getTarget() instanceof DeclarativeLisener) && 
+                      ((DeclarativeLisener)input.getTarget()).getListenTarget()==listenTarget;
+            }
+        });
     }
     
     @Override

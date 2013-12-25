@@ -2,7 +2,10 @@ package org.squirrelframework.foundation.component;
 
 import java.lang.reflect.Method;
 
+import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.event.SquirrelEvent;
+
+import com.google.common.base.Predicate;
 
 /**
  * This interface represents an observable object, or "data" in the subject-observer paradigm. 
@@ -40,6 +43,8 @@ public interface Observable {
 	 */
 	void addListener(Class<?> eventType, Object listener, String methodName);
 	
+	void removeListener(Predicate<ListenerMethod> predicate);
+	
 	/**
 	 * Remove listener from observable subject.
 	 * @param eventType type of event
@@ -73,4 +78,6 @@ public interface Observable {
 	 * @param event based event
 	 */
 	void fireEvent(SquirrelEvent event);
+	
+	int getListenerSize();
 }
