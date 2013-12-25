@@ -227,7 +227,8 @@ public class UntypedStateMachineTest {
         final AtomicInteger tdCallTimes = new AtomicInteger(0);
         
         @OnTransitionEnd
-        public void transitionEnd() {
+        public void transitionEnd(UntypedStateMachine stateMachine) {
+            Assert.assertTrue(stateMachine!=null);
             teCallTimes.incrementAndGet();
         }
         

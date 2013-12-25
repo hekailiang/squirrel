@@ -594,7 +594,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                         } else if(!isContextSet && parameterType.isAssignableFrom(typeOfContext())) {
                             parameterValues.add(event.getContext());
                             isContextSet = true;
-                        } else if(parameterType.isAssignableFrom(this.getClass())) {
+                        } else if(parameterType.isAssignableFrom(AbstractStateMachine.this.getClass())) {
                             parameterValues.add(event.getStateMachine());
                         } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
                             parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getException());
