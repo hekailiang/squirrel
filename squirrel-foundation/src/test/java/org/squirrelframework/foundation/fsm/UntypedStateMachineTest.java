@@ -210,6 +210,8 @@ public class UntypedStateMachineTest {
     public void testTransitionDeclarativeEvent() {
         TestListenTarget listenTarget = new TestListenTarget();
         fsm.addDeclarativeListener(listenTarget);
+        Assert.assertTrue(fsm.getListenerSize()==7);
+        Assert.assertTrue(fsm.getExecutorListenerSize()==1);
         // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
         // TransitionBegin, TransitionDeclined, TransitionEnd
@@ -279,6 +281,8 @@ public class UntypedStateMachineTest {
         
         TestListenTarget2 listenTarget = new TestListenTarget2();
         fsm2.addDeclarativeListener(listenTarget);
+        Assert.assertTrue(fsm2.getListenerSize()==4);
+        Assert.assertTrue(fsm2.getExecutorListenerSize()==0);
         // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm2.fire("toB", "1");
         // TransitionBegin, TransitionDeclined, TransitionEnd
