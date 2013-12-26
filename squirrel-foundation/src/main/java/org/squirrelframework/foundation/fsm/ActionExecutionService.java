@@ -61,9 +61,21 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	void removeExecActionListener(ExecActionListener<T, S, E, C> listener);
 	
 	/**
+     * Add action execution exception listener which can be used for monitoring execution
+     * @param listener action execution exception listener
+     */
+    void addExecActionExceptionListener(ExecActionExceptionListener<T, S, E, C> listener);
+    
+    /**
+     * Remove action execution exception listener
+     * @param listener action execution exception listener
+     */
+    void removeExecActionExceptionListener(ExecActionExceptionListener<T, S, E, C> listener);
+	
+	/**
 	 * Action execution event
 	 */
-	interface ExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
+	public interface ActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelEvent {
 		Action<T, S, E, C> getExecutionTarget();
 		S getFrom();
 		S getTo();
@@ -73,13 +85,27 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 		int[] getMOfN();
 	}
 	
+	public interface ExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {}
+	
 	/**
 	 * Action execution listener
 	 */
-	interface ExecActionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+	public interface ExecActionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
 	    public static final String METHOD_NAME = "beforeExecute";
 	    public static final Method METHOD = ReflectUtils.getMethod(
 	            ExecActionListener.class, METHOD_NAME, new Class<?>[]{ExecActionEvent.class});
 		void beforeExecute(ExecActionEvent<T, S, E, C> event);
 	}
+	
+	public interface ExecActionExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {
+        Exception getException();
+    }
+	
+	public interface ExecActionExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "executeException";
+        public static final Method METHOD = ReflectUtils.getMethod(
+                ExecActionExceptionListener.class, METHOD_NAME, 
+                new Class<?>[]{ExecActionExceptionEvent.class});
+        void executeException(ExecActionExceptionEvent<T, S, E, C> event);
+    }
 }

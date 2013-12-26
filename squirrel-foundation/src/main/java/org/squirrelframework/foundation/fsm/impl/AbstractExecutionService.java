@@ -38,7 +38,12 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         for (int i=0, size=executionContexts.size(); i<size; ++i) {
             if(!dummyExecution) {
                 fireEvent(ExecActionEventImpl.get(i+1, size, executionContexts.get(i)));
-                executionContexts.get(i).run();
+                try {
+                    executionContexts.get(i).run();
+                } catch(TransitionException e) {
+                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(e, i+1, size, executionContexts.get(i)));
+                    throw e;
+                }
             }
         }
     }
@@ -54,26 +59,61 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     }
     
     @Override
+    public void addExecActionExceptionListener(ExecActionExceptionListener<T, S, E, C> listener) {
+        addListener(ExecActionExceptionEvent.class, listener, ExecActionExceptionListener.METHOD);
+    }
+    
+    @Override
+    public void removeExecActionExceptionListener(ExecActionExceptionListener<T, S, E, C> listener) {
+        removeListener(ExecActionExceptionEvent.class, listener);
+    }
+    
+    @Override
     public void setDummyExecution(boolean dummyExecution) {
         this.dummyExecution = dummyExecution;
     }
     
-    static class ExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements ExecActionEvent<T, S, E, C> {
+    static class ExecActionExceptionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
+        extends AbstractExecActionEvent<T, S, E, C> implements ExecActionExceptionEvent<T, S, E, C> {
+        
+        private final Exception e;
+
+        ExecActionExceptionEventImpl(Exception e, int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+            super(pos, size, executionContext);
+            this.e = e;
+        }
+
+        @Override
+        public Exception getException() {
+            return e;
+        }
+        
+    }
+    
+    static class ExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
+        extends AbstractExecActionEvent<T, S, E, C> implements ExecActionEvent<T, S, E, C> {
+        
+        ExecActionEventImpl(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+            super(pos, size, executionContext);
+        }
+
+        static <T extends StateMachine<T, S, E, C>, S, E, C> ExecActionEvent<T, S, E, C> get(
+                int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+            return new ExecActionEventImpl<T, S, E, C>(pos, size, executionContext);
+        }
+    }
+    
+    static abstract class AbstractExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionEvent<T, S, E, C> {
         private ExectionContext<T, S, E, C> executionContext;
         private int pos;
         private int size;
         
-        ExecActionEventImpl(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+        AbstractExecActionEvent(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
             this.pos = pos;
             this.size = size;
             this.executionContext = executionContext;
         }
         
-        static <T extends StateMachine<T, S, E, C>, S, E, C> ExecActionEvent<T, S, E, C> get(
-                int pos, int size, ExectionContext<T, S, E, C> executionContext) {
-            return new ExecActionEventImpl<T, S, E, C>(pos, size, executionContext);
-        }
-
         @Override
         public Action<T, S, E, C> getExecutionTarget() {
             return executionContext.action;

@@ -17,7 +17,9 @@ import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionListener;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionListener;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
@@ -28,6 +30,7 @@ import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
+import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
@@ -541,9 +544,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                         @SuppressWarnings("unchecked")
                         TransitionEvent<T, S, E, C> event = (TransitionEvent<T, S, E, C>)args[0];
                         return invokeTransitionListenerMethod(listenTarget, listenerMethod, condition, event);
-                    } else if(args[0] instanceof ExecActionEvent) {
+                    } else if(args[0] instanceof ActionEvent) {
                         @SuppressWarnings("unchecked")
-                        ExecActionEvent<T, S, E, C> event = (ExecActionEvent<T, S, E, C>)args[0];
+                        ActionEvent<T, S, E, C> event = (ActionEvent<T, S, E, C>)args[0];
                         return invokeActionListenerMethod(listenTarget, listenerMethod, condition, event);
                     } else {
                         throw new IllegalArgumentException("Unable to recognize argument type "+args[0].getClass().getName()+".");
@@ -566,7 +569,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private Object invokeActionListenerMethod(final Object listenTarget, 
             final Method listenerMethod, final String condition, 
-            final ExecActionEvent<T, S, E, C> event) {
+            final ActionEvent<T, S, E, C> event) {
         Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
         
         final Map<String, Object> variables = Maps.newHashMap();
@@ -575,6 +578,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         variables.put("event", event.getEvent());
         variables.put("context", event.getContext());
         variables.put("stateMachine", event.getStateMachine());
+        if(event instanceof ExecActionExceptionEvent) {
+            Exception e = ((ExecActionExceptionEvent<T, S, E, C>)event).getException();
+            variables.put("exception", e);
+        }
         
         boolean isSatisfied = true;
         if(condition!=null && condition.length()>0) {
@@ -607,6 +614,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 parameterValues.add(event.getExecutionTarget());
             } else if(parameterType==int[].class) {
                 parameterValues.add(event.getMOfN());
+            } else if(event instanceof ExecActionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
+                parameterValues.add(((ExecActionExceptionEvent<T, S, E, C>)event).getException());
             } else {
                 parameterValues.add(null);
             }
@@ -716,11 +725,18 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 addTransitionExceptionListener(texListener);
             }
             
-            OnActionExecute ad = dMethod.getAnnotation(OnActionExecute.class);
-            if(ad!=null) {
-                ExecActionListener<T, S, E, C> adListener = (ExecActionListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, ExecActionListener.class, ad.when());
-                addExecActionListener(adListener);
+            OnActionExecute ae = dMethod.getAnnotation(OnActionExecute.class);
+            if(ae!=null) {
+                ExecActionListener<T, S, E, C> aeListener = (ExecActionListener<T, S, E, C>)
+                        newListenerMethodProxy(listenTarget, dMethod, ExecActionListener.class, ae.when());
+                executor.addExecActionListener(aeListener);
+            }
+            
+            OnActionExecException aex = dMethod.getAnnotation(OnActionExecException.class);
+            if(aex!=null) {
+                ExecActionExceptionListener<T, S, E, C> aexListener = (ExecActionExceptionListener<T, S, E, C>)
+                        newListenerMethodProxy(listenTarget, dMethod, ExecActionExceptionListener.class, aex.when());
+                executor.addExecActionExceptionListener(aexListener);
             }
         }
     }

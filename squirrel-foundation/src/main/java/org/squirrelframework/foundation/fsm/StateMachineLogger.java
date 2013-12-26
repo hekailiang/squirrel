@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
@@ -66,6 +67,14 @@ public class StateMachineLogger {
         if(action instanceof MethodCallActionImpl) {
             String actionName = ((MethodCallActionImpl<?, ?, ?, ?>)action).getName();
             logger.info("Before execute method call action \""+actionName+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
+        }
+    }
+    
+    @OnActionExecException
+    public void onActionExecException(Action<?, ?, ?,?> action, Exception e) {
+        if(action instanceof MethodCallActionImpl) {
+            String actionName = ((MethodCallActionImpl<?, ?, ?, ?>)action).getName();
+            logger.error("Before execute method call action \""+actionName+"\" caused exception.");
         }
     }
 }

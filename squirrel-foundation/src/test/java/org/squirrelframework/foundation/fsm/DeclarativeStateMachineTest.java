@@ -228,6 +228,8 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
                     create(DeclarativeStateMachineImpl.class, TestState.class, 
                             TestEvent.class, Integer.class, DeclarativeStateMachine.class);
         stateMachine = builder.newStateMachine(TestState.A, monitor);
+        StateMachineLogger fsmLogger = new StateMachineLogger(stateMachine);
+        fsmLogger.startLogging();
     }
 
     @Test
