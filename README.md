@@ -582,6 +582,19 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ```  
 
 ## Release Notes  
+*Version 0.2.2.5 - 2013-12-26*  
+1. Support prioritized transition  
+2. Provide thread-safe implementation of StateMachine  
+3. Update current states of state machine after actions all executed successfully  
+4. **Support transition condition and action defined in MVEL script**  
+5. **Breaking Change**: Add name() to Condition interface  
+6. **Add UntypedStateMachine to simplify usage**  
+7. Support build method call action through transition builder API  
+8. Add debug log when method call cannot find  
+9. **Support add declarative event listener**  
+10. Add **StateMachineLogger** to easy monitor state machine execution status  
+11. Update documentation
+
 *Version 0.2.1 - 2013-08-10*  
 1. Support test State machine transition result  
 2. Add *StateMachineWithoutContext* class to simplify state machine usage without need of context  
@@ -600,10 +613,9 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 3. Simplify converter registration for String and Enumeration type  
 
 ## Future Plan  
-* State machine import and export
-* Provide thread-safe implementation
-* Support sendEvent(sync) and postEvent(async)  
-* Automatic expose as WebService
+* State machine import  
+* Support both synchronized and asynchronized event dispatcher   
+* Support dynamic extend state machine definition  
 
 ## More Information  
 * For the **latest updates** follow [@hhe11][5]
