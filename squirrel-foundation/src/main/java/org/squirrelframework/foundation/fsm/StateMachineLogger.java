@@ -74,7 +74,7 @@ public class StateMachineLogger {
     public void onActionExecException(Action<?, ?, ?,?> action, Exception e) {
         if(action instanceof MethodCallActionImpl) {
             String actionName = ((MethodCallActionImpl<?, ?, ?, ?>)action).getName();
-            logger.error("Before execute method call action \""+actionName+"\" caused exception.");
+            logger.error("Executing method call action \""+actionName+"\" caused exception.");
         }
     }
 }
