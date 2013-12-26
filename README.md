@@ -350,6 +350,7 @@ Adding above event listener to state machine sometime annoying to user, and too 
             // method annotated with TransitionBegin will be invoked when transition begin...
         }
         
+		// 'event'(E), 'from'(S), 'to'(S), 'context'(C) and 'stateMachine'(T) can be used in MVEL scripts		
 		@OnTransitionBegin(when="event.name().equals(\"toB\")")
         public void transitionBeginConditional() {
             // method will be invoked when transition begin while transition caused by event "toB"
