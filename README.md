@@ -90,24 +90,20 @@ A list of state entry actions is defined.
 * **Method Call Action**  
 	User can define anonymous actions during define transitions or state entry/exit. However, the action code will be scattered over many places which may make code hard to maintain. Moreover, other user cannot override the actions. So squirrel-foundation also support to define state machine method call action which comes along with state machine class itself.   
 	```java
-	StateMachineBuilder<...> builder = ...;
+	StateMachineBuilder<...> builder = StateMachineBuilderFactory.create(
+		MyStateMachine.class, MyState.class, MyEvent.class, MyContext.class);
 	builder.externalTransition().from(A).to(B).on(toB).callMethod("fromAToB");
+	
+	// All transition action method stays with state machine class
+	public class MyStateMachine<...> extends AbstractStateMachine<...> {
+		protected void fromAToB(MyState from, MyState to, MyEvent event, MyContext context) {
+			// this method will be called during transition from "A" to "B" on event "toB"
+			// the action method parameters types and order should match
+			...
+		}
+	}
 	```
-	or
-	```java
-	@Transitions({
-    	@Transit(from="A", to="B", on="toB", callMethod="fromAToB"),
-    	...
-    })
-    class StateMachineSample extends AbstractStateMachine<...> {
-    	...
-    	protected void fromAToB(MyState from, MyState to, MyEvent event, MyContext context) {
-    		// method with signature "fromAToB(MyState, MyState, MyEvent, MyContext)" 
-    		// will be invoked during transition
-    		...
-    	}
-    } 
-	```	
+	
 	Moreover, squirrel-foundation also support define method call actions in a **Convention Over Configuration** manner. Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain phase. e.g.  
 	```java
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
@@ -375,7 +371,7 @@ Adding above event listener to state machine sometime annoying to user, and too 
     ...
     fsm.removeDeclarativeListener(externalModule);
 ```
-By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will automatically be inferred to match corresponding event. User can find sample code in *org.squirrelframework.foundation.fsm.UntypedStateMachineTest*.
+By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will automatically be inferred to match corresponding event. This is a good approach for **Separation of Concerns**. User can find sample usage in *org.squirrelframework.foundation.fsm.StateMachineLogger*.
 
 * **Transition Extension Methods**   
 Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed to be extended in customer state machine implementation class.  
