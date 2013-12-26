@@ -10,4 +10,10 @@ public class RemoteCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public String name() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
+import org.squirrelframework.foundation.util.Constants;
 
 class MvelConditionImpl<C> implements Condition<C> {
     
-    public final static String separatorChars = ":::";
+    private static final Logger logger = LoggerFactory.getLogger(MvelConditionImpl.class);
     
     private final String mvelExpression;
     
@@ -18,13 +21,13 @@ class MvelConditionImpl<C> implements Condition<C> {
     private final MvelScriptManager scriptManager;
     
     MvelConditionImpl(String script, MvelScriptManager scriptManager) {
-        String[] arrays = StringUtils.split(script, separatorChars);
+        String[] arrays = StringUtils.split(script, Constants.SEPARATOR_CHARS);
         if(arrays.length==2) {
             this.name = arrays[0].trim();
             this.mvelExpression = arrays[1].trim();
         } else {
             this.name = "_NoName_";
-            this.mvelExpression = arrays[1].trim();
+            this.mvelExpression = arrays[0].trim();
         }
         this.scriptManager = scriptManager;
         
@@ -38,7 +41,7 @@ class MvelConditionImpl<C> implements Condition<C> {
             variables.put("context", context);
             return scriptManager.evalBoolean(mvelExpression, variables);
         } catch (Exception e) {
-            System.err.println("Evaluate \""+mvelExpression+"\" failed, which caused by "+e.getCause().getMessage());
+            logger.error("Evaluate \""+mvelExpression+"\" failed, which caused by "+e.getCause().getMessage());
             return false;
         }
     }

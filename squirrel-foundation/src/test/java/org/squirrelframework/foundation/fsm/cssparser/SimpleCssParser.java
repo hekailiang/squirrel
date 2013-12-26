@@ -3,7 +3,7 @@ package org.squirrelframework.foundation.fsm.cssparser;
 import java.util.List;
 import java.util.Map;
 
-import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
@@ -88,7 +88,7 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
         builder.externalTransition().from(ParserState.PROPERTY_NAME).to(ParserState.PROPERTY_VALUE).on(COLON);
         builder.externalTransition().from(ParserState.PROPERTY_VALUE).to(ParserState.PROPERTY_NAME).on(SEMI_COLON);
         builder.externalTransition().from(ParserState.PROPERTY).to(ParserState.SELECTOR).on(BRACKET_END).perform(
-                new Action<SimpleCssParser, ParserState, Character, ParserContext>() {
+                new AnonymousAction<SimpleCssParser, ParserState, Character, ParserContext>() {
             @Override
             public void execute(ParserState from, ParserState to, Character event,
                     ParserContext context, SimpleCssParser stateMachine) {
@@ -102,7 +102,7 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
         builder.defineSequentialStatesOn(ParserState.PROPERTY, HistoryType.DEEP, 
                 ParserState.PROPERTY_NAME, ParserState.PROPERTY_VALUE);
         
-        builder.onExit(ParserState.SELECTOR).perform(new Action<SimpleCssParser, ParserState, Character, ParserContext>() {
+        builder.onExit(ParserState.SELECTOR).perform(new AnonymousAction<SimpleCssParser, ParserState, Character, ParserContext>() {
             @Override
             public void execute(ParserState from, ParserState to, Character event,
                     ParserContext context, SimpleCssParser stateMachine) {
@@ -118,7 +118,7 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
             }
         });
         
-        builder.onExit(ParserState.PROPERTY_NAME).perform(new Action<SimpleCssParser, ParserState, Character, ParserContext>() {
+        builder.onExit(ParserState.PROPERTY_NAME).perform(new AnonymousAction<SimpleCssParser, ParserState, Character, ParserContext>() {
             @Override
             public void execute(ParserState from, ParserState to, Character event,
                     ParserContext context, SimpleCssParser stateMachine) {
@@ -131,7 +131,7 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
             }
         });
         
-        builder.onExit(ParserState.PROPERTY_VALUE).perform(new Action<SimpleCssParser, ParserState, Character, ParserContext>() {
+        builder.onExit(ParserState.PROPERTY_VALUE).perform(new AnonymousAction<SimpleCssParser, ParserState, Character, ParserContext>() {
             @Override
             public void execute(ParserState from, ParserState to, Character event,
                     ParserContext context, SimpleCssParser stateMachine) {

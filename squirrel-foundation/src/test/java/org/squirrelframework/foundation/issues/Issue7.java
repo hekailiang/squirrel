@@ -1,15 +1,15 @@
 package org.squirrelframework.foundation.issues;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Map;
+
 import org.junit.Test;
-import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineWithoutContext;
-
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 public class Issue7 {
     @Test 
@@ -29,14 +29,14 @@ public class Issue7 {
         builder.externalTransition().from(State.GoingWild).to(State.GoneWild).on(Event.GoneWild);
         builder.externalTransition().from(State.GoneWild).to(State.Calm).on(Event.CalmDown);
 
-        builder.onEntry(State.GoingWild).perform(new Action<FSM, State, Event, Void>() {
+        builder.onEntry(State.GoingWild).perform(new AnonymousAction<FSM, State, Event, Void>() {
             @Override
             public void execute(State from, State to, Event event, Void context, FSM stateMachine) {
                 // let's assume we are ready to go wild already and just fire event
                 stateMachine.fire(Event.GoneWild);
             }
         });
-        builder.onEntry(State.GoneWild).perform(new Action<FSM, State, Event, Void>() {
+        builder.onEntry(State.GoneWild).perform(new AnonymousAction<FSM, State, Event, Void>() {
             @Override
             public void execute(State from, State to, Event event, Void context, FSM stateMachine) {
                 // throw new RuntimeException("Oops!");

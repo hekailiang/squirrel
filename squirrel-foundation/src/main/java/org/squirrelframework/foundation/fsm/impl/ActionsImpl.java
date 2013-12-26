@@ -22,16 +22,12 @@ public class ActionsImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements
     public void add(Action<T, S, E, C> newAction) {
         if(actions==null) actions = Lists.newLinkedList();
         if(newAction!=null && !actions.contains(newAction)) {
-            if(newAction instanceof MethodCallActionImpl) {
-                // sort method call action by its name
-                String name = MethodCallActionImpl.class.cast(newAction).getName();
-                if(name.startsWith("before")) {
-                    actions.add(beforeActionCounter++, newAction);
-                } else if(name.startsWith("after")) {
-                    actions.add(actions.size()-afterActionCounter++, newAction);
-                } else {
-                    actions.add(actions.size()-afterActionCounter, newAction);
-                }
+            // sort method call action by its name
+            String name = newAction.name();
+            if(name.startsWith("before")) {
+                actions.add(beforeActionCounter++, newAction);
+            } else if(name.startsWith("after")) {
+                actions.add(actions.size()-afterActionCounter++, newAction);
             } else {
                 actions.add(actions.size()-afterActionCounter, newAction);
             }

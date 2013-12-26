@@ -23,4 +23,20 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
      * @param stateMachine the state machine
      */
     void execute(S from, S to, E event, C context, T stateMachine);
+    
+    String name();
+    
+    @SuppressWarnings("rawtypes")
+    public final static Action DUMMY_ACTION = new Action() {
+        @Override
+        public void execute(Object from, Object to, Object event, 
+                Object context, StateMachine stateMachine) {
+            // DO NOTHING
+        }
+        
+        @Override
+        public String name() {
+            return "_DUMMY_ACTION";
+        }
+    };
 }

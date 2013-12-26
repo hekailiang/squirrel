@@ -233,7 +233,9 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
             }
         });
         builder.externalTransition().from(D).toFinal(Final).on(ToEnd).evalMvel(
-                "stateMachine.mvelAction(from, to, event, context);"
+                "MvelAction:::(" +
+                "   stateMachine.mvelAction(from, to, event, context);" +
+                ")"
         );
         stateMachine = builder.newStateMachine(A, monitor);
     }

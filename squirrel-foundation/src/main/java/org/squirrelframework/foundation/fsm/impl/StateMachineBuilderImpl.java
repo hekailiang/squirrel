@@ -540,6 +540,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 public void execute(S from, S to, E event, C context, T stateMachine) {
                     throw new RuntimeException("Final state cannot be exited anymore.");
                 }
+                
+                @Override
+                public String name() {
+                    return "_GUARD_ACTION";
+                }
             });
         }
     }

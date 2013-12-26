@@ -80,7 +80,8 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
         return "callMethod("+methodDesc+")";
     }
     
-    public String getName() {
+    @Override
+    public String name() {
         return method.getName();
     }
     

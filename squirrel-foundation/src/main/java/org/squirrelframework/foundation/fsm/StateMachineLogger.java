@@ -8,7 +8,6 @@ import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionException;
-import org.squirrelframework.foundation.fsm.impl.MethodCallActionImpl;
 
 import com.google.common.base.Stopwatch;
 
@@ -64,17 +63,11 @@ public class StateMachineLogger {
     @OnActionExecute
     public void onActionExecute(Object sourceState, Object targetState, 
             Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-        if(action instanceof MethodCallActionImpl) {
-            String actionName = ((MethodCallActionImpl<?, ?, ?, ?>)action).getName();
-            logger.info("Before execute method call action \""+actionName+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
-        }
+        logger.info("Before execute method call action \""+action.name()+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
     }
     
     @OnActionExecException
     public void onActionExecException(Action<?, ?, ?,?> action, Exception e) {
-        if(action instanceof MethodCallActionImpl) {
-            String actionName = ((MethodCallActionImpl<?, ?, ?, ?>)action).getName();
-            logger.error("Executing method call action \""+actionName+"\" caused exception.");
-        }
+        logger.error("Executing method call action \""+action.name()+"\" caused exception.");
     }
 }

@@ -3,21 +3,36 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.util.Constants;
 
 class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
     
-    private final String expression;
+    private static final Logger logger = LoggerFactory.getLogger(MvelActionImpl.class);
+    
+    private final String mvelExpression;
     
     private final MvelScriptManager scriptManager;
     
-    MvelActionImpl(String expression, MvelScriptManager scriptManager) {
-        this.expression = expression;
-        this.scriptManager = scriptManager;
+    private final String name;
+    
+    MvelActionImpl(String script, MvelScriptManager scriptManager) {
+        String[] arrays = StringUtils.split(script, Constants.SEPARATOR_CHARS);
+        if(arrays.length==2) {
+            this.name = arrays[0].trim();
+            this.mvelExpression = arrays[1].trim();
+        } else {
+            this.name = "_NoName_";
+            this.mvelExpression = arrays[0].trim();
+        }
         
-        scriptManager.compile(expression);
+        this.scriptManager = scriptManager;
+        scriptManager.compile(mvelExpression);
     }
     
     @Override
@@ -29,9 +44,15 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
             variables.put("event", event);
             variables.put("context", context);
             variables.put("stateMachine", stateMachine);
-            scriptManager.eval(expression, variables, Void.class);
-        } catch (Exception e) {
-            System.err.println("Evaluate \""+expression+"\" failed, which caused by "+e.getCause().getMessage());
+            scriptManager.eval(mvelExpression, variables, Void.class);
+        } catch (RuntimeException e) {
+            logger.error("Evaluate \""+mvelExpression+"\" failed, which caused by "+e.getCause().getMessage());
+            throw e;
         }
+    }
+    
+    @Override
+    public String name() {
+        return name;
     }
 }

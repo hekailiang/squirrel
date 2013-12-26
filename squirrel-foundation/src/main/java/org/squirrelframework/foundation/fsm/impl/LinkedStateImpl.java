@@ -36,12 +36,22 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
         public void execute(S from, S to, E event, C context, T stateMachine) {
             linkedStateMachine.start(context);
         }
+
+        @Override
+        public String name() {
+            return "_LINK_STATE_ENTRY_ACTION";
+        }
     };
     
     private Action<T, S, E, C> firstExitAction = new Action<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
             linkedStateMachine.terminate(context);
+        }
+
+        @Override
+        public String name() {
+            return "_LINK_STATE_EXIT_ACTION";
         }
     };
 

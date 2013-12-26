@@ -25,6 +25,7 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
         this.scriptManager = scriptManager;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void execute(S from, S to, E event, C context, T stateMachine) {
         Preconditions.checkNotNull(stateMachine);
@@ -50,15 +51,15 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
                     logger.warn("Cannot find method '"+methodName+"' with parameters '"+
                         methodCallParamTypes+"' in class "+stateMachineClazz+".");
                 }
-                delegator = new Action<T, S, E, C>() {
-                    @Override
-                    public void execute(S from, S to, E event, C context, T stateMachine) {
-                        // do nothing, dummy action
-                    }
-                };
+                delegator = (Action<T, S, E, C>)Action.DUMMY_ACTION;
             }
         }
         delegator.execute(from, to, event, context, stateMachine);
+    }
+
+    @Override
+    public String name() {
+        return methodName;
     }
 
 }
