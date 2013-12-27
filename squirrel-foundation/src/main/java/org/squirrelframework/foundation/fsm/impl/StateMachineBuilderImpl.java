@@ -9,6 +9,7 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
 import org.squirrelframework.foundation.fsm.Converter;
@@ -105,12 +107,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         this.stateMachineImplClazz = stateMachineImplClazz;
         
-        Class<?> k = stateMachineImplClazz;
-        StateMachineParamters genericsParamteres = null;
-        while(genericsParamteres==null && isStateMachineType(k)) {
-            genericsParamteres = stateMachineImplClazz.getAnnotation(StateMachineParamters.class);
-            k = k.getSuperclass();
-        }
+        final AtomicReference<StateMachineParamters> genericsParamteresRef = 
+                new AtomicReference<StateMachineParamters>();;
+        install(new Function<Class<?>, Boolean>() {
+            @Override
+            public Boolean apply(Class<?> input) {
+                StateMachineParamters anno = input.getAnnotation(StateMachineParamters.class);
+                if(anno!=null) {
+                    genericsParamteresRef.set(anno);
+                    return false;
+                }
+                return true;
+            }
+        });
+        
+        StateMachineParamters genericsParamteres = genericsParamteresRef.get();
         if(stateClazz==Object.class && genericsParamteres!=null) {
             this.stateClazz = (Class<S>) genericsParamteres.stateType();
         } else {
@@ -388,12 +399,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
-    private void install(Function<Class<?>, Void> func) {
+    private void install(Function<Class<?>, Boolean> func) {
         Stack<Class<?>> stack = new Stack<Class<?>>();
         stack.push(stateMachineImplClazz);
         while(!stack.isEmpty()) {
             Class<?> k = stack.pop();
-            func.apply(k);
+            boolean isContinue = func.apply(k);
+            if(!isContinue) break;
             for(Class<?> i : k.getInterfaces()) {
                 if(isStateMachineInterface(i)) {stack.push(i);}
             }
@@ -535,15 +547,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         for(MutableState<T, S, E, C> state : states.values()) {
             if(!state.isFinalState()) continue;
             // defensive code: final state cannot be exited anymore
-            state.addExitAction(new Action<T, S, E, C>() {
+            state.addExitAction(new AnonymousAction<T, S, E, C>() {
                 @Override
                 public void execute(S from, S to, E event, C context, T stateMachine) {
                     throw new RuntimeException("Final state cannot be exited anymore.");
-                }
-                
-                @Override
-                public String name() {
-                    return "_GUARD_ACTION";
                 }
             });
         }
@@ -694,9 +701,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         return FSM.newEntryExitActionBuilder(state, false, scriptManager);
     }
 
-    private class DeclareTransitionFunction implements Function<Class<?>, Void> {
+    private class DeclareTransitionFunction implements Function<Class<?>, Boolean> {
         @Override
-        public Void apply(Class<?> k) {
+        public Boolean apply(Class<?> k) {
             buildDeclareTransition(k.getAnnotation(Transit.class));
             Transitions transitions = k.getAnnotation(Transitions.class);
             if(transitions!=null && transitions.value()!=null) {
@@ -704,13 +711,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                     StateMachineBuilderImpl.this.buildDeclareTransition(t);
                 }
             }
-            return null;
+            return true;
         }
     }
     
-    private class DeclareStateFunction implements Function<Class<?>, Void> {
+    private class DeclareStateFunction implements Function<Class<?>, Boolean> {
         @Override
-        public Void apply(Class<?> k) {
+        public Boolean apply(Class<?> k) {
             buidlDeclareState(k.getAnnotation(State.class));
             States states = k.getAnnotation(States.class);
             if(states!=null && states.value()!=null) {
@@ -718,7 +725,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                     StateMachineBuilderImpl.this.buidlDeclareState(s);
                 }
             }
-            return null;
+            return true;
         }
     }
 }
