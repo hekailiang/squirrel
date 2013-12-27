@@ -61,7 +61,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.1&lt;/version&gt;
+    &lt;version&gt;0.2.2.5&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -70,7 +70,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.2.3-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;0.2.3-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -101,6 +101,8 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <p><strong>State Machine Builder</strong>  </p>
 
 <ul>
+<li>State machine builder is used to generate state machine definition. StateMachineBuilder can be created by StateMachineBuilderFactory.<br>
+</li>
 <li>The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. </li>
 <li>The internal state is implicitly built during transition creation or state action creation.<br>
 </li>
@@ -156,24 +158,18 @@ After state machine builder was created, we can use fluent API to define state/t
 <p><strong>Method Call Action</strong><br>
 User can define anonymous actions during define transitions or state entry/exit. However, the action code will be scattered over many places which may make code hard to maintain. Moreover, other user cannot override the actions. So squirrel-foundation also support to define state machine method call action which comes along with state machine class itself.   </p>
 
-<div class="highlight highlight-java"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;...&gt;</span> <span class="n">builder</span> <span class="o">=</span> <span class="o">...;</span>
+<div class="highlight highlight-java"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;...&gt;</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span>
+    <span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="n">A</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">B</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">toB</span><span class="o">).</span><span class="na">callMethod</span><span class="o">(</span><span class="s">"fromAToB"</span><span class="o">);</span>
-</pre></div>
 
-<p>or</p>
-
-<div class="highlight highlight-java"><pre><span class="nd">@Transitions</span><span class="o">({</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"B"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"toB"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"fromAToB"</span><span class="o">),</span>
-    <span class="o">...</span>
-<span class="o">})</span>
-<span class="kd">class</span> <span class="nc">StateMachineSample</span> <span class="kd">extends</span> <span class="n">AbstractStateMachine</span><span class="o">&lt;...&gt;</span> <span class="o">{</span>
-    <span class="o">...</span>
+<span class="c1">// All transition action method stays with state machine class</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyStateMachine</span><span class="o">&lt;...&gt;</span> <span class="kd">extends</span> <span class="n">AbstractStateMachine</span><span class="o">&lt;...&gt;</span> <span class="o">{</span>
     <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">fromAToB</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
-        <span class="c1">// method with signature "fromAToB(MyState, MyState, MyEvent, MyContext)" </span>
-        <span class="c1">// will be invoked during transition</span>
+        <span class="c1">// this method will be called during transition from "A" to "B" on event "toB"</span>
+        <span class="c1">// the action method parameters types and order should match</span>
         <span class="o">...</span>
     <span class="o">}</span>
-<span class="o">}</span> 
+<span class="o">}</span>
 </pre></div>
 
 <p>Moreover, squirrel-foundation also support define method call actions in a <strong>Convention Over Configuration</strong> manner. Basically, this means that if the method declared in state machine satisfied naming and parameters convention, it will be added into the transition action list and also be invoked at certain phase. e.g.  </p>
@@ -205,7 +201,7 @@ on[eventName]
 </li>
 <li>
 <p><strong>Declarative Annotation</strong><br>
-Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name. Moreover, the java compiler cannot help user to detect the error when misspelling the method name. For this case, a declarative way is also provided to define and also to extend the state machine. Here is an example.  </p>
+A declarative way is also provided to define and also to extend the state machine. Here is an example.  </p>
 
 <div class="highlight highlight-java"><pre><span class="nd">@States</span><span class="o">({</span>
     <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"entryStateA"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitStateA"</span><span class="o">),</span> 
@@ -333,7 +329,7 @@ A hierarchical state may contain nested state. The child states may themselves h
 <div class="highlight highlight-java"><pre><span class="kt">void</span> <span class="nf">defineSequentialStatesOn</span><span class="o">(</span><span class="n">S</span> <span class="n">parentStateId</span><span class="o">,</span> <span class="n">S</span><span class="o">...</span> <span class="n">childStateIds</span><span class="o">);</span>
 </pre></div>
 
-<p><em>builder.defineHierarchyOn(State.A, State.BinA, StateCinA)</em> defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.</p>
+<p><em>builder.defineSequentialStatesOn(State.A, State.BinA, StateCinA)</em> defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.</p>
 
 <div class="highlight highlight-java"><pre><span class="nd">@States</span><span class="o">({</span>
     <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">entryMethodCall</span><span class="o">=</span><span class="s">"entryA"</span><span class="o">,</span> <span class="n">exitMethodCall</span><span class="o">=</span><span class="s">"exitA"</span><span class="o">),</span>
@@ -381,7 +377,7 @@ Both API and annotation are supported to define history type of state. e.g.  </p
 
 <p>or</p>
 
-<div class="highlight highlight-java"><pre><span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"A1"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"enterA1"</span><span class="o">,</span>    <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitA1"</span><span class="o">,</span> <span class="n">historyType</span><span class="o">=</span><span class="n">HistoryType</span><span class="o">.</span><span class="na">DEEP</span><span class="o">)</span>
+<div class="highlight highlight-java"><pre><span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"A1"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"enterA1"</span><span class="o">,</span> <span class="n">exitCallMethod</span><span class="o">=</span><span class="s">"exitA1"</span><span class="o">,</span> <span class="n">historyType</span><span class="o">=</span><span class="n">HistoryType</span><span class="o">.</span><span class="na">DEEP</span><span class="o">)</span>
 </pre></div>
 </li>
 <li>
@@ -450,25 +446,32 @@ During the lifecycle of the state machine, various events will be fired, e.g.   
 </li>
 <li>
 <p><strong>Declarative Event Listener</strong><br>
-To simplify state machine usage, more important to support non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     </p>
+Adding above event listener to state machine sometime annoying to user, and too many generic types also makes code ugly to read. To simplify state machine usage, more important to provide a non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     </p>
 
 <div class="highlight highlight-java"><pre><span class="kd">static</span> <span class="kd">class</span> <span class="nc">ExtenalModule</span> <span class="o">{</span>
-    <span class="nd">@TransitionEnd</span>
+    <span class="nd">@OnTransitionEnd</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionEnd</span><span class="o">()</span> <span class="o">{</span>
         <span class="c1">// method annotated with TransitionEnd will be invoked when transition end...</span>
+        <span class="c1">// the method must be public and return nothing</span>
     <span class="o">}</span>
 
-    <span class="nd">@TransitionBegin</span>
+    <span class="nd">@OnTransitionBegin</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionBegin</span><span class="o">(</span><span class="n">TestEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// method annotated with TransitionBegin will be invoked when transition begin...</span>
     <span class="o">}</span>
 
-    <span class="nd">@TransitionComplete</span>
+    <span class="c1">// 'event'(E), 'from'(S), 'to'(S), 'context'(C) and 'stateMachine'(T) can be used in MVEL scripts       </span>
+    <span class="nd">@OnTransitionBegin</span><span class="o">(</span><span class="n">when</span><span class="o">=</span><span class="s">"event.name().equals(\"toB\")"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionBeginConditional</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// method will be invoked when transition begin while transition caused by event "toB"</span>
+    <span class="o">}</span>
+
+    <span class="nd">@OnTransitionComplete</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionComplete</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">TestEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// method annotated with TransitionComplete will be invoked when transition complete...</span>
     <span class="o">}</span>
 
-    <span class="nd">@TransitionDecline</span>
+    <span class="nd">@OnTransitionDecline</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitionDeclined</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">TestEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// method annotated with TransitionDecline will be invoked when transition declined...</span>
     <span class="o">}</span>
@@ -480,7 +483,7 @@ To simplify state machine usage, more important to support non-invasive integrat
 <span class="n">fsm</span><span class="o">.</span><span class="na">removeDeclarativeListener</span><span class="o">(</span><span class="n">externalModule</span><span class="o">);</span>
 </pre></div>
 
-<p>By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will be automatically matched to corresponding event. User can find sample code in <em>org.squirrelframework.foundation.fsm.UntypedStateMachineTest</em>.</p>
+<p>By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will automatically be inferred to match corresponding event. This is a good approach for <strong>Separation of Concerns</strong>. User can find sample usage in <em>org.squirrelframework.foundation.fsm.StateMachineLogger</em>.</p>
 </li>
 <li>
 <p><strong>Transition Extension Methods</strong><br>
@@ -580,25 +583,24 @@ User can save data of state machine when state machine is in idle status.</p>
 </pre></div>
 </li>
 <li>
-<p><strong>State Machine Diagnose</strong><br>
-User can register various monitors as state machine intercepter to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on.<br>
-For example, the following code is used to register an execution time monitor for state machine of <em>MyStateMachine</em> type.</p>
+<p><strong>State Machine Diagnose</strong><br><em>StateMachineLogger</em> is used to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on, e.g.  </p>
 
-<div class="highlight highlight-java"><pre><span class="n">SquirrelPostProcessorProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">register</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> 
-            <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">TransitionExecTimeMonitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{});</span>
-</pre></div>
-
-<p>The following code is used to monitor transition progress by adding a <em>TransitionProgressMonitor</em> to <em>ActionExecutor</em> to monitor transition action execution.</p>
-
-<div class="highlight highlight-java"><pre><span class="n">SquirrelPostProcessorProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">register</span><span class="o">(</span>
-    <span class="k">new</span> <span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;(){},</span> 
-    <span class="k">new</span> <span class="n">SquirrelPostProcessor</span><span class="o">&lt;</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;&gt;()</span> <span class="o">{</span>
-        <span class="nd">@Override</span>
-        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">postProcess</span><span class="o">(</span><span class="n">ActionExecutor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">component</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">component</span><span class="o">.</span><span class="na">addExecActionListener</span><span class="o">(</span><span class="k">new</span> <span class="n">TransitionProgressMonitor</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;());</span>
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">);</span>
+<div class="highlight highlight-java"><pre><span class="n">StateMachine</span><span class="o">&lt;?,?,?,?&gt;</span> <span class="n">stateMachine</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="n">HState</span><span class="o">.</span><span class="na">A</span><span class="o">);</span>
+<span class="n">StateMachineLogger</span> <span class="n">fsmLogger</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StateMachineLogger</span><span class="o">(</span><span class="n">stateMachine</span><span class="o">);</span>
+<span class="n">fsmLogger</span><span class="o">.</span><span class="na">startLogging</span><span class="o">();</span>
+<span class="o">...</span>
+<span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">HEvent</span><span class="o">.</span><span class="na">B2A</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+<span class="o">...</span>
+<span class="n">fsmLogger</span><span class="o">.</span><span class="na">terminateLogging</span><span class="o">();</span>
+<span class="o">----------------------------------------------------------------------------------------</span>
+<span class="n">Console</span> <span class="nl">Log:</span>
+<span class="nl">HierachicalStateMachine:</span> <span class="n">Transition</span> <span class="n">from</span> <span class="s">"B2a"</span> <span class="n">on</span> <span class="s">"B2A"</span> <span class="n">with</span> <span class="n">context</span> <span class="s">"1"</span> <span class="n">begin</span><span class="o">.</span>
+<span class="n">Before</span> <span class="n">execute</span> <span class="n">method</span> <span class="n">call</span> <span class="n">action</span> <span class="s">"leftB2a"</span> <span class="o">(</span><span class="mi">1</span> <span class="n">of</span> <span class="mi">6</span><span class="o">).</span>
+<span class="n">Before</span> <span class="n">execute</span> <span class="n">method</span> <span class="n">call</span> <span class="n">action</span> <span class="s">"exitB2"</span> <span class="o">(</span><span class="mi">2</span> <span class="n">of</span> <span class="mi">6</span><span class="o">).</span>
+<span class="o">...</span>
+<span class="n">Before</span> <span class="n">execute</span> <span class="n">method</span> <span class="n">call</span> <span class="n">action</span> <span class="s">"entryA1"</span> <span class="o">(</span><span class="mi">6</span> <span class="n">of</span> <span class="mi">6</span><span class="o">).</span>
+<span class="nl">HierachicalStateMachine:</span> <span class="n">Transition</span> <span class="n">from</span> <span class="s">"B2a"</span> <span class="n">to</span> <span class="s">"A1"</span> <span class="n">on</span> <span class="s">"B2A"</span> <span class="n">complete</span> <span class="n">which</span> <span class="n">took</span> <span class="mi">2</span><span class="n">ms</span><span class="o">.</span>
+<span class="o">...</span>
 </pre></div>
 
 <p>Add <strong>@LogExecTime</strong> on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method <em>transitFromAToBOnGoToB</em> will be logged out.</p>
@@ -715,6 +717,19 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 </ul><h2>
 <a name="release-notes" class="anchor" href="#release-notes"><span class="octicon octicon-link"></span></a>Release Notes</h2>
 
+<p><em>Version 0.2.2.5 - 2013-12-26</em><br>
+1. Support prioritized transition<br>
+2. Provide thread-safe implementation of StateMachine<br>
+3. Update current states of state machine after actions all executed successfully<br>
+4. <strong>Support transition condition and action defined in MVEL script</strong><br>
+5. <strong>Breaking Change</strong>: Add name() to Condition interface<br>
+6. <strong>Add UntypedStateMachine to simplify usage</strong><br>
+7. Support build method call action through transition builder API<br>
+8. Add debug log when method call cannot find<br>
+9. <strong>Support add declarative event listener</strong><br>
+10. Add <strong>StateMachineLogger</strong> to easy monitor state machine execution status<br>
+11. Update documentation</p>
+
 <p><em>Version 0.2.1 - 2013-08-10</em><br>
 1. Support test State machine transition result<br>
 2. Add <em>StateMachineWithoutContext</em> class to simplify state machine usage without need of context<br>
@@ -736,11 +751,12 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 <a name="future-plan" class="anchor" href="#future-plan"><span class="octicon octicon-link"></span></a>Future Plan</h2>
 
 <ul>
-<li>State machine import and export</li>
-<li>Provide thread-safe implementation</li>
-<li>Support sendEvent(sync) and postEvent(async)<br>
+<li>State machine import<br>
 </li>
-<li>Automatic expose as WebService</li>
+<li>Support both synchronized and asynchronized event dispatcher<br>
+</li>
+<li>Support dynamic extend state machine definition<br>
+</li>
 </ul><h2>
 <a name="more-information" class="anchor" href="#more-information"><span class="octicon octicon-link"></span></a>More Information</h2>
 
