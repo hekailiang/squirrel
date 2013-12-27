@@ -1,7 +1,7 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -23,7 +23,6 @@ import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
-import org.squirrelframework.foundation.fsm.EventKind;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
@@ -39,7 +38,7 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
-import org.squirrelframework.foundation.fsm.annotation.EventType;
+import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -107,21 +106,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         this.stateMachineImplClazz = stateMachineImplClazz;
         
-        final AtomicReference<StateMachineParamters> genericsParamteresRef = 
-                new AtomicReference<StateMachineParamters>();;
-        install(new Function<Class<?>, Boolean>() {
-            @Override
-            public Boolean apply(Class<?> input) {
-                StateMachineParamters anno = input.getAnnotation(StateMachineParamters.class);
-                if(anno!=null) {
-                    genericsParamteresRef.set(anno);
-                    return false;
-                }
-                return true;
-            }
-        });
-        
-        StateMachineParamters genericsParamteres = genericsParamteresRef.get();
+        StateMachineParamters genericsParamteres = findAnnotation(StateMachineParamters.class);
         if(stateClazz==Object.class && genericsParamteres!=null) {
             this.stateClazz = (Class<S>) genericsParamteres.stateType();
         } else {
@@ -141,7 +126,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(this.eventClazz);
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
-        initailContextEvents(eventClazz);
         methodCallParamTypes = isContextInsensitive ? 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
@@ -149,23 +133,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
     }
     
-    protected void initailContextEvents(Class<E> eventClazz) {
-    	Field[]  fields = ReflectUtils.getAnnotatedFields(eventClazz, EventType.class);
-        if(fields==null || fields.length<1) return;
-        
-        for(Field field : fields) {
-    		if(eventClazz.isAssignableFrom(field.getType()) && Modifier.isStatic(field.getModifiers())) {
-    			EventType eventType = field.getAnnotation(EventType.class);
-    			E event = eventClazz.cast(ReflectUtils.getStatic(field));
-    			if(eventType.value()==EventKind.START) {
-    				startEvent = event;
-    			} else if(eventType.value()==EventKind.FINISH) {
-    				finishEvent = event;
-    			} else if(eventType.value()==EventKind.TERMINATE) {
-    				terminateEvent = event;
-    			} 
-    		}
-    	}
+    private <M extends Annotation> M findAnnotation(final Class<M> annotationClass) {
+        final AtomicReference<M> genericsParamteresRef = new AtomicReference<M>();;
+        install(new Function<Class<?>, Boolean>() {
+            @Override
+            public Boolean apply(Class<?> input) {
+                M anno = input.getAnnotation(annotationClass);
+                if(anno!=null) {
+                    genericsParamteresRef.set(anno);
+                    return false;
+                }
+                return true;
+            }
+        });
+        M genericsParamteres = genericsParamteresRef.get();
+        return genericsParamteres;
     }
     
     private Class<?>[] getConstParamTypes(Class<?>[] extraConstParamTypes) {
@@ -437,8 +419,25 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         verifyStateMachineDefinition();
         // proxy untyped states
         proxyUntypedStates();
-        
+        // define context event, like start, finish, terminate event
+        defineContextEvent();
         prepared = true;
+    }
+    
+    private void defineContextEvent() {
+        ContextEvent contextEvent = findAnnotation(ContextEvent.class);
+        Converter<E> eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
+        if(contextEvent!=null && eventConverter!=null) {
+            if(!contextEvent.startEvent().isEmpty()) {
+                defineStartEvent(eventConverter.convertFromString(contextEvent.startEvent()));
+            }
+            if(!contextEvent.finishEvent().isEmpty()) {
+                defineFinishEvent(eventConverter.convertFromString(contextEvent.finishEvent()));
+            }
+            if(!contextEvent.terminateEvent().isEmpty()) {
+                defineTerminateEvent(eventConverter.convertFromString(contextEvent.terminateEvent()));
+            }
+        }
     }
     
     @SuppressWarnings("unchecked")
@@ -727,5 +726,20 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             }
             return true;
         }
+    }
+
+    @Override
+    public void defineFinishEvent(E finishEvent) {
+        this.finishEvent = finishEvent;
+    }
+
+    @Override
+    public void defineStartEvent(E startEvent) {
+        this.startEvent = startEvent;
+    }
+
+    @Override
+    public void defineTerminateEvent(E terminateEvent) {
+        this.terminateEvent = terminateEvent;
     }
 }

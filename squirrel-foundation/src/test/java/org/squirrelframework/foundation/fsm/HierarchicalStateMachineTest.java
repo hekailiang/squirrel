@@ -13,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.annotation.EventType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -28,7 +27,7 @@ public class HierarchicalStateMachineTest {
 	}
 	
 	public enum HEvent {
-		A2B, B2A, @EventType(EventKind.FINISH)Finish, 
+		A2B, B2A, Finish, 
 		A12A2, A12A3, A12A4, A12A1a, A12A1a1, A1a12A1, A1a2A1a1, A1a12A1a, A32A1, A12B3, A22A2a, 
 		B12B2, B22B2a, B22A
 	}
@@ -345,7 +344,9 @@ public class HierarchicalStateMachineTest {
 		
 		builder.defineSequentialStatesOn(HState.B, HistoryType.SHALLOW, HState.B1, HState.B2);
 		builder.externalTransition().from(HState.B1).to(HState.B2).on(HEvent.B12B2);
-		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);		
+		builder.externalTransition().from(HState.B2).to(HState.A).on(HEvent.B22A);
+		
+		builder.defineFinishEvent(HEvent.Finish);
 		
 		stateMachine = builder.newStateMachine(HState.A);
 		fsmLogger = new StateMachineLogger(stateMachine);

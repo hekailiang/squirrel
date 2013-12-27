@@ -92,6 +92,24 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     void defineParallelStatesOn(S parentStateId, S... childStateIds);
     
     /**
+     * Define event for parallel transition finished
+     * @param finishEvent
+     */
+    void defineFinishEvent(E finishEvent);
+    
+    /**
+     * Define event for state machine started
+     * @param startEvent
+     */
+    void defineStartEvent(E startEvent);
+    
+    /**
+     * Define event for state machine terminated
+     * @param terminateEvent
+     */
+    void defineTerminateEvent(E terminateEvent);
+    
+    /**
      * Define on entry actions for state
      * @param stateId the id of state
      * @return the builder to build state on entry actions

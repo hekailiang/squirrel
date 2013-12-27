@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
-import org.squirrelframework.foundation.fsm.annotation.EventType;
+import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -32,7 +32,7 @@ public class ParallelStateMachineTest {
 	}
 	
 	enum PEvent {
-		A1a2A1b, A1a2B, A1b2A1a, A1b2A1c, A2a2A2b, A2b2A2a, A2b2A2c, A2B, B2A, @EventType(EventKind.FINISH)Finish
+		A1a2A1b, A1a2B, A1b2A1a, A1b2A1c, A2a2A2b, A2b2A2a, A2b2A2c, A2B, B2A, Finish
 	}
 	
 	@States({
@@ -65,6 +65,7 @@ public class ParallelStateMachineTest {
 		@Transit(from="A2b", to="A2c", on="A2b2A2c", callMethod="transitA2b2A2c"),
 		@Transit(from="A", to="C", on="Finish", callMethod="transitA2C"),
 	})
+	@ContextEvent(finishEvent="Finish")
 	static class ParallelStateMachine extends AbstractStateMachine<ParallelStateMachine, PState, PEvent, Integer> {
 		private StringBuilder logger = new StringBuilder();
 

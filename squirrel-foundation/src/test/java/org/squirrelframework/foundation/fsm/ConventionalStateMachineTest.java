@@ -23,6 +23,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 public class ConventionalStateMachineTest extends AbstractStateMachineTest {
@@ -69,6 +70,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     static class ConventionalStateMachineException extends RuntimeException {
     }
     
+    @ContextEvent(startEvent="Started", finishEvent="Finished", terminateEvent="Terminated")
     public static class ConventionalStateMachine extends AbstractStateMachine<ConventionalStateMachine, TestState, TestEvent, Integer> {
         
         private final CallSequenceMonitor monitor;
