@@ -426,7 +426,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private void defineContextEvent() {
         ContextEvent contextEvent = findAnnotation(ContextEvent.class);
-        Converter<E> eventConverter = ConverterProvider.INSTANCE.getConverter(eventClazz);
         if(contextEvent!=null && eventConverter!=null) {
             if(!contextEvent.startEvent().isEmpty()) {
                 defineStartEvent(eventConverter.convertFromString(contextEvent.startEvent()));

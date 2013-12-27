@@ -405,6 +405,16 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return (T)this;
     }
     
+    @Override
+    public void accept(Visitor<T, S, E, C> visitor) {
+        visitor.visitOnEntry(this);
+        for(ImmutableState<T, S, E, C> state : data.read().rawStates()) {
+            if(state.getParentState()==null)
+                state.accept(visitor);
+        }
+        visitor.visitOnExit(this);
+    }
+    
     void setTypeOfStateMachine(Class<? extends T> stateMachineType) {
         data.write().typeOfStateMachine(stateMachineType);
     }
@@ -425,37 +435,27 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.scriptManager = scriptManager;
     }
     
-    @Override
-    public void accept(Visitor<T, S, E, C> visitor) {
-        visitor.visitOnEntry(this);
-        for(ImmutableState<T, S, E, C> state : data.read().rawStates()) {
-        	if(state.getParentState()==null)
-        		state.accept(visitor);
-        }
-        visitor.visitOnExit(this);
-    }
-    
-    public void setStartEvent(E startEvent) {
+    void setStartEvent(E startEvent) {
     	this.startEvent=startEvent;
     }
     
-    public E getStartEvent() {
+    E getStartEvent() {
     	return startEvent;
     }
     
-    public void setTerminateEvent(E terminateEvent) {
+    void setTerminateEvent(E terminateEvent) {
     	this.terminateEvent=terminateEvent;
     }
     
-    public E getTerminateEvent() {
+    E getTerminateEvent() {
     	return terminateEvent;
     }
     
-    public void setFinishEvent(E finishEvent) {
+    void setFinishEvent(E finishEvent) {
     	this.finishEvent=finishEvent;
     }
     
-    public E getFinishEvent() {
+    E getFinishEvent() {
     	return finishEvent;
     }
     
