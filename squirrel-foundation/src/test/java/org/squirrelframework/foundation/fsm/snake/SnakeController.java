@@ -8,13 +8,15 @@ import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Conditions.AbstractCondition;
 import org.squirrelframework.foundation.fsm.DotVisitor;
 import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.State;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
 import org.squirrelframework.foundation.util.TypeReference;
@@ -54,9 +56,10 @@ import org.squirrelframework.foundation.util.TypeReference;
 	@Transit(from="RIGHT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
 	@Transit(from="RIGHT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection")
 })
-public class SnakeController extends AbstractStateMachine<SnakeController, SnakeState, SnakeEvent, SnakeModel> {
+@StateMachineParamters(stateType=SnakeState.class, eventType=SnakeEvent.class, contextType=SnakeModel.class)
+public class SnakeController extends AbstractUntypedStateMachine {
 	
-	public enum SnakeState {
+    public enum SnakeState {
 		NEW, UP, LEFT, RIGHT, DOWN, MOVE, PAUSE, GAMEOVER
 	}
 	
@@ -75,13 +78,11 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
         }
 	}
 	
-	private Random random = new Random();
-	
-	protected SnakeController (
-            ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeModel> initialState,
-            Map<SnakeState, ImmutableState<SnakeController, SnakeState, SnakeEvent, SnakeModel>> states) {
-	    super(initialState, states);
+	protected SnakeController(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
+        super(initialState, states);
     }
+	
+	private Random random = new Random();
 	
 	protected void onStart(SnakeState from, SnakeState to, SnakeEvent event, SnakeModel snakeModel) {
 		snakeModel.clear();
@@ -161,8 +162,8 @@ public class SnakeController extends AbstractStateMachine<SnakeController, Snake
 	
 	public void export() {
 	    // export snake game state machine
-	    DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeModel> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeModel>>() {} );
+	    DotVisitor<UntypedStateMachine, Object, Object, Object> visitor = SquirrelProvider.getInstance().newInstance(
+                new TypeReference<DotVisitor<UntypedStateMachine, Object, Object, Object>>() {} );
         this.accept(visitor);
         visitor.convertDotFile("SnakeStateMachine");
 	}
