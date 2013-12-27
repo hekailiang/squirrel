@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
-import org.squirrelframework.foundation.util.Constants;
 
 class MvelConditionImpl<C> implements Condition<C> {
     
@@ -21,7 +20,7 @@ class MvelConditionImpl<C> implements Condition<C> {
     private final MvelScriptManager scriptManager;
     
     MvelConditionImpl(String script, MvelScriptManager scriptManager) {
-        String[] arrays = StringUtils.split(script, Constants.SEPARATOR_CHARS);
+        String[] arrays = StringUtils.split(script, MvelScriptManager.SEPARATOR_CHARS);
         if(arrays.length==2) {
             this.name = arrays[0].trim();
             this.mvelExpression = arrays[1].trim();

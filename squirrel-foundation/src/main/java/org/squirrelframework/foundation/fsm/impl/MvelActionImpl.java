@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.util.Constants;
 
 class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
     
@@ -22,7 +21,7 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     private final String name;
     
     MvelActionImpl(String script, MvelScriptManager scriptManager) {
-        String[] arrays = StringUtils.split(script, Constants.SEPARATOR_CHARS);
+        String[] arrays = StringUtils.split(script, MvelScriptManager.SEPARATOR_CHARS);
         if(arrays.length==2) {
             this.name = arrays[0].trim();
             this.mvelExpression = arrays[1].trim();
