@@ -19,11 +19,12 @@ public class StateMachineLogger {
 	
 	private final StateMachine<?,?,?,?> stateMachine;
 	
-	private final String stateMachineName;
+	private final String stateMachineLabel;
 	
 	public StateMachineLogger(StateMachine<?,?,?,?> stateMachine) {
 	    this.stateMachine = stateMachine;
-	    this.stateMachineName = stateMachine.getClass().getSimpleName();
+	    this.stateMachineLabel = stateMachine.getClass().getSimpleName()
+	            +"("+stateMachine.getIdentifier()+")";
 	}
 	
 	public void startLogging() {
@@ -33,30 +34,30 @@ public class StateMachineLogger {
 	public void terminateLogging() {
 	    stateMachine.removeDeclarativeListener(this);
 	}
-
+	
     @OnTransitionBegin
     public void onTransitionBegin(Object sourceState, Object event, Object context) {
         sw = new Stopwatch();
         sw.start();
-        logger.info(stateMachineName + ": Transition from \"" + sourceState + 
+        logger.info(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" on \"" + event + "\" with context \""+context+"\" begin.");
     }
     
     @OnTransitionComplete
     public void onTransitionComplete(Object sourceState, Object targetState, Object event, Object context) {
-        logger.info(stateMachineName + ": Transition from \"" + sourceState + 
+        logger.info(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" to \"" + targetState + "\" on \"" + event
                 + "\" complete which took " + sw.elapsedMillis() + "ms.");
     }
     
     @OnTransitionDecline
     public void onTransitionDeclined(Object sourceState, Object event) {
-        logger.warn(stateMachineName + ": Transition from \"" + sourceState + "\" on \"" + event+ "\" declined.");
+        logger.warn(stateMachineLabel + ": Transition from \"" + sourceState + "\" on \"" + event+ "\" declined.");
     }
     
     @OnTransitionException
     public void onTransitionException(Object sourceState, Object targetState, Object event, Object context, Exception e) {
-        logger.error(stateMachineName + ": Transition from \"" + sourceState + 
+        logger.error(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" to \"" + targetState + "\" on \"" + event + "\" caused exception.", e);
     }
     

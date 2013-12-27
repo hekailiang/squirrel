@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
@@ -91,11 +92,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private MvelScriptManager scriptManager;
     
+    private final String identifier;
+    
+    private static final int ID_LENGTH = 10;
+    
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         data = SquirrelProvider.getInstance().newInstance( 
                 new TypeReference<StateMachineData<T, S, E, C>>(){}, 
                 new Class[]{Map.class}, new Object[]{states} );
-        
+        identifier = RandomStringUtils.randomAlphanumeric(ID_LENGTH);
         S intialStateId = initialState.getStateId();
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
@@ -753,6 +758,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
      */
     public int getExecutorListenerSize() {
         return executor.getListenerSize();
+    }
+    
+    @Override
+    public String getIdentifier() {
+        return identifier;
     }
     
     private void removeDeclarativeListener(Observable observable, final Object listenTarget) {
