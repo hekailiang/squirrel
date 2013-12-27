@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
+import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
+import org.squirrelframework.foundation.fsm.annotation.OnStateMachineTerminate;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
@@ -35,6 +37,16 @@ public class StateMachineLogger {
 	public void terminateLogging() {
 	    stateMachine.removeDeclarativeListener(this);
 	}
+	
+	@OnStateMachineStart
+	public void onStateMachineStart() {
+	    logger.info(stateMachineLabel + ": Started.");
+	}
+	
+	@OnStateMachineTerminate
+    public void onStateMachineTerminate() {
+        logger.info(stateMachineLabel + ": Terminated.");
+    }
 	
     @OnTransitionBegin
     public void onTransitionBegin(Object sourceState, Object event, Object context) {

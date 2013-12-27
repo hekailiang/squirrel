@@ -33,6 +33,8 @@ import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
+import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
+import org.squirrelframework.foundation.fsm.annotation.OnStateMachineTerminate;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
@@ -553,6 +555,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                         @SuppressWarnings("unchecked")
                         ActionEvent<T, S, E, C> event = (ActionEvent<T, S, E, C>)args[0];
                         return invokeActionListenerMethod(listenTarget, listenerMethod, condition, event);
+                    } else if(args[0] instanceof StartEvent || args[0] instanceof TerminateEvent) {
+                        @SuppressWarnings("unchecked")
+                        StateMachineEvent<T, S, E, C> event = (StateMachineEvent<T, S, E, C>)args[0];
+                        return invokeStateMachineListenerMethod(listenTarget, listenerMethod, condition, event);
                     } else {
                         throw new IllegalArgumentException("Unable to recognize argument type "+args[0].getClass().getName()+".");
                     }
@@ -570,6 +576,34 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         Object proxyListener = Proxy.newProxyInstance(StateMachine.class.getClassLoader(), 
                 new Class<?>[]{listenerInterface, DeclarativeLisener.class}, invokationHandler);
         return proxyListener;
+    }
+    
+    private Object invokeStateMachineListenerMethod(final Object listenTarget, 
+            final Method listenerMethod, final String condition, 
+            final StateMachineEvent<T, S, E, C> event) {
+        Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
+        final Map<String, Object> variables = Maps.newHashMap();
+        variables.put("stateMachine", event.getStateMachine());
+        
+        boolean isSatisfied = true;
+        if(condition!=null && condition.length()>0) {
+            isSatisfied = scriptManager.evalBoolean(condition, variables);
+        }
+        if(!isSatisfied) return null;
+        
+        if(parameterTypes.length == 0) {
+            return ReflectUtils.invoke(listenerMethod, listenTarget);
+        }
+        // parameter values infer
+        List<Object> parameterValues = Lists.newArrayList();
+        for(Class<?> parameterType : parameterTypes) {
+            if(parameterType.isAssignableFrom(AbstractStateMachine.this.getClass())) {
+                parameterValues.add(event.getStateMachine());
+            } else {
+                parameterValues.add(null);
+            }
+        }
+        return ReflectUtils.invoke(listenerMethod, listenTarget, parameterValues.toArray());
     }
     
     private Object invokeActionListenerMethod(final Object listenTarget, 
@@ -742,6 +776,20 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 ExecActionExceptionListener<T, S, E, C> aexListener = (ExecActionExceptionListener<T, S, E, C>)
                         newListenerMethodProxy(listenTarget, dMethod, ExecActionExceptionListener.class, aex.when());
                 executor.addExecActionExceptionListener(aexListener);
+            }
+            
+            OnStateMachineStart sta = dMethod.getAnnotation(OnStateMachineStart.class);
+            if(sta!=null) {
+                StartListener<T, S, E, C> staListener = (StartListener<T, S, E, C>)
+                        newListenerMethodProxy(listenTarget, dMethod, StartListener.class, sta.when());
+                addStartListener(staListener);
+            }
+            
+            OnStateMachineTerminate ste = dMethod.getAnnotation(OnStateMachineTerminate.class);
+            if(ste!=null) {
+                TerminateListener<T, S, E, C> steListener = (TerminateListener<T, S, E, C>)
+                        newListenerMethodProxy(listenTarget, dMethod, TerminateListener.class, ste.when());
+                addTerminateListener(steListener);
             }
         }
     }
