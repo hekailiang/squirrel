@@ -231,12 +231,14 @@ public class UntypedStateMachineTest {
     @Transitions({
         @Transit(from="a", to="b", on="toB")
     })
-    @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=String.class)
-    static class UntypedStateMachineSample2 extends AbstractUntypedStateMachine {
+    static class UntypedStateMachineSample2 extends AbstractUntypedStateMachine implements ParamtersAnnotationPlaceHolder {
         protected UntypedStateMachineSample2(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
             super(initialState, states);
         }
     }
+    
+    @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=String.class)
+    interface ParamtersAnnotationPlaceHolder extends UntypedStateMachine {}
     
     static class TestListenTarget2 {
         final AtomicInteger teCallTimes = new AtomicInteger(0);
