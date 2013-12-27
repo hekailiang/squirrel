@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
@@ -57,8 +58,12 @@ public class StateMachineLogger {
     
     @OnTransitionException
     public void onTransitionException(Object sourceState, Object targetState, Object event, Object context, Exception e) {
+        Throwable expcetion = e; 
+        if(e instanceof TransitionException) {
+            expcetion = ((TransitionException)e).getTargetException();
+        }
         logger.error(stateMachineLabel + ": Transition from \"" + sourceState + 
-                "\" to \"" + targetState + "\" on \"" + event + "\" caused exception.", e);
+                "\" to \"" + targetState + "\" on \"" + event + "\" caused exception.", expcetion);
     }
     
     @OnActionExecute

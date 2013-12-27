@@ -23,7 +23,7 @@ public class TransitionException extends SquirrelRuntimeException {
 
     public TransitionException(Throwable targetException, ErrorCodes errorCode, 
             Object sourceState, Object targetState, Object event, Object context, Object stateMachine) {
-        super(errorCode, errorCode);
+        super(targetException, errorCode);
         this.sourceState = sourceState;
         this.targetState = targetState;
         this.event = event;

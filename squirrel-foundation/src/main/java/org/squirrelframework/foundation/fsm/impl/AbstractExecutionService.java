@@ -6,6 +6,7 @@ import java.util.Stack;
 
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.exception.ErrorCodes;
+import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
@@ -175,6 +176,10 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         public void run() {
             try {
                 action.execute(from, to, event, context, stateMachine);
+            } catch (SquirrelRuntimeException e) {
+                // wrapper any exception into transition exception
+                throw new TransitionException(e.getTargetException(), ErrorCodes.FSM_TRANSITION_ERROR, 
+                        from, to, event, context, stateMachine);
             } catch (Exception e) {
                 // wrapper any exception into transition exception
                 throw new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
