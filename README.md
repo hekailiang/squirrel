@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.2.4-SNAPSHOT</version>
+  	<version>0.2.3-SNAPSHOT</version>
 </dependency>
 ``` 
 
