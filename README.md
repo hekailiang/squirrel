@@ -43,8 +43,9 @@ Latest Snapshot Version:
 	* **C** stands for the type of implemented external context.
 
 * **State Machine Builder**  
-	* The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
-	* The internal state is implicitly built during transition creation or state action creation.   
+	- State machine builder is used to generate state machine definition. StateMachineBuilder can be created by StateMachineBuilderFactory.   
+	- The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
+	- The internal state is implicitly built during transition creation or state action creation.   
 	
 	In order to create a state machine, user need to create state machine builder first. For example:   
 	```java
@@ -129,7 +130,7 @@ A list of state entry actions is defined.
     on[eventName] 
     ```
 * **Declarative Annotation**  
-Use conventional way to define action method call is convenient, but sometimes user may want to give method a more meaningful name. Moreover, the java compiler cannot help user to detect the error when misspelling the method name. For this case, a declarative way is also provided to define and also to extend the state machine. Here is an example.  
+A declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
 	@States({
         @State(name="A", entryCallMethod="entryStateA", exitCallMethod="exitStateA"), 
@@ -238,7 +239,7 @@ A hierarchical state may contain nested state. The child states may themselves h
 ```java
 void defineSequentialStatesOn(S parentStateId, S... childStateIds);
 ```
-*builder.defineHierarchyOn(State.A, State.BinA, StateCinA)* defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.
+*builder.defineSequentialStatesOn(State.A, State.BinA, StateCinA)* defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.
 ```java
 @States({
 		@State(name="A", entryMethodCall="entryA", exitMethodCall="exitA"),
@@ -282,7 +283,7 @@ Both API and annotation are supported to define history type of state. e.g.
 ```
 or
 ```java  
-	@State(parent="A", name="A1", entryCallMethod="enterA1", 	exitCallMethod="exitA1", historyType=HistoryType.DEEP)
+	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)
 ```
 
 * **Transition Types**  
