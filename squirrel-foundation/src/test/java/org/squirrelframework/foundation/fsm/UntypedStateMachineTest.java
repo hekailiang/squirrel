@@ -298,4 +298,14 @@ public class UntypedStateMachineTest {
         Assert.assertTrue(fsm2.getListenerSize()==0);
         Assert.assertTrue(fsm2.getExecutorListenerSize()==0);
     }
+    
+    @Test(expected=RuntimeException.class)
+    public void testParamterTypeCheck1() {
+        fsm.fire("TypeNotCorrect", 1);
+    }
+    
+    @Test(expected=RuntimeException.class)
+    public void testParamterTypeCheck2() {
+        fsm.fire(TestEvent.toB, "TypeNotCorrect");
+    }
 }
