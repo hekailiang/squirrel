@@ -1,7 +1,10 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +15,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
@@ -19,6 +25,7 @@ import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionEvent;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionEvent;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionListener;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionListener;
@@ -74,6 +81,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     static {
         SquirrelProvider.getInstance().register(ActionExecutionService.class, SynchronizedExecutionService.class);
     }
+    
+    private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private boolean autoStart = true;
     
@@ -720,84 +729,67 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return ReflectUtils.invoke(listenerMethod, listenTarget, parameterValues.toArray());
     }
     
+    private void registerDeclarativeListener(final Object listenerMethodProvider, Method listenerMethod, Observable listenTarget,
+            Class<? extends Annotation> annotationClass, Class<?> listenerClass, Class<?> eventClass) {
+        Annotation anno = listenerMethod.getAnnotation(annotationClass);
+        if(anno!=null) {
+            Method whenMethod = ReflectUtils.getMethod(anno.getClass(), "when", new Class[0]);
+            String whenCondition = StringUtils.EMPTY;
+            if(whenMethod!=null) {
+                whenCondition = (String)ReflectUtils.invoke(whenMethod, anno);
+            }
+            Field methodField = ReflectUtils.getField(listenerClass, "METHOD");
+            if(methodField!=null && Modifier.isStatic(methodField.getModifiers())) {
+                Method method = (Method)ReflectUtils.getStatic(methodField);
+                Object proxyListener = newListenerMethodProxy(listenerMethodProvider, listenerMethod, listenerClass, whenCondition);
+                listenTarget.addListener(eventClass, proxyListener, method);
+            } else {
+                logger.info("Cannot find static field named 'METHOD' on listener class '"+listenerClass+"'.");
+            }
+        }
+    }
+    
+    private static final Class<?>[][] stateMachineListenerMapping = {
+        {OnTransitionBegin.class,       TransitionBeginListener.class,      TransitionBeginEvent.class},
+        {OnTransitionComplete.class,    TransitionCompleteListener.class,   TransitionCompleteEvent.class},
+        {OnTransitionDecline.class,     TransitionDeclinedListener.class,   TransitionDeclinedEvent.class},
+        {OnTransitionEnd.class,         TransitionEndListener.class,        TransitionEndEvent.class},
+        {OnTransitionException.class,   TransitionExceptionListener.class,  TransitionExceptionEvent.class},
+        {OnStateMachineStart.class,     StartListener.class,                StartEvent.class},
+        {OnStateMachineTerminate.class, TerminateListener.class,            TerminateEvent.class}
+    };
+    
+    private static final Class<?>[][] actionExecutorListenerMapping = {
+        {OnActionExecute.class,         ExecActionListener.class,           ExecActionEvent.class},
+        {OnActionExecException.class,   ExecActionExceptionListener.class,  ExecActionExceptionEvent.class},
+    };
+    
     @Override
     @SuppressWarnings("unchecked")
-    public void addDeclarativeListener(final Object listenTarget) {
+    public void addDeclarativeListener(final Object listenerMethodProvider) {
         List<String> visitedMethods = Lists.newArrayList();
-        for(final Method dMethod : listenTarget.getClass().getMethods()) {
-            String methodSignature = dMethod.toString();
+        for(final Method listenerMethod : listenerMethodProvider.getClass().getMethods()) {
+            String methodSignature = listenerMethod.toString();
             if(visitedMethods.contains(methodSignature)) continue;
             visitedMethods.add(methodSignature);
-            
-            OnTransitionBegin tb = dMethod.getAnnotation(OnTransitionBegin.class);
-            if(tb!=null) {
-                TransitionBeginListener<T, S, E, C> tbListener = (TransitionBeginListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, TransitionBeginListener.class, tb.when());
-                addTransitionBeginListener(tbListener);
+            for(int i=0; i<stateMachineListenerMapping.length; ++i) {
+                registerDeclarativeListener(listenerMethodProvider, listenerMethod, this, 
+                        (Class<? extends Annotation>)stateMachineListenerMapping[i][0], 
+                        stateMachineListenerMapping[i][1], stateMachineListenerMapping[i][2]);
             }
             
-            OnTransitionComplete tc = dMethod.getAnnotation(OnTransitionComplete.class);
-            if(tc!=null) {
-                TransitionCompleteListener<T, S, E, C> tcListener = (TransitionCompleteListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, TransitionCompleteListener.class, tc.when());
-                addTransitionCompleteListener(tcListener);
-            }
-            
-            OnTransitionDecline td = dMethod.getAnnotation(OnTransitionDecline.class);
-            if(td!=null) {
-                TransitionDeclinedListener<T, S, E, C> tdListener = (TransitionDeclinedListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, TransitionDeclinedListener.class, td.when());
-                addTransitionDeclinedListener(tdListener);
-            }
-            
-            OnTransitionEnd te = dMethod.getAnnotation(OnTransitionEnd.class);
-            if(te!=null) {
-                TransitionEndListener<T, S, E, C> teListener = (TransitionEndListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, TransitionEndListener.class, te.when());
-                addTransitionEndListener(teListener);
-            }
-            
-            OnTransitionException tex = dMethod.getAnnotation(OnTransitionException.class);
-            if(tex!=null) {
-                TransitionExceptionListener<T, S, E, C> texListener = (TransitionExceptionListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, TransitionExceptionListener.class, tex.when());
-                addTransitionExceptionListener(texListener);
-            }
-            
-            OnActionExecute ae = dMethod.getAnnotation(OnActionExecute.class);
-            if(ae!=null) {
-                ExecActionListener<T, S, E, C> aeListener = (ExecActionListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, ExecActionListener.class, ae.when());
-                executor.addExecActionListener(aeListener);
-            }
-            
-            OnActionExecException aex = dMethod.getAnnotation(OnActionExecException.class);
-            if(aex!=null) {
-                ExecActionExceptionListener<T, S, E, C> aexListener = (ExecActionExceptionListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, ExecActionExceptionListener.class, aex.when());
-                executor.addExecActionExceptionListener(aexListener);
-            }
-            
-            OnStateMachineStart sta = dMethod.getAnnotation(OnStateMachineStart.class);
-            if(sta!=null) {
-                StartListener<T, S, E, C> staListener = (StartListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, StartListener.class, sta.when());
-                addStartListener(staListener);
-            }
-            
-            OnStateMachineTerminate ste = dMethod.getAnnotation(OnStateMachineTerminate.class);
-            if(ste!=null) {
-                TerminateListener<T, S, E, C> steListener = (TerminateListener<T, S, E, C>)
-                        newListenerMethodProxy(listenTarget, dMethod, TerminateListener.class, ste.when());
-                addTerminateListener(steListener);
+            for(int i=0; i<actionExecutorListenerMapping.length; ++i) {
+                registerDeclarativeListener(listenerMethodProvider, listenerMethod, executor, 
+                        (Class<? extends Annotation>)actionExecutorListenerMapping[i][0], 
+                        actionExecutorListenerMapping[i][1], actionExecutorListenerMapping[i][2]);
             }
         }
     }
     
     @Override
-    public void removeDeclarativeListener(final Object listenTarget) {
-        removeDeclarativeListener(this, listenTarget);
-        removeDeclarativeListener(executor, listenTarget);
+    public void removeDeclarativeListener(final Object listenerMethodProvider) {
+        removeDeclarativeListener(this, listenerMethodProvider);
+        removeDeclarativeListener(executor, listenerMethodProvider);
     }
     
     /**
