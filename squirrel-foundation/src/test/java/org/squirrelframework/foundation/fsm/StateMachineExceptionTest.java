@@ -81,7 +81,7 @@ public class StateMachineExceptionTest {
     @Test(expected=TransitionException.class)
     public void testExceptionFail() throws Exception {
         try {
-            fsm.fire("ToC", null);
+            fsm.fire("ToC");
         } catch(TransitionException e) {
             Assert.assertEquals(fsm.getStatus(), StateMachineStatus.ERROR);
             throw e;
@@ -91,9 +91,9 @@ public class StateMachineExceptionTest {
     
     @Test
     public void testExceptionRecovered() {
-        fsm.fire("ToB", null);
+        fsm.fire("ToB");
         Assert.assertEquals(fsm.getCurrentState(), "A");
-        fsm.fire("ToD", null);
+        fsm.fire("ToD");
         Assert.assertEquals(fsm.getCurrentState(), "D");
     }
 
