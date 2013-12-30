@@ -7,7 +7,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.annotation.ExecuteWhen;
 import org.squirrelframework.foundation.fsm.annotation.LogExecTime;
@@ -15,6 +14,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 
 public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
     
@@ -28,12 +28,12 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     
     private final String methodDesc;
     
-    private final MvelScriptManager scriptManager;
+    private final ExecutionContext executionContext;
     
-    MethodCallActionImpl(Method method, MvelScriptManager scriptManager) {
+    MethodCallActionImpl(Method method, ExecutionContext executionContext) {
         Preconditions.checkNotNull(method, "Method of the action cannot be null.");
         this.method = method;
-        this.scriptManager = scriptManager;
+        this.executionContext = executionContext;
         
         logExecTime = ReflectUtils.isAnnotatedWith(method, LogExecTime.class);
         if(!logExecTime) {
@@ -43,7 +43,7 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
         ExecuteWhen executeWhen = method.getAnnotation(ExecuteWhen.class);
         if(executeWhen!=null) {
             executeWhenExpr = executeWhen.value();
-            scriptManager.compile(executeWhenExpr);
+            executionContext.getScriptManager().compile(executeWhenExpr);
         } else {
             executeWhenExpr = null;
         }
@@ -60,18 +60,18 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
 //            variables.put("event", event);
             variables.put("context", context);
 //            variables.put("stateMachine", stateMachine);
-            boolean isAllowed = scriptManager.evalBoolean(executeWhenExpr, variables);
+            boolean isAllowed = executionContext.getScriptManager().evalBoolean(executeWhenExpr, variables);
             if(!isAllowed) return;
         }
         
-        Object[] params = stateMachine.isContextSensitive() ? 
-                new Object[]{from, to, event, context} : new Object[]{from, to, event};
+        Object[] paramValues = Lists.newArrayList(from, to, event, context).
+                subList(0, executionContext.getMethodCallParamTypes().length).toArray();
         if(logExecTime && logger.isDebugEnabled()) {
             Stopwatch sw = new Stopwatch().start();
-            ReflectUtils.invoke(method, stateMachine, params);
+            ReflectUtils.invoke(method, stateMachine, paramValues);
             logger.debug("Execute Method \""+methodDesc+"\" tooks "+sw.stop().elapsedMillis()+"ms.");
         } else {
-            ReflectUtils.invoke(method, stateMachine, params);
+            ReflectUtils.invoke(method, stateMachine, paramValues);
         }
     }
     

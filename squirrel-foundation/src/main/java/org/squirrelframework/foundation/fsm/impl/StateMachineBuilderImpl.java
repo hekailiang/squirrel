@@ -39,6 +39,7 @@ import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
+import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -94,6 +95,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private E startEvent, finishEvent, terminateEvent;
     
+    private final ExecutionContext executionContext;
+    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
@@ -126,11 +129,16 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(this.eventClazz);
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
-        methodCallParamTypes = isContextInsensitive ? 
+        boolean _isContextInsensitive = isContextInsensitive;
+        if(!_isContextInsensitive && findAnnotation(ContextInsensitive.class)!=null) {
+            _isContextInsensitive = true;
+        }
+        methodCallParamTypes = _isContextInsensitive ? 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
+        this.executionContext = new ExecutionContext(scriptManager, methodCallParamTypes);
     }
     
     private <M extends Annotation> M findAnnotation(final Class<M> annotationClass) {
@@ -194,26 +202,26 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
 	@Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority) {
         checkState();
-        return FSM.newExternalTransitionBuilder(states, priority, scriptManager);
+        return FSM.newExternalTransitionBuilder(states, priority, executionContext);
     }
     
     @Override
     public LocalTransitionBuilder<T, S, E, C> localTransition(int priority) {
         checkState();
-        return FSM.newLocalTransitionBuilder(states, priority, scriptManager);
+        return FSM.newLocalTransitionBuilder(states, priority, executionContext);
     }
 
     @Override
     public InternalTransitionBuilder<T, S, E, C> internalTransition(int priority) {
         checkState();
-        return FSM.newInternalTransitionBuilder(states, priority, scriptManager);
+        return FSM.newInternalTransitionBuilder(states, priority, executionContext);
     }
     
     private void addStateEntryExitMethodCallAction(String methodName, Class<?>[] parameterTypes, 
             MutableState<T, S, E, C> mutableState, boolean isEntryAction) {
         Method method = findMethodCallActionInternal(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
             if(isEntryAction) {
                 mutableState.addEntryAction(methodCallAction);
             } else {
@@ -226,7 +234,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             MutableTransition<T, S, E, C> mutableTransition) {
         Method method = findMethodCallActionInternal(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
             mutableTransition.addAction(methodCallAction);
         }
     }
@@ -264,7 +272,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                     MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)t;
                     Method method = findMethodCallActionInternal(stateMachineImplClazz, transit.callMethod(), methodCallParamTypes);
                     if(method!=null) {
-                        Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+                        Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
                         mutableTransition.addAction(methodCallAction);
                     } else if(logger.isInfoEnabled()){
                         logger.warn("Cannot find method '"+transit.callMethod()+"' with parameters '"+
@@ -278,12 +286,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         // if no existed transition is matched then create a new transition
         To<T, S, E, C> toBuilder = null;
         if(transit.type()==TransitionType.INTERNAL) {
-        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = FSM.newInternalTransitionBuilder(states, transit.priority(), scriptManager);
+        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = 
+        	        FSM.newInternalTransitionBuilder(states, transit.priority(), executionContext);
             toBuilder = transitionBuilder.within(fromState);
         } else {
         	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ? 
-        	        FSM.newLocalTransitionBuilder(states, transit.priority(), scriptManager) : 
-        	            FSM.newExternalTransitionBuilder(states, transit.priority(), scriptManager);
+        	        FSM.newLocalTransitionBuilder(states, transit.priority(), executionContext) : 
+        	            FSM.newExternalTransitionBuilder(states, transit.priority(), executionContext);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
             boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinalState();
             toBuilder = isTargetFinal ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
@@ -307,7 +316,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!Strings.isNullOrEmpty(transit.callMethod())) {
             Method method = findMethodCallActionInternal(stateMachineImplClazz, transit.callMethod(), methodCallParamTypes);
             if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
                 whenBuilder.perform(methodCallAction);
             }
         }
@@ -347,7 +356,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!Strings.isNullOrEmpty(state.entryCallMethod())) {
             Method method = findMethodCallActionInternal(stateMachineImplClazz, state.entryCallMethod(), methodCallParamTypes);
             if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
                 onEntry(stateId).perform(methodCallAction);
             } else if(logger.isInfoEnabled()){
                 logger.warn("Cannot find method '"+state.entryCallMethod()+"' with parameters '"+
@@ -358,7 +367,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!Strings.isNullOrEmpty(state.exitCallMethod())) {
             Method method = findMethodCallActionInternal(stateMachineImplClazz, state.exitCallMethod(), methodCallParamTypes);
             if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, scriptManager);
+                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
                 onExit(stateId).perform(methodCallAction);
             } else if(logger.isInfoEnabled()){
                 logger.warn("Cannot find method '"+state.exitCallMethod()+"' with parameters '"+
@@ -689,14 +698,14 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public EntryExitActionBuilder<T, S, E, C> onEntry(S stateId) {
         checkState();
         MutableState<T, S, E, C> state = FSM.getState(states, stateId);
-        return FSM.newEntryExitActionBuilder(state, true, scriptManager);
+        return FSM.newEntryExitActionBuilder(state, true, executionContext);
     }
 
     @Override
     public EntryExitActionBuilder<T, S, E, C> onExit(S stateId) {
         checkState();
         MutableState<T, S, E, C> state = FSM.getState(states, stateId);
-        return FSM.newEntryExitActionBuilder(state, false, scriptManager);
+        return FSM.newEntryExitActionBuilder(state, false, executionContext);
     }
 
     private class DeclareTransitionFunction implements Function<Class<?>, Boolean> {

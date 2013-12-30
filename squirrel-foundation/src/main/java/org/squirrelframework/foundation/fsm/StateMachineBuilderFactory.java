@@ -17,6 +17,7 @@ import org.squirrelframework.foundation.util.TypeReference;
  */
 public class StateMachineBuilderFactory {
     
+    @Deprecated
     public static <T extends StateMachineWithoutContext<T, S, E>, S, E> StateMachineBuilder<T, S, E, Void> create(
             Class<? extends T> stateMachineClazz, Class<S> stateClazz, Class<E> eventClazz) {
         return create(stateMachineClazz, stateClazz, eventClazz, Void.class, true, new Class<?>[0]);
@@ -31,7 +32,8 @@ public class StateMachineBuilderFactory {
         return create(stateMachineClazz, new Class[0]);
     }
     
-    public static UntypedStateMachineBuilder create(Class<? extends UntypedStateMachine> stateMachineClazz, Class<?>... extraConstParamTypes) {
+    public static UntypedStateMachineBuilder create(
+            Class<? extends UntypedStateMachine> stateMachineClazz, Class<?>... extraConstParamTypes) {
         final StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder = 
                 create(stateMachineClazz, Object.class, Object.class, Object.class, false, extraConstParamTypes);
         return (UntypedStateMachineBuilder) Proxy.newProxyInstance(

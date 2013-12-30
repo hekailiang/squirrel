@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.exception.TransitionException;
+import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -21,6 +22,7 @@ public class StateMachineExceptionTest {
         @Transit(from="A", to="D", on="ToD")
     })
     @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=Void.class)
+    @ContextInsensitive
     static class StateMachineExceptionSample extends AbstractUntypedStateMachine {
 
         protected StateMachineExceptionSample(ImmutableUntypedState initialState,
@@ -28,11 +30,11 @@ public class StateMachineExceptionTest {
             super(initialState, states);
         }
         
-        protected void transitFromAToBOnToB(String from, String to, String event, Void context) {
+        protected void transitFromAToBOnToB(String from, String to, String event) {
             throw new IllegalArgumentException("This exception can be recovered.");
         }
         
-        protected void transitFromAToCOnToC(String from, String to, String event, Void context) {
+        protected void transitFromAToCOnToC(String from, String to, String event) {
             throw new UnsupportedOperationException("This exception cannot be recovered.");
         }
         
@@ -47,6 +49,7 @@ public class StateMachineExceptionTest {
                 Throwable targeException = te.getTargetException();
                 if(targeException instanceof IllegalArgumentException && 
                         fromState.equals("A") && toState.equals("B") && event.equals("ToB")) {
+                    Assert.assertEquals(te.getTargetException().getMessage(), "This exception can be recovered.");
                     // do some error clean up job here
                     // ...
                     // after recovered from this exception, reset the state machine status back to normal

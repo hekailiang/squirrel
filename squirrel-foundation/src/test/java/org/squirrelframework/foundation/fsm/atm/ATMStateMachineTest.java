@@ -31,7 +31,7 @@ public class ATMStateMachineTest {
     @Before
     public void setup() {
         StateMachineBuilder<ATMStateMachine, ATMState, String, Void> builder = StateMachineBuilderFactory.create(
-                ATMStateMachine.class, ATMState.class, String.class);
+                ATMStateMachine.class, ATMState.class, String.class, Void.class);
         builder.externalTransition().from(ATMState.Idle).to(ATMState.Loading).on("Connected");
         builder.externalTransition().from(ATMState.Loading).to(ATMState.Disconnected).on("ConnectionClosed");
         builder.externalTransition().from(ATMState.Loading).to(ATMState.InService).on("LoadSuccess");

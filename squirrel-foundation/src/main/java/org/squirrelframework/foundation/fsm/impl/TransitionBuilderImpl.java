@@ -8,7 +8,6 @@ import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
@@ -35,14 +34,14 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     private final int priority;
     
-    private final MvelScriptManager scriptManager;
+    private final ExecutionContext executionContext;
     
     TransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType, 
-            int priority, MvelScriptManager scriptManager) {
+            int priority, ExecutionContext executionContext) {
         this.states = states;
         this.transitionType = transitionType;
         this.priority = priority;
-        this.scriptManager = scriptManager;
+        this.executionContext = executionContext;
     }
     
     @Override
@@ -57,13 +56,13 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     @Override
     public void evalMvel(String expression) {
-        Action<T, S, E, C> action = FSM.newMvelAction(expression, scriptManager);
+        Action<T, S, E, C> action = FSM.newMvelAction(expression, executionContext.getScriptManager());
         transition.addAction(action);
     }
     
     @Override
     public void callMethod(final String methodName) {
-        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName, scriptManager);
+        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName, executionContext);
         transition.addAction(action);
     }
 
@@ -105,7 +104,7 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     @Override
     public When<T, S, E, C> whenMvel(String expression) {
-        Condition<C> cond = FSM.newMvelCondition(expression, scriptManager);
+        Condition<C> cond = FSM.newMvelCondition(expression, executionContext.getScriptManager());
         transition.setCondition(cond);
         return this;
     }

@@ -198,6 +198,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
+    public void fire(E event) {
+        fire(event, null);
+    }
+    
+    @Override
     public S test(E event, C context) {
         if( getStatus()==StateMachineStatus.ERROR || getStatus()==StateMachineStatus.TERMINATED) {
             throw new RuntimeException("Cannot test state machine under "+status+" status.");
@@ -222,6 +227,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             }
         }
         return testResult;
+    }
+    
+    @Override
+    public S test(E event) {
+        return test(event, null);
     }
     
     protected boolean isIdle() {

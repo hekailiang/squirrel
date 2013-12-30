@@ -66,43 +66,43 @@ abstract class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> ExternalTransitionBuilder<T, S, E, C> newExternalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority, MvelScriptManager scriptManager) {
+            Map<S, MutableState<T, S, E, C>> states, int priority, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class, int.class, MvelScriptManager.class }, 
-                new Object[] { states, TransitionType.EXTERNAL, priority, scriptManager });
+                new Class[] { Map.class, TransitionType.class, int.class, ExecutionContext.class }, 
+                new Object[] { states, TransitionType.EXTERNAL, priority, executionContext });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> LocalTransitionBuilder<T, S, E, C> newLocalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority, MvelScriptManager scriptManager) {
+            Map<S, MutableState<T, S, E, C>> states, int priority, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class, int.class, MvelScriptManager.class }, 
-                new Object[] { states, TransitionType.LOCAL, priority, scriptManager });
+                new Class[] { Map.class, TransitionType.class, int.class, ExecutionContext.class }, 
+                new Object[] { states, TransitionType.LOCAL, priority, executionContext });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> InternalTransitionBuilder<T, S, E, C> newInternalTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority, MvelScriptManager scriptManager) {
+            Map<S, MutableState<T, S, E, C>> states, int priority, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { Map.class, TransitionType.class, int.class, MvelScriptManager.class }, 
-                new Object[] { states, TransitionType.INTERNAL, priority, scriptManager });
+                new Class[] { Map.class, TransitionType.class, int.class, ExecutionContext.class }, 
+                new Object[] { states, TransitionType.INTERNAL, priority, executionContext });
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> EntryExitActionBuilder<T, S, E, C> newEntryExitActionBuilder(
-            MutableState<T, S, E, C> state, boolean isEntryAction, MvelScriptManager scriptManager) {
+            MutableState<T, S, E, C> state, boolean isEntryAction, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<EntryExitActionBuilderImpl<T, S, E, C>>() {}, 
-                new Class[] { MutableState.class, boolean.class, MvelScriptManager.class}, 
-                new Object[] { state, isEntryAction, scriptManager});
+                new Class[] { MutableState.class, boolean.class, ExecutionContext.class}, 
+                new Object[] { state, isEntryAction, executionContext});
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionImpl<T, S, E, C> newMethodCallAction(
-            Method method, MvelScriptManager scriptManager) {
+            Method method, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MethodCallActionImpl<T, S, E, C>>() {}, 
-                new Class[] { Method.class, MvelScriptManager.class }, new Object[] { method, scriptManager });
+                new Class[] { Method.class, ExecutionContext.class }, new Object[] { method, executionContext });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionProxyImpl<T, S, E, C> newMethodCallActionProxy(
-            String methodName, MvelScriptManager scriptManager) {
+            String methodName, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MethodCallActionProxyImpl<T, S, E, C>>() {}, 
-                new Class[] { String.class, MvelScriptManager.class }, new Object[] { methodName, scriptManager });
+                new Class[] { String.class, ExecutionContext.class }, new Object[] { methodName, executionContext });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> Actions<T, S, E, C> newActions() {
@@ -120,7 +120,8 @@ abstract class FSM {
                 new Class<?>[]{String.class, MvelScriptManager.class}, new Object[]{expression, scriptManager});
     }
     
-    static <T extends StateMachine<T, S, E, C>, S, E, C> Action<T, S, E, C> newMvelAction(String expression, MvelScriptManager scriptManager) {
+    static <T extends StateMachine<T, S, E, C>, S, E, C> Action<T, S, E, C> newMvelAction(
+            String expression, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelActionImpl<T, S, E, C>>() {}, 
                 new Class<?>[]{String.class, MvelScriptManager.class}, new Object[]{expression, scriptManager});
     }

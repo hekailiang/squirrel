@@ -3,10 +3,12 @@ package org.squirrelframework.foundation.fsm.atm;
 import java.util.Map;
 
 import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.atm.ATMStateMachine.ATMState;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineWithoutContext;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
-public class ATMStateMachine extends AbstractStateMachineWithoutContext<ATMStateMachine, ATMState, String> {
+@ContextInsensitive
+public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
     
     enum ATMState {
         Idle, Loading, OutOfService, Disconnected, InService

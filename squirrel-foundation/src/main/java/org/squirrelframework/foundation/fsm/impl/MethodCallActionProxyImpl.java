@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
 import com.google.common.base.Preconditions;
@@ -16,13 +15,13 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
     
     private final String methodName;
     
-    private final MvelScriptManager scriptManager;
+    private final ExecutionContext executionContext;
     
     private Action<T, S, E, C> delegator;
     
-    MethodCallActionProxyImpl(String methodName, MvelScriptManager scriptManager) {
+    MethodCallActionProxyImpl(String methodName, ExecutionContext executionContext) {
         this.methodName = methodName;
-        this.scriptManager = scriptManager;
+        this.executionContext = executionContext;
     }
 
     @SuppressWarnings("unchecked")
@@ -31,25 +30,15 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
         Preconditions.checkNotNull(stateMachine);
         
         if(delegator==null) {
-            boolean isContextSensitive = stateMachine.isContextSensitive();
             Class<?> stateMachineClazz = stateMachine.getClass();
-            
-            Class<S> stateClazz = stateMachine.typeOfState();
-            Class<E> eventClazz = stateMachine.typeOfEvent();
-            Class<C> contextClazz = stateMachine.typeOfContext();
-            
-            final Class<?>[] methodCallParamTypes = isContextSensitive ? 
-                    new Class<?>[]{stateClazz, stateClazz, eventClazz, contextClazz} : 
-                    new Class<?>[]{stateClazz, stateClazz, eventClazz};
-                    
             Method method = StateMachineBuilderImpl.findMethodCallActionInternal( 
-                    stateMachineClazz, methodName, methodCallParamTypes );
+                    stateMachineClazz, methodName, executionContext.getMethodCallParamTypes() );
             if(method!=null) {
-                delegator = FSM.newMethodCallAction(method, scriptManager);
+                delegator = FSM.newMethodCallAction(method, executionContext);
             } else {
                 if(logger.isInfoEnabled()){
                     logger.warn("Cannot find method '"+methodName+"' with parameters '"+
-                        methodCallParamTypes+"' in class "+stateMachineClazz+".");
+                            executionContext.getMethodCallParamTypes()+"' in class "+stateMachineClazz+".");
                 }
                 delegator = (Action<T, S, E, C>)Action.DUMMY_ACTION;
             }

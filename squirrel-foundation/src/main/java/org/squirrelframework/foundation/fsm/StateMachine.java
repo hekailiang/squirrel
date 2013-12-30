@@ -37,6 +37,18 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     S test(E event, C context);
     
     /**
+     * Fire event
+     * @param event
+     */
+    void fire(E event);
+    
+    /**
+     * Test event
+     * @param event
+     */
+    S test(E event);
+    
+    /**
      * Start state machine under external context
      * @param context external context
      */
@@ -136,6 +148,7 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     /**
      * @return whether state machine is context sensitive
      */
+    @Deprecated
     boolean isContextSensitive();
     
     Class<C> typeOfContext();
