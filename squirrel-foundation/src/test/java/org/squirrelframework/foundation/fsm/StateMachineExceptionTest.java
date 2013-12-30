@@ -78,13 +78,14 @@ public class StateMachineExceptionTest {
         fsm = builder.newUntypedStateMachine("A", StateMachineExceptionSample.class);
     }
     
-    @Test(expected=TransitionException.class)
-    public void testExceptionFail() throws Exception {
+    @Test(expected=UnsupportedOperationException.class)
+    public void testExceptionFail() throws Throwable {
         try {
             fsm.fire("ToC");
         } catch(TransitionException e) {
             Assert.assertEquals(fsm.getStatus(), StateMachineStatus.ERROR);
-            throw e;
+            Assert.assertEquals(e.getTargetException().getMessage(), "This exception cannot be recovered.");
+            throw e.getTargetException();
         }
         Assert.fail();
     }
