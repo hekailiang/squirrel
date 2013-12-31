@@ -230,8 +230,10 @@ To create a new state machine instance from state machine builder, you need to p
     builder.externalTransition().from("D").to("A").on(TestEvent.toA);
     UntypedStateMachine fsm = builder.newStateMachine("A");
 	```
-	*@StateMachineParamters* is used to declare state machine generic parameter types.  
-	*AbstractUntypedStateMachine* is the base class of any untyped state machine.
+	To build an UntypedStateMachine, user need to create an UntypedStateMachineBuilder through StateMachineBuilderFactory first. StateMachineBuilderFactory takes only one parameter which is type of state machine class to create UntypedStateMachineBuilder. *@StateMachineParamters* is used to declare state machine generic parameter types. *AbstractUntypedStateMachine* is the base class of any untyped state machine.  
+
+* **Context Insensitive State Machine**  
+TODO
 
 ### Advanced Feature
 * **Define Hierarchical State**  
@@ -273,6 +275,9 @@ To get current sub states of the parallel state
 ```java
 stateMachine.getSubStatesOn(MyState.Root); // return list of current sub states of parallel state
 ```
+
+* **Define Context Event**  
+TODO
 
 * **Using History States to Save and Restore the Current State**  
 The history pseudo-state allows a state machine to remember its state configuration. A transition taking the history state as its target will return the state machine to this recorded configuration. If the 'type' of a history is "shallow", the state machine processor must record the direct  active children of its parent before taking any transition that exits the parent. If the 'type' of a history is "deep", the state machine processor must record all the active  descendants of the parent before taking any transition that exits the parent.   
@@ -496,10 +501,10 @@ newStateMachineInstance.loadSavedData(savedData);
 	builderOfTestStateMachine.definedLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1);
 	```
 ### Examples  
-* **ATM State Machine**  
+* **ATM State Machine - Example on context insensitive typed state machine**  
 The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.  
 
-* **Simple CSS Parser**  
+* **Simple CSS Parser - Example usage of fluent API**  
 	This example illustrates how to parse incoming characters by define parser grammar in state machine.  
 	![SimpleCssParser](http://hekailiang.github.io/squirrel/images/SimpleCssParser.png)  
 	Parse CSS scripts with *SimpleCssParser* which is defined as State Machine.
@@ -510,7 +515,7 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	```
 	Sample code to define CssParser could be found in package *"org.squirrelframework.foundation.fsm.cssparser"*.
 
-* **Greedy Snake Game Sample**  
+* **Greedy Snake Game Sample - Example usage of declarative untyped state machine**  
 	Here is an interesting example which used state machine to implement greedy snake game 	controller. The following diagram shows that the state machine definition of the controller.   
 	![SnakeStateMachine](http://hekailiang.github.io/squirrel/images/SnakeGame.png)  
 	Sample code to create snake game state machine.
