@@ -30,9 +30,12 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     
     private final ExecutionContext executionContext;
     
-    MethodCallActionImpl(Method method, ExecutionContext executionContext) {
+    private final int weight;
+    
+    MethodCallActionImpl(Method method, int weight, ExecutionContext executionContext) {
         Preconditions.checkNotNull(method, "Method of the action cannot be null.");
         this.method = method;
+        this.weight = weight;
         this.executionContext = executionContext;
         
         logExecTime = ReflectUtils.isAnnotatedWith(method, LogExecTime.class);
@@ -94,9 +97,18 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null || getClass() != obj.getClass() || 
+        if(obj == null)
+            return false;
+        if(obj instanceof MethodCallActionProxyImpl && obj.equals(this))
+            return true;
+        if (getClass() != obj.getClass() || 
                 !method.equals(MethodCallActionImpl.class.cast(obj).method))
             return false;
         return true;
+    }
+
+    @Override
+    public int weight() {
+        return weight;
     }
 }

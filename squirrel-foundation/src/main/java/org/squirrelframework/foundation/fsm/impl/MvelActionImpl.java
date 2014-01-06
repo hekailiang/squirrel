@@ -54,4 +54,9 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     public String name() {
         return name;
     }
+
+    @Override
+    public int weight() {
+        return Action.NORMAL_WEIGHT;
+    }
 }

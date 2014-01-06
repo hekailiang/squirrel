@@ -7,5 +7,10 @@ public abstract class AnonymousAction<T extends StateMachine<T, S, E, C>, S, E, 
     public String name() {
         return "_ANONYMOUS_ACTION";
     }
+    
+    @Override
+    public int weight() {
+        return NORMAL_WEIGHT;
+    }
 
 }

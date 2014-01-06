@@ -94,9 +94,11 @@ abstract class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionImpl<T, S, E, C> newMethodCallAction(
-            Method method, ExecutionContext executionContext) {
-        return SquirrelProvider.getInstance().newInstance(new TypeReference<MethodCallActionImpl<T, S, E, C>>() {}, 
-                new Class[] { Method.class, ExecutionContext.class }, new Object[] { method, executionContext });
+            Method method, int weight, ExecutionContext executionContext) {
+        return SquirrelProvider.getInstance().newInstance( 
+                new TypeReference<MethodCallActionImpl<T, S, E, C>>() {}, 
+                new Class[] { Method.class, int.class, ExecutionContext.class }, 
+                new Object[] { method, weight, executionContext } );
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> MethodCallActionProxyImpl<T, S, E, C> newMethodCallActionProxy(

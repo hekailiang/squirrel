@@ -13,6 +13,15 @@ import org.squirrelframework.foundation.component.SquirrelComponent;
  * @param <C> type of Context
  */
 public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelComponent {
+    
+    public static final int BEFORE_WEIGHT = 100;
+    
+    public static final int NORMAL_WEIGHT = 0;
+    
+    public static final int EXTENSION_WEIGHT = -10;
+    
+    public static final int AFTER_WEIGHT = -100;
+    
     /**
      * Execute the activity.
      * 
@@ -26,8 +35,10 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
     
     String name();
     
+    int weight();
+    
     @SuppressWarnings("rawtypes")
-    public final static Action DUMMY_ACTION = new Action() {
+    public final static Action DUMMY_ACTION = new AnonymousAction() {
         @Override
         public void execute(Object from, Object to, Object event, 
                 Object context, StateMachine stateMachine) {

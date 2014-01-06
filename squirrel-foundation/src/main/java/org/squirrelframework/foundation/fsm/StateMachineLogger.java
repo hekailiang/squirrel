@@ -81,7 +81,7 @@ public class StateMachineLogger {
     @OnActionExecute
     public void onActionExecute(Object sourceState, Object targetState, 
             Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-        logger.info("Before execute method call action \""+action.name()+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
+        logger.info("Before execute method call action \""+action.name()+":"+action.weight()+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
     }
     
     @OnActionExecException

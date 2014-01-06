@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.StateContext;
@@ -31,7 +32,7 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     
     private StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine;
     
-    private Action<T, S, E, C> lastEntryAction = new Action<T, S, E, C>() {
+    private Action<T, S, E, C> lastEntryAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
             linkedStateMachine.start(context);
@@ -43,7 +44,7 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
         }
     };
     
-    private Action<T, S, E, C> firstExitAction = new Action<T, S, E, C>() {
+    private Action<T, S, E, C> firstExitAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
             linkedStateMachine.terminate(context);

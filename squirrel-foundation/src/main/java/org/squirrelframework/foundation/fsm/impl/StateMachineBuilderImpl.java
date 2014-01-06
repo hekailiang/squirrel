@@ -221,7 +221,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             MutableState<T, S, E, C> mutableState, boolean isEntryAction) {
         Method method = findMethodCallActionInternal(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, Action.EXTENSION_WEIGHT, executionContext);
             if(isEntryAction) {
                 mutableState.addEntryAction(methodCallAction);
             } else {
@@ -234,7 +234,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             MutableTransition<T, S, E, C> mutableTransition) {
         Method method = findMethodCallActionInternal(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, Action.EXTENSION_WEIGHT, executionContext);
             mutableTransition.addAction(methodCallAction);
         }
     }
@@ -270,14 +270,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             for(ImmutableTransition<T, S, E, C> t : theFromState.getAllTransitions()) {
                 if(t.isMatch(fromState, toState, event, transit.priority(), transit.when(), transit.type())) {
                     MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)t;
-                    Method method = findMethodCallActionInternal(stateMachineImplClazz, transit.callMethod(), methodCallParamTypes);
-                    if(method!=null) {
-                        Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
-                        mutableTransition.addAction(methodCallAction);
-                    } else if(logger.isInfoEnabled()){
-                        logger.warn("Cannot find method '"+transit.callMethod()+"' with parameters '"+
-                                methodCallParamTypes+"' in class "+stateMachineImplClazz+".");
-                    }
+                    Action<T, S, E, C> methodCallAction = FSM.newMethodCallActionProxy(transit.callMethod(), executionContext);
+                    mutableTransition.addAction(methodCallAction);
                     return;
                 }
             }
@@ -314,11 +308,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         When<T, S, E, C> whenBuilder = c!=null ? onBuilder.when(c) : onBuilder;
         
         if(!Strings.isNullOrEmpty(transit.callMethod())) {
-            Method method = findMethodCallActionInternal(stateMachineImplClazz, transit.callMethod(), methodCallParamTypes);
-            if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
-                whenBuilder.perform(methodCallAction);
-            }
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallActionProxy(transit.callMethod(), executionContext);
+            whenBuilder.perform(methodCallAction);
         }
     }
     
@@ -354,25 +345,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         if(!Strings.isNullOrEmpty(state.entryCallMethod())) {
-            Method method = findMethodCallActionInternal(stateMachineImplClazz, state.entryCallMethod(), methodCallParamTypes);
-            if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
-                onEntry(stateId).perform(methodCallAction);
-            } else if(logger.isInfoEnabled()){
-                logger.warn("Cannot find method '"+state.entryCallMethod()+"' with parameters '"+
-                        methodCallParamTypes+"' in class "+stateMachineImplClazz+".");
-            }
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallActionProxy(state.entryCallMethod(), executionContext);
+            onEntry(stateId).perform(methodCallAction);
         }
         
         if(!Strings.isNullOrEmpty(state.exitCallMethod())) {
-            Method method = findMethodCallActionInternal(stateMachineImplClazz, state.exitCallMethod(), methodCallParamTypes);
-            if(method!=null) {
-                Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, executionContext);
-                onExit(stateId).perform(methodCallAction);
-            } else if(logger.isInfoEnabled()){
-                logger.warn("Cannot find method '"+state.exitCallMethod()+"' with parameters '"+
-                        methodCallParamTypes+"' in class "+stateMachineImplClazz+".");
-            }
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallActionProxy(state.exitCallMethod(), executionContext);
+            onExit(stateId).perform(methodCallAction);
         }
         rememberStateAlias(state);
     }
