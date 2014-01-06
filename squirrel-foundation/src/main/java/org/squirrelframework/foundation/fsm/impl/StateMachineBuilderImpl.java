@@ -221,7 +221,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             MutableState<T, S, E, C> mutableState, boolean isEntryAction) {
         Method method = findMethodCallActionInternal(stateMachineImplClazz, methodName, parameterTypes);
         if(method!=null) {
-            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, Action.EXTENSION_WEIGHT, executionContext);
+            int weight = Action.EXTENSION_WEIGHT;
+            if(methodName.startsWith("before")) {
+                weight = Action.BEFORE_WEIGHT;
+            } else if(methodName.startsWith("after")) {
+                weight = Action.AFTER_WEIGHT;
+            }
+            Action<T, S, E, C> methodCallAction = FSM.newMethodCallAction(method, weight, executionContext);
             if(isEntryAction) {
                 mutableState.addEntryAction(methodCallAction);
             } else {
