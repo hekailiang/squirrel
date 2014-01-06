@@ -46,12 +46,14 @@ Latest Snapshot Version:
 	- State machine builder is used to generate state machine definition. StateMachineBuilder can be created by StateMachineBuilderFactory.   
 	- The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
 	- The internal state is implicitly built during transition creation or state action creation.   
+	- All the state machine instances created by the same state machine builder share the same definition data for memory usage optimize.
 	
 	In order to create a state machine, user need to create state machine builder first. For example:   
 	```java
 	StateMachineBuilder<MyStateMachine, MyState, MyEvent, MyContext> builder =
-		StateMachineBuilderFactory.create(MyStateMachine.class, MyState.class, MyEvent.class, MyContext.class);
+		StateMachineBuilderFactory.create(MyStateMachine.class, MyState.class, MyEvent.class, MyContext.class);		
 	```
+	The state machine builder takes for parameters which are type of state machine(T), state(S), event(E) and context(C).
 
 * **Fluent API**  
 After state machine builder was created, we can use fluent API to define state/transition/action of the state machine.
@@ -86,7 +88,7 @@ An **conditional transition** is built from state 'C' to state 'D' on event 'GoT
 ```java
 builder.onEntry(MyState.A).perform(Lists.newArrayList(action1, action2))
 ```
-A list of state entry actions is defined.
+A list of state entry actions is defined in above sample code.
 
 * **Method Call Action**  
 	User can define anonymous actions during define transitions or state entry/exit. However, the action code will be scattered over many places which may make code hard to maintain. Moreover, other user cannot override the actions. So squirrel-foundation also support to define state machine method call action which comes along with state machine class itself.   
@@ -190,7 +192,7 @@ To create a new state machine instance from state machine builder, you need to p
 	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial, new Object[0]);
 	```
 
-* **Fire Events**  
+* **Trigger Transitions**  
 	After state machine was created, user can fire events along with context to trigger transition inside state machine. e.g.
 	```java
 	stateMachine.fire(MyEvent.Prepare, new MyContext("Testing"));	
@@ -233,7 +235,19 @@ To create a new state machine instance from state machine builder, you need to p
 	To build an UntypedStateMachine, user need to create an UntypedStateMachineBuilder through StateMachineBuilderFactory first. StateMachineBuilderFactory takes only one parameter which is type of state machine class to create UntypedStateMachineBuilder. *@StateMachineParamters* is used to declare state machine generic parameter types. *AbstractUntypedStateMachine* is the base class of any untyped state machine.  
 
 * **Context Insensitive State Machine**  
-TODO
+Sometimes state transition does not care context, which means state transition only determined by event, for this case user can use context insensitive state machine to simplify method call parameters.  
+To declare context insensitive state machine, user only need to add annotation *@ContextInsensitive* on state machine class. After declared context insensitive state machine, context parameter can be ignored on the transition method parameter list.  
+```java
+	@ContextInsensitive
+	public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
+		public void transitFromIdleToLoadingOnConnected(ATMState from, ATMState to, String event) {
+        	...
+    	}
+    	public void entryLoading(ATMState from, ATMState to, String event) {
+        	...
+    	}
+}
+```
 
 ### Advanced Feature
 * **Define Hierarchical State**  
@@ -275,9 +289,25 @@ To get current sub states of the parallel state
 ```java
 stateMachine.getSubStatesOn(MyState.Root); // return list of current sub states of parallel state
 ```
-
+When all the parallel states reached final state, a **Finish** context event will be fired.  
 * **Define Context Event**  
-TODO
+Context event means that user defined event has predefined context in the state machine. squirrel-foundation defined three type of context event for different use case.  
+**Start/Terminate Event**: Event declared as start/terminate event will be used when state machine started/terminated. So user can differentiate the Action trigger cause.  
+**Finish Event**: When all the parallel states reached final state, finish event will be fired. User can define following transition based on finish event.  
+To define the context event, user has two way, annotation or builder API.
+```java
+	@ContextEvent(finishEvent="Finish")
+	static class ParallelStateMachine extends AbstractStateMachine<...> {
+	}
+```
+or
+```java
+	StateMachineBuilder<...> builder = StateMachineBuilderFactory.create(...);
+	...
+	builder.defineFinishEvent(HEvent.Start);
+	builder.defineFinishEvent(HEvent.Terminate);
+	builder.defineFinishEvent(HEvent.Finish);
+```
 
 * **Using History States to Save and Restore the Current State**  
 The history pseudo-state allows a state machine to remember its state configuration. A transition taking the history state as its target will return the state machine to this recorded configuration. If the 'type' of a history is "shallow", the state machine processor must record the direct  active children of its parent before taking any transition that exits the parent. If the 'type' of a history is "deep", the state machine processor must record all the active  descendants of the parent before taking any transition that exits the parent.   
