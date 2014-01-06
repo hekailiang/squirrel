@@ -48,7 +48,11 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
 
     @Override
     public String name() {
-        return methodName;
+        if(delegator==null) {
+            return "method-proxy-"+methodName;
+        } else {
+            return delegator.name();
+        }
     }
 
 }
