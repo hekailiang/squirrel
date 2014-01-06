@@ -131,11 +131,29 @@ A list of state entry actions is defined in above sample code.
     transitFrom[fromStateName]To[toStateName]          
     on[eventName] 
     ```
-    For more information, you can refer to test case "*org.squirrelframework.foundation.fsm.ExtensionMethodCallTest*".
+    For more information, please refer to test case "*org.squirrelframework.foundation.fsm.ExtensionMethodCallTest*".
     
 * **Weighted Action**  
-TBD  
-
+User can define action weight to adjust action execution order. The actions during state entry/exit and state transition are ordered in ascending order according to their weight value. Action weight is 0 by default. User has two way to set action weight.  
+One is append weight number to method name and separated by ':'.
+```java
+// define state entry action 'goEntryD' weight -150
+@State(name="D", entryCallMethod="goEntryD:-150") 
+// define transition action 'goAToC1' weight +150
+@Transit(from="A", to="C", on="ToC", callMethod="goAToC1:+150") 
+```  
+Another way is override weight method of Action class, e.g. 
+```java
+	Action<...> newAction = new Action<...>() {
+		...
+		@Override
+		public int weight() {
+			return 100;
+		}
+}
+```  
+squirrel-foundation also support a conventional manner to declare action weight. The weight of method call action whose name started with '*before*' will be set to 100, so as the name started with '*after*' will be set to -100. Generally it means that the action method name started with 'before' will be invoked at first, while the action method name started with 'after' will be invoked at last.  
+For more information, please refer to test case '*org.squirrelframework.foundation.fsm.WeightedActionTest*';
 * **Declarative Annotation**  
 A declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
@@ -297,8 +315,8 @@ stateMachine.getSubStatesOn(MyState.Root); // return list of current sub states 
 When all the parallel states reached final state, a **Finish** context event will be fired.  
 * **Define Context Event**  
 Context event means that user defined event has predefined context in the state machine. squirrel-foundation defined three type of context event for different use case.  
-**Start/Terminate Event**: Event declared as start/terminate event will be used when state machine started/terminated. So user can differentiate the Action trigger cause.  
-**Finish Event**: When all the parallel states reached final state, finish event will be fired. User can define following transition based on finish event.  
+**Start/Terminate Event**: Event declared as start/terminate event will be used when state machine started/terminated. So user can differentiate the invoked action trigger, e.g. when state machine is starting and entering its initial state, user can differentiate these state entry action was invoked by start event.  
+**Finish Event**: When all the parallel states reached final state, finish event will be automatically fired. User can define following transition based on finish event.  
 To define the context event, user has two way, annotation or builder API.
 ```java
 	@ContextEvent(finishEvent="Finish")
@@ -310,8 +328,8 @@ or
 	StateMachineBuilder<...> builder = StateMachineBuilderFactory.create(...);
 	...
 	builder.defineFinishEvent(HEvent.Start);
-	builder.defineFinishEvent(HEvent.Terminate);
-	builder.defineFinishEvent(HEvent.Finish);
+	builder.defineTerminateEvent(HEvent.Terminate);
+	builder.defineStartEvent(HEvent.Finish);
 ```
 
 * **Using History States to Save and Restore the Current State**  

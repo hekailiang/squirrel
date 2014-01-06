@@ -23,22 +23,6 @@ public class ActionsImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements
         }
     }
     
-    private List<Action<T, S, E, C>> getSortedAction() {
-        if(actions.isEmpty()) 
-            return Collections.emptyList();
-        
-        if(sortedActions==null) {
-            sortedActions = Lists.newArrayList(actions);
-            Collections.sort(sortedActions, new Comparator<Action<T, S, E, C>>() {
-                @Override
-                public int compare(Action<T, S, E, C> o1, Action<T, S, E, C> o2) {
-                    return o2.weight() - o1.weight();
-                }
-            });
-        }
-        return Collections.unmodifiableList(sortedActions);
-    }
-    
     @Override
     public void addAll(List<Action<T, S, E, C>> newActions) {
         if(newActions!=null && !newActions.isEmpty()) {
@@ -51,6 +35,23 @@ public class ActionsImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements
     @Override
     public List<Action<T, S, E, C>> getAll() {
         return getSortedAction();
+    }
+    
+    private List<Action<T, S, E, C>> getSortedAction() {
+        if(actions.isEmpty()) 
+            return Collections.emptyList();
+        
+        if(sortedActions==null) {
+            sortedActions = Lists.newArrayList(actions);
+            Collections.sort(sortedActions, new Comparator<Action<T, S, E, C>>() {
+                @Override
+                public int compare(Action<T, S, E, C> o1, Action<T, S, E, C> o2) {
+                    return o2.weight() - o1.weight();
+                }
+            });
+            sortedActions = Collections.unmodifiableList(sortedActions);
+        }
+        return sortedActions;
     }
 
     @Override

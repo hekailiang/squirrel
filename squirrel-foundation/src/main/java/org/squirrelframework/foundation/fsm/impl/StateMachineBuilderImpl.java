@@ -399,21 +399,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private synchronized void prepare() {
         if(prepared) return;
-        // install all the declare states, states must be installed before installing transition and extension methods
+        // 1. install all the declare states, states must be installed before installing transition and extension methods
         install(new DeclareStateFunction());
-        // install all the declare transitions
+        // 2. install all the declare transitions
         install(new DeclareTransitionFunction());
-        // install all the extension method call when state machine builder freeze
+        // 3. install all the extension method call when state machine builder freeze
         installExtensionMethods();
-        // prioritize transitions
+        // 4. prioritize transitions
         prioritizeTransitions();
-        // install final state actions
+        // 5. install final state actions
         installFinalStateActions();
-        // verify correctness of state machine
+        // 6. verify correctness of state machine
         verifyStateMachineDefinition();
-        // proxy untyped states
+        // 7. proxy untyped states
         proxyUntypedStates();
-        // define context event, like start, finish, terminate event
+        // 8. define context event, like start, finish, terminate event
         defineContextEvent();
         prepared = true;
     }
