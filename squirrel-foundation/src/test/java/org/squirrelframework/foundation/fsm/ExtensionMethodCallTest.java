@@ -126,6 +126,8 @@ public class ExtensionMethodCallTest {
     public void testExtensionMethodCallSequence() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
         UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A", UntypedStateMachineBase.class);
+        StateMachineLogger logger = new StateMachineLogger(fsm);
+        logger.startLogging();
         fsm.start();
         fsm.consumeLog();
         fsm.fire("ToB", 91);
@@ -134,5 +136,7 @@ public class ExtensionMethodCallTest {
                 "fromAToB.transitFromAToBOnToBWhenExcellect.transitFromAToBOnToB." +
                 "transitFromAnyToBOnToB.transitFromAToAnyOnToB.transitFromAToB.onToB." +
                 "beforeEntryAny.enterB.entryB.afterEntryAny")));
+        fsm.terminate();
+        logger.terminateLogging();
     }
 }

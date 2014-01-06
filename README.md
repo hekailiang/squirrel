@@ -120,7 +120,7 @@ A list of state entry actions is defined in above sample code.
 	```java
 	protected void exitA(MyState from, MyState to, MyEvent event, MyContext context)
 	```
-	**exit[StateName]** The method will be invoked when exit state 'A'. So as the **entry[StateName]** , **exitAny** and **entryAny**.  
+	**exit[StateName]** The method will be invoked when exit state 'A'. So as the **entry[StateName]** , **beforeExitAny**/**afterExitAny** and **beforeEntryAny**/**afterEntryAny**.  
 	
 	***Other Supported Naming Patterns:***
 	```
@@ -131,6 +131,11 @@ A list of state entry actions is defined in above sample code.
     transitFrom[fromStateName]To[toStateName]          
     on[eventName] 
     ```
+    For more information, you can refer to test case "*org.squirrelframework.foundation.fsm.ExtensionMethodCallTest*".
+    
+* **Weighted Action**  
+TBD  
+
 * **Declarative Annotation**  
 A declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
