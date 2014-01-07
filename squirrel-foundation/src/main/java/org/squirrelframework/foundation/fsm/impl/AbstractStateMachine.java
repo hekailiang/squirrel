@@ -608,7 +608,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             final StateMachineEvent<T, S, E, C> event) {
         Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
         final Map<String, Object> variables = Maps.newHashMap();
-        variables.put("stateMachine", event.getStateMachine());
+        variables.put(MvelScriptManager.VAR_STATE_MACHINE, event.getStateMachine());
         
         boolean isSatisfied = true;
         if(condition!=null && condition.length()>0) {
@@ -637,14 +637,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
         
         final Map<String, Object> variables = Maps.newHashMap();
-        variables.put("from", event.getFrom());
-        variables.put("to", event.getTo());
-        variables.put("event", event.getEvent());
-        variables.put("context", event.getContext());
-        variables.put("stateMachine", event.getStateMachine());
+        variables.put(MvelScriptManager.VAR_FROM, event.getFrom());
+        variables.put(MvelScriptManager.VAR_TO, event.getTo());
+        variables.put(MvelScriptManager.VAR_EVENT, event.getEvent());
+        variables.put(MvelScriptManager.VAR_CONTEXT, event.getContext());
+        variables.put(MvelScriptManager.VAR_STATE_MACHINE, event.getStateMachine());
         if(event instanceof ExecActionExceptionEvent) {
             Exception e = ((ExecActionExceptionEvent<T, S, E, C>)event).getException();
-            variables.put("exception", e);
+            variables.put(MvelScriptManager.VAR_EXCEPTION, e);
         }
         
         boolean isSatisfied = true;
@@ -693,15 +693,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         Class<?>[] parameterTypes = listenerMethod.getParameterTypes();
         
         final Map<String, Object> variables = Maps.newHashMap();
-        variables.put("from", event.getSourceState());
-        variables.put("event", event.getCause());
-        variables.put("context", event.getContext());
-        variables.put("stateMachine", event.getStateMachine());
+        variables.put(MvelScriptManager.VAR_FROM, event.getSourceState());
+        variables.put(MvelScriptManager.VAR_EVENT, event.getCause());
+        variables.put(MvelScriptManager.VAR_CONTEXT, event.getContext());
+        variables.put(MvelScriptManager.VAR_STATE_MACHINE, event.getStateMachine());
         if(event instanceof TransitionCompleteEvent) {
-            variables.put("to", ((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
+            variables.put(MvelScriptManager.VAR_TO, ((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
         } else if(event instanceof TransitionExceptionEvent) {
-            variables.put("to", ((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
-            variables.put("exception", ((TransitionExceptionEvent<T, S, E, C>)event).getException());
+            variables.put(MvelScriptManager.VAR_TO, ((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
+            variables.put(MvelScriptManager.VAR_EXCEPTION, ((TransitionExceptionEvent<T, S, E, C>)event).getException());
         }
         
         boolean isSatisfied = true;

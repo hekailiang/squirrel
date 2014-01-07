@@ -37,7 +37,7 @@ class MvelConditionImpl<C> implements Condition<C> {
     public boolean isSatisfied(C context) {
         try {
             Map<String, Object> variables = new HashMap<String, Object>();
-            variables.put("context", context);
+            variables.put(MvelScriptManager.VAR_CONTEXT, context);
             return scriptManager.evalBoolean(mvelExpression, variables);
         } catch (Exception e) {
             logger.error("Evaluate \""+mvelExpression+"\" failed, which caused by "+e.getCause().getMessage());

@@ -38,11 +38,11 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     public void execute(S from, S to, E event, C context, T stateMachine) {
         try {
             Map<String, Object> variables = new HashMap<String, Object>();
-            variables.put("from", from);
-            variables.put("to", to);
-            variables.put("event", event);
-            variables.put("context", context);
-            variables.put("stateMachine", stateMachine);
+            variables.put(MvelScriptManager.VAR_FROM, from);
+            variables.put(MvelScriptManager.VAR_TO, to);
+            variables.put(MvelScriptManager.VAR_EVENT, event);
+            variables.put(MvelScriptManager.VAR_CONTEXT, context);
+            variables.put(MvelScriptManager.VAR_STATE_MACHINE, stateMachine);
             scriptManager.eval(mvelExpression, variables, Void.class);
         } catch (RuntimeException e) {
             logger.error("Evaluate \""+mvelExpression+"\" failed, which caused by "+e.getCause().getMessage());
