@@ -270,7 +270,9 @@ To declare context insensitive state machine, user only need to add annotation *
         	...
     	}
 }
-```
+```  
+* **Transition Exception Handling**  
+TBD
 
 ### Advanced Feature
 * **Define Hierarchical State**  
