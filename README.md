@@ -682,7 +682,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 * Support dynamic extend state machine definition  
 
 ## More Information  
-* For the **latest updates** follow [@hhe11][5]
+* For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
 * For discussions or questions please join the [squirrel state machine group][4]
 * For any issue or requirement, please submit an [issue][6]
 
@@ -693,3 +693,4 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 [5]: https://twitter.com/hhe11
 [6]: https://github.com/hekailiang/squirrel/issues?state=open
 [7]: http://mvel.codehaus.org/
+[8]: https://google.com/+HeHenry
