@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
+import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
 /**
@@ -98,7 +99,7 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	}
 	
 	public interface ExecActionExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {
-        Exception getException();
+	    TransitionException getException();
     }
 	
 	public interface ExecActionExceptionListener<T extends StateMachine<T, S, E, C>, S, E, C> {

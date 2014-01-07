@@ -22,6 +22,7 @@ import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.event.ListenerMethod;
+import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ActionEvent;
@@ -140,7 +141,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 afterTransitionDeclined(fromStateId, event, context);
                 fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             }
-        } catch(Exception e) {
+        } catch(TransitionException e) {
             setStatus(StateMachineStatus.ERROR);
             afterTransitionCausedException(e, fromStateId, toStateId, event, context);
             fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromStateId, 
@@ -238,7 +239,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return getStatus()!=StateMachineStatus.BUSY;
     }
     
-    protected void afterTransitionCausedException(Exception e, S fromState, S toState, E event, C context) {
+    protected void afterTransitionCausedException(
+            TransitionException e, S fromState, S toState, E event, C context) {
+        throw e;
     }
     
     protected void beforeTransitionBegin(S fromState, E event, C context) {
@@ -675,7 +678,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 parameterValues.add(event.getExecutionTarget());
             } else if(parameterType==int[].class) {
                 parameterValues.add(event.getMOfN());
-            } else if(event instanceof ExecActionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
+            } else if(event instanceof ExecActionExceptionEvent && parameterType.isAssignableFrom(TransitionException.class)) {
                 parameterValues.add(((ExecActionExceptionEvent<T, S, E, C>)event).getException());
             } else {
                 parameterValues.add(null);
@@ -733,7 +736,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 isContextSet = true;
             } else if(parameterType.isAssignableFrom(AbstractStateMachine.this.getClass())) {
                 parameterValues.add(event.getStateMachine());
-            } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(Exception.class)) {
+            } else if(event instanceof TransitionExceptionEvent && parameterType.isAssignableFrom(TransitionException.class)) {
                 parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getException());
             } else {
                 parameterValues.add(null);
@@ -1025,8 +1028,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public static class TransitionExceptionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
     extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionExceptionEvent<T, S, E, C> {
         private final S targetState;
-        private final Exception e;
-        public TransitionExceptionEventImpl(Exception e, S sourceState, S targetState, E event, C context,T stateMachine) {
+        private final TransitionException e;
+        public TransitionExceptionEventImpl(TransitionException e, 
+                S sourceState, S targetState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
             this.targetState = targetState;
             this.e = e;
@@ -1038,7 +1042,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
         
         @Override
-        public Exception getException() {
+        public TransitionException getException() {
             return e;
         }
     }

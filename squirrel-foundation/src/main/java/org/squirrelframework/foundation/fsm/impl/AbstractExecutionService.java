@@ -80,15 +80,15 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     static class ExecActionExceptionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
         extends AbstractExecActionEvent<T, S, E, C> implements ExecActionExceptionEvent<T, S, E, C> {
         
-        private final Exception e;
+        private final TransitionException e;
 
-        ExecActionExceptionEventImpl(Exception e, int pos, int size, ActionContext<T, S, E, C> actionContext) {
+        ExecActionExceptionEventImpl(TransitionException e, int pos, int size, ActionContext<T, S, E, C> actionContext) {
             super(pos, size, actionContext);
             this.e = e;
         }
 
         @Override
-        public Exception getException() {
+        public TransitionException getException() {
             return e;
         }
         
@@ -180,13 +180,14 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
             try {
                 action.execute(from, to, event, context, stateMachine);
             } catch (SquirrelRuntimeException e) {
+                Throwable t = e.getTargetException();
                 // wrapper any exception into transition exception
-                throw new TransitionException(e.getTargetException(), ErrorCodes.FSM_TRANSITION_ERROR, 
-                        from, to, event, context, stateMachine);
+                throw new TransitionException(t, ErrorCodes.FSM_TRANSITION_ERROR, 
+                        new Object[]{from, to, event, context, action.name(), t.getMessage()});
             } catch (Exception e) {
                 // wrapper any exception into transition exception
                 throw new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
-                        from, to, event, context, stateMachine);
+                        new Object[]{from, to, event, context, action.name(), e.getMessage()});
             }
         }
     }

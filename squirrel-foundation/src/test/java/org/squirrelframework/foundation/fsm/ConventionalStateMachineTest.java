@@ -1,7 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 import static org.squirrelframework.foundation.fsm.TestEvent.InternalA;
 import static org.squirrelframework.foundation.fsm.TestEvent.Started;
 import static org.squirrelframework.foundation.fsm.TestEvent.Terminated;
@@ -23,6 +23,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
@@ -195,13 +196,6 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         }
         
         @Override
-        public void afterTransitionCausedException(Exception e, TestState fromState, 
-                TestState toState, TestEvent event, Integer context) {
-            super.afterTransitionCausedException(e, fromState, toState, event, context);
-            throw new ConventionalStateMachineException();
-        }
-        
-        @Override
         public void terminate(Integer context) {
             super.terminate(context);
             monitor.terminate();
@@ -322,7 +316,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         assertThat(stateMachine.getCurrentState(), equalTo(TestState.D));
     }
     
-    @Test(expected=ConventionalStateMachineException.class)
+    @Test(expected=TransitionException.class)
     public void testTransitionWithException() {
         stateMachine.fire(ToB, null);
         stateMachine.fire(ToC, null);

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
+import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionListener;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -285,7 +286,7 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     }
     interface TransitionExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {
         S getTargetState();
-        Exception getException();
+        TransitionException getException();
     }
     void addTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener);
     void removeTransitionExceptionListener(TransitionExceptionListener<T, S, E, C> listener);

@@ -69,11 +69,8 @@ public class StateMachineLogger {
     }
     
     @OnTransitionException
-    public void onTransitionException(Object sourceState, Object targetState, Object event, Object context, Exception e) {
-        Throwable expcetion = e; 
-        if(e instanceof TransitionException) {
-            expcetion = ((TransitionException)e).getTargetException();
-        }
+    public void onTransitionException(Object sourceState, Object targetState, Object event, Object context, TransitionException e) {
+        Throwable expcetion = e.getTargetException(); 
         logger.error(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" to \"" + targetState + "\" on \"" + event + "\" caused exception.", expcetion);
     }
@@ -85,7 +82,7 @@ public class StateMachineLogger {
     }
     
     @OnActionExecException
-    public void onActionExecException(Action<?, ?, ?,?> action, Exception e) {
-        logger.error("Executing method call action \""+action.name()+"\" caused exception.");
+    public void onActionExecException(Action<?, ?, ?,?> action, TransitionException e) {
+        logger.error("Error executing method call action \""+action.name()+"\" caused by \""+e.getMessage()+"\"");
     }
 }

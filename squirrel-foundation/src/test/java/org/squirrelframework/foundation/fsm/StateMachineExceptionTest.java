@@ -39,28 +39,19 @@ public class StateMachineExceptionTest {
         }
         
         @Override
-        protected void afterTransitionCausedException(Exception e, Object fromState, 
+        protected void afterTransitionCausedException(TransitionException te, Object fromState, 
                 Object toState, Object event, Object context) {
-            // currently the passed in parameter e should be always TransitionException, 
-            // in the future this parameter type will be changed to TransitionException.
-            // so there is no need to perform type casting anymore in future.
-            if(e instanceof TransitionException) {
-                TransitionException te = (TransitionException)e;
-                Throwable targeException = te.getTargetException();
-                if(targeException instanceof IllegalArgumentException && 
-                        fromState.equals("A") && toState.equals("B") && event.equals("ToB")) {
-                    Assert.assertEquals(te.getTargetException().getMessage(), "This exception can be recovered.");
-                    // do some error clean up job here
-                    // ...
-                    // after recovered from this exception, reset the state machine status back to normal
-                    setStatus(StateMachineStatus.IDLE);
-                    return;
-                }
-                // in the future the default implementation of afterTransitionCausedException 
-                // will be do nothing but continue throw out exception, so this line of code 
-                // could be changed to "super.afterTransitionCausedException(...)" in future.
-                throw te;
+            Throwable targeException = te.getTargetException();
+            if(targeException instanceof IllegalArgumentException && 
+                    fromState.equals("A") && toState.equals("B") && event.equals("ToB")) {
+                Assert.assertEquals(te.getTargetException().getMessage(), "This exception can be recovered.");
+                // do some error clean up job here
+                // ...
+                // after recovered from this exception, reset the state machine status back to normal
+                setStatus(StateMachineStatus.IDLE);
+                return;
             }
+            super.afterTransitionCausedException(te, fromState, toState, event, context);
         }
     }
     
