@@ -450,6 +450,9 @@ Each transition event also has corresponding extension method on AbstractStateMa
     
     protected void afterTransitionDeclined(S fromState, E event, C context) {
     }
+    
+	protected void beforeActionInvoked(S fromState, S toState, E event, C context) {
+    }
 ```
 Typically, user can hook in your business processing logic in these extension methods during each state transition, while the various event listener serves as boundary of state machine based control system, which can interact with external modules (e.g. UI, Auditing, ESB and so on).  
 For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module to display error message  through TransitionExceptionEvent.

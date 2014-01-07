@@ -17,32 +17,35 @@ import com.google.common.base.Preconditions;
 public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> 
     extends AbstractSubject implements ActionExecutionService<T, S, E, C> {
 
-    protected final Stack<List<ExectionContext<T, S, E, C>>> stack = new Stack<List<ExectionContext<T, S, E, C>>>();
+    protected final Stack<List<ActionContext<T, S, E, C>>> stack = new Stack<List<ActionContext<T, S, E, C>>>();
     
     protected boolean dummyExecution = false;
     
     @Override
     public void begin() {
-        List<ExectionContext<T, S, E, C>> executionContext = new ArrayList<ExectionContext<T, S, E, C>>();
-        stack.push(executionContext);
+        List<ActionContext<T, S, E, C>> actionContext = new ArrayList<ActionContext<T, S, E, C>>();
+        stack.push(actionContext);
     }
     
     @Override
     public void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
         Preconditions.checkNotNull(action);
-        stack.peek().add(ExectionContext.get(action, from, to, event, context, stateMachine));
+        stack.peek().add(ActionContext.get(action, from, to, event, context, stateMachine));
     }
     
     @Override
     public void execute() {
-        List<ExectionContext<T, S, E, C>> executionContexts = stack.pop();
-        for (int i=0, size=executionContexts.size(); i<size; ++i) {
+        List<ActionContext<T, S, E, C>> actionContexts = stack.pop();
+        for (int i=0, size=actionContexts.size(); i<size; ++i) {
             if(!dummyExecution) {
-                fireEvent(ExecActionEventImpl.get(i+1, size, executionContexts.get(i)));
+                ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
+                fireEvent(ExecActionEventImpl.get(i+1, size, actionContext));
                 try {
-                    executionContexts.get(i).run();
+                    ((AbstractStateMachine<T, S, E, C>)actionContext.stateMachine).beforeActionInvoked(
+                            actionContext.from, actionContext.to, actionContext.event, actionContext.context);
+                    actionContext.run();
                 } catch(TransitionException e) {
-                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(e, i+1, size, executionContexts.get(i)));
+                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(e, i+1, size, actionContexts.get(i)));
                     throw e;
                 }
             }
@@ -79,8 +82,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         
         private final Exception e;
 
-        ExecActionExceptionEventImpl(Exception e, int pos, int size, ExectionContext<T, S, E, C> executionContext) {
-            super(pos, size, executionContext);
+        ExecActionExceptionEventImpl(Exception e, int pos, int size, ActionContext<T, S, E, C> actionContext) {
+            super(pos, size, actionContext);
             this.e = e;
         }
 
@@ -94,25 +97,25 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     static class ExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
         extends AbstractExecActionEvent<T, S, E, C> implements ExecActionEvent<T, S, E, C> {
         
-        ExecActionEventImpl(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
-            super(pos, size, executionContext);
+        ExecActionEventImpl(int pos, int size, ActionContext<T, S, E, C> actionContext) {
+            super(pos, size, actionContext);
         }
 
         static <T extends StateMachine<T, S, E, C>, S, E, C> ExecActionEvent<T, S, E, C> get(
-                int pos, int size, ExectionContext<T, S, E, C> executionContext) {
-            return new ExecActionEventImpl<T, S, E, C>(pos, size, executionContext);
+                int pos, int size, ActionContext<T, S, E, C> actionContext) {
+            return new ExecActionEventImpl<T, S, E, C>(pos, size, actionContext);
         }
     }
     
     static abstract class AbstractExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionEvent<T, S, E, C> {
-        private ExectionContext<T, S, E, C> executionContext;
+        private ActionContext<T, S, E, C> executionContext;
         private int pos;
         private int size;
         
-        AbstractExecActionEvent(int pos, int size, ExectionContext<T, S, E, C> executionContext) {
+        AbstractExecActionEvent(int pos, int size, ActionContext<T, S, E, C> actionContext) {
             this.pos = pos;
             this.size = size;
-            this.executionContext = executionContext;
+            this.executionContext = actionContext;
         }
         
         @Override
@@ -151,7 +154,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         }
     }
     
-    static class ExectionContext<T extends StateMachine<T, S, E, C>, S, E, C> {
+    static class ActionContext<T extends StateMachine<T, S, E, C>, S, E, C> {
         final Action<T, S, E, C> action;
         final S from;
         final S to;
@@ -159,7 +162,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         final C context;
         final T stateMachine;
         
-        private ExectionContext(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
+        private ActionContext(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
             this.action = action;
             this.from = from;
             this.to = to;
@@ -168,9 +171,9 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
             this.stateMachine = stateMachine;
         }
         
-        static <T extends StateMachine<T, S, E, C>, S, E, C> ExectionContext<T, S, E, C> get(
+        static <T extends StateMachine<T, S, E, C>, S, E, C> ActionContext<T, S, E, C> get(
                 Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
-            return new ExectionContext<T, S, E, C>(action, from, to, event, context, stateMachine);
+            return new ActionContext<T, S, E, C>(action, from, to, event, context, stateMachine);
         }
 
         public void run() {

@@ -168,53 +168,49 @@ public class LinkedStateMachineTest {
 
         public void transitA12A2(LState from, LState to, LEvent event,
                 Integer context) {
-            addOptionalDot();
             logger.append("transitA12A2");
         }
 
         public void transitA22A3(LState from, LState to, LEvent event,
                 Integer context) {
-            addOptionalDot();
             logger.append("transitA22A3");
         }
 
         public void transitA32A1(LState from, LState to, LEvent event,
                 Integer context) {
-            addOptionalDot();
             logger.append("transitA32A1");
         }
 
         public void enterA1(LState from, LState to, LEvent event,
                 Integer context) {
-            addOptionalDot();
             logger.append("enterA1");
         }
 
         public void leftA1(LState from, LState to, LEvent event, Integer context) {
-            addOptionalDot();
             logger.append("leftA1");
         }
 
         public void enterA2(LState from, LState to, LEvent event,
                 Integer context) {
-            addOptionalDot();
             logger.append("enterA2");
         }
 
         public void leftA2(LState from, LState to, LEvent event, Integer context) {
-            addOptionalDot();
             logger.append("leftA2");
         }
 
         public void enterA3(LState from, LState to, LEvent event,
                 Integer context) {
-            addOptionalDot();
             logger.append("enterA3");
         }
 
         public void leftA3(LState from, LState to, LEvent event, Integer context) {
-            addOptionalDot();
             logger.append("leftA3");
+        }
+        
+        @Override
+        protected void beforeActionInvoked(LState from, LState to, LEvent event, Integer context) {
+            addOptionalDot();
         }
 
         @Override

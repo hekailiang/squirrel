@@ -253,6 +253,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     protected void afterTransitionDeclined(S fromState, E event, C context) {
     }
     
+    protected void beforeActionInvoked(S fromState, S toState, E event, C context) {
+    }
+    
     @Override
     public ImmutableState<T, S, E, C> getCurrentRawState() {
         return getRawStateFrom(getCurrentState());

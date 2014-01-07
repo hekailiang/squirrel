@@ -39,26 +39,27 @@ public class WeightedActionTest {
         }
         
         protected void fromAToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("fromAToB");
         }
         
         protected void transitFromAToBOnToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("transitFromAToBOnToB");
         }
         
         protected void fromAToC(String from, String to, String event) {
-            addOptionalDot();
             logger.append("fromAToC");
         }
         
         protected void entryD(String from, String to, String event) {
-            addOptionalDot();
             logger.append("entryD");
         }
         
-        protected void addOptionalDot() {
+        @Override
+        protected void beforeActionInvoked(Object fromState, Object toState, Object event, Object context) {
+            addOptionalDot();
+        }
+        
+        private void addOptionalDot() {
             if (logger.length() > 0) {
                 logger.append('.');
             }
@@ -89,32 +90,26 @@ public class WeightedActionTest {
         }
         
         protected void beforeFromAToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("beforeFromAToB");
         }
         
         protected void afterFromAToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("afterFromAToB");
         }
         
         protected void goAToC1(String from, String to, String event) {
-            addOptionalDot();
             logger.append("goAToC1");
         }
         
         protected void goAToC2(String from, String to, String event) {
-            addOptionalDot();
             logger.append("goAToC2");
         }
         
         protected void beforeEntryD(String from, String to, String event) {
-            addOptionalDot();
             logger.append("beforeEntryD");
         }
         
         protected void goEntryD(String from, String to, String event) {
-            addOptionalDot();
             logger.append("goEntryD");
         }
         

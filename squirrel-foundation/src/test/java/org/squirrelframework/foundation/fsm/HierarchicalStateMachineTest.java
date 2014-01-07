@@ -69,229 +69,189 @@ public class HierarchicalStateMachineTest {
         }
 
 		public void entryA(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("entryA");
 		}
 		
 		public void exitA(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA");
 		}
 		
 		public void transitFromAToBOnA2B(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitFromAToBOnA2B");
 		}
 		
 		public void entryA1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("entryA1");
 		}
 		
 		public void exitA1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA1");
 		}
 		
 		public void transitFromA1ToA2OnA12A2(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitFromA1ToA2OnA12A2");
 		}
 		
 		public void entryA2(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("entryA2");
 		}
 		
 		public void exitA2(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA2");
 		}
 		
 		public void entryB(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("entryB");
 		}
 		
 		public void exitB(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitB");
 		}
 		
 		public void entryB1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("entryB1");
 		}
 		
 		public void exitB1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitB1");
 		}
 		
 		public void entryB2(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("entryB2");
 		}
 		
 		public void exitB2(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitB2");
 		}
 		
 		public void transitFromBToAOnB2A(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitFromBToAOnB2A");
 		}
 		
 		public void transitFromB1ToB2OnB12B2(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitFromB1ToB2OnB12B2");
 		}
 		
 		public void transitFromB2ToAOnB22A(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitFromB2ToAOnB22A");
 		}
 		
 		public void enterA3(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA3");
 		}
 		
 		public void leftA3(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftA3");
 		}
 		
 		public void transitA12A3(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA12A3");
 		}
 		
 		public void transitA32A1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA32A1");
 		}
 		
 		public void enterB3(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterB3");
 		}
 		
 		public void leftB3(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftB3");
 		}
 		
 		public void transitA12B3(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA12B3");
 		}
 		
 		public void enterA1a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA1a");
 		}
 		
 		public void leftA1a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftA1a");
 		}
 		
 		public void enterA1a1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA1a1");
 		}
 		
 		public void leftA1a1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftA1a1");
 		}
 		
 		public void transitA12A1a1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA12A1a1");
 		}
 		
 		public void transitA1a12A1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1a12A1");
 		}
 		
 		public void transitA1a12A1a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1a12A1a");
 		}
 		
 		public void transitA12A1a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA12A1a");
 		}
 		
 		public void transitA1a2A1a1(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1a2A1a1");
 		}
 		
 		public void enterA2a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA2a");
 		}
 		
 		public void leftA2a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftA2a");
 		}
 		
 		public void transitA22A2a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA22A2a");
 		}
 		
 		public void enterB2a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterB2a");
 		}
 		
 		public void leftB2a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftB2a");
 		}
 		
 		public void transitB22B2a(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitB22B2a");
 		}
 		
 		public void enterA4(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA4");
 		}
 		
 		public void leftA4(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftA4");
 		}
 		
 		public void transitA12A4(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA12A4");
 		}
 		
 		public void transitA2C(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA2C");
 		}
 		
 		public void enterC(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterC");
 		}
 		
 		public void leftC(HState from, HState to, HEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("leftC");
 		}
+		
+		@Override
+        protected void beforeActionInvoked(HState from, HState to, HEvent event, Integer context) {
+            addOptionalDot();
+        }
 		
 		private void addOptionalDot() {
 			if (logger.length() > 0) {

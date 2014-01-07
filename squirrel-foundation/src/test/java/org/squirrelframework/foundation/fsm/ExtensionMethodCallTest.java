@@ -35,81 +35,71 @@ public class ExtensionMethodCallTest {
         }
         
         protected void leftA(String from, String to, String event) {
-            addOptionalDot();
             logger.append("leftA");
         }
         
         protected void exitA(String from, String to, String event) {
-            addOptionalDot();
             logger.append("exitA");
         }
         
         protected void beforeExitAny(String from, String to, String event) {
-            addOptionalDot();
             logger.append("beforeExitAny");
         }
         
         protected void afterExitAny(String from, String to, String event) {
-            addOptionalDot();
             logger.append("afterExitAny");
         }
         
         protected void enterB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("enterB");
         }
         
         protected void entryB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("entryB");
         }
         
         protected void beforeEntryAny(String from, String to, String event) {
-            addOptionalDot();
             logger.append("beforeEntryAny");
         }
         
         protected void afterEntryAny(String from, String to, String event) {
-            addOptionalDot();
             logger.append("afterEntryAny");
         }
         
         protected void fromAToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("fromAToB");
         }
         
         protected void transitFromAToBOnToBWhenExcellect(String from, String to, String event) {
-            addOptionalDot();
             logger.append("transitFromAToBOnToBWhenExcellect");
         }
         
         protected void transitFromAToBOnToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("transitFromAToBOnToB");
         }
         
         protected void transitFromAnyToBOnToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("transitFromAnyToBOnToB");
         }
         
         protected void transitFromAToAnyOnToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("transitFromAToAnyOnToB");
         }
         
         protected void transitFromAToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("transitFromAToB");
         }
         
         protected void onToB(String from, String to, String event) {
-            addOptionalDot();
             logger.append("onToB");
         }
         
-        protected void addOptionalDot() {
+        @Override
+        protected void beforeActionInvoked(Object fromState, Object toState, Object event, Object context) {
+            addOptionalDot();
+        }
+        
+        private void addOptionalDot() {
             if (logger.length() > 0) {
                 logger.append('.');
             }

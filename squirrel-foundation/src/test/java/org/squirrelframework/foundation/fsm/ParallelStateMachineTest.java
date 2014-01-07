@@ -75,174 +75,145 @@ public class ParallelStateMachineTest {
         }
 		
 		public void transitA1a2B(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1a2B");
 		}
 		
 		public void transitA2C(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA2C");
 		}
 		
 		public void transitA1b2A1c(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1b2A1c");
 		}
 		
 		public void transitA2b2A2c(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA2b2A2c");
 		}
 		
 		public void transitA2a2A2b(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA2a2A2b");
 		}
 		
 		public void transitA2b2A2a(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA2b2A2a");
 		}
 		
 		public void transitA1b2A1a(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1b2A1a");
 		}
 		
 		public void transitA1a2A1b(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA1a2A1b");
 		}
 		
 		public void transitB2A(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitB2A");
 		}
 		
 		public void transitA2B(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("transitA2B");
 		}
 		
 		public void enterTotal(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterTotal");
 		}
 		
 		public void exitTotal(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitTotal");
 		}
 		
 		public void enterA(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA");
 		}
 		
 		public void exitA(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA");
 		}
 		
 		public void enterA1(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA1");
 		}
 		
 		public void exitA1(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA1");
 		}
 		
 		public void enterA1a(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA1a");
 		}
 		
 		public void exitA1a(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA1a");
 		}
 		
 		public void enterA1b(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA1b");
 		}
 		
 		public void exitA1b(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA1b");
 		}
 		
 		public void enterA1c(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA1c");
 		}
 		
 		public void exitA1c(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA1c");
 		}
 		
 		public void enterA2(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA2");
 		}
 		
 		public void exitA2(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA2");
 		}
 		
 		public void enterA2a(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA2a");
 		}
 		
 		public void exitA2a(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA2a");
 		}
 		
 		public void enterA2b(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA2b");
 		}
 		
 		public void exitA2b(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA2b");
 		}
 		
 		public void enterA2c(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterA2c");
 		}
 		
 		public void exitA2c(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitA2c");
 		}
 		
 		public void enterB(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterB");
 		}
 		
 		public void exitB(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitB");
 		}
 		
 		public void enterC(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("enterC");
 		}
 		
 		public void exitC(PState from, PState to, PEvent event, Integer context) {
-			addOptionalDot();
 			logger.append("exitC");
 		}
+		
+		@Override
+        protected void beforeActionInvoked(PState from, PState to, PEvent event, Integer context) {
+            addOptionalDot();
+        }
 		
 		private void addOptionalDot() {
 			if (logger.length() > 0) {
