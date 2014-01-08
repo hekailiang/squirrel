@@ -63,10 +63,6 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
         return Action.NORMAL_WEIGHT;
     }
     
-    public String getScript() {
-        return script;
-    }
-    
     @Override
     final public String toString() {
         return "mvel#"+script;

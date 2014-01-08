@@ -12,5 +12,10 @@ public abstract class AnonymousAction<T extends StateMachine<T, S, E, C>, S, E, 
     public int weight() {
         return NORMAL_WEIGHT;
     }
+    
+    @Override
+    final public String toString() {
+        return "instance#"+getClass().getName();
+    }
 
 }
