@@ -123,8 +123,8 @@ abstract class FSM {
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> Action<T, S, E, C> newMvelAction(
-            String expression, MvelScriptManager scriptManager) {
+            String expression, ExecutionContext executionContext) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelActionImpl<T, S, E, C>>() {}, 
-                new Class<?>[]{String.class, MvelScriptManager.class}, new Object[]{expression, scriptManager});
+                new Class<?>[]{String.class, ExecutionContext.class}, new Object[]{expression, executionContext});
     }
 }

@@ -14,6 +14,11 @@ public class Conditions {
         public String name() {
             return getClass().getSimpleName();
         }
+        
+        @Override
+        public String toString() {
+            return "class#"+getClass().getName();
+        }
     }
     
     public static class Always<C> extends AbstractCondition<C> {

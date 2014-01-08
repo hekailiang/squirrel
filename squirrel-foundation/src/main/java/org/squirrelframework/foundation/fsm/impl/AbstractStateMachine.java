@@ -30,6 +30,8 @@ import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionEve
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionEvent;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionListener;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionListener;
+import org.squirrelframework.foundation.fsm.Converter;
+import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
@@ -103,6 +105,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private final Lock processingLock = new ReentrantLock();
     
     private MvelScriptManager scriptManager;
+    
+    private boolean isContextInsensitive;
     
     private final String identifier;
     
@@ -486,6 +490,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return finishEvent;
     }
     
+    void setContextInsensitive(boolean isContextInsensitive) {
+        this.isContextInsensitive = isContextInsensitive;
+    }
+    
+    boolean isContextInsensitive() {
+        return isContextInsensitive;
+    }
+    
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         StateMachineData<T, S, E, C> savedData = null;
@@ -560,6 +572,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     public Class<S> typeOfState() {
         return data.read().typeOfState();
+    }
+    
+    private interface DeclarativeLisener {
+        Object getListenTarget();
     }
     
     private Object newListenerMethodProxy(final Object listenTarget, 
@@ -821,6 +837,35 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return identifier;
     }
     
+    @Override
+    public String getDescription() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("id=\"").append(identifier).append("\" ");
+        builder.append("fsm-type=\"").append(getClass().getName()).append("\" ");
+        builder.append("state-type=\"").append(typeOfState().getName()).append("\" ");
+        builder.append("event-type=\"").append(typeOfEvent().getName()).append("\" ");
+        builder.append("context-type=\"").append(typeOfContext().getName()).append("\" ");
+        
+        Converter<E> eventConverter = ConverterProvider.INSTANCE.getConverter(typeOfEvent());
+        if(getStartEvent()!=null) {
+            builder.append("start-event=\"");
+            builder.append(eventConverter.convertToString(getStartEvent()));
+            builder.append("\" ");
+        }
+        if(getTerminateEvent()!=null) {
+            builder.append("terminate-event=\"");
+            builder.append(eventConverter.convertToString(getTerminateEvent()));
+            builder.append("\" ");
+        }
+        if(getFinishEvent()!=null) {
+            builder.append("finish-event=\"");
+            builder.append(eventConverter.convertToString(getFinishEvent()));
+            builder.append("\" ");
+        }
+        builder.append("context-insensitive=\"").append(isContextSensitive()).append("\" ");
+        return builder.toString();
+    }
+    
     private void removeDeclarativeListener(Observable observable, final Object listenTarget) {
         observable.removeListener(new Predicate<ListenerMethod>() {
             @Override
@@ -930,10 +975,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 	public void removeExecActionListener(ExecActionListener<T, S, E, C> listener) {
 		executor.removeExecActionListener(listener);
 	}
-    
-	private interface DeclarativeLisener {
-        Object getListenTarget();
-    }
     
     public static abstract class AbstractStateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
     implements StateMachine.StateMachineEvent<T, S, E, C> {

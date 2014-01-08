@@ -19,6 +19,8 @@ class MvelConditionImpl<C> implements Condition<C> {
     
     private final MvelScriptManager scriptManager;
     
+    private final String script;
+    
     MvelConditionImpl(String script, MvelScriptManager scriptManager) {
         String[] arrays = StringUtils.split(script, MvelScriptManager.SEPARATOR_CHARS);
         if(arrays.length==2) {
@@ -28,6 +30,8 @@ class MvelConditionImpl<C> implements Condition<C> {
             this.name = "_NoName_";
             this.mvelExpression = arrays[0].trim();
         }
+        
+        this.script = script;
         this.scriptManager = scriptManager;
         
         scriptManager.compile(mvelExpression);
@@ -48,6 +52,11 @@ class MvelConditionImpl<C> implements Condition<C> {
     @Override
     public String name() {
         return name;
+    }
+    
+    @Override
+    public String toString() {
+        return "mvel#"+script;
     }
 
 }

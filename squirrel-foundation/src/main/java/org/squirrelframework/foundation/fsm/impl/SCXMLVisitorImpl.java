@@ -33,8 +33,9 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     
     @Override
     public void visitOnEntry(StateMachine<T, S, E, C> visitable) {
-        writeLine("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" initial="
-                + quoteName(visitable.getInitialState().toString()) + " version=\"1.0\">");
+        writeLine("<scxml initial=" + quoteName(visitable.getInitialState().toString()) + " version=\"1.0\" " +
+        		"xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:sqrl=\"http://squirrelframework.org/squirrel\">");
+        writeLine("<sqrl:fsm "+visitable.getDescription()+" />");
     }
 
     @Override
@@ -88,7 +89,7 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
         writeLine("<transition event="
                 + quoteName(visitable.getEvent().toString()) + " target="
                 + quoteName(visitable.getTargetState().toString()) + " cond="
-                + quoteName(visitable.getCondition().getClass().getSimpleName())+">");
+                + quoteName(visitable.getCondition().toString())+">");
         for(Action<T, S, E, C> action : visitable.getActions()) {
             writeAction(action);
         }
@@ -100,7 +101,7 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     }
     
     private void writeAction(final Action<T, S, E, C> action) {
-        writeLine("<raise event="+quoteName(action.toString())+"/>");
+        writeLine("<sqrl:action script="+quoteName(action.toString())+" weight=\""+action.weight()+"\"/>");
     }
 
     @Override

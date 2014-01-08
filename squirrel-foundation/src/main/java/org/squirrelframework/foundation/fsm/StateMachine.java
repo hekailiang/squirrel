@@ -160,6 +160,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     String getIdentifier();
     
+    String getDescription();
+    
 //    public static class Query {
 //
 //        public static <T extends StateMachine<T, S, E, C>, S, E, C> Collection<ImmutableTransition<T, S, E, C>> possibleTransitions(

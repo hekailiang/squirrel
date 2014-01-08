@@ -20,7 +20,9 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     
     private final String name;
     
-    MvelActionImpl(String script, MvelScriptManager scriptManager) {
+    private final String script;
+    
+    MvelActionImpl(String script, ExecutionContext executionContext) {
         String[] arrays = StringUtils.split(script, MvelScriptManager.SEPARATOR_CHARS);
         if(arrays.length==2) {
             this.name = arrays[0].trim();
@@ -30,7 +32,8 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
             this.mvelExpression = arrays[0].trim();
         }
         
-        this.scriptManager = scriptManager;
+        this.script = script;
+        this.scriptManager = executionContext.getScriptManager();
         scriptManager.compile(mvelExpression);
     }
     
@@ -58,5 +61,10 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     @Override
     public int weight() {
         return Action.NORMAL_WEIGHT;
+    }
+    
+    @Override
+    public String toString() {
+        return "mvel#"+script;
     }
 }

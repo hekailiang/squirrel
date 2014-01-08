@@ -1,4 +1,4 @@
-squirrel-foundation
+squirrel-foundation  
 ========
 
 ## What is it?  
@@ -258,11 +258,12 @@ To create a new state machine instance from state machine builder, you need to p
 	To build an UntypedStateMachine, user need to create an UntypedStateMachineBuilder through StateMachineBuilderFactory first. StateMachineBuilderFactory takes only one parameter which is type of state machine class to create UntypedStateMachineBuilder. *@StateMachineParamters* is used to declare state machine generic parameter types. *AbstractUntypedStateMachine* is the base class of any untyped state machine.  
 
 * **Context Insensitive State Machine**  
-Sometimes state transition does not care context, which means state transition only determined by event, for this case user can use context insensitive state machine to simplify method call parameters.  
-To declare context insensitive state machine, user only need to add annotation *@ContextInsensitive* on state machine class. After declared context insensitive state machine, context parameter can be ignored on the transition method parameter list.  
+Sometimes state transition does not care about context, which means transition mostly only determined by event. For this case user can use context insensitive state machine to simplify method call parameters.  
+To declare context insensitive state machine is quite simple. User only need to add annotation *@ContextInsensitive* on state machine implementation class. After that, context parameter can be ignored on the transition method parameter list. e.g.  
 ```java
 	@ContextInsensitive
 	public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
+		// no need to add context parameter here anymore
 		public void transitFromIdleToLoadingOnConnected(ATMState from, ATMState to, String event) {
         	...
     	}

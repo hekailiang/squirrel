@@ -44,7 +44,7 @@ class EntryExitActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
 
     @Override
     public void evalMvel(String expression) {
-        Action<T, S, E, C> action = FSM.newMvelAction(expression, executionContext.getScriptManager());
+        Action<T, S, E, C> action = FSM.newMvelAction(expression, executionContext);
         perform(action);
     }
 

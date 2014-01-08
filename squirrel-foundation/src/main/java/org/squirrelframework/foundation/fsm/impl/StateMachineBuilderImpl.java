@@ -97,6 +97,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private final ExecutionContext executionContext;
     
+    private final boolean contextInsensitive;
+    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
@@ -137,6 +139,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
+        this.contextInsensitive = _isContextInsensitive;
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
         this.executionContext = new ExecutionContext(scriptManager, methodCallParamTypes);
     }
@@ -607,7 +610,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         stateMachineImpl.setStartEvent(startEvent);
         stateMachineImpl.setFinishEvent(finishEvent);
         stateMachineImpl.setTerminateEvent(terminateEvent);
-        
+        stateMachineImpl.setContextInsensitive(contextInsensitive);
+         
         stateMachineImpl.setTypeOfStateMachine(stateMachineImplClazz);
         stateMachineImpl.setTypeOfState(stateClazz);
         stateMachineImpl.setTypeOfEvent(eventClazz);

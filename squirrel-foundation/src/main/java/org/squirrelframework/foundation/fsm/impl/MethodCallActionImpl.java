@@ -79,11 +79,6 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     }
     
     @Override
-    public String toString() {
-        return "callMethod("+methodDesc+")";
-    }
-    
-    @Override
     public String name() {
         return method.getName();
     }
@@ -110,5 +105,10 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     @Override
     public int weight() {
         return weight;
+    }
+    
+    @Override
+    public String toString() {
+        return "method#"+method.getName();
     }
 }
