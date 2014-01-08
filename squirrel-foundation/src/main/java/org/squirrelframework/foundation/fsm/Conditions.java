@@ -16,8 +16,8 @@ public class Conditions {
         }
         
         @Override
-        public String toString() {
-            return "class#"+getClass().getName();
+        final public String toString() {
+            return "instance#"+getClass().getName();
         }
     }
     

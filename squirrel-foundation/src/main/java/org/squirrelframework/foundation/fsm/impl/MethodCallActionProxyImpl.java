@@ -92,7 +92,7 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
     }
     
     @Override
-    public String toString() {
+    final public String toString() {
         return "method#"+methodName;
     }
 }

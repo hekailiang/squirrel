@@ -55,7 +55,7 @@ class MvelConditionImpl<C> implements Condition<C> {
     }
     
     @Override
-    public String toString() {
+    final public String toString() {
         return "mvel#"+script;
     }
 

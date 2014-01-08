@@ -108,7 +108,7 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     }
     
     @Override
-    public String toString() {
+    final public String toString() {
         return "method#"+method.getName();
     }
 }

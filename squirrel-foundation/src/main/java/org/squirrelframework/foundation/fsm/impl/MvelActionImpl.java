@@ -68,7 +68,7 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     }
     
     @Override
-    public String toString() {
+    final public String toString() {
         return "mvel#"+script;
     }
 }
