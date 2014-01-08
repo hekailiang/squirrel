@@ -101,7 +101,20 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     }
     
     private void writeAction(final Action<T, S, E, C> action) {
-        writeLine("<sqrl:action script="+quoteName(action.toString())+" weight=\""+action.weight()+"\"/>");
+        String invokeType = null, invokeContent = null;
+        if(action instanceof MvelActionImpl) {
+            invokeType = "mvel";
+            invokeContent = ((MvelActionImpl<T, S, E, C>)action).getScript();
+        } else if (action instanceof MethodCallActionImpl || action instanceof MethodCallActionProxyImpl) {
+            invokeType = "method";
+            invokeContent = action.name()+":"+action.weight();
+        } else {
+            invokeType = "instance";
+            invokeContent = action.getClass().getName();
+        }
+        writeLine("<invoke type="+quoteName(invokeType)+">");
+        writeLine("<content>"+invokeContent+"</content>");
+        writeLine("</invoke>");
     }
 
     @Override
