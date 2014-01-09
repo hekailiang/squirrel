@@ -10,6 +10,8 @@ import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
+import com.google.common.base.Preconditions;
+
 class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Action<T, S, E, C> {
     
     private static final Logger logger = LoggerFactory.getLogger(MvelActionImpl.class);
@@ -23,6 +25,7 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     private final String script;
     
     MvelActionImpl(String script, ExecutionContext executionContext) {
+        Preconditions.checkNotNull(script);
         String[] arrays = StringUtils.split(script, MvelScriptManager.SEPARATOR_CHARS);
         if(arrays.length==2) {
             this.name = arrays[0].trim();
@@ -66,5 +69,36 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
     @Override
     final public String toString() {
         return "mvel#"+script;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = 31 + mvelExpression.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        @SuppressWarnings("unchecked")
+        MvelActionImpl<T, S, E, C> other = (MvelActionImpl<T, S, E, C>) obj;
+        if (mvelExpression == null) {
+            if (other.mvelExpression != null)
+                return false;
+        } else if (!mvelExpression.equals(other.mvelExpression))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
     }
 }
