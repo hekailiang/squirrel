@@ -39,6 +39,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         for (int i=0, size=actionContexts.size(); i<size; ++i) {
             if(!dummyExecution) {
                 ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
+                if(actionContext.action.weight()==Action.IGNORE_WEIGHT) 
+                    continue;
                 try {
                     ((AbstractStateMachine<T, S, E, C>)actionContext.stateMachine).beforeActionInvoked(
                             actionContext.from, actionContext.to, actionContext.event, actionContext.context);

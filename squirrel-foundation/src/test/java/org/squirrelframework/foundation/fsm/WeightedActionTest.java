@@ -172,4 +172,14 @@ public class WeightedActionTest {
         assertThat(fsm.consumeLog(), is(equalTo("entryD.beforeEntryD.goEntryD")));
     }
     
+    @Test
+    public void testIgnoreWeight() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineExt2.class);
+        builder.onEntry("D").callMethod("entryD:ignore"); // entryD will not be invoked
+        fsm = builder.newUntypedStateMachine("A", UntypedStateMachineExt.class);
+        logger = new StateMachineLogger(fsm);
+        logger.startLogging();
+        fsm.fire("ToD");
+        assertThat(fsm.consumeLog(), is(equalTo("beforeEntryD.goEntryD")));
+    }
 }

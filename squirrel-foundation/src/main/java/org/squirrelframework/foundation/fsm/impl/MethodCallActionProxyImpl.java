@@ -29,6 +29,8 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
             if(arrays[1].startsWith("+"))
                 arrays[1] = arrays[1].substring(1);
             this.weight = Integer.valueOf(arrays[1]);
+        } else if(arrays.length>1 && arrays[1].equals("ignore")) {
+            this.weight = Action.IGNORE_WEIGHT;
         } else if(methodName.startsWith("before")) {
             this.weight = Action.BEFORE_WEIGHT;
         } else if(methodName.startsWith("after")) {

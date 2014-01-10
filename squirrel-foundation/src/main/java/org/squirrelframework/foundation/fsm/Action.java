@@ -22,6 +22,8 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
     
     public static final int AFTER_WEIGHT = -100;
     
+    public static final int IGNORE_WEIGHT = Integer.MIN_VALUE;
+    
     /**
      * Execute the activity.
      * 
