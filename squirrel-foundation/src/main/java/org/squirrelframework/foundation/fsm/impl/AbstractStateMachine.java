@@ -22,6 +22,7 @@ import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.event.ListenerMethod;
+import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
@@ -145,11 +146,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 afterTransitionDeclined(fromStateId, event, context);
                 fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             }
-        } catch(TransitionException e) {
+        } catch (Exception e) {
+            // wrap any exception into transition exception    
+            TransitionException te = (e instanceof TransitionException) ? (TransitionException) e :
+                new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
+                        new Object[]{fromStateId, toStateId, event, context, "UNKNOWN", e.getMessage()});
             setStatus(StateMachineStatus.ERROR);
-            afterTransitionCausedException(e, fromStateId, toStateId, event, context);
-            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(e, fromStateId, 
+            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(te, fromStateId, 
                     data.read().currentState(), event, context, getThis()));
+            afterTransitionCausedException(te, fromStateId, toStateId, event, context);
         } finally {
             afterTransitionEnd(fromStateId, getCurrentState(), event, context);
             fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));

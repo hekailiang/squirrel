@@ -39,15 +39,21 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         for (int i=0, size=actionContexts.size(); i<size; ++i) {
             if(!dummyExecution) {
                 ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
-                ((AbstractStateMachine<T, S, E, C>)actionContext.stateMachine).beforeActionInvoked(
-                        actionContext.from, actionContext.to, actionContext.event, actionContext.context);
-                fireEvent(ExecActionEventImpl.get(i+1, size, actionContext));
                 try {
+                    ((AbstractStateMachine<T, S, E, C>)actionContext.stateMachine).beforeActionInvoked(
+                            actionContext.from, actionContext.to, actionContext.event, actionContext.context);
+                    fireEvent(ExecActionEventImpl.get(i+1, size, actionContext));
                     actionContext.run();
-                } catch(TransitionException e) {
-                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(e, i+1, size, actionContexts.get(i)));
-                    throw e;
-                }
+                } catch (Exception e) {
+                    Throwable t = (e instanceof SquirrelRuntimeException) ?
+                            ((SquirrelRuntimeException)e).getTargetException() : e;
+                    // wrap any exception into transition exception
+                    TransitionException te = new TransitionException(t, ErrorCodes.FSM_TRANSITION_ERROR, 
+                            new Object[]{actionContext.from, actionContext.to, actionContext.event, 
+                            actionContext.context, actionContext.action.name(), e.getMessage()});
+                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, i+1, size, actionContext));
+                    throw te;
+                } 
             }
         }
     }
@@ -176,19 +182,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
             return new ActionContext<T, S, E, C>(action, from, to, event, context, stateMachine);
         }
 
-        public void run() {
-            try {
-                action.execute(from, to, event, context, stateMachine);
-            } catch (SquirrelRuntimeException e) {
-                Throwable t = e.getTargetException();
-                // wrapper any exception into transition exception
-                throw new TransitionException(t, ErrorCodes.FSM_TRANSITION_ERROR, 
-                        new Object[]{from, to, event, context, action.name(), t.getMessage()});
-            } catch (Exception e) {
-                // wrapper any exception into transition exception
-                throw new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
-                        new Object[]{from, to, event, context, action.name(), e.getMessage()});
-            }
+        void run() {
+            action.execute(from, to, event, context, stateMachine);
         }
     }
 }
