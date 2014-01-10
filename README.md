@@ -250,17 +250,16 @@ To declare context insensitive state machine is quite simple. User only need to 
     	}
 }
 ```  
+
 * **Transition Exception Handling**  
 When exception happened during state transition, the executed action list will be aborted and state machine will be enter error status, which means the state machine instance cannot process event anymore. If user continue to fire event to the state machine instance, a IllegalStateException will be thrown out.   
 All the exception happened during transition phase including action execution and external listener invocation will be wrapped into TransitionException(unchecked exception). Currently, the default exception handling strategy is simple and rude by just continuing throw out the exception, see AbstractStateMachine.afterTransitionCausedException method.  
-	```java
-	protected void afterTransitionCausedException(...) {
-        throw e;
-    }
-	```  
-If state machine can be recovered from this exception, user can extend afterTransitionCausedException method, and add corresponding the recovery logic in this method. **DONOT** forget to set state machine status back to normal at the end. e.g.
-	```java
-	@Override
+```java  
+	protected void afterTransitionCausedException(...) { throw e; }
+```  
+If state machine can be recovered from this exception, user can extend afterTransitionCausedException method, and add corresponding the recovery logic in this method. **DONOT** forget to set state machine status back to normal at the end. e.g.  
+```java 
+    @Override
     protected void afterTransitionCausedException(TransitionException te, Object fromState, 
             Object toState, Object event, Object context) {
         Throwable targeException = te.getTargetException();
@@ -277,7 +276,7 @@ If state machine can be recovered from this exception, user can extend afterTran
             super.afterTransitionCausedException(te, fromState, toState, event, context);
         }
 	}
-```  
+```   
 
 ### Advanced Feature
 * **Define Hierarchical State**  
