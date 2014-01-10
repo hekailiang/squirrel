@@ -147,11 +147,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             }
         } catch (Exception e) {
+            // set state machine in error status first which means state machine cannot process event anymore 
+            // unless this exception has been resolved and state machine status set back to normal again.
+            setStatus(StateMachineStatus.ERROR);
             // wrap any exception into transition exception    
             TransitionException te = (e instanceof TransitionException) ? (TransitionException) e :
                 new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
                         new Object[]{fromStateId, toStateId, event, context, "UNKNOWN", e.getMessage()});
-            setStatus(StateMachineStatus.ERROR);
             fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(te, fromStateId, 
                     data.read().currentState(), event, context, getThis()));
             afterTransitionCausedException(te, fromStateId, toStateId, event, context);
@@ -189,14 +191,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             if(autoStart) {
                 start(context);
             } else {
-                throw new RuntimeException("The state machine is not running.");
+                throw new IllegalStateException("The state machine is not running.");
             }
         }
         if(getStatus()==StateMachineStatus.TERMINATED) {
-            throw new RuntimeException("The state machine is already terminated.");
+            throw new IllegalStateException("The state machine is already terminated.");
         }
         if(getStatus()==StateMachineStatus.ERROR) {
-            throw new RuntimeException("The state machine is corruptted.");
+            throw new IllegalStateException("The state machine is corruptted.");
         }
         queuedEvents.add(new Pair<E, C>(event, context));
         processEvents();

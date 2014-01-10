@@ -49,9 +49,9 @@ public class StateMachineExceptionTest {
                 // ...
                 // after recovered from this exception, reset the state machine status back to normal
                 setStatus(StateMachineStatus.IDLE);
-                return;
+            } else {
+                super.afterTransitionCausedException(te, fromState, toState, event, context);
             }
-            super.afterTransitionCausedException(te, fromState, toState, event, context);
         }
     }
     
