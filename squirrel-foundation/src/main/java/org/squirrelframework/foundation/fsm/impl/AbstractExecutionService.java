@@ -42,8 +42,6 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                 if(actionContext.action.weight()==Action.IGNORE_WEIGHT) 
                     continue;
                 try {
-                    ((AbstractStateMachine<T, S, E, C>)actionContext.stateMachine).beforeActionInvoked(
-                            actionContext.from, actionContext.to, actionContext.event, actionContext.context);
                     fireEvent(ExecActionEventImpl.get(i+1, size, actionContext));
                     actionContext.run();
                 } catch (Exception e) {
@@ -153,7 +151,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
 
         @Override
         public T getStateMachine() {
-            return executionContext.stateMachine;
+            return executionContext.fsm;
         }
 
         @Override
@@ -168,7 +166,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         final S to;
         final E event;
         final C context;
-        final T stateMachine;
+        final T fsm;
         
         private ActionContext(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
             this.action = action;
@@ -176,7 +174,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
             this.to = to;
             this.event = event;
             this.context = context;
-            this.stateMachine = stateMachine;
+            this.fsm = stateMachine;
         }
         
         static <T extends StateMachine<T, S, E, C>, S, E, C> ActionContext<T, S, E, C> get(
@@ -185,7 +183,10 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         }
 
         void run() {
-            action.execute(from, to, event, context, stateMachine);
+            AbstractStateMachine<T, S, E, C> fsmImpl = (AbstractStateMachine<T, S, E, C>)fsm;
+            fsmImpl.beforeActionInvoked(from, to, event, context);
+            action.execute(from, to, event, context, fsm);
+            fsmImpl.afterActionInvoked(from, to, event, context);
         }
     }
 }
