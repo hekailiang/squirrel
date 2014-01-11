@@ -53,9 +53,10 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
             if(method!=null) {
                 delegator = FSM.newMethodCallAction(method, weight, executionContext);
             } else {
-                if(logger.isInfoEnabled()){
-                    logger.warn("Cannot find method '"+methodName+"' with parameters '"+
-                            executionContext.getMethodCallParamTypes()+"' in class "+stateMachineClazz+".");
+                if(logger.isInfoEnabled()) {
+                    logger.warn("Cannot find method '"+methodName+"' with parameters '["+
+                            StringUtils.join(executionContext.getMethodCallParamTypes(), ", ")+
+                            "]' in class "+stateMachineClazz+".");
                 }
                 delegator = (Action<T, S, E, C>)Action.DUMMY_ACTION;
             }
