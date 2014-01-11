@@ -139,12 +139,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             if(result.isAccepted()) {
                 data.write().lastState(fromStateId);
                 data.write().currentState(toStateId);
-                afterTransitionCompleted(fromStateId, getCurrentState(), event, context);
                 fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, toStateId, 
                         event, context, getThis()));
+                afterTransitionCompleted(fromStateId, getCurrentState(), event, context);
             } else {
-                afterTransitionDeclined(fromStateId, event, context);
                 fireEvent(new TransitionDeclinedEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
+                afterTransitionDeclined(fromStateId, event, context);
             }
         } catch (Exception e) {
             // set state machine in error status first which means state machine cannot process event anymore 
@@ -158,8 +158,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     data.read().currentState(), event, context, getThis()));
             afterTransitionCausedException(te, fromStateId, toStateId, event, context);
         } finally {
-            afterTransitionEnd(fromStateId, getCurrentState(), event, context);
             fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
+            afterTransitionEnd(fromStateId, getCurrentState(), event, context);
         }
     }
     
