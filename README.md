@@ -73,7 +73,7 @@ public class QuickStartSample {
 }
 
 ```
-To start using more functionalities, please following the guide below.
+At now you may have many questions about the sample code, please be patient. The following user guide will answer most of your questions. But before getting into the details, it requires you have basic understanding on state machine concepts. These materials are good for understanding state machine concepts. [[state-machine-diagrams]][9] [[qt-state-machine]][10]  
 
 ## User Guide 
 
@@ -728,3 +728,5 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 [6]: https://github.com/hekailiang/squirrel/issues?state=open
 [7]: http://mvel.codehaus.org/
 [8]: https://google.com/+HeHenry
+[9]: http://www.uml-diagrams.org/state-machine-diagrams.html
+[10]: http://qt-project.org/doc/qt-4.8/statemachine-api.html
