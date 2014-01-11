@@ -30,6 +30,46 @@ Latest Snapshot Version:
 </dependency>
 ``` 
 
+## Quick Start  
+**1. Define State Machine Event**
+```java
+enum FSMEvent {
+	ToA, ToB, ToC, ToD
+}
+```
+
+**2. Define State Machine Class**  
+```java
+@StateMachineParamters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
+class UntypedStateMachineSample extends AbstractUntypedStateMachine {
+	protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
+            Map<Object, ImmutableUntypedState> states) {
+        super(initialState, states);
+    }
+        
+    protected void fromAToB(String from, String to, TestEvent event, Integer context) {
+        System.out.println("Transition from '"+from+"' to '"+to+"' on event '"+event+
+        	"' with context '"+context+"'.")
+    }
+    
+	protected void ontoB(String from, String to, TestEvent event, Integer context) {
+		System.out.println("Entry State \'"to+"\'.");
+	}
+}
+```
+
+**3. Build State Transitions**  
+```java
+UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
+builder.externalTransition().from("A").to("B").on(FSMEvent.ToB).callMethod("fromAToB");
+builder.onEntry("B").callMethod("ontoB");
+```
+
+**4. Use State Machine**  
+```java
+UntypedStateMachine fsm = builder.newUntypedStateMachine("A");
+fsm.fire(FSMEvent.ToB, 10);
+```
 
 ## User Guide 
 
@@ -602,42 +642,6 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 * **Greedy Snake Game Sample - Example usage of declarative untyped state machine**  
 	Here is an interesting example which used state machine to implement greedy snake game 	controller. The following diagram shows that the state machine definition of the controller.   
 	![SnakeStateMachine](http://hekailiang.github.io/squirrel/images/SnakeGame.png)  
-	Sample code to create snake game state machine.
-	```java
-	@States({
-		@State(name="NEW"),
-		@State(name="MOVE", historyType=HistoryType.DEEP),
-		@State(parent="MOVE", name="UP", initialState=true),
-		@State(parent="MOVE", name="LEFT"),
-		@State(parent="MOVE", name="RIGHT"),
-		@State(parent="MOVE", name="DOWN"),
-		@State(name="PAUSE"),
-		@State(name="GAMEOVER")
-	})
-	@Transitions({
-		@Transit(from="NEW", to="MOVE", on="PRESS_START", callMethod="onStart"),
-    	@Transit(from = "GAMEOVER", to = "MOVE", on = "PRESS_START", callMethod = "onStart"),
-    	@Transit(from = "MOVE", to = "GAMEOVER", on = "MOVE_AHEAD", callMethod = "onEnd"),
-    	@Transit(from = "MOVE", to = "GAMEOVER", on = "BODY_COLLAPSED", callMethod = "onEnd"),
-    	@Transit(from = "UP", to = "UP", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-    	@Transit(from = "DOWN", to = "DOWN", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-    	@Transit(from = "LEFT", to = "LEFT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-    	@Transit(from = "RIGHT", to = "RIGHT", on = "MOVE_AHEAD", callMethod = "onMove", type = TransitionType.INTERNAL, when = SnakeController.InBorderCondition.class),
-		@Transit(from="MOVE", to="PAUSE", on="PRESS_PAUSE", callMethod="onPause"),
-		@Transit(from="PAUSE", to="MOVE", on="PRESS_PAUSE", callMethod="onResume"),
-		@Transit(from="UP", to="LEFT", on="TURN_LEFT", callMethod="onChangeDirection"),
-		@Transit(from="UP", to="RIGHT", on="TURN_RIGHT", callMethod="onChangeDirection"),
-		@Transit(from="DOWN", to="LEFT", on="TURN_LEFT", callMethod="onChangeDirection"),
-		@Transit(from="DOWN", to="RIGHT", on="TURN_RIGHT", callMethod="onChangeDirection"),
-		@Transit(from="LEFT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
-		@Transit(from="LEFT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection"),
-		@Transit(from="RIGHT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
-		@Transit(from="RIGHT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection")
-	})
-	public class SnakeController extends AbstractStateMachine<SnakeController, SnakeState, SnakeEvent, SnakeContext> {
-	...
-	}
-	```
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 ### Integration Exmaples
 Squirrel state machine does not have any heavy dependencies, so basically it should be highly embedable.
@@ -659,7 +663,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
   		@Autowired
   		// some other managed beans...
 	}
-	
+
 	public class TypedStateMachineB extends AbstractStateMachineBean {
   		@Autowired
   		// some other managed beans...
