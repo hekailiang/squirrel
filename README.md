@@ -556,16 +556,17 @@ For more information, please refer to test case '*org.squirrelframework.foundati
 	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, MyStateMachinePostProcessor.class);
 	```
 	For this case, when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.
-* **State Machine Intercepter**  
-	User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle. 
+* **~~State Machine Intercepter~~**  
+	~~User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle.~~ 
 	```java
+	@Deprecated
 	public abstract class AbstractStateMachineIntercepter<T extends StateMachine<T, S, E, C>, S, E, C> 
     	implements StateMachineIntercepter<T, S, E, C>, SquirrelPostProcessor<T> {
     	. . .
     }
 	```
-	User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from *AbstractStateMachineIntercepter*. Actually, the *AbstractStateMachineIntercepter* also implemented *SquirrelPostProcessor* interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.   
-	By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.  
+	~~User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from *AbstractStateMachineIntercepter*. Actually, the *AbstractStateMachineIntercepter* also implemented *SquirrelPostProcessor* interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.~~   
+	~~By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.~~  
 	
 * **State Machine Export**  
 SCXMLVisitor can be used to export state machine definition in [SCXML] [2] document.
