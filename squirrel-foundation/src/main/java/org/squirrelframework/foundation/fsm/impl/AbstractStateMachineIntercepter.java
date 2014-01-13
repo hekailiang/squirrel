@@ -5,6 +5,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineIntercepter;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineEvent;
 
+@Deprecated
 public abstract class AbstractStateMachineIntercepter<T extends StateMachine<T, S, E, C>, S, E, C> 
     implements StateMachineIntercepter<T, S, E, C>, SquirrelPostProcessor<T> {
 

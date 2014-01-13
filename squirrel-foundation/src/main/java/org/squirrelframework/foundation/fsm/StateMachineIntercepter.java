@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm;
 
+@Deprecated
 public interface StateMachineIntercepter<T extends StateMachine<T, S, E, C>, S, E, C> {
     
     void onStart(T stateMachine);

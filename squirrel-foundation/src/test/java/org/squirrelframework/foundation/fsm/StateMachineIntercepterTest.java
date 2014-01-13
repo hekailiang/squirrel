@@ -17,6 +17,7 @@ import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineIntercepter;
 
+@Deprecated
 public class StateMachineIntercepterTest extends AbstractStateMachineTest {
     
     @Transitions({

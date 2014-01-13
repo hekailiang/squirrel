@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import org.squirrelframework.foundation.fsm.StateMachine;
 
+@Deprecated
 public class StateMachineIntercepterStub<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractStateMachineIntercepter<T, S, E, C> {
 
 	@Override
