@@ -39,12 +39,12 @@
         </div>
 
         <h1>
-<a name="squirrel-foundation" class="anchor" href="#squirrel-foundation"><span class="octicon octicon-link"></span></a>squirrel-foundation</h1>
+<a name="squirrel-foundation--" class="anchor" href="#squirrel-foundation--"><span class="octicon octicon-link"></span></a>squirrel-foundation  </h1>
 
 <h2>
 <a name="what-is-it" class="anchor" href="#what-is-it"><span class="octicon octicon-link"></span></a>What is it?</h2>
 
-<p>Just like the squirrel, a <strong>small</strong>, <strong>agile</strong>, <strong>smart</strong>, <strong>alert</strong> and <strong>cute</strong> animal, squirrel-foundation is aimed to provide a <strong>lightweright</strong>, highly <strong>flexible</strong> and <strong>extensible</strong>, <strong>diagnosable</strong>, <strong>easy use</strong> and <strong>type safe</strong> Java state machine implementation for enterprise usage.  </p>
+<p>Just like the squirrel, a <strong>small</strong>, <strong>agile</strong>, <strong>smart</strong>, <strong>alert</strong> and <strong>cute</strong> animal, squirrel-foundation is aimed to provide a <strong>lightweight</strong>, highly <strong>flexible</strong> and <strong>extensible</strong>, <strong>diagnosable</strong>, <strong>easy use</strong> and <strong>type safe</strong> Java state machine implementation for enterprise usage.  </p>
 
 <p>Here is the state machine diagram which describes the state change of an ATM:  </p>
 
@@ -61,7 +61,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.2.5&lt;/version&gt;
+    &lt;version&gt;0.2.3&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -70,9 +70,57 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.3-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;0.2.4-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
+
+<h2>
+<a name="quick-start" class="anchor" href="#quick-start"><span class="octicon octicon-link"></span></a>Quick Start</h2>
+
+<p>To quickly try squirrel state machine functions, please create a maven project and include squirrel-foundation dependency properly. Then just run following sample code.  </p>
+
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">QuickStartSample</span> <span class="o">{</span>
+
+    <span class="c1">// 1. Define State Machine Event</span>
+    <span class="kd">enum</span> <span class="n">FSMEvent</span> <span class="o">{</span>
+        <span class="n">ToA</span><span class="o">,</span> <span class="n">ToB</span><span class="o">,</span> <span class="n">ToC</span><span class="o">,</span> <span class="n">ToD</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 2. Define State Machine Class</span>
+    <span class="nd">@StateMachineParamters</span><span class="o">(</span><span class="n">stateType</span><span class="o">=</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">eventType</span><span class="o">=</span><span class="n">FSMEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">contextType</span><span class="o">=</span><span class="n">Integer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">StateMachineSample</span> <span class="kd">extends</span> <span class="n">AbstractUntypedStateMachine</span> <span class="o">{</span>
+        <span class="kd">protected</span> <span class="nf">StateMachineSample</span><span class="o">(</span><span class="n">ImmutableUntypedState</span> <span class="n">initialState</span><span class="o">,</span> 
+                <span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">ImmutableUntypedState</span><span class="o">&gt;</span> <span class="n">states</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kd">super</span><span class="o">(</span><span class="n">initialState</span><span class="o">,</span> <span class="n">states</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">fromAToB</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">FSMEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Transition from '"</span><span class="o">+</span><span class="n">from</span><span class="o">+</span><span class="s">"' to '"</span><span class="o">+</span><span class="n">to</span><span class="o">+</span><span class="s">"' on event '"</span><span class="o">+</span><span class="n">event</span><span class="o">+</span>
+                <span class="s">"' with context '"</span><span class="o">+</span><span class="n">context</span><span class="o">+</span><span class="s">"'."</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">ontoB</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">FSMEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Entry State \'"</span><span class="o">+</span><span class="n">to</span><span class="o">+</span><span class="s">"\'."</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 3. Build State Transitions</span>
+        <span class="n">UntypedStateMachineBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">StateMachineSample</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">builder</span><span class="o">.</span><span class="na">externalTransition</span><span class="o">().</span><span class="na">from</span><span class="o">(</span><span class="s">"A"</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="s">"B"</span><span class="o">).</span><span class="na">on</span><span class="o">(</span><span class="n">FSMEvent</span><span class="o">.</span><span class="na">ToB</span><span class="o">).</span><span class="na">callMethod</span><span class="o">(</span><span class="s">"fromAToB"</span><span class="o">);</span>
+        <span class="n">builder</span><span class="o">.</span><span class="na">onEntry</span><span class="o">(</span><span class="s">"B"</span><span class="o">).</span><span class="na">callMethod</span><span class="o">(</span><span class="s">"ontoB"</span><span class="o">);</span>
+
+        <span class="c1">// 4. Use State Machine</span>
+        <span class="n">UntypedStateMachine</span> <span class="n">fsm</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="s">"A"</span><span class="o">);</span>
+        <span class="n">fsm</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">FSMEvent</span><span class="o">.</span><span class="na">ToB</span><span class="o">,</span> <span class="mi">10</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Current state is "</span><span class="o">+</span><span class="n">fsm</span><span class="o">.</span><span class="na">getCurrentState</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</pre></div>
+
+<p>At now you may have many questions about the sample code, please be patient. The following user guide will answer most of your questions. But before getting into the details, it requires you have basic understanding on state machine concepts. These materials are good for understanding state machine concepts. <a href="http://www.uml-diagrams.org/state-machine-diagrams.html">[state-machine-diagrams]</a> <a href="http://qt-project.org/doc/qt-4.8/statemachine-api.html">[qt-state-machine]</a>  </p>
 
 <h2>
 <a name="user-guide" class="anchor" href="#user-guide"><span class="octicon octicon-link"></span></a>User Guide</h2>
@@ -106,12 +154,15 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <li>The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. </li>
 <li>The internal state is implicitly built during transition creation or state action creation.<br>
 </li>
+<li>All the state machine instances created by the same state machine builder share the same definition data for memory usage optimize.</li>
 </ul>
 <p>In order to create a state machine, user need to create state machine builder first. For example:   </p>
 
 <div class="highlight highlight-java"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;</span><span class="n">MyStateMachine</span><span class="o">,</span> <span class="n">MyState</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">&gt;</span> <span class="n">builder</span> <span class="o">=</span>
-    <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">MyStateMachine</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyState</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">MyContext</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>     
 </pre></div>
+
+<p>The state machine builder takes for parameters which are type of state machine(T), state(S), event(E) and context(C).</p>
 </li>
 <li>
 <p><strong>Fluent API</strong><br>
@@ -152,7 +203,7 @@ After state machine builder was created, we can use fluent API to define state/t
 <div class="highlight highlight-java"><pre><span class="n">builder</span><span class="o">.</span><span class="na">onEntry</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">A</span><span class="o">).</span><span class="na">perform</span><span class="o">(</span><span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="n">action1</span><span class="o">,</span> <span class="n">action2</span><span class="o">))</span>
 </pre></div>
 
-<p>A list of state entry actions is defined.</p>
+<p>A list of state entry actions is defined in above sample code.</p>
 </li>
 <li>
 <p><strong>Method Call Action</strong><br>
@@ -187,7 +238,7 @@ User can define anonymous actions during define transitions or state entry/exit.
 <div class="highlight highlight-java"><pre><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">exitA</span><span class="o">(</span><span class="n">MyState</span> <span class="n">from</span><span class="o">,</span> <span class="n">MyState</span> <span class="n">to</span><span class="o">,</span> <span class="n">MyEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">MyContext</span> <span class="n">context</span><span class="o">)</span>
 </pre></div>
 
-<p><strong>exit[StateName]</strong> The method will be invoked when exit state 'A'. So as the <strong>entry[StateName]</strong> , <strong>exitAny</strong> and <strong>entryAny</strong>.  </p>
+<p><strong>exit[StateName]</strong> The method will be invoked when exit state 'A'. So as the <strong>entry[StateName]</strong> , <strong>beforeExitAny</strong>/<strong>afterExitAny</strong> and <strong>beforeEntryAny</strong>/<strong>afterEntryAny</strong>.  </p>
 
 <p><strong><em>Other Supported Naming Patterns:</em></strong></p>
 
@@ -198,6 +249,8 @@ transitFrom[fromStateName]ToAnyOn[eventName]
 transitFrom[fromStateName]To[toStateName]          
 on[eventName] 
 </code></pre>
+
+<p>For more information, please refer to test case "<em>org.squirrelframework.foundation.fsm.ExtensionMethodCallTest</em>".  </p>
 </li>
 <li>
 <p><strong>Declarative Annotation</strong><br>
@@ -273,7 +326,7 @@ After user defined state machine behaviour, user could create a new state machin
 </pre></div>
 </li>
 <li>
-<p><strong>Fire Events</strong><br>
+<p><strong>Trigger Transitions</strong><br>
 After state machine was created, user can fire events along with context to trigger transition inside state machine. e.g.</p>
 
 <div class="highlight highlight-java"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">MyEvent</span><span class="o">.</span><span class="na">Prepare</span><span class="o">,</span> <span class="k">new</span> <span class="n">MyContext</span><span class="o">(</span><span class="s">"Testing"</span><span class="o">));</span>   
@@ -316,7 +369,53 @@ In order to simplify state machine usage, and avoid too many generic types (e.g.
 <span class="n">UntypedStateMachine</span> <span class="n">fsm</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="s">"A"</span><span class="o">);</span>
 </pre></div>
 
-<p><em>@StateMachineParamters</em> is used to declare state machine generic parameter types.<br><em>AbstractUntypedStateMachine</em> is the base class of any untyped state machine.</p>
+<p>To build an UntypedStateMachine, user need to create an UntypedStateMachineBuilder through StateMachineBuilderFactory first. StateMachineBuilderFactory takes only one parameter which is type of state machine class to create UntypedStateMachineBuilder. <em>@StateMachineParamters</em> is used to declare state machine generic parameter types. <em>AbstractUntypedStateMachine</em> is the base class of any untyped state machine.  </p>
+</li>
+<li>
+<p><strong>Context Insensitive State Machine</strong><br>
+Sometimes state transition does not care about context, which means transition mostly only determined by event. For this case user can use context insensitive state machine to simplify method call parameters.<br>
+To declare context insensitive state machine is quite simple. User only need to add annotation <em>@ContextInsensitive</em> on state machine implementation class. After that, context parameter can be ignored on the transition method parameter list. e.g.  </p>
+
+<div class="highlight highlight-java"><pre><span class="nd">@ContextInsensitive</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ATMStateMachine</span> <span class="kd">extends</span> <span class="n">AbstractStateMachine</span><span class="o">&lt;</span><span class="n">ATMStateMachine</span><span class="o">,</span> <span class="n">ATMState</span><span class="o">,</span> <span class="n">String</span><span class="o">,</span> <span class="n">Void</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// no need to add context parameter here anymore</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">transitFromIdleToLoadingOnConnected</span><span class="o">(</span><span class="n">ATMState</span> <span class="n">from</span><span class="o">,</span> <span class="n">ATMState</span> <span class="n">to</span><span class="o">,</span> <span class="n">String</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">entryLoading</span><span class="o">(</span><span class="n">ATMState</span> <span class="n">from</span><span class="o">,</span> <span class="n">ATMState</span> <span class="n">to</span><span class="o">,</span> <span class="n">String</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</li>
+<li>
+<p><strong>Transition Exception Handling</strong><br>
+When exception happened during state transition, the executed action list will be aborted and state machine will be enter error status, which means the state machine instance cannot process event anymore. If user continue to fire event to the state machine instance, a IllegalStateException will be thrown out.<br>
+All the exception happened during transition phase including action execution and external listener invocation will be wrapped into TransitionException(unchecked exception). Currently, the default exception handling strategy is simple and rude by just continuing throw out the exception, see AbstractStateMachine.afterTransitionCausedException method.  </p>
+
+<div class="highlight highlight-java"><pre><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterTransitionCausedException</span><span class="o">(...)</span> <span class="o">{</span> <span class="k">throw</span> <span class="n">e</span><span class="o">;</span> <span class="o">}</span>
+</pre></div>
+
+<p>If state machine can be recovered from this exception, user can extend afterTransitionCausedException method, and add corresponding the recovery logic in this method. <strong>DONOT</strong> forget to set state machine status back to normal at the end. e.g.  </p>
+
+<div class="highlight highlight-java"><pre><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterTransitionCausedException</span><span class="o">(</span><span class="n">TransitionException</span> <span class="n">te</span><span class="o">,</span> <span class="n">Object</span> <span class="n">fromState</span><span class="o">,</span> 
+        <span class="n">Object</span> <span class="n">toState</span><span class="o">,</span> <span class="n">Object</span> <span class="n">event</span><span class="o">,</span> <span class="n">Object</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Throwable</span> <span class="n">targeException</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="na">getTargetException</span><span class="o">();</span>
+    <span class="c1">// recover from IllegalArgumentException thrown out from state 'A' to 'B' caused by event 'ToB'</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">targeException</span> <span class="k">instanceof</span> <span class="n">IllegalArgumentException</span> <span class="o">&amp;&amp;</span> 
+            <span class="n">fromState</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"A"</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">toState</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"B"</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">event</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"ToB"</span><span class="o">))</span> <span class="o">{</span>
+        <span class="c1">// do some error clean up job here</span>
+        <span class="c1">// ...</span>
+        <span class="c1">// after recovered from this exception, reset the state machine status back to normal</span>
+        <span class="n">setStatus</span><span class="o">(</span><span class="n">StateMachineStatus</span><span class="o">.</span><span class="na">IDLE</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span><span class="o">(...)</span> <span class="o">{</span>
+        <span class="c1">// recover from other exception ...</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">afterTransitionCausedException</span><span class="o">(</span><span class="n">te</span><span class="o">,</span> <span class="n">fromState</span><span class="o">,</span> <span class="n">toState</span><span class="o">,</span> <span class="n">event</span><span class="o">,</span> <span class="n">context</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
 </li>
 </ul><h3>
 <a name="advanced-feature" class="anchor" href="#advanced-feature"><span class="octicon octicon-link"></span></a>Advanced Feature</h3>
@@ -364,6 +463,27 @@ The parallel state encapsulates a set of child states which are simultaneously a
 <p>To get current sub states of the parallel state</p>
 
 <div class="highlight highlight-java"><pre><span class="n">stateMachine</span><span class="o">.</span><span class="na">getSubStatesOn</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">Root</span><span class="o">);</span> <span class="c1">// return list of current sub states of parallel state</span>
+</pre></div>
+
+<p>When all the parallel states reached final state, a <strong>Finish</strong> context event will be fired.  </p>
+</li>
+<li>
+<p><strong>Define Context Event</strong><br>
+Context event means that user defined event has predefined context in the state machine. squirrel-foundation defined three type of context event for different use case.<br><strong>Start/Terminate Event</strong>: Event declared as start/terminate event will be used when state machine started/terminated. So user can differentiate the invoked action trigger, e.g. when state machine is starting and entering its initial state, user can differentiate these state entry action was invoked by start event.<br><strong>Finish Event</strong>: When all the parallel states reached final state, finish event will be automatically fired. User can define following transition based on finish event.<br>
+To define the context event, user has two way, annotation or builder API.</p>
+
+<div class="highlight highlight-java"><pre><span class="nd">@ContextEvent</span><span class="o">(</span><span class="n">finishEvent</span><span class="o">=</span><span class="s">"Finish"</span><span class="o">)</span>
+<span class="kd">static</span> <span class="kd">class</span> <span class="nc">ParallelStateMachine</span> <span class="kd">extends</span> <span class="n">AbstractStateMachine</span><span class="o">&lt;...&gt;</span> <span class="o">{</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>or</p>
+
+<div class="highlight highlight-java"><pre><span class="n">StateMachineBuilder</span><span class="o">&lt;...&gt;</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">StateMachineBuilderFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(...);</span>
+<span class="o">...</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">defineFinishEvent</span><span class="o">(</span><span class="n">HEvent</span><span class="o">.</span><span class="na">Start</span><span class="o">);</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">defineTerminateEvent</span><span class="o">(</span><span class="n">HEvent</span><span class="o">.</span><span class="na">Terminate</span><span class="o">);</span>
+<span class="n">builder</span><span class="o">.</span><span class="na">defineStartEvent</span><span class="o">(</span><span class="n">HEvent</span><span class="o">.</span><span class="na">Finish</span><span class="o">);</span>
 </pre></div>
 </li>
 <li>
@@ -503,10 +623,38 @@ Each transition event also has corresponding extension method on AbstractStateMa
 
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">afterTransitionDeclined</span><span class="o">(</span><span class="n">S</span> <span class="n">fromState</span><span class="o">,</span> <span class="n">E</span> <span class="n">event</span><span class="o">,</span> <span class="n">C</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
 <span class="o">}</span>
+
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">beforeActionInvoked</span><span class="o">(</span><span class="n">S</span> <span class="n">fromState</span><span class="o">,</span> <span class="n">S</span> <span class="n">toState</span><span class="o">,</span> <span class="n">E</span> <span class="n">event</span><span class="o">,</span> <span class="n">C</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+<span class="o">}</span>
 </pre></div>
 
 <p>Typically, user can hook in your business processing logic in these extension methods during each state transition, while the various event listener serves as boundary of state machine based control system, which can interact with external modules (e.g. UI, Auditing, ESB and so on).<br>
-For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module to display error message  through TransitionExceptionEvent.</p>
+For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module to display error message  through TransitionExceptionEvent.  </p>
+</li>
+<li>
+<p><strong>Weighted Action</strong><br>
+User can define action weight to adjust action execution order. The actions during state entry/exit and state transition are ordered in ascending order according to their weight value. Action weight is 0 by default. User has two way to set action weight.<br>
+One is append weight number to method name and separated by ':'.</p>
+
+<div class="highlight highlight-java"><pre><span class="c1">// define state entry action 'goEntryD' weight -150</span>
+<span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"D"</span><span class="o">,</span> <span class="n">entryCallMethod</span><span class="o">=</span><span class="s">"goEntryD:-150"</span><span class="o">)</span> 
+<span class="c1">// define transition action 'goAToC1' weight +150</span>
+<span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"A"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"C"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"ToC"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"goAToC1:+150"</span><span class="o">)</span> 
+</pre></div>
+
+<p>Another way is override weight method of Action class, e.g. </p>
+
+<div class="highlight highlight-java"><pre><span class="n">Action</span><span class="o">&lt;...&gt;</span> <span class="n">newAction</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Action</span><span class="o">&lt;...&gt;()</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">weight</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">100</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>squirrel-foundation also support a conventional manner to declare action weight. The weight of method call action whose name started with '<em>before</em>' will be set to 100, so as the name started with '<em>after</em>' will be set to -100. Generally it means that the action method name started with 'before' will be invoked at first, while the action method name started with 'after' will be invoked at last. "method1:ignore" means method1 will not be invoked.<br>
+For more information, please refer to test case '<em>org.squirrelframework.foundation.fsm.WeightedActionTest</em>';</p>
 </li>
 <li>
 <p><strong>State Machine PostProcessor</strong><br>
@@ -539,17 +687,16 @@ User can register post processor for specific type of state machine in order to 
 <p>For this case, when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.</p>
 </li>
 <li>
-<p><strong>State Machine Intercepter</strong><br>
-User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle. </p>
+<p><strong><del>State Machine Intercepter</del></strong><br><del>User can register intercepter for specific type of state machine to insert custom logic during state machine lifecycle.</del> </p>
 
-<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractStateMachineIntercepter</span><span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;</span> 
+<div class="highlight highlight-java"><pre><span class="nd">@Deprecated</span>
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractStateMachineIntercepter</span><span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">StateMachine</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;</span> 
     <span class="kd">implements</span> <span class="n">StateMachineIntercepter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">S</span><span class="o">,</span> <span class="n">E</span><span class="o">,</span> <span class="n">C</span><span class="o">&gt;,</span> <span class="n">SquirrelPostProcessor</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
 <span class="o">}</span>
 </pre></div>
 
-<p>User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from <em>AbstractStateMachineIntercepter</em>. Actually, the <em>AbstractStateMachineIntercepter</em> also implemented <em>SquirrelPostProcessor</em> interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.<br>
-By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.  </p>
+<p><del>User can insert custom logic at different state machine process phases by creating a state machine intercepter which is extended from <em>AbstractStateMachineIntercepter</em>. Actually, the <em>AbstractStateMachineIntercepter</em> also implemented <em>SquirrelPostProcessor</em> interface. It will add a StateMachineEvent listener into the state machine, and dispatch the method call according to the event type. Thus, the StateMachineIntercepter registration should be the same as state machine post processor.</del><br><del>By leveraging state machine intercepter, user can implement various monitors for performance analysis, exception diagnose and so on.</del>  </p>
 </li>
 <li>
 <p><strong>State Machine Export</strong><br>
@@ -622,10 +769,10 @@ The linked state can be defined by following sample code.</p>
 <h3>
 <a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
 </li>
-<li><p><strong>ATM State Machine</strong><br>
+<li><p><strong>ATM State Machine - Example on context insensitive typed state machine</strong><br>
 The sample code could be found in package <em>"org.squirrelframework.foundation.fsm.atm"</em>.  </p></li>
 <li>
-<p><strong>Simple CSS Parser</strong><br>
+<p><strong>Simple CSS Parser - Example usage of fluent API</strong><br>
 This example illustrates how to parse incoming characters by define parser grammar in state machine.<br><img src="http://hekailiang.github.io/squirrel/images/SimpleCssParser.png" alt="SimpleCssParser"><br>
 Parse CSS scripts with <em>SimpleCssParser</em> which is defined as State Machine.</p>
 
@@ -637,46 +784,9 @@ Parse CSS scripts with <em>SimpleCssParser</em> which is defined as State Machin
 <p>Sample code to define CssParser could be found in package <em>"org.squirrelframework.foundation.fsm.cssparser"</em>.</p>
 </li>
 <li>
-<p><strong>Greedy Snake Game Sample</strong><br>
+<p><strong>Greedy Snake Game Sample - Example usage of declarative untyped state machine</strong><br>
 Here is an interesting example which used state machine to implement greedy snake game  controller. The following diagram shows that the state machine definition of the controller.<br><img src="http://hekailiang.github.io/squirrel/images/SnakeGame.png" alt="SnakeStateMachine"><br>
-Sample code to create snake game state machine.</p>
-
-<div class="highlight highlight-java"><pre><span class="nd">@States</span><span class="o">({</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"NEW"</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">historyType</span><span class="o">=</span><span class="n">HistoryType</span><span class="o">.</span><span class="na">DEEP</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"UP"</span><span class="o">,</span> <span class="n">initialState</span><span class="o">=</span><span class="kc">true</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"LEFT"</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"RIGHT"</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">parent</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"DOWN"</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"PAUSE"</span><span class="o">),</span>
-    <span class="nd">@State</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"GAMEOVER"</span><span class="o">)</span>
-<span class="o">})</span>
-<span class="nd">@Transitions</span><span class="o">({</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"NEW"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"PRESS_START"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onStart"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"GAMEOVER"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"MOVE"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"PRESS_START"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onStart"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"MOVE"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"GAMEOVER"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"MOVE_AHEAD"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onEnd"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"MOVE"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"GAMEOVER"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"BODY_COLLAPSED"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onEnd"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"UP"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"UP"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"MOVE_AHEAD"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onMove"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">TransitionType</span><span class="o">.</span><span class="na">INTERNAL</span><span class="o">,</span> <span class="n">when</span> <span class="o">=</span> <span class="n">SnakeController</span><span class="o">.</span><span class="na">InBorderCondition</span><span class="o">.</span><span class="na">class</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"DOWN"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"DOWN"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"MOVE_AHEAD"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onMove"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">TransitionType</span><span class="o">.</span><span class="na">INTERNAL</span><span class="o">,</span> <span class="n">when</span> <span class="o">=</span> <span class="n">SnakeController</span><span class="o">.</span><span class="na">InBorderCondition</span><span class="o">.</span><span class="na">class</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"LEFT"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"LEFT"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"MOVE_AHEAD"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onMove"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">TransitionType</span><span class="o">.</span><span class="na">INTERNAL</span><span class="o">,</span> <span class="n">when</span> <span class="o">=</span> <span class="n">SnakeController</span><span class="o">.</span><span class="na">InBorderCondition</span><span class="o">.</span><span class="na">class</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span> <span class="o">=</span> <span class="s">"RIGHT"</span><span class="o">,</span> <span class="n">to</span> <span class="o">=</span> <span class="s">"RIGHT"</span><span class="o">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s">"MOVE_AHEAD"</span><span class="o">,</span> <span class="n">callMethod</span> <span class="o">=</span> <span class="s">"onMove"</span><span class="o">,</span> <span class="n">type</span> <span class="o">=</span> <span class="n">TransitionType</span><span class="o">.</span><span class="na">INTERNAL</span><span class="o">,</span> <span class="n">when</span> <span class="o">=</span> <span class="n">SnakeController</span><span class="o">.</span><span class="na">InBorderCondition</span><span class="o">.</span><span class="na">class</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"PAUSE"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"PRESS_PAUSE"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onPause"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"PAUSE"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"MOVE"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"PRESS_PAUSE"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onResume"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"UP"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"LEFT"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_LEFT"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"UP"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"RIGHT"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_RIGHT"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"DOWN"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"LEFT"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_LEFT"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"DOWN"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"RIGHT"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_RIGHT"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"LEFT"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"UP"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_UP"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"LEFT"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"DOWN"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_DOWN"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"RIGHT"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"UP"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_UP"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">),</span>
-    <span class="nd">@Transit</span><span class="o">(</span><span class="n">from</span><span class="o">=</span><span class="s">"RIGHT"</span><span class="o">,</span> <span class="n">to</span><span class="o">=</span><span class="s">"DOWN"</span><span class="o">,</span> <span class="n">on</span><span class="o">=</span><span class="s">"TURN_DOWN"</span><span class="o">,</span> <span class="n">callMethod</span><span class="o">=</span><span class="s">"onChangeDirection"</span><span class="o">)</span>
-<span class="o">})</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SnakeController</span> <span class="kd">extends</span> <span class="n">AbstractStateMachine</span><span class="o">&lt;</span><span class="n">SnakeController</span><span class="o">,</span> <span class="n">SnakeState</span><span class="o">,</span> <span class="n">SnakeEvent</span><span class="o">,</span> <span class="n">SnakeContext</span><span class="o">&gt;</span> <span class="o">{</span>
-<span class="o">...</span>
-<span class="o">}</span>
-</pre></div>
-
-<p>This example can be found in package <em>"org.squirrelframework.foundation.fsm.snake"</em>. </p>
+This example can be found in package <em>"org.squirrelframework.foundation.fsm.snake"</em>. </p>
 
 <h3>
 <a name="integration-exmaples" class="anchor" href="#integration-exmaples"><span class="octicon octicon-link"></span></a>Integration Exmaples</h3>
@@ -716,6 +826,13 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 </li>
 </ul><h2>
 <a name="release-notes" class="anchor" href="#release-notes"><span class="octicon octicon-link"></span></a>Release Notes</h2>
+
+<p><em>Version 0.2.3 - 2014-1-15</em><br>
+1. Support weighted action<br>
+2. Breaking Change: Add name() and weight() to Action interface(use AnonymousAction instead)<br>
+3. Update SCXML export content<br>
+4. Improve exception handling logic including error message<br>
+5. Deprecate StateMachineIntercepter and StateMachineWithoutContext  </p>
 
 <p><em>Version 0.2.2.5 - 2013-12-26</em><br>
 1. Support prioritized transition<br>
@@ -761,7 +878,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 <a name="more-information" class="anchor" href="#more-information"><span class="octicon octicon-link"></span></a>More Information</h2>
 
 <ul>
-<li>For the <strong>latest updates</strong> follow <a href="https://twitter.com/hhe11">@hhe11</a>
+<li>For the <strong>latest updates</strong> follow my twitter <a href="https://twitter.com/hhe11">@hhe11</a> or <a href="https://google.com/+HeHenry">+HeHenry</a>
 </li>
 <li>For discussions or questions please join the <a href="http://groups.google.com/group/squirrel-state-machine">squirrel state machine group</a>
 </li>
