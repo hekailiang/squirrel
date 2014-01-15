@@ -17,7 +17,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.2.5</version>
+  	<version>0.2.3</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.3-SNAPSHOT</version>
+  	<version>0.2.4-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -681,6 +681,13 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ```  
 
 ## Release Notes  
+*Version 0.2.3 - 2014-1-15*  
+1. Support weighted action  
+2. Breaking Change: Add name() and weight() to Action interface(use AnonymousAction instead)  
+3. Update SCXML export content  
+4. Improve exception handling logic including error message  
+5. Deprecate StateMachineIntercepter and StateMachineWithoutContext  
+
 *Version 0.2.2.5 - 2013-12-26*  
 1. Support prioritized transition  
 2. Provide thread-safe implementation of StateMachine  
