@@ -41,7 +41,7 @@ public class QuickStartSample {
     }
     
     // 2. Define State Machine Class
-    @StateMachineParamters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
+    @StateMachineParameters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
     static class StateMachineSample extends AbstractUntypedStateMachine {
         protected StateMachineSample(ImmutableUntypedState initialState, 
                 Map<Object, ImmutableUntypedState> states) {
@@ -254,7 +254,7 @@ To create a new state machine instance from state machine builder, you need to p
         @Transit(from="B", to="C", on="toC"),
         @Transit(from="C", to="D", on="toD")
     })
-    @StateMachineParamters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
+    @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     class UntypedStateMachineSample extends AbstractUntypedStateMachine {
         
         protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
@@ -277,7 +277,7 @@ To create a new state machine instance from state machine builder, you need to p
     builder.externalTransition().from("D").to("A").on(TestEvent.toA);
     UntypedStateMachine fsm = builder.newStateMachine("A");
 	```
-	To build an UntypedStateMachine, user need to create an UntypedStateMachineBuilder through StateMachineBuilderFactory first. StateMachineBuilderFactory takes only one parameter which is type of state machine class to create UntypedStateMachineBuilder. *@StateMachineParamters* is used to declare state machine generic parameter types. *AbstractUntypedStateMachine* is the base class of any untyped state machine.  
+	To build an UntypedStateMachine, user need to create an UntypedStateMachineBuilder through StateMachineBuilderFactory first. StateMachineBuilderFactory takes only one parameter which is type of state machine class to create UntypedStateMachineBuilder. *@StateMachineParameters* is used to declare state machine generic parameter types. *AbstractUntypedStateMachine* is the base class of any untyped state machine.  
 
 * **Context Insensitive State Machine**  
 Sometimes state transition does not care about context, which means transition mostly only determined by event. For this case user can use context insensitive state machine to simplify method call parameters.  
