@@ -1,5 +1,7 @@
 package org.squirrelframework.foundation.fsm.threadsafe;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -8,14 +10,30 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 
+@RunWith(Parameterized.class)
 public class ConcurrentEventTest {
     
     private UntypedStateMachineBuilder builder = null;
+    
+    private static final int TIME_INTERVAL = 50;
+    
+    // repeat 10 times for each test case
+    @Parameterized.Parameters
+    public static List<Object[]> data() {
+        return Arrays.asList(new Object[10][0]);
+    }
     
     @Before
     public void setUp() throws Exception {
@@ -26,8 +44,9 @@ public class ConcurrentEventTest {
     public void testConcurrentEvents() { 
         // test concurrent read/write/test state machine
         final CountDownLatch actionCondition = new CountDownLatch(1);
-        final CountDownLatch eventCondition = new CountDownLatch(4);
+        final CountDownLatch eventCondition = new CountDownLatch(5);
         final AtomicReference<Object> testStateRef = new AtomicReference<Object>();
+        final AtomicReference<Object> dumpDataRef = new AtomicReference<Object>();
         final AtomicReference<Object> readStateRef = new AtomicReference<Object>();
         
         builder.transition().from("A").to("B").on("FIRST").perform(
@@ -37,7 +56,7 @@ public class ConcurrentEventTest {
                     Object context, UntypedStateMachine stateMachine) {
                 actionCondition.countDown();
                 try {
-                    TimeUnit.MILLISECONDS.sleep(500);
+                    TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -57,7 +76,7 @@ public class ConcurrentEventTest {
                 fsm.fire("FIRST");
                 eventCondition.countDown();
             }
-        }).start();
+        }, "Test-Thread-1").start();
         
         // thread 2 read fsm state while processing event "FIRST"
         new Thread(new Runnable() {
@@ -71,7 +90,7 @@ public class ConcurrentEventTest {
                 readStateRef.set(fsm.getCurrentState());
                 eventCondition.countDown();
             }
-        }).start();
+        }, "Test-Thread-2").start();
         
         // thread 3 test event "SECOND" while processing event "FIRST"
         new Thread(new Runnable() {
@@ -85,9 +104,23 @@ public class ConcurrentEventTest {
                 testStateRef.set(fsm.test("SECOND"));
                 eventCondition.countDown();
             }
-        }).start();
+        }, "Test-Thread-3").start();
         
-        // thread 4 process event "SECOND" while processing event "FIRST"
+        // thread 4 dump data while processing event "FIRST"
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    actionCondition.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                dumpDataRef.set(fsm.dumpSavedData());
+                eventCondition.countDown();
+            }
+        }, "Test-Thread-4").start();
+        
+        // thread 5 process event "SECOND" while processing event "FIRST"
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -99,11 +132,12 @@ public class ConcurrentEventTest {
                 fsm.fire("SECOND");
                 eventCondition.countDown();
             }
-        }).start();
+        }, "Test-Thread-5").start();
         
-        // wait for three threads finish processing events then check result
+        // wait for all threads finish processing events then check result
         try {
             eventCondition.await();
+            TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -111,9 +145,118 @@ public class ConcurrentEventTest {
         Assert.assertEquals(fsm.getCurrentState(), "C");
         Assert.assertEquals(readStateRef.get(), "C");
         Assert.assertNull(testStateRef.get());
+        Assert.assertNull(dumpDataRef.get());
         
         Object testAgain = fsm.test("SECOND");
         Assert.assertEquals(testAgain, "E");
+    }
+    
+    @Test
+    @SuppressWarnings("unused")
+    public void testConcurrentAddRemoveListener() {
+        final CountDownLatch l1Condition = new CountDownLatch(1);
+        final CountDownLatch l3Condition = new CountDownLatch(1);
+        final CountDownLatch eventCondition = new CountDownLatch(2);
+        
+        class MockCallSequence {
+            @Mock
+            MockCallSequence mock;
+            public void listener1() {
+                mock.listener1();
+            }
+            public void listener2() {
+                mock.listener2();
+            }
+            public void listener3() {
+                mock.listener3();
+            }
+        }
+        
+        class Listener1 {
+            MockCallSequence callSequence;
+            @OnTransitionBegin
+            public void onTransitionBegin() {
+                l3Condition.countDown();
+                try {
+                    l1Condition.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                callSequence.listener1();
+            }
+        }
+        
+        class Listener2 {
+            MockCallSequence callSequence;
+            @OnTransitionBegin
+            public void onTransitionBegin() {
+                callSequence.listener2();
+            }
+        }
+        
+        class Listener3 {
+            MockCallSequence callSequence;
+            @OnTransitionBegin
+            public void onTransitionBegin() {
+                callSequence.listener3();
+            }
+        }
+        
+        MockCallSequence callSequence = new MockCallSequence();
+        final Listener1 l1 = new Listener1();
+        l1.callSequence = callSequence;
+        final Listener2 l2 = new Listener2();
+        l2.callSequence = callSequence;
+        final Listener3 l3 = new Listener3();
+        l3.callSequence = callSequence;
+        MockitoAnnotations.initMocks(callSequence);
+        
+        builder.transition().from("A").to("B").on("FIRST");
+        builder.transition().from("B").to("C").on("SECOND");
+        final UntypedStateMachine fsm = builder.newStateMachine("A");
+        fsm.addDeclarativeListener(l1);
+        fsm.addDeclarativeListener(l2);
+        
+        InOrder inOrder = Mockito.inOrder(callSequence.mock);
+        // thread 1 fire event "FIRST"
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                fsm.fire("FIRST");
+                eventCondition.countDown();
+            }
+        }, "Test-Thread-1").start();
+        
+        // thread 2 add listener and fire event "SECOND" during thread 1 processing event "FIRST"
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    l3Condition.await();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                fsm.addDeclarativeListener(l3);
+                l1Condition.countDown();
+                fsm.fire("SECOND");
+                eventCondition.countDown();
+            }
+        }, "Test-Thread-2").start();
+        
+        // wait for all threads finish processing events then check result
+        try {
+            eventCondition.await();
+            TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener2();
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener2();
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener3();
     }
     
 }

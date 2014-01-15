@@ -182,7 +182,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private void checkState() {
         if(prepared) {
-            throw new RuntimeException("The state machine builder has been freesed and " +
+            throw new RuntimeException("The state machine builder has been freezed and " +
             		"cannot be changed anymore.");
         }
     }
