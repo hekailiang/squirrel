@@ -109,18 +109,17 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean isContextInsensitive;
     
-    private final String identifier;
-    
     private static final int ID_LENGTH = 10;
     
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         data = SquirrelProvider.getInstance().newInstance( 
                 new TypeReference<StateMachineData<T, S, E, C>>(){}, 
                 new Class[]{Map.class}, new Object[]{states} );
-        identifier = RandomStringUtils.randomAlphanumeric(ID_LENGTH);
+        
         S intialStateId = initialState.getStateId();
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
+        data.write().identifier(RandomStringUtils.randomAlphanumeric(ID_LENGTH));
     }
     
     private void processEvent(E event, C context) {
@@ -844,13 +843,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public String getIdentifier() {
-        return identifier;
+        return data.read().identifier();
     }
     
     @Override
     public String getDescription() {
         StringBuilder builder = new StringBuilder();
-        builder.append("id=\"").append(identifier).append("\" ");
+        builder.append("id=\"").append(getIdentifier()).append("\" ");
         builder.append("fsm-type=\"").append(getClass().getName()).append("\" ");
         builder.append("state-type=\"").append(typeOfState().getName()).append("\" ");
         builder.append("event-type=\"").append(typeOfEvent().getName()).append("\" ");

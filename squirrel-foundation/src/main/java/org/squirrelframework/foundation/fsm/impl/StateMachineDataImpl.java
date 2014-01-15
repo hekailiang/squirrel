@@ -42,6 +42,8 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     private Class<E> eventType;
 
     private Class<C> contextType;
+    
+    private String identifier;
 
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
 
@@ -69,6 +71,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         this.write().typeOfEvent(src.typeOfEvent());
         this.write().typeOfContext(src.typeOfContext());
 
+        this.write().identifier(src.identifier());
         this.write().currentState(src.currentState());
         this.write().lastState(src.lastState());
         this.write().initalState(src.initialState());
@@ -158,6 +161,16 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         if (rawStateFrom(parentStateId).isParallelState()) {
             parallelStatesStore.removeAll(parentStateId);
         }
+    }
+    
+    @Override
+    public void identifier(String id) {
+        this.identifier = id;
+    }
+
+    @Override
+    public String identifier() {
+        return identifier;
     }
 
     @Override

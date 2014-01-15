@@ -42,7 +42,7 @@ public class ConcurrentEventTest {
     
     @Test
     public void testConcurrentEvents() { 
-        // test concurrent read/write/test state machine
+        // test concurrent read/write/test/dump state machine
         final CountDownLatch actionCondition = new CountDownLatch(1);
         final CountDownLatch eventCondition = new CountDownLatch(5);
         final AtomicReference<Object> testStateRef = new AtomicReference<Object>();

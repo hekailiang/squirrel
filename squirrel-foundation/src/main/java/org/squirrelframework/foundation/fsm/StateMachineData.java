@@ -21,8 +21,7 @@ import java.util.List;
  * @param <C>
  *            type of Context
  */
-public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C>
-        extends Serializable {
+public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> extends Serializable {
     /**
      * Dump source state machine data (expect transient data, such as states)
      * into current state machine data
@@ -43,6 +42,11 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C>
     Writer<T, S, E, C> write();
 
     public interface Reader<T extends StateMachine<T, S, E, C>, S, E, C> {
+        /**
+         * @return state machine identifier
+         */
+        String identifier();
+        
         /**
          * @return current state id of state machine
          */
@@ -143,6 +147,10 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {
+        /**
+         * @return state machine identifier
+         */
+        void identifier(String id);
 
         /**
          * Write current state of state machine data to provided state id
