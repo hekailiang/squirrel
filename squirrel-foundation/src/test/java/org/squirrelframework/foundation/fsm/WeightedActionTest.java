@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -27,7 +27,7 @@ public class WeightedActionTest {
     @States({
         @State(name="D", entryCallMethod="entryD") // test duplicate extension method definition
     })
-    @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=Void.class)
+    @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
     @ContextInsensitive
     static class UntypedStateMachineBase extends AbstractUntypedStateMachine {
         

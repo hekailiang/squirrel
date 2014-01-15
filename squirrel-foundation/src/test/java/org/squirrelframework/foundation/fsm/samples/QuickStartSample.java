@@ -6,7 +6,7 @@ import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
 
 public class QuickStartSample {
@@ -17,7 +17,7 @@ public class QuickStartSample {
     }
     
     // 2. Define State Machine Class
-    @StateMachineParamters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
+    @StateMachineParameters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
     static class StateMachineSample extends AbstractUntypedStateMachine {
         protected StateMachineSample(ImmutableUntypedState initialState, 
                 Map<Object, ImmutableUntypedState> states) {

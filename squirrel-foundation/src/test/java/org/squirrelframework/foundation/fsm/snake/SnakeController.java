@@ -12,7 +12,7 @@ import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -56,7 +56,7 @@ import org.squirrelframework.foundation.util.TypeReference;
 	@Transit(from="RIGHT", to="UP", on="TURN_UP", callMethod="onChangeDirection"),
 	@Transit(from="RIGHT", to="DOWN", on="TURN_DOWN", callMethod="onChangeDirection")
 })
-@StateMachineParamters(stateType=SnakeState.class, eventType=SnakeEvent.class, contextType=SnakeModel.class)
+@StateMachineParameters(stateType=SnakeState.class, eventType=SnakeEvent.class, contextType=SnakeModel.class)
 public class SnakeController extends AbstractUntypedStateMachine {
 	
     public enum SnakeState {

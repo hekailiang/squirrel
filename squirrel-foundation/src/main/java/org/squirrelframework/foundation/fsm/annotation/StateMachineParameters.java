@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target({TYPE})
 @Documented
-public @interface StateMachineParamters {
+public @interface StateMachineParameters {
     Class<?> stateType();
     Class<?> eventType();
     Class<?> contextType();

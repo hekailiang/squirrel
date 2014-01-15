@@ -25,7 +25,7 @@ import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionEnd;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
@@ -41,7 +41,7 @@ public class UntypedStateMachineTest {
         @Transit(from="b", to="c", on="toC"),
         @Transit(from="c", to="d", on="toD")
     })
-    @StateMachineParamters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
+    @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     static class UntypedStateMachineSample extends AbstractUntypedStateMachine {
         
         @Mock
@@ -237,7 +237,7 @@ public class UntypedStateMachineTest {
         }
     }
     
-    @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=String.class)
+    @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=String.class)
     interface ParamtersAnnotationPlaceHolder extends UntypedStateMachine {}
     
     static class TestListenTarget2 {

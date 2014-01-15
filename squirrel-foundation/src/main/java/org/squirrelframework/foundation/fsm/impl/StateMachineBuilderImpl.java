@@ -41,7 +41,7 @@ import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -111,7 +111,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         this.stateMachineImplClazz = stateMachineImplClazz;
         
-        StateMachineParamters genericsParamteres = findAnnotation(StateMachineParamters.class);
+        StateMachineParameters genericsParamteres = findAnnotation(StateMachineParameters.class);
         if(stateClazz==Object.class && genericsParamteres!=null) {
             this.stateClazz = (Class<S>) genericsParamteres.stateType();
         } else {

@@ -9,7 +9,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -23,7 +23,7 @@ public class ExtensionMethodCallTest {
     @States({
         @State(name="A", exitCallMethod="leftA"), 
         @State(name="B", entryCallMethod="enterB")})
-    @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=Integer.class)
+    @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Integer.class)
     @ContextInsensitive
     static class UntypedStateMachineBase extends AbstractUntypedStateMachine {
         

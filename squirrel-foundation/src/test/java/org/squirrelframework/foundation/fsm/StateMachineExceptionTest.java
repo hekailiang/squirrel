@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParamters;
+import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
@@ -21,7 +21,7 @@ public class StateMachineExceptionTest {
         @Transit(from="A", to="C", on="ToC"),
         @Transit(from="A", to="D", on="ToD")
     })
-    @StateMachineParamters(stateType=String.class, eventType=String.class, contextType=Void.class)
+    @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
     @ContextInsensitive
     static class StateMachineExceptionSample extends AbstractUntypedStateMachine {
 
