@@ -11,11 +11,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.squirrelframework.foundation.event.ListenTarget;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -195,38 +193,6 @@ public class ReflectUtils {
             return ((Method)obj).getAnnotation(theAnnotation)!=null;
         } // TODO-hhe: how about annotation with parameter?
         return false;
-    }
-
-    public static <T> List<T> getListenTargets(Object obj, Class<?> listenerType, Class<T> container) {
-        Preconditions.checkNotNull(obj!=null);
-        List<T> result = Lists.newArrayList();
-
-        Field[] fields = getAnnotatedFields(obj.getClass(), ListenTarget.class);
-        for(Field f : fields) {
-            ListenTarget annotation = f.getAnnotation(ListenTarget.class);
-            if(annotation.value().isAssignableFrom(listenerType)) {
-                try {
-                    Object listenTarget = f.get(obj);
-                    if(listenTarget!=null && container.isAssignableFrom(listenTarget.getClass())) {
-                        result.add(container.cast(listenTarget));
-                    }
-                } catch (Exception e) {} 
-            }
-        }
-
-        List<Method> methods = getAnnotatedMethods(obj.getClass(), ListenTarget.class);
-        for(Method m : methods) {
-            ListenTarget annotation = m.getAnnotation(ListenTarget.class);
-            if(annotation.value().isAssignableFrom(listenerType)) {
-                try {
-                    Object listenTarget = m.invoke(obj, new Object[]{});
-                    if(listenTarget!=null && container.isAssignableFrom(listenTarget.getClass())) {
-                        result.add(container.cast(listenTarget));
-                    }
-                } catch (Exception e) {} 
-            }
-        }
-        return result;
     }
 
     public static Method getFirstMethodOfName(Class<?> clazz, String name) {

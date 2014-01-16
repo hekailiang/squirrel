@@ -8,15 +8,14 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class AsynchronizedExecutionService<T extends StateMachine<T, S, E, C>, S, E, C>
+public class AnsynchronizedExecutionService<T extends StateMachine<T, S, E, C>, S, E, C>
         extends AbstractExecutionService<T, S, E, C> {
 
     private ExecutorService executorService;
 
-    public AsynchronizedExecutionService() {
+    public AnsynchronizedExecutionService() {
         executorService = Executors.newFixedThreadPool(1);
-        MoreExecutors.addDelayedShutdownHook(executorService, 120,
-                TimeUnit.SECONDS);
+        MoreExecutors.addDelayedShutdownHook(executorService, 120, TimeUnit.SECONDS);
     }
 
     @Override
@@ -24,7 +23,7 @@ public class AsynchronizedExecutionService<T extends StateMachine<T, S, E, C>, S
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                AsynchronizedExecutionService.super.execute();
+                AnsynchronizedExecutionService.super.execute();
             }
         });
     }
