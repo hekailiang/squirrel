@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
+import org.squirrelframework.foundation.fsm.AnonymousUntypedAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
@@ -361,6 +362,31 @@ public class ConcurrentEventTest {
         Assert.assertTrue(executorThread1.get()!=null && executorThread1.get()==mainThread);
         Assert.assertTrue(executorThread3.get()!=null && executorThread3.get()==mainThread);
         Assert.assertTrue(executorThread2.get()!=null && executorThread2.get()!=mainThread);
+    }
+    
+    @Test
+    public void testTimedState() {
+        final StringBuilder logger = new StringBuilder();
+        // timed state must be defined before transition
+        builder.defineTimedState("A", 20, 50, "FIRST", null);
+        builder.internalTransition().within("A").on("FIRST").perform(new AnonymousUntypedAction() {
+            @Override
+            public void execute(Object from, Object to, Object event,
+                    Object context, UntypedStateMachine stateMachine) {
+                if (logger.length() > 0) {
+                    logger.append('.');
+                }
+                logger.append("AToBOnFIRST");
+            }
+        });
+        final UntypedStateMachine fsm = builder.newStateMachine("A");
+        fsm.start();
+        try {
+            TimeUnit.MILLISECONDS.sleep(240);
+        } catch (InterruptedException e) {
+        }
+        fsm.terminate();
+        Assert.assertEquals("AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST", logger.toString());
     }
     
 }

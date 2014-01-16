@@ -250,9 +250,9 @@ public class LinkedStateMachineTest {
                         Integer.class, new Class<?>[] { StringBuilder.class });
 
         // defined linked state
-        builderOfTestStateMachine.definedLinkedState(LState.A,
+        builderOfTestStateMachine.defineLinkedState(LState.A,
                 builderOfLinkedStateMachine, LState.A1, logger);
-        builderOfTestStateMachine.definedLinkedState(LState.C,
+        builderOfTestStateMachine.defineLinkedState(LState.C,
                 builderOfLinkedStateMachine, LState.A2, logger);
 
         stateMachine = builderOfTestStateMachine.newStateMachine(LState.A,

@@ -29,6 +29,7 @@ import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
+import org.squirrelframework.foundation.fsm.MutableTimedState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.MutableUntypedState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
@@ -655,11 +656,33 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
-    public MutableState<T, S, E, C> definedLinkedState(S stateId, 
-            StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, S initialLinkedState, Object... extraParams) {
-        MutableLinkedState<T, S, E, C> linkedState = (MutableLinkedState<T, S, E, C>) FSM.getState(states, stateId, true);
-        linkedState.setLinkedStateMachine(linkedStateMachineBuilder.newStateMachine(initialLinkedState, extraParams));
-        return linkedState;
+    public MutableState<T, S, E, C> defineLinkedState(S stateId, 
+            StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, 
+            S initialLinkedState, Object... extraParams) {
+        MutableState<T, S, E, C> state = states.get(stateId);
+        if(state==null) {
+            MutableLinkedState<T, S, E, C> linkedState = FSM.newLinkedState(stateId);
+            linkedState.setLinkedStateMachine(linkedStateMachineBuilder.newStateMachine(initialLinkedState, extraParams));
+            states.put(stateId, linkedState);
+            state = linkedState;
+        }
+        return state;
+    }
+    
+    @Override
+    public MutableState<T, S, E, C> defineTimedState(S stateId,
+            Integer initialDelay, Integer timeInterval, E autoEvent, C autoContext) {
+        MutableState<T, S, E, C> state = states.get(stateId);
+        if(state==null) {
+            MutableTimedState<T, S, E, C> timedState = FSM.newTimedState(stateId);
+            timedState.setAutoFireContext(autoContext);
+            timedState.setAutoFireEvent(autoEvent);
+            timedState.setInitialDelay(initialDelay);
+            timedState.setTimeInterval(timeInterval);
+            states.put(stateId, timedState);
+            state = timedState;
+        }
+        return state;
     }
     
     @Override

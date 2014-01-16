@@ -14,6 +14,8 @@ import org.squirrelframework.foundation.component.SquirrelComponent;
  */
 public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelComponent {
     
+    public static final int FIRST_WEIGHT = Integer.MAX_VALUE-1;
+    
     public static final int BEFORE_WEIGHT = 100;
     
     public static final int NORMAL_WEIGHT = 0;
@@ -21,6 +23,8 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
     public static final int EXTENSION_WEIGHT = -10;
     
     public static final int AFTER_WEIGHT = -100;
+    
+    public static final int LAST_WEIGHT = Integer.MIN_VALUE+1;
     
     public static final int IGNORE_WEIGHT = Integer.MIN_VALUE;
     

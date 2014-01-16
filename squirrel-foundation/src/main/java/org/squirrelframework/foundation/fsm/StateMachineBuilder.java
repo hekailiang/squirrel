@@ -76,9 +76,21 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @param extraParams additional parameters used to create linked state machine
      * @return linked state
      */
-    MutableState<T, S, E, C> definedLinkedState(S stateId, 
+    MutableState<T, S, E, C> defineLinkedState(S stateId, 
             StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, 
             S initialLinkedState, Object... extraParams);
+    
+    /**
+     * Define a timed state
+     * @param stateId state id
+     * @param initialDelay initial delay ms
+     * @param timeInterval time period if null not repeat
+     * @param autoEvent
+     * @param autoContext
+     * @return timed state
+     */
+    MutableState<T, S, E, C> defineTimedState(S stateId, Integer initialDelay, 
+            Integer timeInterval, E autoEvent, C autoContext);
     
     /**
      * Define sequential child states whose hierarchy type is default set to NONE on parent state

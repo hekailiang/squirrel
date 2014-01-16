@@ -9,7 +9,9 @@ import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.Actions;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.ImmutableState;
+import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
+import org.squirrelframework.foundation.fsm.MutableTimedState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateContext;
@@ -41,25 +43,21 @@ abstract class FSM {
                 new Class[] { Object.class }, new Object[] { stateId });
     }
     
-    static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> newLinkedState(S stateId) {
+    static <T extends StateMachine<T, S, E, C>, S, E, C> MutableLinkedState<T, S, E, C> newLinkedState(S stateId) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<LinkedStateImpl<T, S, E, C>>() {}, 
+                new Class[] { Object.class }, new Object[] { stateId });
+    }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> MutableTimedState<T, S, E, C> newTimedState(S stateId) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<TimedStateImpl<T, S, E, C>>() {}, 
                 new Class[] { Object.class }, new Object[] { stateId });
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> getState(
             Map<S, MutableState<T, S, E, C>> states, S stateId) {
-        return getState(states,  stateId, false);
-    }
-            
-    static <T extends StateMachine<T, S, E, C>, S, E, C> MutableState<T, S, E, C> getState(
-            Map<S, MutableState<T, S, E, C>> states, S stateId, boolean isLinkedState) {
         MutableState<T, S, E, C> state = states.get(stateId);
         if (state == null) {
-            if(isLinkedState) {
-                state = FSM.newLinkedState(stateId);
-            } else { 
-                state = FSM.newState(stateId);
-            }
+            state = FSM.newState(stateId);
             states.put(stateId, state);
         }
         return state;
