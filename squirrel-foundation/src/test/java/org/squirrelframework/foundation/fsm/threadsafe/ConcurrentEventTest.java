@@ -136,10 +136,10 @@ public class ConcurrentEventTest {
         
         // wait for all threads finish processing events then check result
         try {
-            eventCondition.await();
+            eventCondition.await(1000, TimeUnit.MILLISECONDS);
             TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Assert.fail();
         }
         
         Assert.assertEquals(fsm.getCurrentState(), "C");
@@ -246,10 +246,10 @@ public class ConcurrentEventTest {
         
         // wait for all threads finish processing events then check result
         try {
-            eventCondition.await();
+            eventCondition.await(1000, TimeUnit.MILLISECONDS);
             TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Assert.fail();
         }
         
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
