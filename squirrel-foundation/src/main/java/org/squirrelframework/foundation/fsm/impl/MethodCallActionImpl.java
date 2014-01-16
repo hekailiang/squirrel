@@ -6,8 +6,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.annotation.AnsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.ExecuteWhen;
 import org.squirrelframework.foundation.fsm.annotation.LogExecTime;
 import org.squirrelframework.foundation.util.ReflectUtils;
@@ -32,11 +34,14 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     
     private final int weight;
     
+    private final boolean isAnsync;
+    
     MethodCallActionImpl(Method method, int weight, ExecutionContext executionContext) {
         Preconditions.checkNotNull(method, "Method of the action cannot be null.");
         this.method = method;
         this.weight = weight;
         this.executionContext = executionContext;
+        this.isAnsync = method.isAnnotationPresent(AnsyncExecute.class);
         
         logExecTime = ReflectUtils.isAnnotatedWith(method, LogExecTime.class);
         if(!logExecTime) {
@@ -55,7 +60,21 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     }
     
     @Override
-    public void execute(S from, S to, E event, C context, T stateMachine) {
+    public void execute(final S from, final S to, 
+            final E event, final C context, final T stateMachine) {
+        if(isAnsync) {
+            SquirrelConfiguration.getExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    invokeMethod(from, to, event, context, stateMachine);
+                }
+            });
+        } else {
+            invokeMethod(from, to, event, context, stateMachine);
+        }
+    }
+        
+    private void invokeMethod(S from, S to, E event, C context, T stateMachine) {
         if(executeWhenExpr!=null) {
             Map<String, Object> variables = new HashMap<String, Object>();
 //            variables.put("from", from);

@@ -368,7 +368,7 @@ public class ConcurrentEventTest {
     public void testTimedState() {
         final StringBuilder logger = new StringBuilder();
         // timed state must be defined before transition
-        builder.defineTimedState("A", 20, 50, "FIRST", null);
+        builder.defineTimedState("A", 4, 10, "FIRST", null);
         builder.internalTransition().within("A").on("FIRST").perform(new AnonymousUntypedAction() {
             @Override
             public void execute(Object from, Object to, Object event,
@@ -382,11 +382,24 @@ public class ConcurrentEventTest {
         final UntypedStateMachine fsm = builder.newStateMachine("A");
         fsm.start();
         try {
-            TimeUnit.MILLISECONDS.sleep(240);
+            TimeUnit.MILLISECONDS.sleep(50);
         } catch (InterruptedException e) {
         }
         fsm.terminate();
         Assert.assertEquals("AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST", logger.toString());
     }
     
+    @Test
+    public void testAnsyncMethodCall() {
+        builder.transition().from("A").to("B").on("FIRST").callMethod("fromAToB");
+        final ConcurrentSimpleStateMachine fsm = builder.newUntypedStateMachine("A");
+        fsm.fire("FIRST");
+        try {
+            TimeUnit.MILLISECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            Assert.fail();
+        }
+        Assert.assertEquals("fromAToB", fsm.logger.toString());
+        Assert.assertTrue(Thread.currentThread()!=fsm.methodCallThread);
+    }
 }

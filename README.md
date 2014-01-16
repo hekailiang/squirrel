@@ -447,7 +447,7 @@ stateMachine.addStateMachineListener(new StateMachineListener<MyStateMachine, My
 * **Declarative Event Listener**  
 Adding above event listener to state machine sometime annoying to user, and too many generic types also makes code ugly to read. To simplify state machine usage, more important to provide a non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     
 ```java
-	static class ExtenalModule {
+	static class ExternalModule {
         @OnTransitionEnd
         public void transitionEnd() {
             // method annotated with TransitionEnd will be invoked when transition end...
@@ -476,7 +476,7 @@ Adding above event listener to state machine sometime annoying to user, and too 
         }
     }
     
-	ExtenalModule externalModule = new ExtenalModule();
+	ExtenalModule externalModule = new ExternalModule();
     fsm.addDeclarativeListener(externalModule);
     ...
     fsm.removeDeclarativeListener(externalModule);
