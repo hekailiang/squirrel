@@ -228,6 +228,15 @@ public class UntypedStateMachineTest {
         Assert.assertTrue(fsm.getExecutorListenerSize()==0);
     }
     
+    @Test
+    public void testAttachDuplicateDeclarativeEvent() {
+        TestListenTarget listenTarget = new TestListenTarget();
+        fsm.addDeclarativeListener(listenTarget);
+        fsm.addDeclarativeListener(listenTarget);
+        Assert.assertTrue(fsm.getListenerSize()==14);           // double called
+        Assert.assertTrue(fsm.getExecutorListenerSize()==2);    // double called
+    }
+    
     @Transitions({
         @Transit(from="a", to="b", on="toB")
     })
