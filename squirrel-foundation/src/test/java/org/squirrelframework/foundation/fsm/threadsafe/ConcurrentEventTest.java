@@ -20,6 +20,7 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
+import org.squirrelframework.foundation.fsm.annotation.AnsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 
 @RunWith(Parameterized.class)
@@ -257,6 +258,109 @@ public class ConcurrentEventTest {
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener2();
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener3();
+    }
+    
+    @Test
+    @SuppressWarnings("unused")
+    public void testAnsyncDispatchEvent() {
+        final CountDownLatch l1Condition = new CountDownLatch(1);
+        final CountDownLatch lCondition = new CountDownLatch(2);
+        final CountDownLatch eventCondition = new CountDownLatch(3);
+        final AtomicReference<Thread> executorThread1 = new AtomicReference<Thread>();
+        final AtomicReference<Thread> executorThread2 = new AtomicReference<Thread>();
+        final AtomicReference<Thread> executorThread3 = new AtomicReference<Thread>();
+        final Thread mainThread = Thread.currentThread();
+        class MockCallSequence {
+            @Mock
+            MockCallSequence mock;
+            public void listener1() {
+//                System.out.println("listener1");
+                mock.listener1();
+            }
+            public void listener2() {
+//                System.out.println("listener2");
+                mock.listener2();
+            }
+            public void listener3() {
+//                System.out.println("listener3");
+                mock.listener3();
+            }
+        }
+        
+        class Listener1 {
+            MockCallSequence callSequence;
+            @OnTransitionBegin
+            public void onTransitionBegin() {
+                callSequence.listener1();
+                executorThread1.set(Thread.currentThread());
+                lCondition.countDown();
+                eventCondition.countDown();
+            }
+        }
+        
+        class Listener2 {
+            MockCallSequence callSequence;
+            @OnTransitionBegin
+            @AnsyncExecute
+            public void onTransitionBegin() {
+                try {
+                    l1Condition.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                callSequence.listener2();
+                executorThread2.set(Thread.currentThread());
+                eventCondition.countDown();
+            }
+        }
+        
+        class Listener3 {
+            MockCallSequence callSequence;
+            @OnTransitionBegin
+            public void onTransitionBegin() {
+                callSequence.listener3();
+                executorThread3.set(Thread.currentThread());
+                lCondition.countDown();
+                eventCondition.countDown();
+            }
+        }
+        
+        MockCallSequence callSequence = new MockCallSequence();
+        final Listener1 l1 = new Listener1();
+        l1.callSequence = callSequence;
+        final Listener2 l2 = new Listener2();
+        l2.callSequence = callSequence;
+        final Listener3 l3 = new Listener3();
+        l3.callSequence = callSequence;
+        MockitoAnnotations.initMocks(callSequence);
+        
+        builder.transition().from("A").to("B").on("FIRST");
+        final UntypedStateMachine fsm = builder.newStateMachine("A");
+        fsm.addDeclarativeListener(l1);
+        fsm.addDeclarativeListener(l2);
+        fsm.addDeclarativeListener(l3);
+        
+        InOrder inOrder = Mockito.inOrder(callSequence.mock);
+        fsm.fire("FIRST");
+        try {
+            lCondition.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        l1Condition.countDown();
+        
+        try {
+            eventCondition.await(1000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Assert.fail();
+        }
+        
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener3();
+        inOrder.verify(callSequence.mock, Mockito.times(1)).listener2();
+        Assert.assertTrue(executorThread1.get()!=null && executorThread1.get()==mainThread);
+        Assert.assertTrue(executorThread3.get()!=null && executorThread3.get()==mainThread);
+        Assert.assertTrue(executorThread2.get()!=null && executorThread2.get()!=mainThread);
     }
     
 }

@@ -1,12 +1,9 @@
 package org.squirrelframework.foundation.fsm.impl;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
+import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.fsm.StateMachine;
-
-import com.google.common.util.concurrent.MoreExecutors;
 
 public class AnsynchronizedExecutionService<T extends StateMachine<T, S, E, C>, S, E, C>
         extends AbstractExecutionService<T, S, E, C> {
@@ -14,8 +11,7 @@ public class AnsynchronizedExecutionService<T extends StateMachine<T, S, E, C>, 
     private ExecutorService executorService;
 
     public AnsynchronizedExecutionService() {
-        executorService = Executors.newFixedThreadPool(1);
-        MoreExecutors.addDelayedShutdownHook(executorService, 120, TimeUnit.SECONDS);
+        executorService = SquirrelConfiguration.getExecutor();
     }
 
     @Override

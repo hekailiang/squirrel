@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.event;
 
 import java.lang.reflect.Method;
 
+import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.util.ReflectUtils;
@@ -18,6 +19,8 @@ public class ListenerMethod {
     
     private boolean hasParameter = false;
     
+    private final boolean isAnsync;
+    
     public ListenerMethod(Class<?> eventType, Object listener, Method method) {
         Preconditions.checkArgument(eventType!=null && listener!=null && method!=null, "Parameters cannot be null.");
         // Checks that the object is of correct type
@@ -28,6 +31,7 @@ public class ListenerMethod {
         this.eventType = eventType;
         this.target = listener;
         this.method = method;
+        this.isAnsync = AnsyncEventListener.class.isAssignableFrom(listener.getClass());
         
         final Class<?>[] params = method.getParameterTypes();
         // check parameter type
@@ -40,10 +44,21 @@ public class ListenerMethod {
         } 
     }
     
-    public void invokeMethod(Object event) {
+    public void invokeMethod(final Object event) {
         // Only send events supported by the method
         Preconditions.checkArgument(eventType.isAssignableFrom(event.getClass()));
-        ReflectUtils.invoke(method, target, hasParameter ? new Object[] {event} : new Object[0]);
+        if(isAnsync) {
+            SquirrelConfiguration.getExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    ReflectUtils.invoke(method, target, hasParameter ? new Object[] {event} : new Object[0]);
+                }
+            });
+        } else {
+            synchronized (target) {
+                ReflectUtils.invoke(method, target, hasParameter ? new Object[] {event} : new Object[0]);
+            }
+        }
     }
     
     public boolean matches(Class<?> eventType, Object target) {
