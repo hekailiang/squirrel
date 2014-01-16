@@ -115,7 +115,7 @@ public class ExtensionMethodCallTest {
     @Test
     public void testExtensionMethodCallSequence() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
-        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A", UntypedStateMachineBase.class);
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A");
         StateMachineLogger logger = new StateMachineLogger(fsm);
         logger.startLogging();
         fsm.start();

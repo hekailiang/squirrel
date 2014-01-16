@@ -139,7 +139,7 @@ public class WeightedActionTest {
     @Before
     public void setup() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineExt.class);
-        fsm = builder.newUntypedStateMachine("A", UntypedStateMachineExt.class);
+        fsm = builder.newUntypedStateMachine("A");
         logger = new StateMachineLogger(fsm);
         logger.startLogging();
     }
@@ -165,7 +165,7 @@ public class WeightedActionTest {
     @Test
     public void testOverrideWeight() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineExt2.class);
-        fsm = builder.newUntypedStateMachine("A", UntypedStateMachineExt.class);
+        fsm = builder.newUntypedStateMachine("A");
         logger = new StateMachineLogger(fsm);
         logger.startLogging();
         fsm.fire("ToD");
@@ -176,7 +176,7 @@ public class WeightedActionTest {
     public void testIgnoreWeight() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineExt2.class);
         builder.onEntry("D").callMethod("entryD:ignore"); // entryD will not be invoked
-        fsm = builder.newUntypedStateMachine("A", UntypedStateMachineExt.class);
+        fsm = builder.newUntypedStateMachine("A");
         logger = new StateMachineLogger(fsm);
         logger.startLogging();
         fsm.fire("ToD");

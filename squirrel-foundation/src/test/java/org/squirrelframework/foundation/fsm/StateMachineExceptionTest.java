@@ -66,7 +66,7 @@ public class StateMachineExceptionTest {
     @Before
     public void setup() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample.class);
-        fsm = builder.newUntypedStateMachine("A", StateMachineExceptionSample.class);
+        fsm = builder.newUntypedStateMachine("A");
     }
     
     @Test(expected=UnsupportedOperationException.class)

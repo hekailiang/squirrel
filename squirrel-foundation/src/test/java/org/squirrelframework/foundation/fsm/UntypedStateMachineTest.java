@@ -80,7 +80,7 @@ public class UntypedStateMachineTest {
     public void setup() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
         builder.externalTransition().from("d").to("a").on(TestEvent.toA);
-        fsm = builder.newUntypedStateMachine("a", UntypedStateMachineSample.class);
+        fsm = builder.newUntypedStateMachine("a");
         MockitoAnnotations.initMocks(fsm);
     }
     

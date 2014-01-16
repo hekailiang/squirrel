@@ -45,12 +45,7 @@ public class StateMachineBuilderFactory {
                             throws Throwable {
                         if(method.getName().equals("newUntypedStateMachine")) {
                             Object fsmInstance = builder.newStateMachine(args[0]);
-                            Class<?> stateMachineImplClazz = (Class<?>)args[1];
-                            return stateMachineImplClazz.cast(fsmInstance);
-//                            if(stateMachineImplClazz.isAssignableFrom(fsmInstance.getClass())) {
-//                                return stateMachineImplClazz.cast(fsmInstance);
-//                            }
-//                            throw new RuntimeException("Cannot create state machine instance.");
+                            return fsmInstance;
                         }
                         return method.invoke(builder, args);
                     }
