@@ -3,7 +3,6 @@ package org.squirrelframework.foundation.fsm.snake;
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JFrame;
 
@@ -13,15 +12,11 @@ public class SnakeGame extends JFrame {
 
     private static final long serialVersionUID = 5135000138657306646L;
     
-    private SnakePanel panel;
+    private final SnakePanel panel;
     
-    private SnakeController gameController;
+    private final SnakeController gameController;
     
-    private SnakeModel gameModel = new SnakeModel();
-    
-    private ConcurrentLinkedQueue<SnakeEvent> directionsQueue = new ConcurrentLinkedQueue<SnakeEvent>();
-    
-    public SnakeGame(SnakeController controller) {
+    public SnakeGame(final SnakeController controller, final SnakeModel gameModel) {
 		super("Greedy Snake");
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -39,22 +34,22 @@ public class SnakeGame extends JFrame {
 
 				case KeyEvent.VK_W:
 				case KeyEvent.VK_UP:
-				    directionsQueue.add(SnakeEvent.TURN_UP);
+				    gameController.fire(SnakeEvent.TURN_UP, gameModel);
 					break;
 
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_DOWN:
-				    directionsQueue.add(SnakeEvent.TURN_DOWN);
+				    gameController.fire(SnakeEvent.TURN_DOWN, gameModel);
 					break;
 				
 				case KeyEvent.VK_A:
 				case KeyEvent.VK_LEFT:
-				    directionsQueue.add(SnakeEvent.TURN_LEFT);
+				    gameController.fire(SnakeEvent.TURN_LEFT, gameModel);
 					break;
 			
 				case KeyEvent.VK_D:
 				case KeyEvent.VK_RIGHT:
-				    directionsQueue.add(SnakeEvent.TURN_RIGHT);
+				    gameController.fire(SnakeEvent.TURN_RIGHT, gameModel);
 					break;
 				
 				case KeyEvent.VK_P:
@@ -62,7 +57,6 @@ public class SnakeGame extends JFrame {
 					break;
 				
 				case KeyEvent.VK_ENTER:
-				    directionsQueue.clear();
 					gameController.fire(SnakeEvent.PRESS_START, gameModel);
 					break;
 				}
@@ -75,30 +69,10 @@ public class SnakeGame extends JFrame {
 		setVisible(true);
     }
     
-    public SnakeModel getGameData() {
-        return gameModel;
-    }
-    
     /**
 	 * Starts the game running.
 	 */
 	public void startGame() {
-		for(;;) {
-			long start = System.nanoTime();
-			
-			gameController.fire(SnakeEvent.MOVE_AHEAD, gameModel);
-			if(directionsQueue.size()>0) {
-			    gameController.fire(directionsQueue.poll(), gameModel);
-			} 
-			
-			long delta = (System.nanoTime() - start) / 1000000L;
-			if(delta < GameConfigure.FRAME_TIME) {
-				try {
-					Thread.sleep(GameConfigure.FRAME_TIME - delta);
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
+	    gameController.start();
 	}
 }

@@ -694,7 +694,7 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	```
 	Sample code to define CssParser could be found in package *"org.squirrelframework.foundation.fsm.cssparser"*.
 
-* **Greedy Snake Game Sample - Example usage of declarative untyped state machine**  
+* **Greedy Snake Game Sample - Sample usage of declarative untyped state machine and timed state**  
 	Here is an interesting example which used state machine to implement greedy snake game 	controller. The following diagram shows that the state machine definition of the controller.   
 	![SnakeStateMachine](http://hekailiang.github.io/squirrel/images/SnakeGame.png)  
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
