@@ -772,8 +772,8 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 3. Simplify converter registration for String and Enumeration type  
 
 ## Future Plan  
+* **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
 * State machine import  
-* Support both synchronized and asynchronized event dispatcher   
 * Support dynamic extend state machine definition  
 
 ## More Information  
