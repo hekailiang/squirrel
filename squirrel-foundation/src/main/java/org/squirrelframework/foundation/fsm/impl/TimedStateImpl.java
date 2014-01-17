@@ -51,7 +51,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
         
         @Override
         public int weight() {
-            return Action.LAST_WEIGHT;
+            return Action.MIN_WEIGHT;
         }
 
         @Override
@@ -73,7 +73,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
         
         @Override
         public int weight() {
-            return Action.FIRST_WEIGHT;
+            return Action.MAX_WEIGHT;
         }
 
         @Override
