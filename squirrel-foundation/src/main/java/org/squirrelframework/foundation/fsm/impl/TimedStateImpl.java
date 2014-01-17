@@ -17,9 +17,9 @@ import com.google.common.collect.Maps;
 public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends StateImpl<T, S, E, C> 
     implements ImmutableTimedState<T, S, E, C>, MutableTimedState<T, S, E, C> {
     
-    private Integer timeInterval;
+    private long timeInterval;
     
-    private Integer initialDelay;
+    private long initialDelay;
     
     private E autoFireEvent;
     
@@ -39,7 +39,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
                     stateMachine.fire(autoFireEvent, autoFireContext);
                 }
             };
-            if(timeInterval==null) {
+            if(timeInterval==0) {
                 scheduler.schedule(scheduledTask, initialDelay, TimeUnit.MILLISECONDS);
             } else {
                 Future<?> future = scheduler.scheduleAtFixedRate(scheduledTask, 
@@ -63,7 +63,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
     private Action<T, S, E, C> firstExitAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
-            if(timeInterval==null) return;
+            if(timeInterval==0) return;
             String key = stateMachine.getIdentifier()+'@'+getStateId();
             Future<?> future = futures.remove(key);
             if(future!=null) {
@@ -89,7 +89,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
     }
 
     @Override
-    public Integer getTimeInterval() {
+    public long getTimeInterval() {
         return timeInterval;
     }
 
@@ -99,7 +99,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
     }
 
     @Override
-    public void setTimeInterval(Integer timeInterval) {
+    public void setTimeInterval(long timeInterval) {
         this.timeInterval = timeInterval;
     }
 
@@ -109,12 +109,12 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
     }
 
     @Override
-    public void setInitialDelay(Integer initialDelay) {
+    public void setInitialDelay(long initialDelay) {
         this.initialDelay = initialDelay;
     }
 
     @Override
-    public Integer getInitialDelay() {
+    public long getInitialDelay() {
         return initialDelay;
     }
 

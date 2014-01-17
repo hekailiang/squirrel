@@ -671,7 +671,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public MutableState<T, S, E, C> defineTimedState(S stateId,
-            Integer initialDelay, Integer timeInterval, E autoEvent, C autoContext) {
+            long initialDelay, long timeInterval, E autoEvent, C autoContext) {
         MutableState<T, S, E, C> state = states.get(stateId);
         if(state==null) {
             MutableTimedState<T, S, E, C> timedState = FSM.newTimedState(stateId);

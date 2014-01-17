@@ -89,8 +89,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @param autoContext
      * @return timed state
      */
-    MutableState<T, S, E, C> defineTimedState(S stateId, Integer initialDelay, 
-            Integer timeInterval, E autoEvent, C autoContext);
+    MutableState<T, S, E, C> defineTimedState(S stateId, long initialDelay, 
+            long timeInterval, E autoEvent, C autoContext);
     
     /**
      * Define sequential child states whose hierarchy type is default set to NONE on parent state
