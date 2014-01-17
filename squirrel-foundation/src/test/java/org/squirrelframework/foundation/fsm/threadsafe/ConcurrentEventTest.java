@@ -23,6 +23,7 @@ import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 
 @RunWith(Parameterized.class)
 public class ConcurrentEventTest {
@@ -365,6 +366,7 @@ public class ConcurrentEventTest {
     }
     
     @Test
+    @SuppressWarnings("unused")
     public void testTimedState() {
         final StringBuilder logger = new StringBuilder();
         // timed state must be defined before transition
@@ -379,8 +381,20 @@ public class ConcurrentEventTest {
                 logger.append("AToBOnFIRST");
             }
         });
+        builder.transition().from("A").to("B").on("SECOND");
         final UntypedStateMachine fsm = builder.newStateMachine("A");
+        fsm.addDeclarativeListener(new Object() {
+            @OnTransitionDecline
+            public void onTransitionDeclined() {
+                Assert.fail();
+            }
+        });
         fsm.start();
+        try {
+            TimeUnit.MILLISECONDS.sleep(50);
+        } catch (InterruptedException e) {
+        }
+        fsm.fire("SECOND");
         try {
             TimeUnit.MILLISECONDS.sleep(50);
         } catch (InterruptedException e) {
