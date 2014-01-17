@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
-import org.squirrelframework.foundation.event.AnsyncEventListener;
+import org.squirrelframework.foundation.event.AsyncEventListener;
 import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.TransitionException;
@@ -43,7 +43,7 @@ import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
-import org.squirrelframework.foundation.fsm.annotation.AnsyncExecute;
+import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
@@ -625,12 +625,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             }
         };
         
-        boolean isAnsync = ReflectUtils.hasAnnotation(listenTarget.getClass(), AnsyncExecute.class);
+        boolean isAnsync = ReflectUtils.hasAnnotation(listenTarget.getClass(), AsyncExecute.class);
         if(isAnsync==false) {
-            isAnsync = listenerMethod.isAnnotationPresent(AnsyncExecute.class);
+            isAnsync = listenerMethod.isAnnotationPresent(AsyncExecute.class);
         }
         Class<?>[] implementedInterfaces = isAnsync ? 
-                new Class<?>[]{listenerInterface, DeclarativeLisener.class, AnsyncEventListener.class} : 
+                new Class<?>[]{listenerInterface, DeclarativeLisener.class, AsyncEventListener.class} : 
                 new Class<?>[]{listenerInterface, DeclarativeLisener.class};
         Object proxyListener = Proxy.newProxyInstance(StateMachine.class.getClassLoader(), 
                 implementedInterfaces, invokationHandler);

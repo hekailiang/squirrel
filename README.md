@@ -175,6 +175,7 @@ A list of state entry actions is defined in above sample code.
     transitFrom[fromStateName]To[toStateName]          
     on[eventName] 
     ```
+    Those method conventions listed above also provided **AOP-like** functionalities, which provided build-in flexible extension capability for squirrel state machine at any granularity.  
     For more information, please refer to test case "*org.squirrelframework.foundation.fsm.ExtensionMethodCallTest*".  
 * **Declarative Annotation**  
 A declarative way is also provided to define and also to extend the state machine. Here is an example.  
@@ -435,9 +436,9 @@ State Machine Lifecycle Events
 ```
 User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
 ```java
-stateMachine.addStateMachineListener(new StateMachineListener<MyStateMachine, MyState, MyEvent, MyContext>() {
+	stateMachine.addStateMachineListener(new StateMachineListener<...>() {
 			@Override
-			public void stateMachineEvent(StateMachineEvent<MyStateMachine, MyState, MyEvent, MyContext> event) {
+			public void stateMachineEvent(StateMachineEvent<...> event) {
 				// ...
 			}
 	});
@@ -476,7 +477,7 @@ Adding above event listener to state machine sometime annoying to user, and too 
         }
     }
     
-	ExtenalModule externalModule = new ExternalModule();
+	ExternalModule externalModule = new ExternalModule();
     fsm.addDeclarativeListener(externalModule);
     ...
     fsm.removeDeclarativeListener(externalModule);
@@ -527,7 +528,42 @@ Another way is override weight method of Action class, e.g.
 }
 ```  
 squirrel-foundation also support a conventional manner to declare action weight. The weight of method call action whose name started with '*before*' will be set to 100, so as the name started with '*after*' will be set to -100. Generally it means that the action method name started with 'before' will be invoked at first, while the action method name started with 'after' will be invoked at last. "method1:ignore" means method1 will not be invoked.  
-For more information, please refer to test case '*org.squirrelframework.foundation.fsm.WeightedActionTest*';
+For more information, please refer to test case '*org.squirrelframework.foundation.fsm.WeightedActionTest*';  
+
+* **Asynchronized Execution**  
+**@AsyncExecute** annotation can be used on method call action and declarative event listener to indicate that this action or event listener will be executed asynchronously, e.g.  
+Define asynchronously invoked action method:
+```java
+	@ContextInsensitive
+	@StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
+	public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
+    	protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
+            Map<Object, ImmutableUntypedState> states) {
+        	super(initialState, states);
+    	}
+    
+    	@AsyncExecute
+    	protected void fromAToB(String from, String to, String event) {
+        	// this action method will be invoked asynchronously
+    	}
+	}
+```  
+Define asynchronously dispatched event:  
+```java
+	public class DeclarativeListener {
+        @OnTransitionBegin
+        @AsyncExecute
+        public void onTransitionBegin(...) {
+            // transition begin event will be dispatched asynchronously to this listener method
+        }
+    }
+```
+Asynchronous execution task will be submit to a *ExecutorService*. User can register your ExecutorService implementation instance through *SquirrelSingletonProvider*, e.g.  
+```java
+	ExecutorService executorService = Executors.newFixedThreadPool(1);
+	SquirrelSingletonProvider.getInstance().register(ExecutorService.class, executorService);
+```
+If no ExecutorService instance was registered, *SquirrelConfiguration* will provide a default one.
 
 * **State Machine PostProcessor**  
 	User can register post processor for specific type of state machine in order to adding post process logic after state machine instantiated, e.g.  
@@ -620,6 +656,20 @@ newStateMachineInstance.loadSavedData(savedData);
 	@LogExecTime
 	protected void transitFromAToBOnGoToB(MyState from, MyState to, MyEvent event, MyContext context)
 	```
+
+* **Timed State**  
+	A **timed state** is a state that can delay or periodically trigger specified event after state entered. Timed task will be submit to a *ScheduledExecutorService*. User can register your ScheduledExecutorService implementation instance through *SquirrelSingletonProvider*, e.g.  
+	```java
+	ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	SquirrelSingletonProvider.getInstance().register(ScheduledExecutorService.class, scheduler);
+	```
+If no ScheduledExecutorService instance was registered, *SquirrelConfiguration* will provide a default one. After that, a timed state can be defined by state machine builder, e.g.  
+	```java  
+	// after 50ms delay fire event "FIRST" every 100ms with null context
+	builder.defineTimedState("A", 50, 100, "FIRST", null);
+    builder.internalTransition().within("A").on("FIRST");	
+	```
+	**NOTE**: Make sure timed state must be defined before describe its transitions or entry/exit actions.
 
 * **Linked State (so called Submachine State)**  
 	A **linked state** specifies the insertion of the specification of a submachine state machine. The state machine that contains the linked state is called the containing state machine. The same state machine may be a submachine more than once in the context of a single containing state machine.  

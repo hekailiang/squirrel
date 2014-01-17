@@ -21,7 +21,7 @@ import org.squirrelframework.foundation.fsm.AnonymousUntypedAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
-import org.squirrelframework.foundation.fsm.annotation.AnsyncExecute;
+import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 
 @RunWith(Parameterized.class)
@@ -302,7 +302,7 @@ public class ConcurrentEventTest {
         class Listener2 {
             MockCallSequence callSequence;
             @OnTransitionBegin
-            @AnsyncExecute
+            @AsyncExecute
             public void onTransitionBegin() {
                 try {
                     l1Condition.await();

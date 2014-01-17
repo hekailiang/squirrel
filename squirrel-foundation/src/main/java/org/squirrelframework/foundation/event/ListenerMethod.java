@@ -19,7 +19,7 @@ public class ListenerMethod {
     
     private boolean hasParameter = false;
     
-    private final boolean isAnsync;
+    private final boolean isAsync;
     
     public ListenerMethod(Class<?> eventType, Object listener, Method method) {
         Preconditions.checkArgument(eventType!=null && listener!=null && method!=null, "Parameters cannot be null.");
@@ -31,7 +31,7 @@ public class ListenerMethod {
         this.eventType = eventType;
         this.target = listener;
         this.method = method;
-        this.isAnsync = AnsyncEventListener.class.isAssignableFrom(listener.getClass());
+        this.isAsync = AsyncEventListener.class.isAssignableFrom(listener.getClass());
         
         final Class<?>[] params = method.getParameterTypes();
         // check parameter type
@@ -47,7 +47,7 @@ public class ListenerMethod {
     public void invokeMethod(final Object event) {
         // Only send events supported by the method
         Preconditions.checkArgument(eventType.isAssignableFrom(event.getClass()));
-        if(isAnsync) {
+        if(isAsync) {
             SquirrelConfiguration.getExecutor().execute(new Runnable() {
                 @Override
                 public void run() {

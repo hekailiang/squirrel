@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})
 @Documented
-public @interface AnsyncExecute {
+public @interface AsyncExecute {
 }
