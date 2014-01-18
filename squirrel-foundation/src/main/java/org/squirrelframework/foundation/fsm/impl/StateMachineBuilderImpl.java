@@ -131,20 +131,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         this.stateConverter = ConverterProvider.INSTANCE.getConverter(this.stateClazz);
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(this.eventClazz);
-        // define context event
-        ContextEvent contextEvent = findAnnotation(ContextEvent.class);
-        if(contextEvent!=null && eventConverter!=null) {
-            if(!contextEvent.startEvent().isEmpty()) {
-                defineStartEvent(eventConverter.convertFromString(contextEvent.startEvent()));
-            }
-            if(!contextEvent.finishEvent().isEmpty()) {
-                defineFinishEvent(eventConverter.convertFromString(contextEvent.finishEvent()));
-            }
-            if(!contextEvent.terminateEvent().isEmpty()) {
-                defineTerminateEvent(eventConverter.convertFromString(contextEvent.terminateEvent()));
-            }
-        }
-        
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
         boolean _isContextInsensitive = isContextInsensitive;
@@ -158,6 +144,25 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.contextInsensitive = _isContextInsensitive;
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
         this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
+        
+        // after initialized builder
+        defineContextEvent();
+    }
+    
+    private void defineContextEvent() {
+        ContextEvent contextEvent = findAnnotation(ContextEvent.class);
+        if(contextEvent!=null) {
+            Preconditions.checkState(eventConverter!=null, "Do not register event converter");
+            if(!contextEvent.startEvent().isEmpty()) {
+                defineStartEvent(eventConverter.convertFromString(contextEvent.startEvent()));
+            }
+            if(!contextEvent.finishEvent().isEmpty()) {
+                defineFinishEvent(eventConverter.convertFromString(contextEvent.finishEvent()));
+            }
+            if(!contextEvent.terminateEvent().isEmpty()) {
+                defineTerminateEvent(eventConverter.convertFromString(contextEvent.terminateEvent()));
+            }
+        }
     }
     
     
@@ -199,7 +204,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private void checkState() {
         if(prepared) {
-            throw new RuntimeException("The state machine builder has been freezed and " +
+            throw new IllegalStateException("The state machine builder has been freezed and " +
             		"cannot be changed anymore.");
         }
     }
@@ -279,20 +284,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private void buildDeclareTransition(Transit transit) {
         if(transit==null) return;
         
-        if(stateConverter==null) {
-        	throw new RuntimeException("Do not register state converter");
-        }
-        
-        if(eventConverter==null) {
-        	throw new RuntimeException("Do not register event converter");
-        }
-        
-        if(!isInstantiableType(transit.when())) {
-            throw new RuntimeException("Condition \'when\' should be concrete class or static inner class.");
-        }
-        if(transit.type()==TransitionType.INTERNAL && !transit.from().equals(transit.to())) {
-            throw new RuntimeException("Internal transiton must transit to the same source state.");
-        }
+        Preconditions.checkState(stateConverter!=null, "Do not register state converter");
+        Preconditions.checkState(eventConverter!=null, "Do not register event converter");
+        Preconditions.checkArgument(isInstantiableType(transit.when()), 
+                "Condition \'when\' should be concrete class or static inner class.");
+        Preconditions.checkArgument(
+                transit.type()!=TransitionType.INTERNAL || transit.from().equals(transit.to()),
+                "Internal transiton must transit to the same source state.");
         
         S fromState = stateConverter.convertFromString(parseStateId(transit.from()));
         Preconditions.checkNotNull(fromState, "Cannot convert state of name \""+fromState+"\".");
@@ -357,10 +355,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private void buidlDeclareState(State state) {
         if(state==null) return;
         
-        if(stateConverter==null) {
-        	throw new RuntimeException("Do not register state converter");
-        }
-        
+        Preconditions.checkState(stateConverter!=null, "Do not register state converter");
         S stateId = stateConverter.convertFromString(state.name());
         Preconditions.checkNotNull(stateId, "Cannot convert state of name \""+state.name()+"\".");
         MutableState<T, S, E, C> newState = defineState(stateId);
@@ -555,7 +550,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             state.addExitAction(new AnonymousAction<T, S, E, C>() {
                 @Override
                 public void execute(S from, S to, E event, C context, T stateMachine) {
-                    throw new RuntimeException("Final state cannot be exited anymore.");
+                    throw new IllegalStateException("Final state cannot be exited anymore.");
                 }
             });
         }
