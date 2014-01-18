@@ -145,7 +145,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
         this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
         
-        // after initialized builder
+        // after initialized state machine builder
         defineContextEvent();
     }
     
@@ -164,7 +164,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             }
         }
     }
-    
     
     private <M extends Annotation> M findAnnotation(final Class<M> annotationClass) {
         final AtomicReference<M> genericsParamteresRef = new AtomicReference<M>();;
@@ -211,21 +210,25 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition() {
+        checkState();
         return externalTransition(TransitionPriority.NORMAL);
     }
     
     @Override
     public ExternalTransitionBuilder<T, S, E, C> transition() {
+        checkState();
         return externalTransition(TransitionPriority.NORMAL);
     }
     
     @Override
     public LocalTransitionBuilder<T, S, E, C> localTransition() {
+        checkState();
         return localTransition(TransitionPriority.NORMAL);
     }
 
 	@Override
     public InternalTransitionBuilder<T, S, E, C> internalTransition() {
+	    checkState();
         return internalTransition(TransitionPriority.NORMAL);
     }
 	
@@ -237,6 +240,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
 	
 	@Override
     public ExternalTransitionBuilder<T, S, E, C> transition(int priority) {
+	    checkState();
         return externalTransition(priority);
     }
     
@@ -641,11 +645,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public MutableState<T, S, E, C> defineState(S stateId) {
+        checkState();
         return FSM.getState(states, stateId);
     }
     
     @Override
     public MutableState<T, S, E, C> defineFinalState(S stateId) {
+        checkState();
     	MutableState<T, S, E, C> newState = defineState(stateId);
     	newState.setFinal(true);
     	return newState;
@@ -655,6 +661,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public MutableState<T, S, E, C> defineLinkedState(S stateId, 
             StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, 
             S initialLinkedState, Object... extraParams) {
+        checkState();
         MutableState<T, S, E, C> state = states.get(stateId);
         if(state==null) {
             MutableLinkedState<T, S, E, C> linkedState = FSM.newLinkedState(stateId);
@@ -668,6 +675,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public MutableState<T, S, E, C> defineTimedState(S stateId,
             long initialDelay, long timeInterval, E autoEvent, C autoContext) {
+        checkState();
         MutableState<T, S, E, C> state = states.get(stateId);
         if(state==null) {
             MutableTimedState<T, S, E, C> timedState = FSM.newTimedState(stateId);
@@ -683,20 +691,24 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public void defineSequentialStatesOn(S parentStateId, S... childStateIds) {
+        checkState();
     	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, HistoryType.NONE, childStateIds);
     }
     
     @Override
     public void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
+        checkState();
     	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, childStateIds);
     }
     
     @Override
     public void defineParallelStatesOn(S parentStateId, S... childStateIds) {
+        checkState();
     	defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, childStateIds);
     }
 
     private void defineChildStatesOn(S parentStateId, StateCompositeType compositeType, HistoryType historyType, S... childStateIds) {
+        checkState();
     	if(childStateIds!=null && childStateIds.length>0) {
     		MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
     		parentState.setCompositeType(compositeType);
@@ -756,16 +768,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
 
     @Override
     public void defineFinishEvent(E finishEvent) {
+        checkState();
         this.finishEvent = finishEvent;
     }
 
     @Override
     public void defineStartEvent(E startEvent) {
+        checkState();
         this.startEvent = startEvent;
     }
 
     @Override
     public void defineTerminateEvent(E terminateEvent) {
+        checkState();
         this.terminateEvent = terminateEvent;
     }
 }

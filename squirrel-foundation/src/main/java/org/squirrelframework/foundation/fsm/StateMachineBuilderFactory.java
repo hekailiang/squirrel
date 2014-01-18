@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -43,11 +44,15 @@ public class StateMachineBuilderFactory {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args)
                             throws Throwable {
-                        if(method.getName().equals("newUntypedStateMachine")) {
-                            Object fsmInstance = builder.newStateMachine(args[0]);
-                            return fsmInstance;
+                        try {
+                            if(method.getName().equals("newUntypedStateMachine")) {
+                                Object fsmInstance = builder.newStateMachine(args[0]);
+                                return fsmInstance;
+                            }
+                            return method.invoke(builder, args);
+                        } catch(InvocationTargetException e) {
+                            throw e.getTargetException();
                         }
-                        return method.invoke(builder, args);
                     }
                 });
     }

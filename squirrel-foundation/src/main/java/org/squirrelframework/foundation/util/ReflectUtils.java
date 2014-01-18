@@ -246,7 +246,8 @@ public class ReflectUtils {
             return constructor.newInstance(args);
 
         } catch (Throwable t) {
-            throw new SquirrelRuntimeException(t, ErrorCodes.CONSTRUCT_NEW_INSTANCE_ERROR, getClassNameSafe(clazz), Arrays.toString(args));
+            Throwable cause = (t instanceof InvocationTargetException) ? ((InvocationTargetException)t).getTargetException() : t;
+            throw new SquirrelRuntimeException(cause, ErrorCodes.CONSTRUCT_NEW_INSTANCE_ERROR, getClassNameSafe(clazz), Arrays.toString(args));
         } finally {
             constructor.setAccessible(oldAccessible);
         }

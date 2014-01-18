@@ -7,7 +7,9 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.exception.TransitionException;
+import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
@@ -59,18 +61,17 @@ public class StateMachineExceptionTest {
     
     @After
     public void teardown() {
-        if(fsm.getStatus()!=StateMachineStatus.TERMINATED)
-            fsm.terminate(null);
     }
     
     @Before
     public void setup() {
-        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample.class);
-        fsm = builder.newUntypedStateMachine("A");
+        fsm = null;
     }
     
     @Test(expected=UnsupportedOperationException.class)
     public void testExceptionFail() throws Throwable {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample.class);
+        fsm = builder.newUntypedStateMachine("A");
         try {
             fsm.fire("ToC");
         } catch(TransitionException e) {
@@ -83,10 +84,76 @@ public class StateMachineExceptionTest {
     
     @Test
     public void testExceptionRecovered() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample.class);
+        fsm = builder.newUntypedStateMachine("A");
         fsm.fire("ToB");
         Assert.assertEquals(fsm.getCurrentState(), "A");
         fsm.fire("ToD");
         Assert.assertEquals(fsm.getCurrentState(), "D");
+        if(fsm.getStatus()!=StateMachineStatus.TERMINATED)
+            fsm.terminate(null);
     }
-
+    
+    @Transitions({
+        @Transit(from="A", to="B", on="ToB", type=TransitionType.INTERNAL)
+    })
+    @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
+    @ContextInsensitive
+    static class StateMachineExceptionSample2 extends AbstractUntypedStateMachine {
+        protected StateMachineExceptionSample2(ImmutableUntypedState initialState,
+                Map<Object, ImmutableUntypedState> states) {
+            super(initialState, states);
+        }
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testInvalidInternalTransition() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample2.class);
+        fsm = builder.newUntypedStateMachine("A");
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testUpdateBuilderAfterPrepared() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample.class);
+        fsm = builder.newUntypedStateMachine("A");
+        builder.defineState("Invalid");
+    }
+    
+    @Test(expected=IllegalArgumentException.class) 
+    public void testUnexitedInitialState() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample.class);
+        fsm = builder.newUntypedStateMachine("NoSuchState");
+    }
+    
+    class MyEvent {}
+    class MyState {}
+    @Transitions({
+        @Transit(from="A", to="B", on="ToB", type=TransitionType.INTERNAL)
+    })
+    @StateMachineParameters(stateType=MyState.class, eventType=MyEvent.class, contextType=Void.class)
+    @ContextInsensitive
+    static class StateMachineExceptionSample3 extends AbstractUntypedStateMachine {
+        protected StateMachineExceptionSample3(ImmutableUntypedState initialState,
+                Map<Object, ImmutableUntypedState> states) {
+            super(initialState, states);
+        }
+    }
+    @Test(expected=IllegalStateException.class) 
+    public void testUnregisterStateConverter() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample3.class);
+        builder.newUntypedStateMachine("A");
+    }
+    
+    @ContextEvent(finishEvent="FINISH")
+    static class StateMachineExceptionSample4 extends StateMachineExceptionSample3 {
+        protected StateMachineExceptionSample4(ImmutableUntypedState initialState,
+                Map<Object, ImmutableUntypedState> states) {
+            super(initialState, states);
+        }
+    }
+    @Test(expected=SquirrelRuntimeException.class) 
+    public void testUnregisterEventConverter() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineExceptionSample4.class);
+        builder.newUntypedStateMachine("A");
+    }
 }
