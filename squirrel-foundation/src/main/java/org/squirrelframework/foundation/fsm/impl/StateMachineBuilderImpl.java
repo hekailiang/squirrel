@@ -142,7 +142,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
         this.contextInsensitive = _isContextInsensitive;
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
-        this.executionContext = new ExecutionContext(scriptManager, methodCallParamTypes);
+        this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
     }
     
     private <M extends Annotation> M findAnnotation(final Class<M> annotationClass) {

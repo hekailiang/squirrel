@@ -41,15 +41,19 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
         this.executionContext = executionContext;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public void execute(S from, S to, E event, C context, T stateMachine) {
         Preconditions.checkNotNull(stateMachine);
-        
+        getDelegator().execute(from, to, event, context, stateMachine);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Action<T, S, E, C> getDelegator() {
         if(delegator==null) {
-            Class<?> stateMachineClazz = stateMachine.getClass();
+            Class<?> stateMachineClazz = executionContext.getExecutionTargetType();
+            Class<?>[] methodParamTypes = executionContext.getMethodCallParamTypes();
             Method method = StateMachineBuilderImpl.findMethodCallActionInternal( 
-                    stateMachineClazz, methodName, executionContext.getMethodCallParamTypes() );
+                    stateMachineClazz, methodName,  methodParamTypes);
             if(method!=null) {
                 delegator = FSM.newMethodCallAction(method, weight, executionContext);
             } else {
@@ -61,7 +65,7 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
                 delegator = (Action<T, S, E, C>)Action.DUMMY_ACTION;
             }
         }
-        delegator.execute(from, to, event, context, stateMachine);
+        return delegator;
     }
 
     @Override
