@@ -128,8 +128,23 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         } else {
             this.contextClazz = contextClazz;
         }
+        
         this.stateConverter = ConverterProvider.INSTANCE.getConverter(this.stateClazz);
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(this.eventClazz);
+        // define context event
+        ContextEvent contextEvent = findAnnotation(ContextEvent.class);
+        if(contextEvent!=null && eventConverter!=null) {
+            if(!contextEvent.startEvent().isEmpty()) {
+                defineStartEvent(eventConverter.convertFromString(contextEvent.startEvent()));
+            }
+            if(!contextEvent.finishEvent().isEmpty()) {
+                defineFinishEvent(eventConverter.convertFromString(contextEvent.finishEvent()));
+            }
+            if(!contextEvent.terminateEvent().isEmpty()) {
+                defineTerminateEvent(eventConverter.convertFromString(contextEvent.terminateEvent()));
+            }
+        }
+        
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
         boolean _isContextInsensitive = isContextInsensitive;
@@ -145,9 +160,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
     }
     
+    
     private <M extends Annotation> M findAnnotation(final Class<M> annotationClass) {
         final AtomicReference<M> genericsParamteresRef = new AtomicReference<M>();;
-        install(new Function<Class<?>, Boolean>() {
+        walkThroughStateMachineClass(new Function<Class<?>, Boolean>() {
             @Override
             public Boolean apply(Class<?> input) {
                 M anno = input.getAnnotation(annotationClass);
@@ -389,7 +405,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
-    private void install(Function<Class<?>, Boolean> func) {
+    private void walkThroughStateMachineClass(Function<Class<?>, Boolean> func) {
         Stack<Class<?>> stack = new Stack<Class<?>>();
         stack.push(stateMachineImplClazz);
         while(!stack.isEmpty()) {
@@ -414,9 +430,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private synchronized void prepare() {
         if(prepared) return;
         // 1. install all the declare states, states must be installed before installing transition and extension methods
-        install(new DeclareStateFunction());
+        walkThroughStateMachineClass(new DeclareStateFunction());
         // 2. install all the declare transitions
-        install(new DeclareTransitionFunction());
+        walkThroughStateMachineClass(new DeclareTransitionFunction());
         // 3. install all the extension method call when state machine builder freeze
         installExtensionMethods();
         // 4. prioritize transitions
@@ -427,24 +443,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         verifyStateMachineDefinition();
         // 7. proxy untyped states
         proxyUntypedStates();
-        // 8. define context event, like start, finish, terminate event
-        defineContextEvent();
         prepared = true;
-    }
-    
-    private void defineContextEvent() {
-        ContextEvent contextEvent = findAnnotation(ContextEvent.class);
-        if(contextEvent!=null && eventConverter!=null) {
-            if(!contextEvent.startEvent().isEmpty()) {
-                defineStartEvent(eventConverter.convertFromString(contextEvent.startEvent()));
-            }
-            if(!contextEvent.finishEvent().isEmpty()) {
-                defineFinishEvent(eventConverter.convertFromString(contextEvent.finishEvent()));
-            }
-            if(!contextEvent.terminateEvent().isEmpty()) {
-                defineTerminateEvent(eventConverter.convertFromString(contextEvent.terminateEvent()));
-            }
-        }
     }
     
     @SuppressWarnings("unchecked")
@@ -609,13 +608,15 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         Object[] parameters = new Object[extraParams.length+2];
         parameters[0] = states.get(initialStateId);
         if(parameters[0] == null) {
-            throw new RuntimeException(getClass()+" cannot find Initial state \'"+initialStateId+"\' in state machine.");
+            throw new IllegalArgumentException(getClass()+" cannot find Initial state \'"+ 
+                    initialStateId+"\' in state machine.");
         }
         parameters[1] = states;
         if(extraParams!=null) {
             System.arraycopy(extraParams, 0, parameters, 2, extraParams.length);
         }
-        T stateMachine = postProcessStateMachine((Class<T>)stateMachineImplClazz, ReflectUtils.newInstance(contructor, parameters));
+        T stateMachine = postProcessStateMachine((Class<T>)stateMachineImplClazz, 
+                ReflectUtils.newInstance(contructor, parameters));
         
         AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
         stateMachineImpl.setStartEvent(startEvent);
