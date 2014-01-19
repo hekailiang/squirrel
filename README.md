@@ -17,7 +17,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.4</version>
+  	<version>0.2.5</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.5-SNAPSHOT</version>
+  	<version>0.2.6-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -475,6 +475,17 @@ Adding above event listener to state machine sometime annoying to user, and too 
         public void transitionDeclined(String from, TestEvent event, Integer context) {
             // method annotated with TransitionDecline will be invoked when transition declined...
         }
+        
+		@OnAfterActionExecuted
+    	public void onAfterActionExecuted(Object sourceState, Object targetState, 
+            	Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
+        	// method annotated with OnAfterActionExecuted will be invoked before action invoked
+    	}
+    
+    	@OnActionExecException
+    	public void onActionExecException(Action<?, ?, ?,?> action, TransitionException e) {
+        	// method annotated with OnActionExecException will be invoked after action invoked
+    	}
     }
     
 	ExternalModule externalModule = new ExternalModule();
@@ -720,6 +731,15 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ```  
 
 ## Release Notes  
+*Version 0.2.5 - 2014-1-19*  
+1. Support asynchronized method call execution  
+2. Support asynchronized declarative event dispatch  
+3. Support timed state  
+4. Allow to log per action method call execution time  
+5. Add Before/After action executed event listener(@OnBeforeActionExecuted/@OnAfterActionExecuted)  
+6. **Deprecate** OnActionExecute annotation  
+7. **Deprecate** UntypedStateMachineBuilder.newUntypedStateMachine(Object, Class<T>) method  
+
 *Version 0.2.4 - 2014-1-16*  
 1. **Breaking Change**: Fix a typo StateMachineParamters -> StateMachineParameters  
 
