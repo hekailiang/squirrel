@@ -158,7 +158,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         
         @Override
         public Action<T, S, E, C> getExecutionTarget() {
-            return executionContext.action;
+            // user can only read action info but cannot invoke action in the listener method
+            return new UncallableActionImpl<T, S, E, C>(executionContext.action);
         }
 
         @Override
