@@ -50,16 +50,28 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine);
 	
 	/**
-	 * Add action execution listener which can be used for monitoring execution
+	 * Add before action execution listener which can be used for monitoring execution
 	 * @param listener action execution listener
 	 */
-	void addExecActionListener(ExecActionListener<T, S, E, C> listener);
+	void addExecActionListener(BeforeExecActionListener<T, S, E, C> listener);
 	
 	/**
-	 * Remove action execution listener
+	 * Remove before action execution listener
 	 * @param listener action execution listener
 	 */
-	void removeExecActionListener(ExecActionListener<T, S, E, C> listener);
+	void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener);
+	
+	/**
+     * Add after action execution listener which can be used for monitoring execution
+     * @param listener action execution listener
+     */
+    void addExecActionListener(AfterExecActionListener<T, S, E, C> listener);
+    
+    /**
+     * Remove after action execution listener
+     * @param listener action execution listener
+     */
+    void removeExecActionListener(AfterExecActionListener<T, S, E, C> listener);
 	
 	/**
      * Add action execution exception listener which can be used for monitoring execution
@@ -86,17 +98,29 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 		int[] getMOfN();
 	}
 	
-	public interface ExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {}
+	public interface BeforeExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {}
 	
 	/**
-	 * Action execution listener
+	 * Before Action execution listener
 	 */
-	public interface ExecActionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+	public interface BeforeExecActionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
 	    public static final String METHOD_NAME = "beforeExecute";
 	    public static final Method METHOD = ReflectUtils.getMethod(
-	            ExecActionListener.class, METHOD_NAME, new Class<?>[]{ExecActionEvent.class});
-		void beforeExecute(ExecActionEvent<T, S, E, C> event);
+	            BeforeExecActionListener.class, METHOD_NAME, new Class<?>[]{BeforeExecActionEvent.class});
+		void beforeExecute(BeforeExecActionEvent<T, S, E, C> event);
 	}
+	
+	public interface AfterExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {}
+    
+    /**
+     * After Action execution listener
+     */
+    public interface AfterExecActionListener<T extends StateMachine<T, S, E, C>, S, E, C> {
+        public static final String METHOD_NAME = "afterExecute";
+        public static final Method METHOD = ReflectUtils.getMethod(
+                AfterExecActionListener.class, METHOD_NAME, new Class<?>[]{AfterExecActionEvent.class});
+        void afterExecute(AfterExecActionEvent<T, S, E, C> event);
+    }
 	
 	public interface ExecActionExceptionEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends ActionEvent<T, S, E, C> {
 	    TransitionException getException();

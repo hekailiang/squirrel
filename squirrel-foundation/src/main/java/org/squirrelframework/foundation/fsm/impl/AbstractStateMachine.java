@@ -28,10 +28,12 @@ import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ActionEvent;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.AfterExecActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.AfterExecActionListener;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.BeforeExecActionEvent;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.BeforeExecActionListener;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionEvent;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionListener;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionListener;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
@@ -46,6 +48,8 @@ import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
+import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
+import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
 import org.squirrelframework.foundation.fsm.annotation.OnStateMachineTerminate;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
@@ -779,8 +783,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return ReflectUtils.invoke(listenerMethod, listenTarget, parameterValues.toArray());
     }
     
-    private void registerDeclarativeListener(final Object listenerMethodProvider, Method listenerMethod, Observable listenTarget,
-            Class<? extends Annotation> annotationClass, Class<?> listenerClass, Class<?> eventClass) {
+    private void registerDeclarativeListener(final Object listenerMethodProvider, Method listenerMethod, 
+            Observable listenTarget, Class<? extends Annotation> annotationClass, Class<?> listenerClass, 
+            Class<?> eventClass) {
         Annotation anno = listenerMethod.getAnnotation(annotationClass);
         if(anno!=null) {
             Method whenMethod = ReflectUtils.getMethod(anno.getClass(), "when", new Class[0]);
@@ -791,7 +796,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             Field methodField = ReflectUtils.getField(listenerClass, "METHOD");
             if(methodField!=null && Modifier.isStatic(methodField.getModifiers())) {
                 Method method = (Method)ReflectUtils.getStatic(methodField);
-                Object proxyListener = newListenerMethodProxy(listenerMethodProvider, listenerMethod, listenerClass, whenCondition);
+                Object proxyListener = newListenerMethodProxy(listenerMethodProvider, 
+                        listenerMethod, listenerClass, whenCondition);
                 listenTarget.addListener(eventClass, proxyListener, method);
             } else {
                 logger.info("Cannot find static field named 'METHOD' on listener class '"+listenerClass+"'.");
@@ -810,7 +816,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     };
     
     private static final Class<?>[][] actionExecutorListenerMapping = {
-        {OnActionExecute.class,         ExecActionListener.class,           ExecActionEvent.class},
+        {OnActionExecute.class,         BeforeExecActionListener.class,     BeforeExecActionEvent.class},
+        {OnBeforeActionExecuted.class,  BeforeExecActionListener.class,     BeforeExecActionEvent.class},
+        {OnAfterActionExecuted.class,   AfterExecActionListener.class,      AfterExecActionEvent.class},
         {OnActionExecException.class,   ExecActionExceptionListener.class,  ExecActionExceptionEvent.class},
     };
     
@@ -985,12 +993,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    public void addExecActionListener(ExecActionListener<T, S, E, C> listener) {
+    public void addExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
     	executor.addExecActionListener(listener);
     }
 	
     @Override
-	public void removeExecActionListener(ExecActionListener<T, S, E, C> listener) {
+	public void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
 		executor.removeExecActionListener(listener);
 	}
     

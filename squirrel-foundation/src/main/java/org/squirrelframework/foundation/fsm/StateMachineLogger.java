@@ -4,7 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
-import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
+import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
+import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
 import org.squirrelframework.foundation.fsm.annotation.OnStateMachineTerminate;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
@@ -18,7 +19,9 @@ public class StateMachineLogger {
     
     private static final Logger logger = LoggerFactory.getLogger(StateMachineLogger.class);
 	
-	private Stopwatch sw;
+	private Stopwatch transitionWatch;
+	
+	private Stopwatch actionWatch;
 	
 	private final StateMachine<?,?,?,?> stateMachine;
 	
@@ -50,8 +53,8 @@ public class StateMachineLogger {
 	
     @OnTransitionBegin
     public void onTransitionBegin(Object sourceState, Object event, Object context) {
-        sw = new Stopwatch();
-        sw.start();
+        transitionWatch = new Stopwatch();
+        transitionWatch.start();
         logger.info(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" on \"" + event + "\" with context \""+context+"\" begin.");
     }
@@ -60,7 +63,7 @@ public class StateMachineLogger {
     public void onTransitionComplete(Object sourceState, Object targetState, Object event, Object context) {
         logger.info(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" to \"" + targetState + "\" on \"" + event
-                + "\" complete which took " + sw.elapsedMillis() + "ms.");
+                + "\" complete which took " + transitionWatch.elapsedMillis() + "ms.");
     }
     
     @OnTransitionDecline
@@ -75,10 +78,18 @@ public class StateMachineLogger {
                 "\" to \"" + targetState + "\" on \"" + event + "\" caused exception.", expcetion);
     }
     
-    @OnActionExecute
-    public void onActionExecute(Object sourceState, Object targetState, 
+    @OnBeforeActionExecuted
+    public void onBeforeActionExecuted(Object sourceState, Object targetState, 
             Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
+        actionWatch = new Stopwatch();
+        actionWatch.start();
         logger.info("Before execute method call action \""+action.name()+":"+action.weight()+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
+    }
+    
+    @OnAfterActionExecuted
+    public void onAfterActionExecuted(Object sourceState, Object targetState, 
+            Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
+        logger.info("After execute method call action \""+action.name()+":"+action.weight()+"\" which took "+actionWatch.elapsedMillis()+" ms.");
     }
     
     @OnActionExecException

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
@@ -16,6 +18,8 @@ import com.google.common.base.Preconditions;
 
 public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> 
     extends AbstractSubject implements ActionExecutionService<T, S, E, C> {
+    
+    private static final Logger logger = LoggerFactory.getLogger(AbstractExecutionService.class);
 
     protected final Stack<List<ActionContext<T, S, E, C>>> stack = new Stack<List<ActionContext<T, S, E, C>>>();
     
@@ -35,14 +39,14 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     @Override
     public void execute() {
+        if(dummyExecution) return;
+        
         List<ActionContext<T, S, E, C>> actionContexts = stack.pop();
         for (int i=0, size=actionContexts.size(); i<size; ++i) {
-            if(!dummyExecution) {
-                ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
-                if(actionContext.action.weight()==Action.IGNORE_WEIGHT) 
-                    continue;
+            ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
+            if(actionContext.action.weight()!=Action.IGNORE_WEIGHT) {
                 try {
-                    fireEvent(ExecActionEventImpl.get(i+1, size, actionContext));
+                    fireEvent(BeforeExecActionEventImpl.get(i+1, size, actionContext));
                     actionContext.run();
                 } catch (Exception e) {
                     Throwable t = (e instanceof SquirrelRuntimeException) ?
@@ -53,19 +57,33 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                             actionContext.context, actionContext.action.name(), e.getMessage()});
                     fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, i+1, size, actionContext));
                     throw te;
-                } 
+                } finally {
+                    fireEvent(AfterExecActionEventImpl.get(i+1, size, actionContext));
+                }
+            } else {
+                logger.info("Method call action \""+actionContext.action.name()+"\" ("+(i+1)+" of "+size+") was ignored.");
             }
         }
     }
     
     @Override
-    public void addExecActionListener(ExecActionListener<T, S, E, C> listener) {
-        addListener(ExecActionEvent.class, listener, ExecActionListener.METHOD);
+    public void addExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
+        addListener(BeforeExecActionEvent.class, listener, BeforeExecActionListener.METHOD);
     }
     
     @Override
-    public void removeExecActionListener(ExecActionListener<T, S, E, C> listener) {
-        removeListener(ExecActionEvent.class, listener);
+    public void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
+        removeListener(BeforeExecActionEvent.class, listener);
+    }
+    
+    @Override
+    public void addExecActionListener(AfterExecActionListener<T, S, E, C> listener) {
+        addListener(AfterExecActionListener.class, listener, AfterExecActionListener.METHOD);
+    }
+    
+    @Override
+    public void removeExecActionListener(AfterExecActionListener<T, S, E, C> listener) {
+        removeListener(AfterExecActionListener.class, listener);
     }
     
     @Override
@@ -100,20 +118,34 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         
     }
     
-    static class ExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-        extends AbstractExecActionEvent<T, S, E, C> implements ExecActionEvent<T, S, E, C> {
+    static class BeforeExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
+            extends AbstractExecActionEvent<T, S, E, C> implements BeforeExecActionEvent<T, S, E, C> {
         
-        ExecActionEventImpl(int pos, int size, ActionContext<T, S, E, C> actionContext) {
+        BeforeExecActionEventImpl(int pos, int size, ActionContext<T, S, E, C> actionContext) {
             super(pos, size, actionContext);
         }
 
-        static <T extends StateMachine<T, S, E, C>, S, E, C> ExecActionEvent<T, S, E, C> get(
+        static <T extends StateMachine<T, S, E, C>, S, E, C> BeforeExecActionEvent<T, S, E, C> get(
                 int pos, int size, ActionContext<T, S, E, C> actionContext) {
-            return new ExecActionEventImpl<T, S, E, C>(pos, size, actionContext);
+            return new BeforeExecActionEventImpl<T, S, E, C>(pos, size, actionContext);
         }
     }
     
-    static abstract class AbstractExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> implements ActionEvent<T, S, E, C> {
+    static class AfterExecActionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C>
+            extends AbstractExecActionEvent<T, S, E, C> implements AfterExecActionEvent<T, S, E, C> {
+
+        AfterExecActionEventImpl(int pos, int size, ActionContext<T, S, E, C> actionContext) {
+            super(pos, size, actionContext);
+        }
+
+        static <T extends StateMachine<T, S, E, C>, S, E, C> AfterExecActionEvent<T, S, E, C> get(
+                int pos, int size, ActionContext<T, S, E, C> actionContext) {
+            return new AfterExecActionEventImpl<T, S, E, C>(pos, size, actionContext);
+        }
+    }
+    
+    static abstract class AbstractExecActionEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
+            implements ActionEvent<T, S, E, C> {
         private ActionContext<T, S, E, C> executionContext;
         private int pos;
         private int size;

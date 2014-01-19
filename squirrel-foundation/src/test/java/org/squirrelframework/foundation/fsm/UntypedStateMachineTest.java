@@ -21,6 +21,7 @@ import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEvent;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
+import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
@@ -158,6 +159,7 @@ public class UntypedStateMachineTest {
         final AtomicInteger tdCallTimes = new AtomicInteger(0);
         final AtomicInteger tcCallTimesCausedByToD = new AtomicInteger(0);
         final AtomicInteger adCallTimes = new AtomicInteger(0);
+        final AtomicInteger acCallTimes = new AtomicInteger(0);
         
         @OnTransitionEnd
         @OnTransitionComplete
@@ -204,6 +206,11 @@ public class UntypedStateMachineTest {
             Assert.assertTrue(mOfn[1]==2);
             adCallTimes.incrementAndGet();
         }
+        
+        @OnAfterActionExecuted
+        public void afterTransitionAction(String from, String to, TestEvent event, Integer context, int[] mOfn) {
+            acCallTimes.incrementAndGet();
+        }
     }
     
     @Test
@@ -211,7 +218,7 @@ public class UntypedStateMachineTest {
         TestListenTarget listenTarget = new TestListenTarget();
         fsm.addDeclarativeListener(listenTarget);
         Assert.assertTrue(fsm.getListenerSize()==7);
-        Assert.assertTrue(fsm.getExecutorListenerSize()==1);
+        Assert.assertTrue(fsm.getExecutorListenerSize()==2);
         // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
         // TransitionBegin, TransitionDeclined, TransitionEnd
@@ -221,6 +228,7 @@ public class UntypedStateMachineTest {
         Assert.assertTrue(listenTarget.tcCallTimes.get()==1);
         Assert.assertTrue(listenTarget.tdCallTimes.get()==1);
         Assert.assertTrue(listenTarget.adCallTimes.get()==2);
+        Assert.assertTrue(listenTarget.acCallTimes.get()==2);
         Assert.assertTrue(listenTarget.tcCallTimesCausedByToD.get()==0);
         
         fsm.removeDeclarativeListener(listenTarget);
@@ -234,7 +242,7 @@ public class UntypedStateMachineTest {
         fsm.addDeclarativeListener(listenTarget);
         fsm.addDeclarativeListener(listenTarget);
         Assert.assertTrue(fsm.getListenerSize()==14);           // double called
-        Assert.assertTrue(fsm.getExecutorListenerSize()==2);    // double called
+        Assert.assertTrue(fsm.getExecutorListenerSize()==4);    // double called
     }
     
     @Transitions({

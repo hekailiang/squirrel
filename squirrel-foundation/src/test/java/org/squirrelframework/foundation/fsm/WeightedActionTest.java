@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,6 +111,9 @@ public class WeightedActionTest {
         }
         
         protected void goEntryD(String from, String to, String event) {
+            for(int i=0; i<10000; ++i) {
+                RandomStringUtils.randomAlphabetic(10);
+            }
             logger.append("goEntryD");
         }
         
