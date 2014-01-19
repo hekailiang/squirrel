@@ -476,15 +476,21 @@ Adding above event listener to state machine sometime annoying to user, and too 
             // method annotated with TransitionDecline will be invoked when transition declined...
         }
         
+		@OnBeforeActionExecuted
+    	public void onBeforeActionExecuted(Object sourceState, Object targetState, 
+            	Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
+            // method annotated with OnAfterActionExecuted will be invoked before action invoked  
+        }
+        
 		@OnAfterActionExecuted
     	public void onAfterActionExecuted(Object sourceState, Object targetState, 
             	Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-        	// method annotated with OnAfterActionExecuted will be invoked before action invoked
+        	// method annotated with OnAfterActionExecuted will be invoked after action invoked  
     	}
     
     	@OnActionExecException
     	public void onActionExecException(Action<?, ?, ?,?> action, TransitionException e) {
-        	// method annotated with OnActionExecException will be invoked after action invoked
+        	// method annotated with OnActionExecException will be invoked when action thrown exception  
     	}
     }
     
