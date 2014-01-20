@@ -142,8 +142,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          */
         Collection<S> linkedStates();
 
-        Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(
-                S linkedState);
+        Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
     }
 
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {

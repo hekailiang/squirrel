@@ -300,8 +300,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     @Override
-    public void linkedStateDataOn(
-            S linkedState,
+    public void linkedStateDataOn(S linkedState,
             StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData) {
         getLinkedStateData().put(linkedState, linkStateData);
     }

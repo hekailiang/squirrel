@@ -208,8 +208,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         queuedEvents.add(new Pair<E, C>(event, context));
         processEvents();
         
-        if(autoTerminate && getCurrentRawState().isRootState() 
-                && getCurrentRawState().isFinalState()) {
+        ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
+        if(autoTerminate && rawState.isRootState() && rawState.isFinalState()) {
             terminate(context);
         }
     }
@@ -278,14 +278,26 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     protected void afterActionInvoked(S fromState, S toState, E event, C context) {
     }
     
+    private ImmutableState<T, S, E, C> resolveRawState(ImmutableState<T, S, E, C> rawState) {
+        ImmutableState<T, S, E, C> resolvedRawState = rawState;
+        if(resolvedRawState instanceof ImmutableLinkedState) {
+            @SuppressWarnings("unchecked")
+            T linkedStateMachine = (T) ((ImmutableLinkedState<T, S, E, C>)rawState).getLinkedStateMachine();
+            resolvedRawState = linkedStateMachine.getCurrentRawState();
+        }
+        return resolvedRawState;
+    }
+    
     @Override
     public ImmutableState<T, S, E, C> getCurrentRawState() {
-        return getRawStateFrom(getCurrentState());
+        ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
+        return resolveRawState(rawState);
     }
     
     @Override
     public ImmutableState<T, S, E, C> getLastRawState() {
-        return getRawStateFrom(getLastState());
+        ImmutableState<T, S, E, C> lastRawState = data.read().lastRawState();
+        return resolveRawState(lastRawState);
     }
     
     @Override
@@ -308,11 +320,21 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return data.read().states();
     }
     
+    private S resolveState(S state) {
+        S resolvedState = state;
+        ImmutableState<T, S, E, C> rawState = data.read().rawStateFrom(resolvedState);
+        if(rawState instanceof ImmutableLinkedState) {
+            ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
+            resolvedState = linkedRawState.getLinkedStateMachine().getCurrentState();
+        }
+        return resolvedState;
+    }
+    
     @Override
     public S getCurrentState() {
         processingLock.lock();
         try {
-            return data.read().currentState();
+            return resolveState(data.read().currentState());
         } finally {
             processingLock.unlock();
         }
@@ -322,7 +344,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public S getLastState() {
         processingLock.lock();
         try {
-            return data.read().lastState();
+            return resolveState(data.read().lastState());
         } finally {
             processingLock.unlock();
         }
