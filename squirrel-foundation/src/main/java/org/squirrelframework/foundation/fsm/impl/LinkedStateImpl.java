@@ -3,6 +3,7 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
@@ -11,7 +12,10 @@ import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
+import org.squirrelframework.foundation.fsm.StateMachineProvider;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
+
+import com.google.common.collect.Maps;
 
 class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends StateImpl<T, S, E, C> 
     implements ImmutableLinkedState<T, S, E, C>, MutableLinkedState<T, S, E, C> {
@@ -30,11 +34,16 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
         }
     }
     
-    private StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine;
+    private StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider;
+    
+    private Map<String, StateMachine<? extends StateMachine<?, S, E, C>, S, E, C>> 
+        linkedStateMachineInstances = Maps.newConcurrentMap();
     
     private Action<T, S, E, C> lastEntryAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
+            StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine = 
+                    getLinkedStateMachine(stateMachine);
             linkedStateMachine.start(context);
         }
 
@@ -47,7 +56,11 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     private Action<T, S, E, C> firstExitAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
-            linkedStateMachine.terminate(context);
+            StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine =
+                    linkedStateMachineInstances.remove(getKey(stateMachine));
+            if(linkedStateMachine!=null) {
+                linkedStateMachine.terminate(context);
+            }
         }
 
         @Override
@@ -61,14 +74,17 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     }
 
     @Override
-    public void setLinkedStateMachine(StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine) {
-        this.linkedStateMachine = linkedStateMachine;
+    public void setLinkedStateMachineProvider(
+            StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider) {
+        this.provider = provider;
     }
     
     @SuppressWarnings({ "unchecked", "rawtypes" }) // TODO-hhe: check type safety
     @Override
     public void internalFire(StateContext<T, S, E, C> stateContext) {
-        if(linkedStateMachine.getStatus()==StateMachineStatus.TERMINATED) {
+        StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> stateMachine = 
+                linkedStateMachineInstances.get(getKey(stateContext.getStateMachine().getThis()));
+        if(stateMachine.getStatus()==StateMachineStatus.TERMINATED) {
             // if linked state machine entered its final state, then outside state will process event, 
             super.internalFire(stateContext);
         } else {
@@ -76,18 +92,25 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
             // to outside state when event was declined by linked state machine.
             DeclineEventHandler declinedEventHandler = new DeclineEventHandler(stateContext);
             // add declined event listener
-            linkedStateMachine.addTransitionDeclinedListener(declinedEventHandler);
+            stateMachine.addTransitionDeclinedListener(declinedEventHandler);
             
             // delegate the event to linked state machine process
-            linkedStateMachine.fire(stateContext.getEvent(), stateContext.getContext());
+            stateMachine.fire(stateContext.getEvent(), stateContext.getContext());
             
             // remove declined event listener
-            linkedStateMachine.removeTransitionDecleindListener(declinedEventHandler);
+            stateMachine.removeTransitionDecleindListener(declinedEventHandler);
         }
     }
 
     @Override
-    public StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> getLinkedStateMachine() {
+    public StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> getLinkedStateMachine(T stateMachine) {
+        String key = getKey(stateMachine);
+        StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine = 
+                linkedStateMachineInstances.get(key);
+        if(linkedStateMachine==null) {
+            linkedStateMachine = provider.get();
+            linkedStateMachineInstances.put(key, linkedStateMachine);
+        }
         return linkedStateMachine;
     }
     
@@ -109,8 +132,8 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     
     @Override
     public void verify() {
-        if(linkedStateMachine==null) {
-            throw new RuntimeException("Linked state machine cannot be null.");
+        if(provider==null) {
+            throw new RuntimeException("Linked state machine provider cannot be null.");
         }
         
         if(isParallelState() || hasChildStates()) {

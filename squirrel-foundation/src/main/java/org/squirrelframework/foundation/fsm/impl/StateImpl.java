@@ -581,4 +581,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     public ImmutableState<T, S, E, C> getThis() {
         return this;
     }
+    
+    protected String getKey(T stateMachine) {
+        return stateMachine.getIdentifier()+'@'+getStateId();
+    }
 }

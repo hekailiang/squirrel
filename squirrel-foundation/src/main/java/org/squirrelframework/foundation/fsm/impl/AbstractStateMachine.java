@@ -282,7 +282,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         ImmutableState<T, S, E, C> resolvedRawState = rawState;
         if(resolvedRawState instanceof ImmutableLinkedState) {
             @SuppressWarnings("unchecked")
-            T linkedStateMachine = (T) ((ImmutableLinkedState<T, S, E, C>)rawState).getLinkedStateMachine();
+            T linkedStateMachine = (T) ((ImmutableLinkedState<T, S, E, C>)rawState).
+                getLinkedStateMachine(getThis());
             resolvedRawState = linkedStateMachine.getCurrentRawState();
         }
         return resolvedRawState;
@@ -325,7 +326,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         ImmutableState<T, S, E, C> rawState = data.read().rawStateFrom(resolvedState);
         if(rawState instanceof ImmutableLinkedState) {
             ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
-            resolvedState = linkedRawState.getLinkedStateMachine().getCurrentState();
+            resolvedState = linkedRawState.getLinkedStateMachine(getThis()).getCurrentState();
         }
         return resolvedState;
     }
@@ -564,7 +565,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(rawState!=null && rawState instanceof ImmutableLinkedState) {
             ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
             StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkStateData = 
-                    linkedRawState.getLinkedStateMachine().dumpSavedData();
+                    linkedRawState.getLinkedStateMachine(getThis()).dumpSavedData();
             target.linkedStateDataOn(rawState.getStateId(), linkStateData);
         }
     }
@@ -582,7 +583,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     ImmutableState<T, S, E, C> rawState = data.read().rawStateFrom(linkedState);
                     if(linkedStateData!=null && rawState instanceof ImmutableLinkedState) {
                         ImmutableLinkedState<T, S, E, C> linkedRawState = (ImmutableLinkedState<T, S, E, C>)rawState;
-                        linkedRawState.getLinkedStateMachine().loadSavedData(linkedStateData);
+                        linkedRawState.getLinkedStateMachine(getThis()).loadSavedData(linkedStateData);
                     }
                 }
                 setStatus(StateMachineStatus.IDLE);

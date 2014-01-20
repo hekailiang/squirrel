@@ -23,5 +23,5 @@ public interface ImmutableLinkedState<T extends StateMachine<T, S, E, C>, S, E, 
     /**
      * @return linked state machine
      */
-    StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> getLinkedStateMachine();
+    StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> getLinkedStateMachine(T stateMachine);
 }

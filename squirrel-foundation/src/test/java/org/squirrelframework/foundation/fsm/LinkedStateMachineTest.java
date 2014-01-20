@@ -234,9 +234,11 @@ public class LinkedStateMachineTest {
     }
 
     TestStateMachine stateMachine;
+    
+    TestStateMachine stateMachine2;
 
     StringBuilder logger;
-
+    
     @Before
     public void setup() {
         logger = new StringBuilder();
@@ -252,14 +254,21 @@ public class LinkedStateMachineTest {
         builderOfTestStateMachine.defineLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1, logger);
         builderOfTestStateMachine.defineLinkedState(LState.C, builderOfLinkedStateMachine, LState.A2, logger);
         stateMachine = builderOfTestStateMachine.newStateMachine(LState.A, logger);
+        stateMachine2 = builderOfTestStateMachine.newStateMachine(LState.A, logger);
     }
 
     @Test
     public void testInitialLinkedState() {
+        doTestInitialLinkedState(stateMachine, logger);
+        logger.append("|");
+        doTestInitialLinkedState(stateMachine2, logger);
+        assertThat(logger.toString(), equalTo("start1.enterA.start2.enterA1|start1.enterA.start2.enterA1"));
+    }
+    
+    private void doTestInitialLinkedState(TestStateMachine stateMachine, StringBuilder logger) {
         stateMachine.start(0);
         assertThat(stateMachine.getCurrentState(), equalTo(LState.A1));
         assertThat(stateMachine.getCurrentRawState().getStateId(), equalTo(LState.A1));
-        assertThat(logger.toString(), equalTo("start1.enterA.start2.enterA1"));
     }
 
     @Test
@@ -329,6 +338,7 @@ public class LinkedStateMachineTest {
                 input.close();
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             Assert.fail();
         } 
 

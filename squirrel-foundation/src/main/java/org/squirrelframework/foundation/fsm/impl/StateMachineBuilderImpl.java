@@ -36,6 +36,7 @@ import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineProvider;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
@@ -665,7 +666,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         MutableState<T, S, E, C> state = states.get(stateId);
         if(state==null) {
             MutableLinkedState<T, S, E, C> linkedState = FSM.newLinkedState(stateId);
-            linkedState.setLinkedStateMachine(linkedStateMachineBuilder.newStateMachine(initialLinkedState, extraParams));
+            @SuppressWarnings({ "unchecked", "rawtypes" }) // TODO-hhe: type safty
+            StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider = 
+                    new StateMachineProvider(linkedStateMachineBuilder, initialLinkedState, extraParams);
+            linkedState.setLinkedStateMachineProvider(provider);
             states.put(stateId, linkedState);
             state = linkedState;
         }

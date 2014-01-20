@@ -13,8 +13,9 @@ package org.squirrelframework.foundation.fsm;
 public interface MutableLinkedState<T extends StateMachine<T, S, E, C>, S, E, C> extends MutableState<T, S, E, C> {
     
     /**
-     * Set linked state machine
-     * @param linkedStateMachine linked state machine
+     * Set linked state machine provider
+     * @param provider linked state machine provider
      */
-    void setLinkedStateMachine(StateMachine<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachine);
+    void setLinkedStateMachineProvider(
+            StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider);
 }

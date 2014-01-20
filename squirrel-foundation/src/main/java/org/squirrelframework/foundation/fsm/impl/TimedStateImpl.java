@@ -44,8 +44,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
             } else {
                 Future<?> future = scheduler.scheduleAtFixedRate(scheduledTask, 
                         initialDelay, timeInterval, TimeUnit.MILLISECONDS);
-                String key = stateMachine.getIdentifier()+'@'+getStateId();
-                futures.put(key, future);
+                futures.put(getKey(stateMachine), future);
             }
         }
         
@@ -64,8 +63,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
             if(timeInterval==0) return;
-            String key = stateMachine.getIdentifier()+'@'+getStateId();
-            Future<?> future = futures.remove(key);
+            Future<?> future = futures.remove(getKey(stateMachine));
             if(future!=null) {
                 future.cancel(false);
             }
