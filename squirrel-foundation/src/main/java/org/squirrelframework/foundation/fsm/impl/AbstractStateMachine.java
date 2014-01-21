@@ -170,8 +170,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void processEvents() {
         if (isIdle()) {
-            processingLock.lock();
             setStatus(StateMachineStatus.BUSY);
+            processingLock.lock();
             try {
                 Pair<E, C> eventInfo = null;
                 while ((eventInfo=queuedEvents.poll())!=null) {

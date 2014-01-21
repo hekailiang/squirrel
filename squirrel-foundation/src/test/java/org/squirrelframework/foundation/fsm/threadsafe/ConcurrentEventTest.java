@@ -49,7 +49,7 @@ public class ConcurrentEventTest {
         final CountDownLatch actionCondition = new CountDownLatch(1);
         final CountDownLatch eventCondition = new CountDownLatch(5);
         final AtomicReference<Object> testStateRef = new AtomicReference<Object>();
-        final AtomicReference<Object> dumpDataRef = new AtomicReference<Object>();
+        final AtomicReference<Object> dumpDataRef  = new AtomicReference<Object>();
         final AtomicReference<Object> readStateRef = new AtomicReference<Object>();
         
         builder.transition().from("A").to("B").on("FIRST").perform(
