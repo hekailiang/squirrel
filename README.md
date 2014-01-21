@@ -91,6 +91,7 @@ At now you may have many questions about the sample code, please be patient. The
 	- The StateMachineBuilder is composed of *TransitionBuilder (InternalTransitionBuilder / LocalTransitionBuilder / ExternalTransitionBuilder) which is used to build transition between states, and EntryExitActionBuilder which is used to build the actions during entry or exit state. 
 	- The internal state is implicitly built during transition creation or state action creation.   
 	- All the state machine instances created by the same state machine builder share the same definition data for memory usage optimize.
+	- State machine builder generate state machine definition in a lazy manner. When builder create first state machine instance, the state machine definition will be generated which is time consumed. But after state machine definition generated, the following state machine instance creation will be much faster. Generally, state machine builder should be reused as much as possible.
 	
 	In order to create a state machine, user need to create state machine builder first. For example:   
 	```java

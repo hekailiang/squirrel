@@ -133,11 +133,11 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
     @Override
     public void verify() {
         if(provider==null) {
-            throw new RuntimeException("Linked state machine provider cannot be null.");
+            throw new IllegalStateException("Linked state machine provider cannot be null.");
         }
         
         if(isParallelState() || hasChildStates()) {
-            throw new RuntimeException("Linked state cannot be parallel state or has any child states.");
+            throw new IllegalStateException("Linked state cannot be parallel state or has any child states.");
         }
         super.verify();
     }
