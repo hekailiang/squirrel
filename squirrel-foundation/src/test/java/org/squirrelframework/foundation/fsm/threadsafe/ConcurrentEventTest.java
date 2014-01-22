@@ -404,7 +404,7 @@ public class ConcurrentEventTest {
     }
     
     @Test
-    public void testAnsyncMethodCall() {
+    public void testAsyncMethodCall() {
         builder.transition().from("A").to("B").on("FIRST").callMethod("fromAToB");
         final ConcurrentSimpleStateMachine fsm = builder.newUntypedStateMachine("A");
         fsm.fire("FIRST");

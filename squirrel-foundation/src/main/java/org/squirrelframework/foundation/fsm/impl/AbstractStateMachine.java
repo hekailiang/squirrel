@@ -620,6 +620,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             final Method listenerMethod, final Class<?> listenerInterface, final String condition) {
         final String listenerMethodName = ReflectUtils.getStatic(
                 ReflectUtils.getField(listenerInterface, "METHOD_NAME")).toString();
+        
+        AsyncExecute asyncAnnotation = ReflectUtils.getAnnotation(listenTarget.getClass(), AsyncExecute.class);
+        if(asyncAnnotation==null) {
+            asyncAnnotation = listenerMethod.getAnnotation(AsyncExecute.class);
+        }
+        final boolean isAsync = asyncAnnotation!=null;
+        final long timeout = asyncAnnotation!=null ? asyncAnnotation.timeout() : -1;
         InvocationHandler invokationHandler = new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -647,16 +654,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     return super.hashCode();
                 } else if(method.getName().equals("toString")) {
                     return super.toString();
-                } 
+                } else if(isAsync && method.getName().equals("timeout")) {
+                    return timeout;
+                }
                 throw new UnsupportedOperationException("Cannot invoke method "+method.getName()+".");
             }
         };
         
-        boolean isAnsync = ReflectUtils.hasAnnotation(listenTarget.getClass(), AsyncExecute.class);
-        if(isAnsync==false) {
-            isAnsync = listenerMethod.isAnnotationPresent(AsyncExecute.class);
-        }
-        Class<?>[] implementedInterfaces = isAnsync ? 
+        Class<?>[] implementedInterfaces = isAsync ? 
                 new Class<?>[]{listenerInterface, DeclarativeLisener.class, AsyncEventListener.class} : 
                 new Class<?>[]{listenerInterface, DeclarativeLisener.class};
         Object proxyListener = Proxy.newProxyInstance(StateMachine.class.getClassLoader(), 

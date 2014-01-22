@@ -36,12 +36,18 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     
     private final boolean isAsync;
     
+    @SuppressWarnings("unused")
+    private final long timeout;
+    
     MethodCallActionImpl(Method method, int weight, ExecutionContext executionContext) {
         Preconditions.checkNotNull(method, "Method of the action cannot be null.");
         this.method = method;
         this.weight = weight;
         this.executionContext = executionContext;
-        this.isAsync = method.isAnnotationPresent(AsyncExecute.class);
+        
+        AsyncExecute asyncAnnotation = method.getAnnotation(AsyncExecute.class);
+        this.isAsync = asyncAnnotation!=null;
+        this.timeout = asyncAnnotation!=null ? asyncAnnotation.timeout() : -1;
         
         logExecTime = ReflectUtils.isAnnotatedWith(method, LogExecTime.class);
         if(!logExecTime) {
@@ -63,7 +69,7 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     public void execute(final S from, final S to, 
             final E event, final C context, final T stateMachine) {
         if(isAsync) {
-            SquirrelConfiguration.getExecutor().execute(new Runnable() {
+              SquirrelConfiguration.getExecutor().submit(new Runnable() {
                 @Override
                 public void run() {
                     invokeMethod(from, to, event, context, stateMachine);

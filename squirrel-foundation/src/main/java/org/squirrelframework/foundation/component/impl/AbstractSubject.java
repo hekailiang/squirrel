@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.event.ListenerMethod;
-import org.squirrelframework.foundation.event.PolymorphismEventDispatcher;
+import org.squirrelframework.foundation.event.PolymEventDispatcher;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -15,7 +15,7 @@ public abstract class AbstractSubject implements Observable {
 	
 	private boolean notifiable = true;
 	
-	private PolymorphismEventDispatcher eventDispatcher;
+	private PolymEventDispatcher eventDispatcher;
 
 	@Override
     public boolean isNotifiable() {
@@ -30,7 +30,7 @@ public abstract class AbstractSubject implements Observable {
 	@Override
     public void addListener(Class<?> eventType, Object listener, Method method) {
 		if (eventDispatcher == null) {
-            eventDispatcher = SquirrelProvider.getInstance().newInstance(PolymorphismEventDispatcher.class);
+            eventDispatcher = SquirrelProvider.getInstance().newInstance(PolymEventDispatcher.class);
         }
         eventDispatcher.register(eventType, listener, method);
     }

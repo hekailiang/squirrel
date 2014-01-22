@@ -21,6 +21,9 @@ public class ListenerMethod {
     
     private final boolean isAsync;
     
+    @SuppressWarnings("unused")
+    private final long timeout;
+    
     public ListenerMethod(Class<?> eventType, Object listener, Method method) {
         Preconditions.checkArgument(eventType!=null && listener!=null && method!=null, "Parameters cannot be null.");
         // Checks that the object is of correct type
@@ -32,6 +35,7 @@ public class ListenerMethod {
         this.target = listener;
         this.method = method;
         this.isAsync = AsyncEventListener.class.isAssignableFrom(listener.getClass());
+        this.timeout = isAsync ? AsyncEventListener.class.cast(listener).timeout() : -1;
         
         final Class<?>[] params = method.getParameterTypes();
         // check parameter type
