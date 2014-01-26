@@ -1,0 +1,199 @@
+apt-get command
+sudo -s -H // switch to root user #sudo su
+
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup
+
+cat > /etc/apt/sources.list << "EOF"
+deb http://mirrors.163.com/ubuntu/ precise main universe restricted multiverse 
+deb-src http://mirrors.163.com/ubuntu/ precise main universe restricted multiverse 
+deb http://mirrors.163.com/ubuntu/ precise-security universe main multiverse restricted 
+deb-src http://mirrors.163.com/ubuntu/ precise-security universe main multiverse restricted 
+deb http://mirrors.163.com/ubuntu/ precise-updates universe main multiverse restricted 
+deb http://mirrors.163.com/ubuntu/ precise-proposed universe main multiverse restricted 
+deb-src http://mirrors.163.com/ubuntu/ precise-proposed universe main multiverse restricted 
+deb http://mirrors.163.com/ubuntu/ precise-backports universe main multiverse restricted 
+deb-src http://mirrors.163.com/ubuntu/ precise-backports universe main multiverse restricted 
+deb-src http://mirrors.163.com/ubuntu/ precise-updates universe main multiverse restricted
+EOF
+
+sudo apt-get update
+sudo apt-get upgrade
+
+apt-get install openjdk-6-jdk
+apt-get install git
+apt-get install subversion
+
+sudo apt-get remove tomcat*
+sudo apt-get install tomcat7
+apt-get install tomcat7
+apt-get install tomcat7-admin
+apt-get install tomcat7-docs
+apt-get install tomcat7-examples
+apt-get install vim
+apt-get install curl
+apt-get install openssh-server
+apt-get install valgrind
+
+chmod 755 *.sh
+
+install eclipse
+wget -c http://mirror.hust.edu.cn/eclipse/technology/epp/downloads/release/kepler/SR1/\
+eclipse-standard-kepler-SR1-linux-gtk-x86_64.tar.gz \
+-O ~/project/downloads/eclipse-standard-kepler-linux.tar.gz
+
+tar -zxvf eclips*.tar.gz
+sudo mv eclipse /opt/
+
+chown -R root:root /opt/eclipse
+
+cat > /usr/share/applications/eclipse.desktop << "EOF" 
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Eclipse Platform
+Comment=Eclipse IDE
+Exec=eclipse
+Icon=/opt/eclipse/icon.xpm
+Terminal=false
+Type=Application
+Categories=GNOME;Application;Development;
+StartupNotify=true
+EOF
+
+ln -s /opt/eclipse/eclipse /usr/local/bin
+
+eclipse \
+-clean -purgeHistory \
+-application org.eclipse.equinox.p2.director \
+-noSplash \
+-repository \
+http://download.eclipse.org/releases/kepler/,\
+http://download.eclipse.org/webtools/updates,\
+http://download.eclipse.org/eclipse/updates/4.3,\
+http://download.eclipse.org/modeling/emf/updates,\
+http://download.eclipse.org/tools/ajdt/43/update/,\
+http://run-jetty-run.googlecode.com/svn/trunk/updatesite/,\
+http://update.eclemma.org/,\
+http://subclipse.tigris.org/update_1.6.x,\
+http://download.eclipse.org/technology/m2e/releases \
+-installIUs \
+org.junit， \
+Subclipse， \
+org.eclipse.m2e.feature.feature.group, \
+org.eclipse.ajdt.feature.group, \
+runjettyrun_feature.feature.group, \
+com.mountainminds.eclemma.feature.feature.group \
+-vmargs -Declipse.p2.mirrors=true -Djava.net.preferIPv4Stack=true
+
+echo "%admin ALL=(ALL) ALL">>/etc/sudoers
+
+sudo apt-get install mysql-server
+sudo apt-get install mysql-client
+sudo mysqladmin -u root password Password1 
+
+#!/bin/bash
+#This script installs mysql (latest build)
+#Install MYSQL Server
+mysql_pass=1111
+export DEBIAN_FRONTEND=noninteractive 
+debconf-set-selections <<< 'mysql-server-5.1 mysql-server/root_password password '$mysql_pass''
+debconf-set-selections <<< 'mysql-server-5.1 mysql-server/root_password_again password '$mysql_pass''
+apt-get -y install mysql-server
+#Configure Password and Settings for Remote Access
+cp /etc/mysql/my.cnf /etc/mysql/my.bak.cnf
+ip=`ifconfig eth0 | grep "inet addr"| cut -d ":" -f2 | cut -d " " -f1` ; sed -i "s/\(bind-address[\t ]*\)=.*/\1= $ip/" /etc/mysql/my.cnf
+mysql -uroot -e "UPDATE mysql.user SET Password=PASSWORD('"$mysql_pass"') WHERE User='root'; FLUSH PRIVILEGES;"
+sleep 10
+mysql -uroot -p$mysql_pass -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '"$mysql_pass"'; FLUSH PRIVILEGES;"
+#Restart
+service mysql restart
+echo "MySQL Installation and Configuration is Complete."
+
+echo "drop database if exists `sp20`; create database 'sp20' default character set utf8" | mysql -uroot -p$mysql_pass
+#echo "create database 'sp20' default character set utf8" | mysql -uroot -p$mysql_pass
+
+apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
+echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list
+apt-get -y update
+apt-get -y install mongodb-10gen
+ps aux | grep mongo
+
+mkdir ~/project/sp20/SP20_Main
+cd ~/project/sp20/SP20_Main
+svn co https://svn03.ebaotech.com/svn/GSstargate/SP20_Main/trunk
+
+mkdir ~/.m2
+cd ~/.m2
+
+cat > ~/.m2/settings.xml << "EOF"
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+  </servers>
+  <mirrors>
+    <mirror>
+      <id>ebao</id>
+      <name>eBaoTech Maven Repository</name>
+      <url>http://172.25.32.35/artifactory/repo</url>
+      <mirrorOf>*</mirrorOf>
+     </mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>ebao</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>ebao</id>
+          <name>eBaoTech Maven Repository</name>
+          <url>http://172.25.32.35/artifactory/repo</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>ebao</id>
+          <name>eBaoTech Maven Repository</name>
+          <url>http://172.25.32.35/artifactory/repo</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles> 
+</settings>
+EOF
+#source settings.xml here
+
+#mvn dependency:tree
+export MAVEN_OPTS=-"Xms256m -Xmx1024m -XX:MaxPermSize=256m"
+mvn eclipse:eclipse -DdownloadSources
+mvn clean install -PInitial-DB
+
+export PROJECT_PATH=~/project/sp20/SP20_Main/trunk/salesplatform
+ln -s /var/lib/tomcat7/webapps ~/mywebapps
+sudo /bin/cp $PROJECT_PATH/dashboard-demo-master/target/sp20_web.war ~/mywebapps/
+#remove folder if necessary
+#sudo rm -f sp20_web.war
+
+if [ -d ~/mywebapps/sp20_web ]; then
+  sudo rm -rf ~/mywebapps/sp20_web
+fi
+sudo /etc/init.d/tomcat7 restart
+
+firefox localhost:8080/sp20_web/product localhost:8080/pa_web &
+
+exit
