@@ -57,7 +57,8 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         this.states = null;
     }
 
-    private Map<S, ImmutableState<T, S, E, C>> getStates() {
+    @Override
+    public Map<S, ImmutableState<T, S, E, C>> orginalStates() {
         if (states == null) {
             return Collections.emptyMap();
         }
@@ -219,7 +220,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     @Override
     public ImmutableState<T, S, E, C> rawStateFrom(S stateId) {
         if(stateId==null) return null;
-        ImmutableState<T, S, E, C> rawState = getStates().get(stateId);
+        ImmutableState<T, S, E, C> rawState = orginalStates().get(stateId);
         return rawState!=null ? rawState.getThis() : null;
     }
 
@@ -270,12 +271,12 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public Collection<ImmutableState<T, S, E, C>> rawStates() {
-        return Collections.unmodifiableCollection(getStates().values());
+        return Collections.unmodifiableCollection(orginalStates().values());
     }
 
     @Override
     public Collection<S> states() {
-        return Collections.unmodifiableCollection(getStates().keySet());
+        return Collections.unmodifiableCollection(orginalStates().keySet());
     }
 
     @Override

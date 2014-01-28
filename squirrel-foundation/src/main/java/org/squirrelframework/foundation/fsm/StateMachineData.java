@@ -3,6 +3,7 @@ package org.squirrelframework.foundation.fsm;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is used to hold all the internal data of state machine. User can
@@ -40,7 +41,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
      * @return state machine data writer
      */
     Writer<T, S, E, C> write();
-
+    
     public interface Reader<T extends StateMachine<T, S, E, C>, S, E, C> {
         /**
          * @return state machine identifier
@@ -141,6 +142,8 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          * @return all linked states
          */
         Collection<S> linkedStates();
+        
+        Map<S, ImmutableState<T, S, E, C>> orginalStates();
 
         Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
     }
