@@ -371,7 +371,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     				currentTransitionResult.setTargetState(subTransitionResult.getTargetState());
     				return;
     			}
-    			stateContext.getStateMachineData().write().subStateFor(getStateId(), subTransitionResult.getTargetState().getStateId());
+    			stateContext.getStateMachineData().write().subStateFor(getStateId(), 
+    			        subTransitionResult.getTargetState().getStateId());
 				// TODO-hhe: fire event to notify listeners???
 				if(subTransitionResult.getTargetState().isFinalState()) {
 					ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();
@@ -382,7 +383,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             		// to be in a final state, and a completion event is generated.
             		if(grandParentState!=null && grandParentState.isParallelState()) {
             			boolean allReachedFinal = true;
-            			for(ImmutableState<T, S, E, C> subState : getSubStatesOn(grandParentState, stateContext.getStateMachineData().read())) {
+            			for( ImmutableState<T, S, E, C> subState : getSubStatesOn(
+            			        grandParentState, stateContext.getStateMachineData().read()) ) {
             				if(!subState.isFinalState()) {
             					allReachedFinal = false;
             					break;

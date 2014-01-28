@@ -1,5 +1,7 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -128,16 +130,21 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         data.write().identifier(RandomStringUtils.randomAlphanumeric(ID_LENGTH));
     }
     
+    private TransitionResult<T, S, E, C> testTransition(S from, E event, C context) {
+        ImmutableState<T, S, E, C> fromState = data.read().rawStateFrom(from);
+        TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
+        fromState.internalFire( FSM.newStateContext(this, data, fromState, event, context, result, executor) );
+        return result;
+    }
+    
     private void processEvent(E event, C context) {
-        ImmutableState<T, S, E, C> fromState = data.read().currentRawState();
         S fromStateId = data.read().currentState(), toStateId = null;
         try {
             beforeTransitionBegin(fromStateId, event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             
             executor.begin();
-            TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
-            fromState.internalFire( FSM.newStateContext(this, data, fromState, event, context, result, executor) );
+            TransitionResult<T, S, E, C> result = testTransition(fromStateId, event, context);
             toStateId = result.getTargetState().getStateId();
             executor.execute();
             
@@ -221,9 +228,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S test(E event, C context) {
-        if( getStatus()==StateMachineStatus.ERROR || getStatus()==StateMachineStatus.TERMINATED) {
-            throw new RuntimeException("Cannot test state machine under "+status+" status.");
-        }
+        checkState(status!=StateMachineStatus.ERROR && status!=StateMachineStatus.TERMINATED,
+                "Cannot test state machine under "+status+" status.");
         
         S testResult = null;
         if(processingLock.tryLock()) {

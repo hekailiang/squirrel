@@ -34,20 +34,19 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     @Override
     public void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
         Preconditions.checkNotNull(action);
-        stack.peek().add(ActionContext.get(action, from, to, event, context, stateMachine));
+        List<ActionContext<T, S, E, C>> actions = stack.peek();
+        actions.add(ActionContext.get(action, from, to, event, context, stateMachine));
     }
     
     @Override
     public void execute() {
-        if(dummyExecution) return;
-        
         List<ActionContext<T, S, E, C>> actionContexts = stack.pop();
         for (int i=0, size=actionContexts.size(); i<size; ++i) {
             ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
             if(actionContext.action.weight()!=Action.IGNORE_WEIGHT) {
                 try {
                     fireEvent(BeforeExecActionEventImpl.get(i+1, size, actionContext));
-                    actionContext.run();
+                    if(!dummyExecution) actionContext.run();
                 } catch (Exception e) {
                     Throwable t = (e instanceof SquirrelRuntimeException) ?
                             ((SquirrelRuntimeException)e).getTargetException() : e;

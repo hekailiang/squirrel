@@ -791,6 +791,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 * **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
 * State machine import  
 * Support dynamic extend state machine definition  
+* State machine statistics info including action invoke times, max/min/average invoke time and so on  
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
