@@ -1,7 +1,9 @@
 package org.squirrelframework.foundation.component;
 
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.squirrelframework.foundation.util.ReflectUtils;
@@ -92,31 +94,49 @@ public class SquirrelProvider implements SquirrelSingleton {
      * @param clz registered class
      * @return current registered implementation
      */
-    @SuppressWarnings("unchecked")
     public <T> Class<T> getImplementation(Class<T> clz) {
-        Class<?> implementationClass = implementationRegistry.get(clz);
-        if(implementationClass==null) {
-            if(clz.isInterface()) {
-                implementationClass = findImplementationClass(clz);
-            } else {
-                implementationClass = clz;
-            }
-        } else if(implementationClass.isInterface()) {
-            implementationClass = findImplementationClass(implementationClass);
-        }
-        return (Class<T>)implementationClass;
+        return resolveIfInterface(clz, new HashSet<Class<?>>());
     }
-    
+
+    private <T> Class<T> resolveIfInterface(Class<T> clz, Set<Class<?>> visited) {
+        if (!visited.add(clz)) {
+            throw new IllegalStateException("Registration cycles: " + visited);
+        }
+
+        if (!clz.isInterface()) {
+            return clz;
+        }
+
+        Class<T> impl = fromRegistry(clz);
+
+        if (impl == null) {
+            impl = findImplementationClass(clz);
+            // We only register actual implementations so cannot introduce
+            // cycles through this...
+            register(clz, impl);
+        }
+
+        return resolveIfInterface(impl, visited);
+    }
+
+    private <T> Class<T> fromRegistry(Class<T> clz) {
+        @SuppressWarnings("unchecked")
+        Class<T> impl = (Class<T>) implementationRegistry.get(clz);
+
+        return impl;
+    }
+
     // find implementation class name according to programming convention
-    private Class<?> findImplementationClass(Class<?> interfaceClass) {
+    @SuppressWarnings("unchecked")
+    private <T> Class<T> findImplementationClass(Class<T> interfaceClass) {
         Class<?> implementationClass = null;
-        String implClassName = interfaceClass.getName()+"Impl";
+        String implClassName = interfaceClass.getName() + "Impl";
         try {
             implementationClass = Class.forName(implClassName);
         } catch (ClassNotFoundException e) {
             implClassName = ReflectUtils.getPackageName(interfaceClass.getName())+".impl."+interfaceClass.getSimpleName()+"Impl";
             implementationClass = ReflectUtils.getClass(implClassName);
         }
-        return implementationClass;
+        return (Class<T>) implementationClass;
     }
 }
