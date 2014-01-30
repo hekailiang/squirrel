@@ -20,25 +20,24 @@ public class PerformanceTest {
         protected StateMachineSample(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
             super(initialState, states);
         }
-
-        protected void fromAToB(String from, String to, FSMEvent event, Integer context) {
-            System.out.println("Transition from '" + from + "' to '" + to + "' on event '" + event + "' with context '" + context
-                    + "'.");
-        }
-
-        protected void ontoB(String from, String to, FSMEvent event, Integer context) {
-            System.out.println("Entry State \'" + to + "\'.");
-        }
     }
 
     @Test(timeout = 10000)
     public void manyTransitions() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineSample.class);
-        builder.externalTransition().from("A").to("B").on(FSMEvent.ToB).callMethod("fromAToB");
-        builder.onEntry("B").callMethod("ontoB");
+        Action<UntypedStateMachine, Object, Object, Object> action = new AnonymousAction<UntypedStateMachine, Object, Object, Object>() {
+            @Override
+            public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
+                // System.out.println(to);
+            }
+        };
 
-        UntypedStateMachine fsm = builder.newStateMachine("A");
-        fsm.fire(FSMEvent.ToB, 10);
+        builder.externalTransition().from("D").to("A").on(FSMEvent.ToA).perform(action);
+        builder.externalTransition().from("A").to("B").on(FSMEvent.ToB).perform(action);
+        builder.externalTransition().from("B").to("C").on(FSMEvent.ToC).perform(action);
+        builder.externalTransition().from("C").to("D").on(FSMEvent.ToD).perform(action);
+
+        UntypedStateMachine fsm = builder.newStateMachine("D");
 
         for (int i = 0; i < 10000; i++) {
             fsm.fire(FSMEvent.ToA, 10);

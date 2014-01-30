@@ -95,10 +95,10 @@ public class SquirrelProvider implements SquirrelSingleton {
      * @return current registered implementation
      */
     public <T> Class<T> getImplementation(Class<T> clz) {
-        return resolveIfInterface(clz, new HashSet<Class<?>>());
+        return resolveImplIfInterface(clz, new HashSet<Class<?>>());
     }
 
-    private <T> Class<T> resolveIfInterface(Class<T> clz, Set<Class<?>> visited) {
+    private <T> Class<T> resolveImplIfInterface(Class<T> clz, Set<Class<?>> visited) {
         if (!visited.add(clz)) {
             throw new IllegalStateException("Registration cycles: " + visited);
         }
@@ -107,16 +107,16 @@ public class SquirrelProvider implements SquirrelSingleton {
             return clz;
         }
 
-        Class<T> impl = fromRegistry(clz);
+        Class<T> possibleImpl = fromRegistry(clz);
 
-        if (impl == null) {
-            impl = findImplementationClass(clz);
+        if (possibleImpl == null) {
+            possibleImpl = findImplementationClass(clz);
             // We only register actual implementations so cannot introduce
             // cycles through this...
-            register(clz, impl);
+            register(clz, possibleImpl);
         }
 
-        return resolveIfInterface(impl, visited);
+        return resolveImplIfInterface(possibleImpl, visited);
     }
 
     private <T> Class<T> fromRegistry(Class<T> clz) {
