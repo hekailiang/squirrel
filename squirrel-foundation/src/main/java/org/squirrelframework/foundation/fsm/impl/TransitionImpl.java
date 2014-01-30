@@ -247,9 +247,9 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     }
     
     @Override
-    public String toString() {
+    public final String toString() {
         return sourceState + "-[" + event.toString() +", "+
-                condition.name()+", "+priority+"]->" + targetState;
+                condition.name()+", "+priority+", "+type+"]->" + targetState;
     }
 
     @Override

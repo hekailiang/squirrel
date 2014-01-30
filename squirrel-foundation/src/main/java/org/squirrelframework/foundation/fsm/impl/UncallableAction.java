@@ -25,4 +25,9 @@ final class UncallableActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     public int weight() {
         return action.weight();
     }
+    
+    @Override
+    public final String toString() {
+        return action.toString();
+    }
 }
