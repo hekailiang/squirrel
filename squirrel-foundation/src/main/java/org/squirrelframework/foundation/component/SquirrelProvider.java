@@ -103,11 +103,12 @@ public class SquirrelProvider implements SquirrelSingleton {
             throw new IllegalStateException("Registration cycles: " + visited);
         }
 
+        Class<T> possibleImpl = fromRegistry(clz);
         if (!clz.isInterface()) {
+            if(possibleImpl!=null && !possibleImpl.isInterface()) 
+                clz = possibleImpl;
             return clz;
         }
-
-        Class<T> possibleImpl = fromRegistry(clz);
 
         if (possibleImpl == null) {
             possibleImpl = findImplementationClass(clz);
@@ -122,7 +123,6 @@ public class SquirrelProvider implements SquirrelSingleton {
     private <T> Class<T> fromRegistry(Class<T> clz) {
         @SuppressWarnings("unchecked")
         Class<T> impl = (Class<T>) implementationRegistry.get(clz);
-
         return impl;
     }
 
@@ -134,7 +134,8 @@ public class SquirrelProvider implements SquirrelSingleton {
         try {
             implementationClass = Class.forName(implClassName);
         } catch (ClassNotFoundException e) {
-            implClassName = ReflectUtils.getPackageName(interfaceClass.getName())+".impl."+interfaceClass.getSimpleName()+"Impl";
+            implClassName = ReflectUtils.getPackageName(interfaceClass.getName())+
+                    ".impl."+interfaceClass.getSimpleName()+"Impl";
             implementationClass = ReflectUtils.getClass(implClassName);
         }
         return (Class<T>) implementationClass;

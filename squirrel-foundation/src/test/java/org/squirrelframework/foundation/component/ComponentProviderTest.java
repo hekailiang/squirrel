@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.Test;
-import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.component.impl.ProgrammerImpl;
 import org.squirrelframework.foundation.component.impl.StudentImpl;
 
@@ -32,6 +31,21 @@ public class ComponentProviderTest {
         Person p = SquirrelProvider.getInstance().newInstance(Person.class);
         assertThat(p, notNullValue());
         assertThat(p, instanceOf(PersonImpl.class));
+    }
+    
+    @Test
+    public void testOverrideImplClass() {
+        SquirrelProvider.getInstance().register(PersonImpl.class, StudentImpl.class);
+        
+        Person p = SquirrelProvider.getInstance().newInstance(Person.class);
+        assertThat(p, notNullValue());
+        assertThat(p, instanceOf(PersonImpl.class));
+        
+        Person p2 = SquirrelProvider.getInstance().newInstance(PersonImpl.class);
+        assertThat(p2, notNullValue());
+        assertThat(p2, instanceOf(StudentImpl.class));
+        
+        SquirrelProvider.getInstance().unregister(PersonImpl.class);
     }
     
     @Test
