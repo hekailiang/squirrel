@@ -311,7 +311,9 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
         
         void transitionEnd(TransitionEndEvent<T, S, E, C> event);
     }
-    interface TransitionEndEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
+    interface TransitionEndEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {
+        S getTargetState();
+    }
     void addTransitionEndListener(TransitionEndListener<T, S, E, C> listener);
     void removeTransitionEndListener(TransitionEndListener<T, S, E, C> listener);
     

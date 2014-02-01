@@ -167,7 +167,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     localData.read().currentState(), event, context, getThis()));
             afterTransitionCausedException(te, fromStateId, toStateId, event, context);
         } finally {
-            fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
+            fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, toStateId, event, context, getThis()));
             afterTransitionEnd(fromStateId, getCurrentState(), event, context);
         }
         return false;
@@ -807,6 +807,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             if(!isSourceStateSet && parameterType.isAssignableFrom(typeOfState())) {
                 parameterValues.add(event.getSourceState());
                 isSourceStateSet = true;
+            } else if(!isTargetStateSet && event instanceof TransitionEndEvent && 
+                    parameterType.isAssignableFrom(typeOfState())) {
+                parameterValues.add(((TransitionEndEvent<T, S, E, C>)event).getTargetState());
+                isTargetStateSet = true;
             } else if(!isTargetStateSet && event instanceof TransitionCompleteEvent && 
                     parameterType.isAssignableFrom(typeOfState())) {
                 parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
@@ -1053,7 +1057,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
 	}
     
     public static abstract class AbstractStateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
-    implements StateMachine.StateMachineEvent<T, S, E, C> {
+            implements StateMachine.StateMachineEvent<T, S, E, C> {
     	private final T stateMachine;
         public AbstractStateMachineEvent(T stateMachine) {
         	this.stateMachine = stateMachine;
@@ -1066,21 +1070,24 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     public static class StartEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractStateMachineEvent<T, S, E, C> implements StateMachine.StartEvent<T, S, E, C> {
+            extends AbstractStateMachineEvent<T, S, E, C> 
+            implements StateMachine.StartEvent<T, S, E, C> {
         public StartEventImpl(T source) {
             super(source);
         }
     }
     
     public static class TerminateEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractStateMachineEvent<T, S, E, C> implements StateMachine.TerminateEvent<T, S, E, C> {
+            extends AbstractStateMachineEvent<T, S, E, C> 
+            implements StateMachine.TerminateEvent<T, S, E, C> {
         public TerminateEventImpl(T source) {
             super(source);
         }
     }
     
     public static class StateMachineExceptionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractStateMachineEvent<T, S, E, C> implements StateMachine.StateMachineExceptionEvent<T, S, E, C> {
+            extends AbstractStateMachineEvent<T, S, E, C> 
+            implements StateMachine.StateMachineExceptionEvent<T, S, E, C> {
         private final Exception e;
         public StateMachineExceptionEventImpl(Exception e, T source) {
             super(source);
@@ -1094,7 +1101,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     public static abstract class AbstractTransitionEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractStateMachineEvent<T, S, E, C> implements StateMachine.TransitionEvent<T, S, E, C> {
+            extends AbstractStateMachineEvent<T, S, E, C> 
+            implements StateMachine.TransitionEvent<T, S, E, C> {
         private final S sourceState;
         private final E event;
         private final C context;
@@ -1122,14 +1130,16 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     public static class TransitionBeginEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionBeginEvent<T, S, E, C> {
+            extends AbstractTransitionEvent<T, S, E, C> 
+            implements StateMachine.TransitionBeginEvent<T, S, E, C> {
         public TransitionBeginEventImpl(S sourceState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
         }
     }
     
     public static class TransitionCompleteEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionCompleteEvent<T, S, E, C> {
+            extends AbstractTransitionEvent<T, S, E, C> 
+            implements StateMachine.TransitionCompleteEvent<T, S, E, C> {
         private final S targetState;
         public TransitionCompleteEventImpl(S sourceState, S targetState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
@@ -1143,7 +1153,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     public static class TransitionExceptionEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionExceptionEvent<T, S, E, C> {
+            extends AbstractTransitionEvent<T, S, E, C> 
+            implements StateMachine.TransitionExceptionEvent<T, S, E, C> {
         private final S targetState;
         private final TransitionException e;
         public TransitionExceptionEventImpl(TransitionException e, 
@@ -1165,16 +1176,24 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     public static class TransitionDeclinedEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionDeclinedEvent<T, S, E, C> {
+            extends AbstractTransitionEvent<T, S, E, C> 
+            implements StateMachine.TransitionDeclinedEvent<T, S, E, C> {
         public TransitionDeclinedEventImpl(S sourceState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
         }
     }
     
     public static class TransitionEndEventImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-    extends AbstractTransitionEvent<T, S, E, C> implements StateMachine.TransitionEndEvent<T, S, E, C> {
-        public TransitionEndEventImpl(S sourceState, E event, C context,T stateMachine) {
+            extends AbstractTransitionEvent<T, S, E, C> 
+            implements StateMachine.TransitionEndEvent<T, S, E, C> {
+        private final S targetState;
+        public TransitionEndEventImpl(S sourceState, S targetState, E event, C context,T stateMachine) {
             super(sourceState, event, context, stateMachine);
+            this.targetState = targetState;
+        }
+        @Override
+        public S getTargetState() {
+            return targetState;
         }
     }
 }
