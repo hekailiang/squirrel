@@ -23,7 +23,7 @@ public class PerformanceTest {
         }
     }
 
-    @Test//(timeout = 10000)
+    @Test(timeout = 10000)
     public void manyTransitions() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineSample.class);
         Action<UntypedStateMachine, Object, Object, Object> action = new AnonymousAction<UntypedStateMachine, Object, Object, Object>() {

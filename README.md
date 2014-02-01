@@ -674,20 +674,20 @@ newStateMachineInstance.loadSavedData(savedData);
     System.out.println(performanceMonitor.getPerfModel());
     -------------------------------------------------------------------------------------------
 	========================== Sample State Machine Performance Info ==========================
-Total Transition Invoked: 80000
-Total Transition Failed: 0
-Total Transition Declained: 0
-Average Transition Comsumed: 0.0000ms
-	Transition Key		Invoked Times	Average Time		Max Time	Min Time
-	C--{ToD, 10}->D		20000			0.0000ms			0ms			0ms		
-	B--{ToC, 10}->C		20000			0.0000ms			1ms			0ms		
-	D--{ToA, 10}->A		20000			0.0000ms			1ms			0ms		
-	A--{ToB, 10}->B		20000			0.0000ms			0ms			0ms		
-Total Action Invoked: 80000
-Total Action Failed: 0
-Average Action Execution Comsumed: 0.0000ms
-	Action Key		Invoked Times	Average Time		Max Time	Min Time
-	instan...Test$1		80000		0.0000ms			0ms			0ms		
+	Total Transition Invoked: 40000
+	Total Transition Failed: 0
+	Total Transition Declained: 0
+	Average Transition Comsumed: 0.0004ms
+		Transition Key		Invoked Times	Average Time		Max Time	Min Time
+		C--{ToD, 10}->D		10000			0.0007ms			5ms		0ms		
+		B--{ToC, 10}->C		10000			0.0001ms			1ms		0ms		
+		D--{ToA, 10}->A		10000			0.0009ms			7ms		0ms		
+		A--{ToB, 10}->B		10000			0.0000ms			1ms		0ms		
+	Total Action Invoked: 40000
+	Total Action Failed: 0
+	Average Action Execution Comsumed: 0.0000ms
+		Action Key			Invoked Times	Average Time		Max Time	Min Time
+		instan...Test$1		40000			0.0000ms			1ms		0ms	
 ========================== Sample State Machine Performance Info ==========================
 	```  
 	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
