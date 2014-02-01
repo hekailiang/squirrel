@@ -166,7 +166,7 @@ public class StateMachinePerformanceModel {
         builder.append("Total Transition Invoked: ").append(totalTransitionInvokedTimes).append("\n");
         builder.append("Total Transition Failed: ").append(totalTransitionFailedTimes).append("\n");
         builder.append("Total Transition Declained: ").append(totalTransitionDeclinedTimes).append("\n");
-        builder.append("Average Transition Comsumed: ").append(String.format("%.2fms", averageTranstionConsumedTime)).append("\n");
+        builder.append("Average Transition Comsumed: ").append(String.format("%.4fms", averageTranstionConsumedTime)).append("\n");
         
         builder.append("\t").append("Transition Key").append("\t\tInvoked Times\tAverage Time\t\tMax Time\tMin Time\n");
         for(String tKey : transitionInvokeTimes.keySet()) {
@@ -181,7 +181,7 @@ public class StateMachinePerformanceModel {
         
         builder.append("Total Action Invoked: ").append(totalActionInvokedTimes).append("\n");
         builder.append("Total Action Failed: ").append(totalActionFailedTimes).append("\n");
-        builder.append("Average Action Execution Comsumed: ").append(String.format("%.2fms", averageActionConsumedTime)).append("\n");
+        builder.append("Average Action Execution Comsumed: ").append(String.format("%.4fms", averageActionConsumedTime)).append("\n");
         
         builder.append("\t").append("Action Key").append("\t\tInvoked Times\tAverage Time\t\tMax Time\tMin Time\n");
         for(String aKey : actionInvokeTimes.keySet()) {
