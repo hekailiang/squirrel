@@ -43,6 +43,7 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
@@ -108,6 +109,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private volatile StateMachineStatus status = StateMachineStatus.INITIALIZED;
     
     private LinkedBlockingQueue<Pair<E, C>> queuedEvents = new LinkedBlockingQueue<Pair<E, C>>();
+    
+    private LinkedBlockingQueue<Pair<E, C>> queuedTestEvents = new LinkedBlockingQueue<Pair<E, C>>();
+    
+    private volatile boolean isTestingEvent = false;
     
     private E startEvent, finishEvent, terminateEvent;
     
@@ -197,8 +202,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
-    @Override
-    public void fire(E event, C context) {
+    private void internalFire(E event, C context) {
         if(getStatus()==StateMachineStatus.INITIALIZED) {
             if(autoStart) {
                 start(context);
@@ -221,6 +225,33 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
+    private boolean isEntryPoint() {
+        return StateMachineContext.currentInstance()==null;
+    }
+    
+    @Override
+    public void fire(E event, C context) {
+        boolean isEntryPoint = isEntryPoint();
+        if(isEntryPoint) {
+            StateMachineContext.set(getThis());
+        } else if(StateMachineContext.currentInstance()!=this) {
+            T currentInstance = StateMachineContext.currentInstance();
+            currentInstance.fire(event, context);
+            return;
+        } 
+        try {
+            if(StateMachineContext.isTestEvent()) {
+                internalTest(event, context);
+            } else {
+                internalFire(event, context);
+            }
+        } finally {
+            if(isEntryPoint) {
+                StateMachineContext.set(null);
+            }
+        }
+    }
+    
     @Override
     public void fire(E event) {
         fire(event, null);
@@ -233,34 +264,57 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return dummyExecutor;
     }
     
-    @Override
-    public S test(E event, C context) {
+    private S internalTest(E event, C context) {
         checkState(status!=StateMachineStatus.ERROR && status!=StateMachineStatus.TERMINATED,
                 "Cannot test state machine under "+status+" status.");
         
         S testResult = null;
         if(processingLock.tryLock()) {
             try {
-                @SuppressWarnings("unchecked")
-                StateMachineData<T, S, E, C> cloneData = (StateMachineData<T, S, E, C>)dumpSavedData();
-                ActionExecutionService<T, S, E, C> dummyExecutor = getDummyExecutor();
-                
-                if(getStatus()==StateMachineStatus.INITIALIZED) {
-                    if(autoStart) {
-                        internalStart(context, cloneData, dummyExecutor);
-                    } else {
-                        throw new IllegalStateException("The state machine is not running.");
+                queuedTestEvents.add(new Pair<E, C>(event, context));
+                if(!isTestingEvent) {
+                    isTestingEvent = true;
+                    @SuppressWarnings("unchecked")
+                    StateMachineData<T, S, E, C> cloneData = (StateMachineData<T, S, E, C>)dumpSavedData();
+                    ActionExecutionService<T, S, E, C> dummyExecutor = getDummyExecutor();
+                    
+                    if(getStatus()==StateMachineStatus.INITIALIZED) {
+                        if(autoStart) {
+                            internalStart(context, cloneData, dummyExecutor);
+                        } else {
+                            throw new IllegalStateException("The state machine is not running.");
+                        }
                     }
-                }
-                boolean isAccepted = processEvent(event, context, cloneData, dummyExecutor);
-                if(isAccepted) {
-                    testResult = resolveState(cloneData.read().currentState(), cloneData);
+                    try {
+                        Pair<E, C> eventInfo = null;
+                        while ((eventInfo=queuedTestEvents.poll())!=null) {
+                            processEvent(eventInfo.first(), eventInfo.second(), cloneData, dummyExecutor);
+                        }
+                        testResult = resolveState(cloneData.read().currentState(), cloneData);
+                    } finally {
+                        isTestingEvent = false;
+                    }
                 }
             } finally {
                 processingLock.unlock();
             }
         }
         return testResult;
+    }
+    
+    @Override
+    public S test(E event, C context) {
+        boolean isEntryPoint = isEntryPoint();
+        if(isEntryPoint) {
+            StateMachineContext.set(getThis(), true);
+        }
+        try {
+            return internalTest(event, context);
+        } finally {
+            if(isEntryPoint) {
+                StateMachineContext.set(null);
+            }
+        }
     }
     
     @Override

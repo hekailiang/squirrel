@@ -11,6 +11,7 @@ import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
 import org.squirrelframework.foundation.fsm.StateMachineProvider;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
@@ -91,14 +92,18 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
             // otherwise the linked state machine will try to process event first and only handle event 
             // to outside state when event was declined by linked state machine.
             DeclineEventHandler declinedEventHandler = new DeclineEventHandler(stateContext);
-            // add declined event listener
-            stateMachine.addTransitionDeclinedListener(declinedEventHandler);
-            
-            // delegate the event to linked state machine process
-            stateMachine.fire(stateContext.getEvent(), stateContext.getContext());
-            
-            // remove declined event listener
-            stateMachine.removeTransitionDecleindListener(declinedEventHandler);
+            try {
+                // add declined event listener
+                stateMachine.addTransitionDeclinedListener(declinedEventHandler);
+                // set child(linked) state machine context
+                StateMachineContext.set(stateMachine.getThis(), StateMachineContext.isTestEvent());
+                // delegate the event to linked state machine process
+                stateMachine.fire(stateContext.getEvent(), stateContext.getContext());
+            } finally {
+                StateMachineContext.set(null);
+                // remove declined event listener
+                stateMachine.removeTransitionDecleindListener(declinedEventHandler);
+            }
         }
     }
 

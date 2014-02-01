@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.ExecuteWhen;
 import org.squirrelframework.foundation.fsm.annotation.LogExecTime;
@@ -69,10 +70,17 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     public void execute(final S from, final S to, 
             final E event, final C context, final T stateMachine) {
         if(isAsync) {
-              SquirrelConfiguration.getExecutor().submit(new Runnable() {
+            final boolean isTestEvent = StateMachineContext.isTestEvent();
+            final T instance = StateMachineContext.currentInstance();
+            SquirrelConfiguration.getExecutor().submit(new Runnable() {
                 @Override
                 public void run() {
-                    invokeMethod(from, to, event, context, stateMachine);
+                    StateMachineContext.set(instance, isTestEvent);
+                    try {
+                        invokeMethod(from, to, event, context, stateMachine);
+                    } finally {
+                        StateMachineContext.set(null);
+                    }
                 }
             });
         } else {
