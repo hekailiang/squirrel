@@ -658,7 +658,6 @@ newStateMachineInstance.loadSavedData(savedData);
 	HierachicalStateMachine: Transition from "B2a" to "A1" on "B2A" complete which took 2ms.
 	...
 	```   
-	
 	*StateMachinePerformanceMonitor* can be used to monitor state machine execution performance information, including total transition times count, average transition consumed time and so on, e.g.
 	```java
 	final UntypedStateMachine fsm = builder.newStateMachine("D");
@@ -673,7 +672,6 @@ newStateMachineInstance.loadSavedData(savedData);
     }
     fsm.removeDeclarativeListener(performanceMonitor);
     System.out.println(performanceMonitor.getPerfModel());
-    -------------------------------------------------------------------------------------------
 	========================== Sample State Machine Performance Info ==========================
 	Total Transition Invoked: 40000
 	Total Transition Failed: 0
@@ -690,8 +688,7 @@ newStateMachineInstance.loadSavedData(savedData);
 		Action Key			Invoked Times	Average Time		Max Time	Min Time
 		instan...Test$1		40000			0.0000ms			1ms		0ms	
 	========================== Sample State Machine Performance Info ==========================
-	```  	
-	
+	```
 	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
 	```java
 	@LogExecTime
