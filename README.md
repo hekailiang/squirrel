@@ -648,7 +648,7 @@ newStateMachineInstance.loadSavedData(savedData);
 	stateMachine.fire(HEvent.B2A, 1);
 	...
 	fsmLogger.terminateLogging();
-	----------------------------------------------------------------------------------------
+	-------------------------------------------------------------------------------------------
 	Console Log:
 	HierachicalStateMachine: Transition from "B2a" on "B2A" with context "1" begin.
 	Before execute method call action "leftB2a" (1 of 6).
@@ -658,6 +658,38 @@ newStateMachineInstance.loadSavedData(savedData);
 	HierachicalStateMachine: Transition from "B2a" to "A1" on "B2A" complete which took 2ms.
 	...
 	```   
+	*StateMachinePerformanceMonitor* can be used to monitor state machine execution performance information, including total transition times count, average transition consumed time and so on, e.g.
+	```java
+	final UntypedStateMachine fsm = builder.newStateMachine("D");
+	final StateMachinePerformanceMonitor performanceMonitor = 
+                new StateMachinePerformanceMonitor("Sample State Machine Performance Info");
+    fsm.addDeclarativeListener(performanceMonitor);
+    for (int i = 0; i < 10000; i++) {
+    	fsm.fire(FSMEvent.ToA, 10);
+        fsm.fire(FSMEvent.ToB, 10);
+        fsm.fire(FSMEvent.ToC, 10);
+        fsm.fire(FSMEvent.ToD, 10);
+    }
+    fsm.removeDeclarativeListener(performanceMonitor);
+    System.out.println(performanceMonitor.getPerfModel());
+    -------------------------------------------------------------------------------------------
+	========================== Sample State Machine Performance Info ==========================
+Total Transition Invoked: 80000
+Total Transition Failed: 0
+Total Transition Declained: 0
+Average Transition Comsumed: 0.0000ms
+	Transition Key		Invoked Times	Average Time		Max Time	Min Time
+	C--{ToD, 10}->D		20000			0.0000ms			0ms			0ms		
+	B--{ToC, 10}->C		20000			0.0000ms			1ms			0ms		
+	D--{ToA, 10}->A		20000			0.0000ms			1ms			0ms		
+	A--{ToB, 10}->B		20000			0.0000ms			0ms			0ms		
+Total Action Invoked: 80000
+Total Action Failed: 0
+Average Action Execution Comsumed: 0.0000ms
+	Action Key		Invoked Times	Average Time		Max Time	Min Time
+	instan...Test$1		80000		0.0000ms			0ms			0ms		
+========================== Sample State Machine Performance Info ==========================
+	```  
 	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
 	```java
 	@LogExecTime
