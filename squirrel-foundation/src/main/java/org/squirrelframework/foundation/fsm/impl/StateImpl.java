@@ -3,18 +3,19 @@ package org.squirrelframework.foundation.fsm.impl;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Actions;
 import org.squirrelframework.foundation.fsm.Conditions;
-import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
+import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineData;
@@ -23,6 +24,7 @@ import org.squirrelframework.foundation.fsm.Visitor;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * The state model of the state machine implementation.
@@ -45,6 +47,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     protected final Actions<T, S, E, C> exitActions  = FSM.newActions();
     
     private LinkedListMultimap<E, ImmutableTransition<T, S, E, C>> transitions;
+    
+    private Set<E> acceptableEvents;
     
     /**
 	 * The super-state of this state. Null for states with <code>level</code> equal to 1.
@@ -107,6 +111,16 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     public List<ImmutableTransition<T, S, E, C>> getTransitions(E event) {
     	if(transitions==null) return Collections.emptyList();
     	return Lists.newArrayList(getTransitions().get(event));
+    }
+    
+    @Override
+    public Set<E> getAcceptableEvents() {
+        if(acceptableEvents==null) {
+            Set<E> events = Sets.newHashSet();
+            events.addAll(getTransitions().keySet());
+            acceptableEvents = Collections.unmodifiableSet(events);
+        }
+        return acceptableEvents;
     }
     
     @Override

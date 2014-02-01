@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
 import java.util.List;
+import java.util.Set;
 
 import org.squirrelframework.foundation.component.SquirrelComponent;
 
@@ -50,6 +51,11 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
      * @return Transitions triggered by event
      */
     List<ImmutableTransition<T, S, E, C>> getTransitions(E event);
+    
+    /**
+     * @return events that can be accepted by this state
+     */
+    Set<E> getAcceptableEvents();
     
     /**
      * Entry state with state context

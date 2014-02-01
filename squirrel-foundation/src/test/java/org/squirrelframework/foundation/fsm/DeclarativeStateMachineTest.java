@@ -1,7 +1,9 @@
 package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 
 import java.util.Map;
 
@@ -353,6 +355,8 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     @Test
     public void testTransitionWithException() {
         InOrder callSequence = Mockito.inOrder(monitor);
+        assertThat(stateMachine.getCurrentRawState().getAcceptableEvents(), 
+                containsInAnyOrder(TestEvent.InternalA, TestEvent.ToB));
         stateMachine.fire(TestEvent.ToB, null);
         stateMachine.fire(TestEvent.ToC, null);
         stateMachine.fire(TestEvent.ToD, 81);
