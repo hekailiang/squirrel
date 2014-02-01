@@ -103,13 +103,14 @@ public class SquirrelProvider implements SquirrelSingleton {
             throw new IllegalStateException("Registration cycles: " + visited);
         }
 
-        Class<T> possibleImpl = fromRegistry(clz);
         if (!clz.isInterface()) {
+            Class<T> possibleImpl = fromRegistry(clz);
             if(possibleImpl!=null && !possibleImpl.isInterface()) 
                 clz = possibleImpl;
             return clz;
         }
 
+        Class<T> possibleImpl = fromRegistry(clz);
         if (possibleImpl == null) {
             possibleImpl = findImplementationClass(clz);
             // We only register actual implementations so cannot introduce

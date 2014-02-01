@@ -38,6 +38,9 @@ public class PerformanceTest {
         builder.externalTransition().from("C").to("D").on(FSMEvent.ToD).perform(action);
 
         UntypedStateMachine fsm = builder.newStateMachine("D");
+        final StateMachinePerformanceMonitor performanceMonitor = 
+                new StateMachinePerformanceMonitor(fsm.getClass().getName());
+        fsm.addDeclarativeListener(performanceMonitor);
 
         for (int i = 0; i < 10000; i++) {
             fsm.fire(FSMEvent.ToA, 10);
@@ -45,5 +48,7 @@ public class PerformanceTest {
             fsm.fire(FSMEvent.ToC, 10);
             fsm.fire(FSMEvent.ToD, 10);
         }
+        fsm.removeDeclarativeListener(performanceMonitor);
+        System.out.println(performanceMonitor.getPerfModel());
     }
 }

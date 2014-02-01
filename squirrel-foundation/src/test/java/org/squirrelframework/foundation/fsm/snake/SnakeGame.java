@@ -8,7 +8,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-import org.squirrelframework.foundation.fsm.StateMachineStatModel;
+import org.squirrelframework.foundation.fsm.StateMachinePerformanceMonitor;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
 
 public class SnakeGame extends JFrame {
@@ -29,7 +29,7 @@ public class SnakeGame extends JFrame {
 		this.panel = new SnakePanel(gameController, gameModel);
 		add(panel, BorderLayout.CENTER);
 		
-		final StateMachineStatModel statModel = new StateMachineStatModel(controller.getClass().getName());
+		final StateMachinePerformanceMonitor statModel = new StateMachinePerformanceMonitor(controller.getClass().getName());
 		controller.addDeclarativeListener(statModel);
 		
 		addKeyListener(new KeyAdapter() {
@@ -74,7 +74,7 @@ public class SnakeGame extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 controller.removeDeclarativeListener(statModel);
-                System.out.println(statModel.getStatInfo());
+                System.out.println(statModel.getPerfModel());
             }
         });
 		

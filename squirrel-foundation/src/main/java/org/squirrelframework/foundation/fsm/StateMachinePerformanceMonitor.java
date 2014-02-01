@@ -3,7 +3,6 @@ package org.squirrelframework.foundation.fsm;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang3.StringUtils;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
@@ -15,7 +14,7 @@ import org.squirrelframework.foundation.fsm.annotation.OnTransitionException;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 
-public class StateMachineStatModel {
+public class StateMachinePerformanceMonitor {
     
     private final String name;
     
@@ -45,22 +44,63 @@ public class StateMachineStatModel {
     
     private final ConcurrentMap<String, AtomicLong> minActionConsumedTime = Maps.newConcurrentMap();
     
-    public StateMachineStatModel(String name) {
+    private final Object waitLock = new Object();
+    
+    private volatile boolean isBusyStat = false;
+    
+    public StateMachinePerformanceMonitor(String name) {
         this.name = name;
     }
     
-    public String getTransitionKey(Object sourceState, Object targetState, Object event, Object context) {
+    private String getTransitionKey(Object sourceState, Object targetState, Object event, Object context) {
         return sourceState+ "--{"+event+", "+context+"}->"+targetState;
+    }
+    
+    private void clearCache() {
+        transitionInvokeTimes.clear();
+        transitionFailedTimes.clear();
+        transitionDeclinedTimes.clear();
+        transitionElapsedMillis.clear();
+        maxTransitionConsumedTime.clear();
+        minTransitionConsumedTime.clear();
+        actionInvokeTimes.clear();
+        actionFailedTimes.clear();
+        actionElapsedMillis.clear();
+        maxActionConsumedTime.clear();
+        minActionConsumedTime.clear();
+    }
+    
+    private void waitIfBusyLock() {
+        if (isBusyStat) {
+            synchronized (waitLock) {
+                while (isBusyStat) {
+                    try {
+                        waitLock.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+    }
+    
+    private void notifyAllAfterBusyStat() {
+        synchronized (waitLock) {
+            isBusyStat = false;
+            waitLock.notifyAll();
+        }
     }
     
     @OnTransitionBegin
     public void onTransitionBegin(StateMachine<?,?,?,?> fsm) {
+        waitIfBusyLock();
         transitionWatches.put(fsm.getIdentifier(), new Stopwatch().start());
     }
     
     @OnTransitionEnd
     public void onTransitionEnd(Object sourceState, Object targetState, 
             Object event, Object context, StateMachine<?,?,?,?> fsm) {
+        waitIfBusyLock();
         String tKey = getTransitionKey(sourceState, targetState, event, context);
         long delta = transitionWatches.get(fsm.getIdentifier()).elapsedMillis();
         transitionElapsedMillis.putIfAbsent(tKey, new AtomicLong(0));
@@ -81,6 +121,7 @@ public class StateMachineStatModel {
     
     @OnTransitionException
     public void onTransitionException(Object sourceState, Object targetState, Object event, Object context) {
+        waitIfBusyLock();
         String tKey = getTransitionKey(sourceState, targetState, event, context);
         transitionFailedTimes.putIfAbsent(tKey, new AtomicLong(0));
         transitionFailedTimes.get(tKey).incrementAndGet();
@@ -88,6 +129,7 @@ public class StateMachineStatModel {
     
     @OnTransitionDecline
     public void onTransitionDeclined(Object sourceState, Object event, Object context) {
+        waitIfBusyLock();
         String tKey = getTransitionKey(sourceState, null, event, context);
         transitionDeclinedTimes.putIfAbsent(tKey, new AtomicLong(0));
         transitionDeclinedTimes.get(tKey).incrementAndGet();
@@ -95,11 +137,13 @@ public class StateMachineStatModel {
     
     @OnBeforeActionExecuted
     public void onBeforeActionExecuted(StateMachine<?,?,?,?> fsm, Action<?, ?, ?,?> action) {
+        waitIfBusyLock();
         actionWatches.put(fsm.getIdentifier(), new Stopwatch().start());
     }
     
     @OnAfterActionExecuted
     public void onAfterActionExecuted(StateMachine<?,?,?,?> fsm, Action<?, ?, ?,?> action) {
+        waitIfBusyLock();
         String aKey = action.toString();
         long delta = actionWatches.get(fsm.getIdentifier()).elapsedMillis();
         actionElapsedMillis.putIfAbsent(aKey, new AtomicLong(0));
@@ -120,6 +164,7 @@ public class StateMachineStatModel {
     
     @OnActionExecException
     public void onActionExecException(Action<?, ?, ?,?> action) {
+        waitIfBusyLock();
         String aKey = action.toString();
         actionFailedTimes.putIfAbsent(aKey, new AtomicLong(0));
         actionFailedTimes.get(aKey).incrementAndGet();
@@ -133,60 +178,59 @@ public class StateMachineStatModel {
         return result;
     }
     
-    public String getStatInfo() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("========================== ");
-        builder.append(name);
-        builder.append(" ==========================\n");
+    public StateMachinePerformanceModel getPerfModel() {
+        isBusyStat = true;
+        
+        StateMachinePerformanceModel perfModel = new StateMachinePerformanceModel();
+        perfModel.setName(name);
         
         long totalTransitionInvokedTimes = getTotal(transitionInvokeTimes);
+        perfModel.setTotalTransitionInvokedTimes(totalTransitionInvokedTimes);
+        
         long totalTransitionFailedTimes = getTotal(transitionFailedTimes);
+        perfModel.setTotalTransitionFailedTimes(totalTransitionFailedTimes);
+        
         long totalTransitionDeclinedTimes = getTotal(transitionDeclinedTimes);
+        perfModel.setTotalTransitionDeclinedTimes(totalTransitionDeclinedTimes);
+        
         long totalTransitionConsumedTime = getTotal(transitionElapsedMillis);
         float averageTranstionConsumedTime = 
                 totalTransitionConsumedTime / (totalTransitionInvokedTimes+Float.MIN_VALUE);
+        perfModel.setAverageTranstionConsumedTime(averageTranstionConsumedTime);
         
         long totalActionInvokedTimes = getTotal(actionInvokeTimes);
+        perfModel.setTotalActionInvokedTimes(totalActionInvokedTimes);
+        
         long totalActionFailedTimes = getTotal(actionFailedTimes);
+        perfModel.setTotalActionFailedTimes(totalActionFailedTimes);
+        
         long totalActionConsumedTime = getTotal(actionElapsedMillis);
         float averageActionConsumedTime = 
                 totalActionConsumedTime / (totalActionInvokedTimes+Float.MIN_VALUE);
+        perfModel.setAverageActionConsumedTime(averageActionConsumedTime);
         
-        builder.append("Total Transition Invoked: ").append(totalTransitionInvokedTimes).append("\n");
-        builder.append("Total Transition Failed: ").append(totalTransitionFailedTimes).append("\n");
-        builder.append("Total Transition Declained: ").append(totalTransitionDeclinedTimes).append("\n");
-        builder.append("Average Transition Comsumed: ").append(String.format("%.2fms", averageTranstionConsumedTime)).append("\n");
         
-        builder.append("\t").append("Transition Key").append("\t\tInvoked Times\tAverage Time\tMax Time\tMin Time\n");
         for(String tKey : transitionInvokeTimes.keySet()) {
-            float averageTime = transitionElapsedMillis.get(tKey).get() / (transitionInvokeTimes.get(tKey).get()+Float.MIN_VALUE);
-            builder.append("\t").append(StringUtils.abbreviateMiddle(tKey, "...", 15)).append("\t\t").
-                append(transitionInvokeTimes.get(tKey)).append("\t\t").
-                append(String.format("%.2fms", averageTime)).append("\t\t").
-                append(maxTransitionConsumedTime.get(tKey)).append("ms\t\t").
-                append(minTransitionConsumedTime.get(tKey)).append("ms\t\t");
-            builder.append("\n");
+            float averageTime = transitionElapsedMillis.get(tKey).get() / 
+                    (transitionInvokeTimes.get(tKey).get()+Float.MIN_VALUE);
+            perfModel.addAverTransitionConsumedTime(tKey, averageTime);
+            perfModel.addTransitionInvokeTime(tKey, transitionInvokeTimes.get(tKey).get());
+            perfModel.addMaxTransitionConsumedTime(tKey, maxTransitionConsumedTime.get(tKey).get());
+            perfModel.addMinTransitionConsumedTime(tKey, minTransitionConsumedTime.get(tKey).get());
         }
         
-        builder.append("Total Action Invoked: ").append(totalActionInvokedTimes).append("\n");
-        builder.append("Total Action Failed: ").append(totalActionFailedTimes).append("\n");
-        builder.append("Average Action Execution Comsumed: ").append(String.format("%.2fms", averageActionConsumedTime)).append("\n");
         
-        builder.append("\t").append("Action Key").append("\t\tInvoked Times\tAverage Time\tMax Time\tMin Time\n");
         for(String aKey : actionInvokeTimes.keySet()) {
-            float averageTime = actionElapsedMillis.get(aKey).get() / (actionInvokeTimes.get(aKey).get()+Float.MIN_VALUE);
-            builder.append("\t").append(StringUtils.abbreviateMiddle(aKey, "...", 15)).append("\t\t").
-                append(actionInvokeTimes.get(aKey)).append("\t\t").
-                append(String.format("%.2fms", averageTime)).append("\t\t").
-                append(maxActionConsumedTime.get(aKey)).append("ms\t\t").
-                append(minActionConsumedTime.get(aKey)).append("ms\t\t");
-            builder.append("\n");
+            float averageTime = actionElapsedMillis.get(aKey).get() / 
+                    (actionInvokeTimes.get(aKey).get()+Float.MIN_VALUE);
+            perfModel.addAverActionConsumedTime(aKey, averageTime);
+            perfModel.addActionInvokeTime(aKey, actionInvokeTimes.get(aKey).get());
+            perfModel.addMaxActionConsumedTime(aKey, maxActionConsumedTime.get(aKey).get());
+            perfModel.addMinActionConsumedTime(aKey, minActionConsumedTime.get(aKey).get());
         }
         
-        builder.append("========================== ");
-        builder.append(name);
-        builder.append(" ==========================").append("\n");
-        return builder.toString();
-        
+        clearCache();
+        notifyAllAfterBusyStat();
+        return perfModel;
     }
 }
