@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.AnonymousUntypedAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
@@ -43,6 +44,7 @@ public class ConcurrentEventTest {
         builder = StateMachineBuilderFactory.create(ConcurrentSimpleStateMachine.class);
     }
     
+    @SuppressWarnings("rawtypes")
     @Test
     public void testConcurrentEvents() { 
         // test concurrent read/write/test/dump state machine
@@ -147,8 +149,9 @@ public class ConcurrentEventTest {
         
         Assert.assertEquals(fsm.getCurrentState(), "C");
         Assert.assertEquals(readStateRef.get(), "C");
-        Assert.assertNull(testStateRef.get());
-        Assert.assertNull(dumpDataRef.get());
+        Assert.assertEquals(testStateRef.get(), "E");
+        Assert.assertNotNull(dumpDataRef.get());
+        Assert.assertEquals(((StateMachineData.Reader)dumpDataRef.get()).currentState(), "C");
         
         Object testAgain = fsm.test("SECOND");
         Assert.assertEquals(testAgain, "E");

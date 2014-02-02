@@ -112,7 +112,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private LinkedBlockingQueue<Pair<E, C>> queuedTestEvents = new LinkedBlockingQueue<Pair<E, C>>();
     
-    private volatile boolean isTestingEvent = false;
+    private volatile boolean isProcessingTestEvent = false;
     
     private E startEvent, finishEvent, terminateEvent;
     
@@ -269,34 +269,28 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 "Cannot test state machine under "+status+" status.");
         
         S testResult = null;
-        if(processingLock.tryLock()) {
-            try {
-                queuedTestEvents.add(new Pair<E, C>(event, context));
-                if(!isTestingEvent) {
-                    isTestingEvent = true;
-                    @SuppressWarnings("unchecked")
-                    StateMachineData<T, S, E, C> cloneData = (StateMachineData<T, S, E, C>)dumpSavedData();
-                    ActionExecutionService<T, S, E, C> dummyExecutor = getDummyExecutor();
-                    
-                    if(getStatus()==StateMachineStatus.INITIALIZED) {
-                        if(autoStart) {
-                            internalStart(context, cloneData, dummyExecutor);
-                        } else {
-                            throw new IllegalStateException("The state machine is not running.");
-                        }
-                    }
-                    try {
-                        Pair<E, C> eventInfo = null;
-                        while ((eventInfo=queuedTestEvents.poll())!=null) {
-                            processEvent(eventInfo.first(), eventInfo.second(), cloneData, dummyExecutor);
-                        }
-                        testResult = resolveState(cloneData.read().currentState(), cloneData);
-                    } finally {
-                        isTestingEvent = false;
-                    }
+        queuedTestEvents.add(new Pair<E, C>(event, context));
+        if(!isProcessingTestEvent) {
+            isProcessingTestEvent = true;
+            @SuppressWarnings("unchecked")
+            StateMachineData<T, S, E, C> cloneData = (StateMachineData<T, S, E, C>)dumpSavedData();
+            ActionExecutionService<T, S, E, C> dummyExecutor = getDummyExecutor();
+            
+            if(getStatus()==StateMachineStatus.INITIALIZED) {
+                if(autoStart) {
+                    internalStart(context, cloneData, dummyExecutor);
+                } else {
+                    throw new IllegalStateException("The state machine is not running.");
                 }
+            }
+            try {
+                Pair<E, C> eventInfo = null;
+                while ((eventInfo=queuedTestEvents.poll())!=null) {
+                    processEvent(eventInfo.first(), eventInfo.second(), cloneData, dummyExecutor);
+                }
+                testResult = resolveState(cloneData.read().currentState(), cloneData);
             } finally {
-                processingLock.unlock();
+                isProcessingTestEvent = false;
             }
         }
         return testResult;
@@ -612,21 +606,19 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
-        StateMachineData<T, S, E, C> savedData = null;
-        if(processingLock.tryLock()) {
-            try {
-                savedData = SquirrelProvider.getInstance().newInstance( 
-                        new TypeReference<StateMachineData<T, S, E, C>>(){}, 
-                        new Class[]{Map.class}, new Object[]{data.read().orginalStates()});
-                savedData.dump(data.read());
-                
-                // process linked state if any
-                saveLinkedStateData(data.read(), savedData.write());
-            } finally {
-                processingLock.unlock();
-            }
-        } 
-        return savedData==null ? null : savedData.read();
+        processingLock.lock();
+        try {
+            StateMachineData<T, S, E, C> savedData = SquirrelProvider.getInstance().newInstance( 
+                    new TypeReference<StateMachineData<T, S, E, C>>(){}, 
+                    new Class[]{Map.class}, new Object[]{data.read().orginalStates()});
+            savedData.dump(data.read());
+            
+            // process linked state if any
+            saveLinkedStateData(data.read(), savedData.write());
+            return savedData.read();
+        } finally {
+            processingLock.unlock();
+        }
     }
     
     private void saveLinkedStateData(StateMachineData.Reader<T, S, E, C> src, StateMachineData.Writer<T, S, E, C> target) {
