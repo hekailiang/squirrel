@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -299,6 +300,10 @@ public class ParallelStateMachineTest {
 	    stateMachine.start();
         stateMachine.fire(PEvent.A1a2A1b, 1);
         stateMachine.fire(PEvent.A1b2A1c, 1);
+        List<PState> subStates = stateMachine.getSubStatesOn(stateMachine.getCurrentState());
+        assertEquals("Total/A/A2/A2b", stateMachine.getRawStateFrom(subStates.get(0)).getPath());
+        assertEquals("Total/A/A1/A1c", stateMachine.getRawStateFrom(subStates.get(1)).getPath());
+        assertEquals("Total/A", stateMachine.getCurrentRawState().getPath());
         StateMachineData.Reader<ParallelStateMachine, PState, PEvent, Integer> savedData = 
                 stateMachine.dumpSavedData();
         stateMachine.terminate(null);

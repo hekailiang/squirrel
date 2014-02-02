@@ -599,6 +599,16 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     }
     
     protected String getKey(T stateMachine) {
-        return stateMachine.getIdentifier()+'@'+getStateId();
+        return stateMachine.getIdentifier()+'@'+getPath();
+    }
+    
+    @Override
+    public String getPath() {
+        String currentId = stateId.toString();
+        if(parentState==null) {
+            return currentId;
+        } else {
+            return parentState.getPath() + "/" + currentId;
+        }
     }
 }

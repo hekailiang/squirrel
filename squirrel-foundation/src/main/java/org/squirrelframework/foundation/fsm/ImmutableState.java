@@ -156,4 +156,6 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     void verify();
     
     ImmutableState<T, S, E, C> getThis();
+    
+    String getPath();
 }
