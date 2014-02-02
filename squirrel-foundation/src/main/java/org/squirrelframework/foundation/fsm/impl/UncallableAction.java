@@ -30,4 +30,14 @@ final class UncallableActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     public final String toString() {
         return action.toString();
     }
+
+    @Override
+    public boolean isAsync() {
+        return action.isAsync();
+    }
+
+    @Override
+    public long timeout() {
+        return action.timeout();
+    }
 }

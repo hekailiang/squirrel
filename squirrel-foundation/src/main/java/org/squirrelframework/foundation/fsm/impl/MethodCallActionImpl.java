@@ -6,10 +6,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.ExecuteWhen;
 import org.squirrelframework.foundation.fsm.annotation.LogExecTime;
@@ -37,7 +35,6 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     
     private final boolean isAsync;
     
-    @SuppressWarnings("unused")
     private final long timeout;
     
     MethodCallActionImpl(Method method, int weight, ExecutionContext executionContext) {
@@ -69,23 +66,7 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     @Override
     public void execute(final S from, final S to, 
             final E event, final C context, final T stateMachine) {
-        if(isAsync) {
-            final boolean isTestEvent = StateMachineContext.isTestEvent();
-            final T instance = StateMachineContext.currentInstance();
-            SquirrelConfiguration.getExecutor().submit(new Runnable() {
-                @Override
-                public void run() {
-                    StateMachineContext.set(instance, isTestEvent);
-                    try {
-                        invokeMethod(from, to, event, context, stateMachine);
-                    } finally {
-                        StateMachineContext.set(null);
-                    }
-                }
-            });
-        } else {
-            invokeMethod(from, to, event, context, stateMachine);
-        }
+        invokeMethod(from, to, event, context, stateMachine);
     }
         
     private void invokeMethod(S from, S to, E event, C context, T stateMachine) {
@@ -143,5 +124,15 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
     @Override
     final public String toString() {
         return "method#"+method.getName()+":"+weight;
+    }
+
+    @Override
+    public boolean isAsync() {
+        return isAsync;
+    }
+
+    @Override
+    public long timeout() {
+        return timeout;
     }
 }

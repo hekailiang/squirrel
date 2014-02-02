@@ -34,6 +34,10 @@ public class StateMachineContextTest {
         @AsyncExecute
         public void onAToB(String from, String to, FSMEvent event, Integer context) {
             currentInstance = StateMachineContext.currentInstance();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
         }
     }
     
@@ -74,10 +78,6 @@ public class StateMachineContextTest {
         final StateMachineSample fsm = builder.newUntypedStateMachine("A");
         assertTrue(StateMachineContext.currentInstance()==null);
         fsm.fire(FSMEvent.ToB, 10);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-        }
         assertTrue(fsm==fsm.currentInstance);
         assertTrue(StateMachineContext.currentInstance()==null);
     }

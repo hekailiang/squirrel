@@ -102,4 +102,14 @@ public class MethodCallActionProxyImpl<T extends StateMachine<T, S, E, C>, S, E,
     final public String toString() {
         return "method#"+methodName+":"+weight;
     }
+
+    @Override
+    public boolean isAsync() {
+        return getDelegator().isAsync();
+    }
+
+    @Override
+    public long timeout() {
+        return getDelegator().timeout();
+    }
 }

@@ -18,4 +18,13 @@ public abstract class AnonymousAction<T extends StateMachine<T, S, E, C>, S, E, 
         return "instance#"+getClass().getName();
     }
 
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+    
+    @Override
+    public long timeout() {
+        return -1;
+    }
 }

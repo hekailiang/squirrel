@@ -43,6 +43,10 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
     
     int weight();
     
+    boolean isAsync();
+    
+    long timeout();
+    
     @SuppressWarnings("rawtypes")
     public final static Action DUMMY_ACTION = new AnonymousAction() {
         @Override

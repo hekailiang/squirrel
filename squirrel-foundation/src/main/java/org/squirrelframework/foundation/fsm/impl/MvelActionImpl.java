@@ -101,4 +101,14 @@ class MvelActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Act
             return false;
         return true;
     }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public long timeout() {
+        return -1;
+    }
 }

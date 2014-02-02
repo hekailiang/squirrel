@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Target({TYPE, METHOD})
 @Documented
 public @interface AsyncExecute {
-    long timeout() default 0;
+    long timeout() default -1;
 }

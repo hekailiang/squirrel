@@ -2,10 +2,15 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.component.impl.AbstractSubject;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
@@ -13,8 +18,10 @@ import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineContext;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> 
     extends AbstractSubject implements ActionExecutionService<T, S, E, C> {
@@ -40,13 +47,34 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     @Override
     public void execute() {
-        List<ActionContext<T, S, E, C>> actionContexts = stack.pop();
-        for (int i=0, size=actionContexts.size(); i<size; ++i) {
-            ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
+        final List<ActionContext<T, S, E, C>> actionContexts = stack.pop();
+        final Map<ActionContext<T, S, E, C>, Future<?>> futures = Maps.newHashMap();
+        final int actionSize = actionContexts.size();
+        for (int i=0; i<actionSize; ++i) {
+            final ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
             if(actionContext.action.weight()!=Action.IGNORE_WEIGHT) {
                 try {
-                    fireEvent(BeforeExecActionEventImpl.get(i+1, size, actionContext));
-                    if(!dummyExecution) actionContext.run();
+                    fireEvent(BeforeExecActionEventImpl.get(i+1, actionSize, actionContext));
+                    if(dummyExecution) continue;
+                    if(actionContext.action.isAsync()) {
+                        final boolean isTestEvent = StateMachineContext.isTestEvent();
+                        final T instance = StateMachineContext.currentInstance();
+                        Future<?> future = SquirrelConfiguration.getExecutor().submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                StateMachineContext.set(instance, isTestEvent);
+                                try {
+                                    actionContext.run();
+                                } finally {
+                                    StateMachineContext.set(null);
+                                }
+                            }
+                        });
+                        // if run background then not add to this list
+                        futures.put(actionContext, future);
+                    } else {
+                        actionContext.run();
+                    }
                 } catch (Exception e) {
                     Throwable t = (e instanceof SquirrelRuntimeException) ?
                             ((SquirrelRuntimeException)e).getTargetException() : e;
@@ -54,13 +82,32 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                     TransitionException te = new TransitionException(t, ErrorCodes.FSM_TRANSITION_ERROR, 
                             new Object[]{actionContext.from, actionContext.to, actionContext.event, 
                             actionContext.context, actionContext.action.name(), e.getMessage()});
-                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, i+1, size, actionContext));
+                    fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, i+1, actionSize, actionContext));
                     throw te;
                 } finally {
-                    fireEvent(AfterExecActionEventImpl.get(i+1, size, actionContext));
+                    fireEvent(AfterExecActionEventImpl.get(i+1, actionSize, actionContext));
                 }
             } else {
-                logger.info("Method call action \""+actionContext.action.name()+"\" ("+(i+1)+" of "+size+") was ignored.");
+                logger.info("Method call action \""+actionContext.action.name()+"\" ("+(i+1)+" of "+actionSize+") was ignored.");
+            }
+        }
+        
+        for(Entry<ActionContext<T, S, E, C>, Future<?>> entry : futures.entrySet()) {
+            Future<?> future = entry.getValue();
+            ActionContext<T, S, E, C> actionContext = entry.getKey();
+            try {
+                if(actionContext.action.timeout()>=0) {
+                    future.get(actionContext.action.timeout(), TimeUnit.MILLISECONDS);
+                } else {
+                    future.get();
+                }
+            } catch (Exception e) {
+                TransitionException te = new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
+                        new Object[]{actionContext.from, actionContext.to, actionContext.event, 
+                        actionContext.context, actionContext.action.name(), e.getMessage()});
+                fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, 
+                        actionContexts.indexOf(actionContext)+1, actionSize, actionContext));
+                throw te;
             }
         }
     }
