@@ -15,7 +15,9 @@ public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
     
     StringBuilder logger = new StringBuilder();
     
-    Thread methodCallThread = null;
+    Thread fromAToBCallThread = null;
+    
+    Thread fromBToCCallThread = null;
 
     protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
             Map<Object, ImmutableUntypedState> states) {
@@ -25,6 +27,19 @@ public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
     @AsyncExecute
     protected void fromAToB(String from, String to, String event) {
         logger.append("fromAToB");
-        methodCallThread = Thread.currentThread();
+        fromAToBCallThread = Thread.currentThread();
+        fire("SECOND");
+    }
+    
+    protected void fromBToC(String from, String to, String event) {
+        logger.append("fromBToC");
+        fromBToCCallThread = Thread.currentThread();
+    }
+    
+    @Override
+    protected void beforeActionInvoked(Object fromState, Object toState, Object event, Object context) {
+        if (logger.length() > 0) {
+            logger.append('.');
+        }
     }
 }

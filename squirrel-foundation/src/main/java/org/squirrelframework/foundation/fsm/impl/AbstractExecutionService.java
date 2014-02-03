@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -93,8 +94,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         }
         
         for(Entry<ActionContext<T, S, E, C>, Future<?>> entry : futures.entrySet()) {
-            Future<?> future = entry.getValue();
-            ActionContext<T, S, E, C> actionContext = entry.getKey();
+            final Future<?> future = entry.getValue();
+            final ActionContext<T, S, E, C> actionContext = entry.getKey();
             try {
                 if(actionContext.action.timeout()>=0) {
                     future.get(actionContext.action.timeout(), TimeUnit.MILLISECONDS);
@@ -102,7 +103,12 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                     future.get();
                 }
             } catch (Exception e) {
-                TransitionException te = new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
+                future.cancel(true);
+                Throwable t = e;
+                if(e instanceof ExecutionException) {
+                    t = ((ExecutionException)e).getCause();
+                }
+                TransitionException te = new TransitionException(t, ErrorCodes.FSM_TRANSITION_ERROR, 
                         new Object[]{actionContext.from, actionContext.to, actionContext.event, 
                         actionContext.context, actionContext.action.name(), e.getMessage()});
                 fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, 

@@ -1,12 +1,15 @@
 package org.squirrelframework.foundation.fsm.threadsafe;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +20,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
-import org.squirrelframework.foundation.fsm.AnonymousUntypedAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
-import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 
 @RunWith(Parameterized.class)
 public class ConcurrentEventTest {
@@ -144,17 +145,17 @@ public class ConcurrentEventTest {
             eventCondition.await(1000, TimeUnit.MILLISECONDS);
             TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
         } catch (InterruptedException e) {
-            Assert.fail();
+            fail();
         }
         
-        Assert.assertEquals(fsm.getCurrentState(), "C");
-        Assert.assertEquals(readStateRef.get(), "C");
-        Assert.assertEquals(testStateRef.get(), "E");
-        Assert.assertNotNull(dumpDataRef.get());
-        Assert.assertEquals(((StateMachineData.Reader)dumpDataRef.get()).currentState(), "C");
+        assertEquals(fsm.getCurrentState(), "C");
+        assertEquals(readStateRef.get(), "C");
+        assertEquals(testStateRef.get(), "E");
+        assertNotNull(dumpDataRef.get());
+        assertEquals(((StateMachineData.Reader)dumpDataRef.get()).currentState(), "C");
         
         Object testAgain = fsm.test("SECOND");
-        Assert.assertEquals(testAgain, "E");
+        assertEquals(testAgain, "E");
     }
     
     @Test
@@ -255,7 +256,7 @@ public class ConcurrentEventTest {
             eventCondition.await(1000, TimeUnit.MILLISECONDS);
             TimeUnit.MILLISECONDS.sleep(TIME_INTERVAL);
         } catch (InterruptedException e) {
-            Assert.fail();
+            fail();
         }
         
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
@@ -357,66 +358,14 @@ public class ConcurrentEventTest {
         try {
             eventCondition.await(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            Assert.fail();
+            fail();
         }
         
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener1();
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener3();
         inOrder.verify(callSequence.mock, Mockito.times(1)).listener2();
-        Assert.assertTrue(executorThread1.get()!=null && executorThread1.get()==mainThread);
-        Assert.assertTrue(executorThread3.get()!=null && executorThread3.get()==mainThread);
-        Assert.assertTrue(executorThread2.get()!=null && executorThread2.get()!=mainThread);
-    }
-    
-    @Test
-    @SuppressWarnings("unused")
-    public void testTimedState() {
-        final StringBuilder logger = new StringBuilder();
-        // timed state must be defined before transition
-        builder.defineTimedState("A", 4, 10, "FIRST", null);
-        builder.internalTransition().within("A").on("FIRST").perform(new AnonymousUntypedAction() {
-            @Override
-            public void execute(Object from, Object to, Object event,
-                    Object context, UntypedStateMachine stateMachine) {
-                if (logger.length() > 0) {
-                    logger.append('.');
-                }
-                logger.append("AToBOnFIRST");
-            }
-        });
-        builder.transition().from("A").to("B").on("SECOND");
-        final UntypedStateMachine fsm = builder.newStateMachine("A");
-        fsm.addDeclarativeListener(new Object() {
-            @OnTransitionDecline
-            public void onTransitionDeclined() {
-                Assert.fail();
-            }
-        });
-        fsm.start();
-        try {
-            TimeUnit.MILLISECONDS.sleep(50);
-        } catch (InterruptedException e) {
-        }
-        fsm.fire("SECOND");
-        try {
-            TimeUnit.MILLISECONDS.sleep(50);
-        } catch (InterruptedException e) {
-        }
-        fsm.terminate();
-        Assert.assertEquals("AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST", logger.toString());
-    }
-    
-    @Test
-    public void testAsyncMethodCall() {
-        builder.transition().from("A").to("B").on("FIRST").callMethod("fromAToB");
-        final ConcurrentSimpleStateMachine fsm = builder.newUntypedStateMachine("A");
-        fsm.fire("FIRST");
-        try {
-            TimeUnit.MILLISECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            Assert.fail();
-        }
-        Assert.assertEquals("fromAToB", fsm.logger.toString());
-        Assert.assertTrue(Thread.currentThread()!=fsm.methodCallThread);
+        assertTrue(executorThread1.get()!=null && executorThread1.get()==mainThread);
+        assertTrue(executorThread3.get()!=null && executorThread3.get()==mainThread);
+        assertTrue(executorThread2.get()!=null && executorThread2.get()!=mainThread);
     }
 }
