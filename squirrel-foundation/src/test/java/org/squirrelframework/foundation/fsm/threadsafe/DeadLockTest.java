@@ -13,10 +13,7 @@ import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 
 public class DeadLockTest {
     
-    @Test
-    public void testMutualReadAndWrite() {
-        final CountDownLatch actionCondition = new CountDownLatch(1);
-        final CountDownLatch eventCondition = new CountDownLatch(2);
+    private UntypedStateMachine[] getTestingFSMInstances() {
         UntypedStateMachineBuilder builder1 = StateMachineBuilderFactory.create(ConcurrentSimpleStateMachine.class);
         builder1.transition().from("A").to("B").on("FIRST").perform(
                 new AnonymousAction<UntypedStateMachine, Object, Object, Object>() {
@@ -24,7 +21,7 @@ public class DeadLockTest {
             public void execute(Object from, Object to, Object event,
                     Object context, UntypedStateMachine stateMachine) {
                 try {
-                    actionCondition.await();
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -39,7 +36,6 @@ public class DeadLockTest {
             @Override
             public void execute(Object from, Object to, Object event,
                     Object context, UntypedStateMachine stateMachine) {
-                actionCondition.countDown();
                 UntypedStateMachine fsm1 = (UntypedStateMachine)context;
                 System.out.println("fsm1 current state: "+fsm1.getCurrentState());
             }
@@ -50,10 +46,17 @@ public class DeadLockTest {
         final UntypedStateMachine fsm2 = builder2.newStateMachine("C");
         fsm2.start();
         
+        return new UntypedStateMachine[]{fsm1, fsm2};
+    }
+    
+    @Test
+    public void testDeadLockProblem() {
+        final UntypedStateMachine[] fsm = getTestingFSMInstances();
+        final CountDownLatch eventCondition = new CountDownLatch(2);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                fsm1.fire("FIRST", fsm2);
+                fsm[0].fire("FIRST", fsm[1]);
                 eventCondition.countDown();
             }
         }, "Test-Thread-1").start();
@@ -61,14 +64,49 @@ public class DeadLockTest {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                fsm2.fire("SECOND", fsm1);
+                fsm[1].fire("SECOND", fsm[0]);
                 eventCondition.countDown();
             }
         }, "Test-Thread-2").start();
         
         try {
-            boolean isJobDone = eventCondition.await(2000, TimeUnit.MILLISECONDS);
+            boolean isJobDone = eventCondition.await(1000, TimeUnit.MILLISECONDS);
             Assert.assertTrue(isJobDone==false); // due to dead lock, job cannot be done properly
+        } catch (InterruptedException e) {
+        }
+    }
+    
+    @Test(timeout=100)
+    public void testDeadLockFixed() {
+        final UntypedStateMachine[] fsm = getTestingFSMInstances();
+        final CountDownLatch eventCondition = new CountDownLatch(2);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (fsm[0]) {
+                    synchronized (fsm[1]) {
+                        fsm[0].fire("FIRST", fsm[1]);
+                    }
+                }
+                eventCondition.countDown();
+            }
+        }, "Test-Thread-1").start();
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (fsm[0]) {
+                    synchronized (fsm[1]) {
+                        fsm[1].fire("SECOND", fsm[0]);
+                    }
+                }
+                eventCondition.countDown();
+            }
+        }, "Test-Thread-2").start();
+        
+        try {
+            boolean isJobDone = eventCondition.await(50, TimeUnit.MILLISECONDS);
+            Assert.assertTrue(isJobDone);
         } catch (InterruptedException e) {
         }
     }
