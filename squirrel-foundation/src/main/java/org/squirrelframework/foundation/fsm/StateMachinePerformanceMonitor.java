@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
+import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
+import org.squirrelframework.foundation.fsm.annotation.OnStateMachineTerminate;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionEnd;
@@ -70,7 +72,7 @@ public class StateMachinePerformanceMonitor {
         minActionConsumedTime.clear();
     }
     
-    private void waitIfBusyLock() {
+    private void waitIfBusyStat() {
         if (isBusyStat) {
             synchronized (waitLock) {
                 while (isBusyStat) {
@@ -91,18 +93,30 @@ public class StateMachinePerformanceMonitor {
         }
     }
     
+    @OnStateMachineStart
+    public void onStateMachineStart(StateMachine<?,?,?,?> fsm) {
+        transitionWatches.put(fsm.getIdentifier(), new Stopwatch());
+        actionWatches.put(fsm.getIdentifier(), new Stopwatch());
+    }
+    
+    @OnStateMachineTerminate
+    public void onStateMachineTerminate(StateMachine<?,?,?,?> fsm) {
+        transitionWatches.remove(fsm.getIdentifier());
+        actionWatches.remove(fsm.getIdentifier());
+    }
+    
     @OnTransitionBegin
     public void onTransitionBegin(StateMachine<?,?,?,?> fsm) {
-        waitIfBusyLock();
-        transitionWatches.put(fsm.getIdentifier(), new Stopwatch().start());
+        waitIfBusyStat();
+        transitionWatches.get(fsm.getIdentifier()).reset().start();
     }
     
     @OnTransitionEnd
     public void onTransitionEnd(Object sourceState, Object targetState, 
             Object event, Object context, StateMachine<?,?,?,?> fsm) {
-        waitIfBusyLock();
+        waitIfBusyStat();
         String tKey = getTransitionKey(sourceState, targetState, event, context);
-        long delta = transitionWatches.get(fsm.getIdentifier()).elapsedMillis();
+        long delta = transitionWatches.get(fsm.getIdentifier()).stop().elapsedMillis();
         transitionElapsedMillis.putIfAbsent(tKey, new AtomicLong(0));
         transitionElapsedMillis.get(tKey).addAndGet(delta);
         transitionInvokeTimes.putIfAbsent(tKey, new AtomicLong(0));
@@ -121,7 +135,7 @@ public class StateMachinePerformanceMonitor {
     
     @OnTransitionException
     public void onTransitionException(Object sourceState, Object targetState, Object event, Object context) {
-        waitIfBusyLock();
+        waitIfBusyStat();
         String tKey = getTransitionKey(sourceState, targetState, event, context);
         transitionFailedTimes.putIfAbsent(tKey, new AtomicLong(0));
         transitionFailedTimes.get(tKey).incrementAndGet();
@@ -129,7 +143,7 @@ public class StateMachinePerformanceMonitor {
     
     @OnTransitionDecline
     public void onTransitionDeclined(Object sourceState, Object event, Object context) {
-        waitIfBusyLock();
+        waitIfBusyStat();
         String tKey = getTransitionKey(sourceState, null, event, context);
         transitionDeclinedTimes.putIfAbsent(tKey, new AtomicLong(0));
         transitionDeclinedTimes.get(tKey).incrementAndGet();
@@ -137,15 +151,15 @@ public class StateMachinePerformanceMonitor {
     
     @OnBeforeActionExecuted
     public void onBeforeActionExecuted(StateMachine<?,?,?,?> fsm, Action<?, ?, ?,?> action) {
-        waitIfBusyLock();
-        actionWatches.put(fsm.getIdentifier(), new Stopwatch().start());
+        waitIfBusyStat();
+        actionWatches.get(fsm.getIdentifier()).reset().start();
     }
     
     @OnAfterActionExecuted
     public void onAfterActionExecuted(StateMachine<?,?,?,?> fsm, Action<?, ?, ?,?> action) {
-        waitIfBusyLock();
+        waitIfBusyStat();
         String aKey = action.toString();
-        long delta = actionWatches.get(fsm.getIdentifier()).elapsedMillis();
+        long delta = actionWatches.get(fsm.getIdentifier()).stop().elapsedMillis();
         actionElapsedMillis.putIfAbsent(aKey, new AtomicLong(0));
         actionElapsedMillis.get(aKey).addAndGet(delta);
         actionInvokeTimes.putIfAbsent(aKey, new AtomicLong(0));
@@ -164,7 +178,7 @@ public class StateMachinePerformanceMonitor {
     
     @OnActionExecException
     public void onActionExecException(Action<?, ?, ?,?> action) {
-        waitIfBusyLock();
+        waitIfBusyStat();
         String aKey = action.toString();
         actionFailedTimes.putIfAbsent(aKey, new AtomicLong(0));
         actionFailedTimes.get(aKey).incrementAndGet();
@@ -178,7 +192,7 @@ public class StateMachinePerformanceMonitor {
         return result;
     }
     
-    public StateMachinePerformanceModel getPerfModel() {
+    public synchronized StateMachinePerformanceModel getPerfModel() {
         isBusyStat = true;
         
         StateMachinePerformanceModel perfModel = new StateMachinePerformanceModel();

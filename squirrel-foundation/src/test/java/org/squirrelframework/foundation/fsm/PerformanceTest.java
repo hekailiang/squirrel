@@ -3,6 +3,8 @@
  */
 package org.squirrelframework.foundation.fsm;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -25,6 +27,15 @@ public class PerformanceTest {
 
     @Test(timeout = 10000)
     public void manyTransitions() {
+        performTest(10000, false);
+    }
+    
+    @Test
+    public void manyTransitionWithMonitor() {
+        performTest(1000, true);
+    }
+    
+    void performTest(final int iterTimes, final boolean addPerfMonitor) {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineSample.class);
         Action<UntypedStateMachine, Object, Object, Object> action = new AnonymousAction<UntypedStateMachine, Object, Object, Object>() {
             @Override
@@ -40,16 +51,33 @@ public class PerformanceTest {
 
         final UntypedStateMachine fsm1 = builder.newStateMachine("D");
         final UntypedStateMachine fsm2 = builder.newStateMachine("D");
-        final StateMachinePerformanceMonitor performanceMonitor = 
-                new StateMachinePerformanceMonitor(fsm1.getClass().getName());
-        fsm1.addDeclarativeListener(performanceMonitor);
-        fsm2.addDeclarativeListener(performanceMonitor);
+        
+        Runnable showPerfResult = null;
+        if(addPerfMonitor) {
+            final StateMachinePerformanceMonitor performanceMonitor = 
+                    new StateMachinePerformanceMonitor(fsm1.getClass().getName());
+            fsm1.addDeclarativeListener(performanceMonitor);
+            fsm2.addDeclarativeListener(performanceMonitor);
+            
+            showPerfResult = new Runnable() {
+                @Override
+                public void run() {
+                    fsm1.removeDeclarativeListener(performanceMonitor);
+                    fsm2.removeDeclarativeListener(performanceMonitor);
+                    StateMachinePerformanceModel perfModel = performanceMonitor.getPerfModel();
+                    long totalTimes = 2*4*iterTimes;
+                    assertEquals(perfModel.getTotalTransitionInvokedTimes(), totalTimes);
+                    assertEquals(perfModel.getTotalActionInvokedTimes(), totalTimes);
+                    System.out.println(perfModel);
+                }
+            };
+        }
         
         final CountDownLatch eventCondition = new CountDownLatch(2);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < 10000; i++) {
+                for (int i = 0; i < iterTimes; i++) {
                     fsm1.fire(FSMEvent.ToA, 10);
                     fsm1.fire(FSMEvent.ToB, 10);
                     fsm1.fire(FSMEvent.ToC, 10);
@@ -62,7 +90,7 @@ public class PerformanceTest {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < 10000; i++) {
+                for (int i = 0; i < iterTimes; i++) {
                     fsm2.fire(FSMEvent.ToA, 10);
                     fsm2.fire(FSMEvent.ToB, 10);
                     fsm2.fire(FSMEvent.ToC, 10);
@@ -76,8 +104,9 @@ public class PerformanceTest {
             eventCondition.await();
         } catch (InterruptedException e) {
         }
-        fsm1.removeDeclarativeListener(performanceMonitor);
-        fsm2.removeDeclarativeListener(performanceMonitor);
-        System.out.println(performanceMonitor.getPerfModel());
+        
+        if(showPerfResult!=null) {
+            showPerfResult.run();
+        }
     }
 }
