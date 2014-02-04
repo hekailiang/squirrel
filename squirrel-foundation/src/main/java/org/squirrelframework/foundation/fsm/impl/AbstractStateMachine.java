@@ -125,11 +125,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private static final int ID_LENGTH = 10;
     
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
-        data = SquirrelProvider.getInstance().newInstance( 
-                new TypeReference<StateMachineData<T, S, E, C>>(){}, 
-                new Class[]{Map.class}, new Object[]{states} );
-        
         S intialStateId = initialState.getStateId();
+        data = FSM.newStateMachineData(states);
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
         data.write().identifier(RandomStringUtils.randomAlphanumeric(ID_LENGTH));
@@ -608,9 +605,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         processingLock.lock();
         try {
-            StateMachineData<T, S, E, C> savedData = SquirrelProvider.getInstance().newInstance( 
-                    new TypeReference<StateMachineData<T, S, E, C>>(){}, 
-                    new Class[]{Map.class}, new Object[]{data.read().orginalStates()});
+            StateMachineData<T, S, E, C> savedData = 
+                    FSM.newStateMachineData(data.read().orginalStates());
             savedData.dump(data.read());
             
             // process linked state if any

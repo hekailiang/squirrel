@@ -125,4 +125,11 @@ abstract class FSM {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelActionImpl<T, S, E, C>>() {}, 
                 new Class<?>[]{String.class, ExecutionContext.class}, new Object[]{expression, executionContext});
     }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineData<T, S, E, C> newStateMachineData(
+            Map<S, ? extends ImmutableState<T, S, E, C>> states) {
+        return SquirrelProvider.getInstance().newInstance( 
+                new TypeReference<StateMachineData<T, S, E, C>>(){}, 
+                new Class[]{Map.class}, new Object[]{states} );
+    }
 }
