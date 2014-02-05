@@ -104,7 +104,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutionService<T, S, E, C>>(){});
     
-    protected final StateMachineData<T, S, E, C> data;
+    private final StateMachineData<T, S, E, C> data;
     
     private volatile StateMachineStatus status = StateMachineStatus.INITIALIZED;
     
@@ -122,6 +122,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean isContextInsensitive;
     
+    // TODO-hhe: temporary hard-coded disable data isolation 
+    private boolean isDataIsolateEnabled = false;
+    
     private static final int ID_LENGTH = 10;
     
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
@@ -132,23 +135,36 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         data.write().identifier(RandomStringUtils.randomAlphanumeric(ID_LENGTH));
     }
     
-    private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> localData, 
-            ActionExecutionService<T, S, E, C> executionService) {
+    private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> orignalData, 
+            ActionExecutionService<T, S, E, C> executionService, boolean isDataIsolateEnabled) {
+        StateMachineData<T, S, E, C> localData = orignalData;
         ImmutableState<T, S, E, C> fromState = localData.read().currentRawState();
         S fromStateId = fromState.getStateId(), toStateId = null;
         try {
             beforeTransitionBegin(fromStateId, event, context);
             fireEvent(new TransitionBeginEventImpl<T, S, E, C>(fromStateId, event, context, getThis()));
             
+            if(isDataIsolateEnabled) {
+                // use local data to isolation transition data write
+                localData = FSM.newStateMachineData(orignalData.read().orginalStates());
+                localData.dump(orignalData.read());
+            }
+            
             executionService.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
-            fromState.internalFire( FSM.newStateContext(this, localData, fromState, event, context, result, executionService) );
+            StateContext<T, S, E, C> stateContext = FSM.newStateContext(this, localData, 
+                    fromState, event, context, result, executionService);
+            fromState.internalFire(stateContext);
             toStateId = result.getTargetState().getStateId();
             executionService.execute();
             
             if(result.isAccepted()) {
                 localData.write().lastState(fromStateId);
                 localData.write().currentState(toStateId);
+                if(isDataIsolateEnabled) { 
+                    // import local data after transition accepted
+                    orignalData.dump(localData.read());
+                }
                 fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, toStateId, 
                         event, context, getThis()));
                 afterTransitionCompleted(fromStateId, getCurrentState(), event, context);
@@ -189,7 +205,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     }
                     E event = eventInfo.first();
                     C context = eventInfo.second();
-                    processEvent(event, context, data, executor);
+                    processEvent(event, context, data, executor, isDataIsolateEnabled);
                 }
             } finally {
             	if(getStatus()==StateMachineStatus.BUSY)
@@ -283,7 +299,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             try {
                 Pair<E, C> eventInfo = null;
                 while ((eventInfo=queuedTestEvents.poll())!=null) {
-                    processEvent(eventInfo.first(), eventInfo.second(), cloneData, dummyExecutor);
+                    E testEvent = eventInfo.first();
+                    C testContext = eventInfo.second();
+                    processEvent(testEvent, testContext, cloneData, dummyExecutor, false);
                 }
                 testResult = resolveState(cloneData.read().currentState(), cloneData);
             } finally {

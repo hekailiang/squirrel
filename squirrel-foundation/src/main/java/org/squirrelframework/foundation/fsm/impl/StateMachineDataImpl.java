@@ -12,6 +12,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 
 public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
@@ -32,8 +33,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     private final Map<S, S> lastActiveChildStateStore = Maps.newHashMap();
 
-    private final ArrayListMultimap<S, S> parallelStatesStore = ArrayListMultimap
-            .create();
+    private final ListMultimap<S, S> parallelStatesStore = ArrayListMultimap.create();
 
     private Class<? extends T> stateMachineType;
 
@@ -64,9 +64,31 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         }
         return states;
     }
+    
+    private void clear() {
+        currentState = null;
+        lastState = null;
+        initialState = null;
+        stateMachineType = null;
+        stateType = null;
+        eventType = null;
+        contextType = null;
+        identifier = null;
+        if(lastActiveChildStateStore!=null) {
+            lastActiveChildStateStore.clear();
+        }
+        if(parallelStatesStore!=null) {
+            parallelStatesStore.clear();
+        }
+        if(linkStateDataStore!=null) {
+            linkStateDataStore.clear();
+        }
+    }
 
     @Override
     public void dump(StateMachineData.Reader<T, S, E, C> src) {
+        clear();
+        
         this.write().typeOfStateMachine(src.typeOfStateMachine());
         this.write().typeOfState(src.typeOfState());
         this.write().typeOfEvent(src.typeOfEvent());
@@ -80,8 +102,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         for (S state : src.activeParentStates()) {
             S lastActiveChildState = src.lastActiveChildStateOf(state);
             if (lastActiveChildState != null) {
-                this.write().lastActiveChildStateFor(state,
-                        lastActiveChildState);
+                this.write().lastActiveChildStateFor(state, lastActiveChildState);
             }
         }
 
@@ -196,8 +217,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public Collection<S> activeParentStates() {
-        return Collections.unmodifiableCollection(lastActiveChildStateStore
-                .keySet());
+        return Collections.unmodifiableCollection(lastActiveChildStateStore.keySet());
     }
 
     @Override
