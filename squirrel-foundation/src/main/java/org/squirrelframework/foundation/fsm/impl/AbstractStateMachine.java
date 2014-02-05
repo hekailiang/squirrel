@@ -97,10 +97,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
-    private boolean autoStart = true;
-    
-    private boolean autoTerminate = true;
-    
     private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutionService<T, S, E, C>>(){});
     
@@ -120,7 +116,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private MvelScriptManager scriptManager;
     
-    private boolean isContextInsensitive;
+    // state machine options
+    private boolean isContextInsensitiveEnabled;
+    
+    private boolean isAutoStartEnabled = true;
+    
+    private boolean isAutoTerminateEnabled = true;
     
     // TODO-hhe: temporary hard-coded disable data isolation 
     private boolean isDataIsolateEnabled = false;
@@ -217,7 +218,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void internalFire(E event, C context) {
         if(getStatus()==StateMachineStatus.INITIALIZED) {
-            if(autoStart) {
+            if(isAutoStartEnabled) {
                 start(context);
             } else {
                 throw new IllegalStateException("The state machine is not running.");
@@ -233,7 +234,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         processEvents();
         
         ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
-        if(autoTerminate && rawState.isRootState() && rawState.isFinalState()) {
+        if(isAutoTerminateEnabled && rawState.isRootState() && rawState.isFinalState()) {
             terminate(context);
         }
     }
@@ -290,7 +291,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             ActionExecutionService<T, S, E, C> dummyExecutor = getDummyExecutor();
             
             if(getStatus()==StateMachineStatus.INITIALIZED) {
-                if(autoStart) {
+                if(isAutoStartEnabled) {
                     internalStart(context, cloneData, dummyExecutor);
                 } else {
                     throw new IllegalStateException("The state machine is not running.");
@@ -612,11 +613,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     void setContextInsensitive(boolean isContextInsensitive) {
-        this.isContextInsensitive = isContextInsensitive;
+        this.isContextInsensitiveEnabled = isContextInsensitive;
     }
     
     boolean isContextInsensitive() {
-        return isContextInsensitive;
+        return isContextInsensitiveEnabled;
     }
     
     @Override
