@@ -10,7 +10,7 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 @ContextInsensitive
 public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
     
-    enum ATMState {
+    public enum ATMState {
         Idle, Loading, OutOfService, Disconnected, InService
     }
     

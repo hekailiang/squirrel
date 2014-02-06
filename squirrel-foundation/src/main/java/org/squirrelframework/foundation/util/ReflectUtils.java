@@ -210,6 +210,11 @@ public class ReflectUtils {
                     type.getName(), Arrays.toString(parameterTypes));
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    public static <T> T newInstance(String className) {
+        return (T) newInstance(getClass(className), null, null);
+    }
 
     public static <T> T newInstance(Class<T> clazz) {
         return newInstance(clazz, null, null);
