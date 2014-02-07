@@ -612,20 +612,24 @@ If no ExecutorService instance was registered, *SquirrelConfiguration* will prov
 	For this case, when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.
 	
 * **State Machine Export**  
-SCXMLVisitor can be used to export state machine definition in [SCXML] [2] document.
+**SCXMLVisitor** can be used to export state machine definition in [SCXML] [2] document.
 	```java  
 	SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
 	stateMachine.accept(visitor);
 	visitor.convertSCXMLFile("MyStateMachine", true);
 	```
-DotVisitor can be used to generate state diagram which can be viewed by [GraphViz] [3].
+**DotVisitor** can be used to generate state diagram which can be viewed by [GraphViz] [3].
 	```java  
 	DotVisitor visitor = SquirrelProvider.getInstance().newInstance(DotVisitor.class);
 	stateMachine.accept(visitor);
 	visitor.convertDotFile("SnakeStateMachine");
 	``` 
 * **State Machine Import**  
-TDB   
+**UntypedStateMachineImporter** can be used to import state machine SCXML-similar definition which is exported by SCXMLVisitor or hand-writing definition. UntypedStateMachineImporter will build a UntypedStateMachineBuilder according to the definition which can later create state machine instances.
+	```java
+	UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(scxmlDef);
+    ATMStateMachine stateMachine = builder.newAnyStateMachine(ATMState.Idle);
+	```  
 * **Save/Load State Machine Data**  
 User can save data of state machine when state machine is in idle status.
 	``` java
