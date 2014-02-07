@@ -614,19 +614,18 @@ If no ExecutorService instance was registered, *SquirrelConfiguration* will prov
 * **State Machine Export**  
 SCXMLVisitor can be used to export state machine definition in [SCXML] [2] document.
 	```java  
-SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext> visitor = SquirrelProvider.getInstance().newInstance(
-				new TypeReference<SCXMLVisitor<MyStateMachine, MyState, MyEvent, MyContext>>() {});
-stateMachine.accept(visitor);
-visitor.convertSCXMLFile("MyStateMachine", true);
+	SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
+	stateMachine.accept(visitor);
+	visitor.convertSCXMLFile("MyStateMachine", true);
 	```
 DotVisitor can be used to generate state diagram which can be viewed by [GraphViz] [3].
 	```java  
-DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<DotVisitor<SnakeController, SnakeState, SnakeEvent, SnakeContext>>() {});
-stateMachine.accept(visitor);
-visitor.convertDotFile("SnakeStateMachine");
-	```
-	
+	DotVisitor visitor = SquirrelProvider.getInstance().newInstance(DotVisitor.class);
+	stateMachine.accept(visitor);
+	visitor.convertDotFile("SnakeStateMachine");
+	``` 
+* **State Machine Import**  
+TDB   
 * **Save/Load State Machine Data**  
 User can save data of state machine when state machine is in idle status.
 	``` java
