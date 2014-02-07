@@ -75,7 +75,6 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             Attributes attributes) throws SAXException {
         if(localName.equals("fsm") && uri.equals(SQRL_NAMESPACE)) {
             // create state machine builder instance
-            // TODO-hhe: attribute with namespace
             String fsmType = attributes.getValue("fsm-type");
             Class<T> stateMachineClazz = (Class<T>)ReflectUtils.getClass(fsmType);
             checkNotNull(stateMachineClazz);
@@ -100,6 +99,24 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             stateMachineBuilder = StateMachineBuilderFactory.create(
                     stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
             ((StateMachineBuilderImpl<T, S, E, C>)stateMachineBuilder).setScanAnnotations(false);
+            
+            String finishEventName = attributes.getValue("finish-event");
+            if(finishEventName!=null) {
+                E finishEvent = eventConverter.convertFromString(finishEventName);
+                stateMachineBuilder.defineFinishEvent(finishEvent);
+            }
+            
+            String startEventName = attributes.getValue("start-event");
+            if(startEventName!=null) {
+                E startEvent = eventConverter.convertFromString(startEventName);
+                stateMachineBuilder.defineStartEvent(startEvent);
+            }
+            
+            String terminateEventName = attributes.getValue("terminate-event");
+            if(terminateEventName!=null) {
+                E terminateEvent = eventConverter.convertFromString(terminateEventName);
+                stateMachineBuilder.defineTerminateEvent(terminateEvent);
+            }
             
             currentStates.clear();
             currentTranstionBuilder=null;
