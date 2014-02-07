@@ -40,7 +40,6 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
 
     @Override
     public void visitOnExit(StateMachine<T, S, E, C> visitable) {
-        writeLine("<final id=\"Final\" />");
         writeLine("</scxml>");
     }
 
@@ -48,7 +47,9 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     public void visitOnEntry(ImmutableState<T, S, E, C> visitable) {
     	if(visitable.isParallelState()) {
     		writeLine("<parallel id= " + quoteName(visitable.toString()) + ">");
-    	} else { 
+    	} else if(visitable.isFinalState()) {
+            writeLine("<final id= " + quoteName(visitable.toString()) + ">");
+        } else { 
     		StringBuilder builder = new StringBuilder("<state id= ");
     		builder.append(quoteName(visitable.toString()));
     		if(visitable.getInitialState()!=null) {
@@ -79,7 +80,9 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
             writeLine("</onexit>");
         }
         if(visitable.isParallelState()) 
-        	writeLine("</parallel>"); 
+        	writeLine("</parallel>");
+        else if(visitable.isFinalState()) 
+            writeLine("</final>");
         else 
         	writeLine("</state>");
     }
@@ -87,7 +90,9 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     @Override
     public void visitOnEntry(ImmutableTransition<T, S, E, C> visitable) {
         writeLine("<transition event="
-                + quoteName(visitable.getEvent().toString()) + " target="
+                + quoteName(visitable.getEvent().toString()) + " sqrl:priority="
+                + quoteName(Integer.toString(visitable.getPriority())) + " sqrl:type="
+                + quoteName(visitable.getType().toString()) + " target="
                 + quoteName(visitable.getTargetState().toString()) + " cond="
                 + quoteName(visitable.getCondition().toString())+">");
         for(Action<T, S, E, C> action : visitable.getActions()) {

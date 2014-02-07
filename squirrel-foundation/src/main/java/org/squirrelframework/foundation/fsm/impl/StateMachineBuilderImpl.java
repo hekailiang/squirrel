@@ -101,6 +101,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private final boolean contextInsensitive;
     
+    private boolean isScanAnnotations = true;
+    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
@@ -429,10 +431,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private synchronized void prepare() {
         if(prepared) return;
-        // 1. install all the declare states, states must be installed before installing transition and extension methods
-        walkThroughStateMachineClass(new DeclareStateFunction());
-        // 2. install all the declare transitions
-        walkThroughStateMachineClass(new DeclareTransitionFunction());
+        
+        if(isScanAnnotations) {
+            // 1. install all the declare states, states must be installed before installing transition and extension methods
+            walkThroughStateMachineClass(new DeclareStateFunction());
+            // 2. install all the declare transitions
+            walkThroughStateMachineClass(new DeclareTransitionFunction());
+        }
         // 3. install all the extension method call when state machine builder freeze
         installExtensionMethods();
         // 4. prioritize transitions
@@ -548,16 +553,18 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
+    static class FinalExitActionGuard<T extends StateMachine<T, S, E, C>, S, E, C> extends AnonymousAction<T, S, E, C> {
+        @Override
+        public void execute(S from, S to, E event, C context, T stateMachine) {
+            throw new IllegalStateException("Final state cannot be exited anymore.");
+        }
+    }
+    
     private void installFinalStateActions() {
         for(MutableState<T, S, E, C> state : states.values()) {
             if(!state.isFinalState()) continue;
             // defensive code: final state cannot be exited anymore
-            state.addExitAction(new AnonymousAction<T, S, E, C>() {
-                @Override
-                public void execute(S from, S to, E event, C context, T stateMachine) {
-                    throw new IllegalStateException("Final state cannot be exited anymore.");
-                }
-            });
+            state.addExitAction(new FinalExitActionGuard<T, S, E, C>());
         }
     }
     
@@ -786,5 +793,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public void defineTerminateEvent(E terminateEvent) {
         checkState();
         this.terminateEvent = terminateEvent;
+    }
+    
+    void setScanAnnotations(boolean isScanAnnotations) {
+        this.isScanAnnotations = isScanAnnotations;
     }
 }

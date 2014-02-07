@@ -22,6 +22,7 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.squirrelframework.foundation.fsm.impl.StateMachineImporterImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.collect.Lists;
@@ -363,7 +364,24 @@ public class ParallelStateMachineTest {
 		SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
 				new TypeReference<SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer>>() {} );
         stateMachine.accept(visitor);
-        visitor.convertSCXMLFile("ParallelStateMachine", true);
+//        visitor.convertSCXMLFile("ParallelStateMachine", true);
+        
+        String xmlDef = visitor.getScxml(false);
+        
+        StateMachineImporterImpl<ParallelStateMachine, PState, PEvent, Integer> importer = 
+                new StateMachineImporterImpl<ParallelStateMachine, PState, PEvent, Integer>();
+        StateMachineBuilder<ParallelStateMachine, PState, PEvent, Integer> builder = importer.importFromString(xmlDef);
+        stateMachine = builder.newStateMachine(PState.A);
+        
+        stateMachine.start();
+        assertThat(stateMachine.consumeLog(), is(equalTo("enterTotal.enterA.enterA1.enterA1a.enterA2.enterA2b")));
+        assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+        assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A1a, PState.A2b));
+        
+        stateMachine.fire(PEvent.A1a2A1b, 1);
+        assertThat(stateMachine.consumeLog(), is(equalTo("exitA1a.transitA1a2A1b.enterA1b")));
+        assertThat(stateMachine.getCurrentState(), is(equalTo(PState.A)));
+        assertThat(stateMachine.getSubStatesOn(PState.A), contains(PState.A2b, PState.A1b));
 	}
 
 }

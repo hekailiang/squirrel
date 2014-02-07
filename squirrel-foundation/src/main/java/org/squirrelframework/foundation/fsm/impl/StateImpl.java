@@ -211,11 +211,11 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     	if(this==parent) {
     		throw new IllegalArgumentException("parent state cannot be state itself.");
     	}
-		if(this.parentState==null) {
+	    if(this.parentState==null) {
 			this.parentState = parent;
 			setLevel(this.parentState!=null ? this.parentState.getLevel()+1 : 1);
 		} else {
-			throw new RuntimeException("Cannot change state parent.");
+			throw new UnsupportedOperationException("Cannot change state parent.");
 		}
     }
     
@@ -233,7 +233,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 	    if(this.childInitialState==null) {
 	    	this.childInitialState = childInitialState;
 	    } else {
-	    	throw new RuntimeException("Cannot change child initial parent.");
+	    	throw new UnsupportedOperationException("Cannot change child initial state.");
 	    }
     }
 
@@ -516,7 +516,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 
 	@Override
     public void setCompositeType(StateCompositeType compositeType) {
-	    this.compositeType =compositeType;
+	    this.compositeType = compositeType;
     }
 	
 	@Override
@@ -538,9 +538,9 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     public void verify() {
         if(isFinalState()) {
             if(isParallelState()) {
-                throw new RuntimeException("Final state cannot be parallel state.");
+                throw new IllegalStateException("Final state cannot be parallel state.");
             } else if(hasChildStates()) {
-                throw new RuntimeException("Final state cannot have child states.");
+                throw new IllegalStateException("Final state cannot have child states.");
             }
         }
         

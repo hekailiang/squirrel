@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Stack;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -16,7 +18,9 @@ import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.MutableState;
+import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
@@ -25,6 +29,9 @@ import org.squirrelframework.foundation.util.ReflectUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         extends DefaultHandler implements StateMachineImporter<T, S, E, C> {
@@ -43,9 +50,12 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
     
     protected StateMachineBuilder<T, S, E, C> stateMachineBuilder;
     
-    protected MutableState<T, S, E, C> currentState;
+    protected final Stack<MutableState<T, S, E, C>> currentStates = new Stack<MutableState<T, S, E, C>>();
     
     protected TransitionBuilderImpl<T, S, E, C> currentTranstionBuilder;
+    
+    protected final ListMultimap<MutableState<T, S, E, C>, MutableState<T, S, E, C>> hierarchicalStateStore = 
+            ArrayListMultimap.create();
     
     protected Boolean isEntryAction;
     
@@ -56,18 +66,10 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
         }
     }
 
-    /*
-     * When the parser encounters plain text (not XML elements), it calls(this
-     * method, which accumulates them in a string buffer
-     */
     public void characters(char[] buffer, int start, int length) {
         value = new String(buffer, start, length);
     }
 
-    /*
-     * Every time the parser encounters the beginning of a new element, it calls
-     * this method, which resets the string buffer
-     */
     @SuppressWarnings("unchecked")
     public void startElement(String uri, String localName, String qName,
             Attributes attributes) throws SAXException {
@@ -97,13 +99,41 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             // TODO-hhe: export extra parameters from builder to state machine instance
             stateMachineBuilder = StateMachineBuilderFactory.create(
                     stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
+            ((StateMachineBuilderImpl<T, S, E, C>)stateMachineBuilder).setScanAnnotations(false);
             
-            currentState = null;
-            currentTranstionBuilder = null;
-        } else if(qName.equals("state")) {
+            currentStates.clear();
+            currentTranstionBuilder=null;
+        } else if(qName.equals("state") || qName.equals("final") || qName.equals("parallel")) {
+            MutableState<T, S, E, C> parentState = null;
+            if(currentStates.size()>0) {
+                parentState = getCurrentState();
+            }
             String stateIdName = attributes.getValue("id");
             S stateId = stateConverter.convertFromString(stateIdName);
-            currentState = stateMachineBuilder.defineState(stateId);
+            if(qName.equals("final")) {
+                currentStates.push(stateMachineBuilder.defineFinalState(stateId));
+            } else {
+                currentStates.push(stateMachineBuilder.defineState(stateId));
+                if(qName.equals("parallel")) {
+                    getCurrentState().setCompositeType(StateCompositeType.PARALLEL);
+                }
+            }
+            String initStateIdName = attributes.getValue("initial");
+            if(initStateIdName!=null) {
+                S initStateId = stateConverter.convertFromString(initStateIdName);
+                getCurrentState().setInitialState(stateMachineBuilder.defineState(initStateId));
+            }
+            
+            if(parentState!=null) {
+                hierarchicalStateStore.put(parentState, getCurrentState());
+            }
+        } else if(qName.equals("history")) {
+            String historyType = attributes.getValue("type");
+            if(historyType.equals("deep")) {
+                getCurrentState().setHistoryType(HistoryType.DEEP);
+            } else if(historyType.equals("shallow")) {
+                getCurrentState().setHistoryType(HistoryType.SHALLOW);
+            }
         } else if(qName.equals("onentry")) {
             isEntryAction = Boolean.TRUE;
         } else if(qName.equals("onexit")) {
@@ -114,40 +144,44 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             String actionSchema = actionContent.substring(0, pos);
             String _tmp = actionContent.substring(pos+1);
             pos = _tmp.indexOf(":");
-            String actionValue = _tmp.substring(0, pos);
-            String actionWeightValue = _tmp.substring(pos+1);
+            String actionValue = _tmp;
+            String actionWeightValue = "";
+            if(pos>0) {
+                actionValue = _tmp.substring(0, pos);
+                actionWeightValue = _tmp.substring(pos+1);
+            }
             if(actionSchema.equals("method")) {
                 String methodCallDesc = actionValue+":"+actionWeightValue;
                 if(isConstructState()) {
                     if(Boolean.TRUE==isEntryAction) {
-                        stateMachineBuilder.onEntry(currentState.getStateId()).callMethod(methodCallDesc);
+                        stateMachineBuilder.onEntry(getCurrentState().getStateId()).callMethod(methodCallDesc);
                     } else {
-                        stateMachineBuilder.onExit(currentState.getStateId()).callMethod(methodCallDesc);
+                        stateMachineBuilder.onExit(getCurrentState().getStateId()).callMethod(methodCallDesc);
                     }
                 } else if(isConstructTransition()) {
-                    
+                    getCurrentTranstionBuilder().callMethod(methodCallDesc);
                 }
             } else if(actionSchema.equals("instance")) {
                 // TODO-hhe: handle if action instance constructor has parameter
                 Action<T, S, E, C> action = ReflectUtils.newInstance(actionValue);
                 if(isConstructState()) {
                     if(Boolean.TRUE==isEntryAction) {
-                        stateMachineBuilder.onEntry(currentState.getStateId()).perform(action);
+                        stateMachineBuilder.onEntry(getCurrentState().getStateId()).perform(action);
                     } else if (Boolean.FALSE==isEntryAction) { 
-                        stateMachineBuilder.onExit(currentState.getStateId()).perform(action);
+                        stateMachineBuilder.onExit(getCurrentState().getStateId()).perform(action);
                     }
                 } else if(isConstructTransition()) {
-                    currentTranstionBuilder.perform(action);
+                    getCurrentTranstionBuilder().perform(action);
                 }
             } else if(actionSchema.equals("mvel")) {
                 if(isConstructState()) {
                     if(Boolean.TRUE==isEntryAction) {
-                        stateMachineBuilder.onEntry(currentState.getStateId()).evalMvel(actionValue);
+                        stateMachineBuilder.onEntry(getCurrentState().getStateId()).evalMvel(actionValue);
                     } else if (Boolean.FALSE==isEntryAction) { 
-                        stateMachineBuilder.onExit(currentState.getStateId()).evalMvel(actionValue);
+                        stateMachineBuilder.onExit(getCurrentState().getStateId()).evalMvel(actionValue);
                     }
                 } else if(isConstructTransition()) {
-                    currentTranstionBuilder.evalMvel(actionValue);
+                    getCurrentTranstionBuilder().evalMvel(actionValue);
                 }
             }
         } else if(qName.equals("transition")) {
@@ -157,9 +191,21 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             String targetState = attributes.getValue("target");
             S targetStateId = stateConverter.convertFromString(targetState);
             
-            //TODO-hhe: transition type/priority should exported and be aware here
-            currentTranstionBuilder = (TransitionBuilderImpl<T, S, E, C>) stateMachineBuilder.externalTransition();
-            currentTranstionBuilder.from(currentState.getStateId()).to(targetStateId).on(event);
+            String transitionType = attributes.getValue(SQRL_NAMESPACE, "type");
+            Integer transitionPriority = 1;
+            try {
+                transitionPriority = Integer.valueOf(attributes.getValue(SQRL_NAMESPACE, "priority"));
+            } catch (NumberFormatException e) {}
+            TransitionBuilderImpl<T, S, E, C> builder = null;
+            if(transitionType.equals("INTERNAL")) {
+                builder = (TransitionBuilderImpl<T, S, E, C>) stateMachineBuilder.internalTransition(transitionPriority);
+            } else if(transitionType.equals("LOCAL")) {
+                builder = (TransitionBuilderImpl<T, S, E, C>) stateMachineBuilder.localTransition(transitionPriority);
+            } else {
+                builder = (TransitionBuilderImpl<T, S, E, C>) stateMachineBuilder.externalTransition(transitionPriority);
+            }
+            currentTranstionBuilder=builder;
+            getCurrentTranstionBuilder().from(getCurrentState().getStateId()).to(targetStateId).on(event);
             String conditionScript = attributes.getValue("cond");
             int condPos = conditionScript.indexOf("#");
             String condSchema = conditionScript.substring(0, condPos);
@@ -167,33 +213,46 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             if(condSchema.equals("instance")) {
                 // TODO-hhe: handle if condition instance constructor has parameter
                 Condition<C> cond = ReflectUtils.newInstance(condContent);
-                currentTranstionBuilder.when(cond);
+                getCurrentTranstionBuilder().when(cond);
             } else if(condSchema.equals("mvel")) {
-                currentTranstionBuilder.whenMvel(condContent);
+                getCurrentTranstionBuilder().whenMvel(condContent);
             }
         }
     }
     
     protected boolean isConstructState() {
-        return currentState!=null && currentTranstionBuilder==null && isEntryAction!=null;
+        return currentStates.size()>0 && currentTranstionBuilder==null && isEntryAction!=null;
     }
     
     protected boolean isConstructTransition() {
-        return currentState!=null && currentTranstionBuilder!=null && isEntryAction==null;
+        return currentStates.size()>0 && currentTranstionBuilder!=null && isEntryAction==null;
     }
     
-    /*
-     * When the parser encounters the end of an element, it calls this method
-     */
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
         if(qName.equals("onentry") || qName.equals("onexit")) {
             isEntryAction = null;
-        } else if(qName.equals("state")) {
-            currentState = null;
+        } else if(qName.equals("state") || qName.equals("final") || qName.equals("parallel")) {
+            MutableState<T, S, E, C> currentState = currentStates.pop();
+            List<MutableState<T, S, E, C>> subStates = 
+                    hierarchicalStateStore.removeAll(currentState);
+            if(!subStates.isEmpty()) {
+                for(MutableState<T, S, E, C> subState : subStates) {
+                    subState.setParentState(currentState);
+                    currentState.addChildState(subState);
+                }
+            }
         } else if(qName.equals("transition")) {
-            currentTranstionBuilder = null;
+            currentTranstionBuilder=null;
         }
+    }
+    
+    protected MutableState<T, S, E, C> getCurrentState() {
+        return currentStates.peek();
+    }
+    
+    protected TransitionBuilderImpl<T, S, E, C> getCurrentTranstionBuilder() {
+        return currentTranstionBuilder;
     }
 
     @Override
