@@ -625,12 +625,12 @@ If no ExecutorService instance was registered, *SquirrelConfiguration* will prov
 	visitor.convertDotFile("SnakeStateMachine");
 	``` 
 * **State Machine Import**  
-**UntypedStateMachineImporter** can be used to import state machine SCXML-similar definition which can be exported by SCXMLVisitor or hand-writing definition. UntypedStateMachineImporter will build a UntypedStateMachineBuilder according to the definition which can later create state machine instances.  
+**UntypedStateMachineImporter** can be used to import state machine SCXML-similar definition which was  exported by SCXMLVisitor or handwriting definition. UntypedStateMachineImporter will build a UntypedStateMachineBuilder according to the definition which can later be used to create state machine instances.  
 	```java  
 	UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(scxmlDef);
 	ATMStateMachine stateMachine = builder.newAnyStateMachine(ATMState.Idle);
 	```  
-
+*Note: The UntypedStateMachineImporter provided an XML-style to define the state machine just like the state machine builder API or declarative annotations. The SCXML-similar definition is not equal to standard SCXML.*  
 * **Save/Load State Machine Data**  
 User can save data of state machine when state machine is in idle status.
 	``` java
