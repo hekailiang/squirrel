@@ -630,7 +630,8 @@ If no ExecutorService instance was registered, *SquirrelConfiguration* will prov
 	UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(scxmlDef);
 	ATMStateMachine stateMachine = builder.newAnyStateMachine(ATMState.Idle);
 	```  
-*Note: The UntypedStateMachineImporter provided an XML-style to define the state machine just like the state machine builder API or declarative annotations. The SCXML-similar definition is not equal to standard SCXML.*  
+*Note: The UntypedStateMachineImporter provided an XML-style to define the state machine just like the state machine builder API or declarative annotations. The SCXML-similar definition is not equal to standard SCXML.*   
+
 * **Save/Load State Machine Data**  
 User can save data of state machine when state machine is in idle status.
 	``` java
