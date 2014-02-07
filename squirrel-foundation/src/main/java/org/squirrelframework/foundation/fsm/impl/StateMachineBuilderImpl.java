@@ -103,6 +103,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private boolean isScanAnnotations = true;
     
+    private final Class<?>[] extraParamTypes;
+    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
@@ -114,6 +116,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             "\" must be extended from AbstractStateMachine.class.");
         
         this.stateMachineImplClazz = stateMachineImplClazz;
+        this.extraParamTypes = extraConstParamTypes;
         
         StateMachineParameters genericsParamteres = findAnnotation(StateMachineParameters.class);
         if(stateClazz==Object.class && genericsParamteres!=null) {
@@ -631,7 +634,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         stateMachineImpl.setFinishEvent(finishEvent);
         stateMachineImpl.setTerminateEvent(terminateEvent);
         stateMachineImpl.setContextInsensitive(contextInsensitive);
-         
+        stateMachineImpl.setExtraParamTypes(extraParamTypes);
+        
         stateMachineImpl.setTypeOfStateMachine(stateMachineImplClazz);
         stateMachineImpl.setTypeOfState(stateClazz);
         stateMachineImpl.setTypeOfEvent(eventClazz);

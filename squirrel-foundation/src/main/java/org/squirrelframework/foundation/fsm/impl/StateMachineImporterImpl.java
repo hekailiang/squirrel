@@ -59,6 +59,8 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
     
     protected Boolean isEntryAction;
     
+    // TODO-hhe: String->Instance map registry for action/condition with parameters and also for reuse
+    
     public void startPrefixMapping (String prefix, String uri)
             throws SAXException {
         if(uri.equals(SQRL_NAMESPACE)) {
@@ -95,7 +97,15 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             Class<C> contextClazz = (Class<C>)ReflectUtils.getClass(contextType);
             checkNotNull(contextClazz);
             
-            // TODO-hhe: export extra parameters from builder to state machine instance
+            String extraParams = attributes.getValue("extra-parameters");
+            Class<?>[] extraParamTypes = new Class<?>[0];
+            if(extraParams!=null && extraParams.length()>2) {
+                String[] typeNames = StringUtils.split(extraParams.substring(1, extraParams.length()-1), ',');
+                extraParamTypes = new Class<?>[typeNames.length];
+                for(int i=0; i<typeNames.length; ++i) {
+                    extraParamTypes[i] = ReflectUtils.getClass(typeNames[i]);
+                }
+            }
             stateMachineBuilder = StateMachineBuilderFactory.create(
                     stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
             ((StateMachineBuilderImpl<T, S, E, C>)stateMachineBuilder).setScanAnnotations(false);

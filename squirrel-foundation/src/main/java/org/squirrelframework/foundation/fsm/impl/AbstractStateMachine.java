@@ -128,6 +128,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private static final int ID_LENGTH = 10;
     
+    private Class<?>[] extraParamTypes;
+    
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         S intialStateId = initialState.getStateId();
         data = FSM.newStateMachineData(states);
@@ -620,6 +622,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return isContextInsensitiveEnabled;
     }
     
+    void setExtraParamTypes(Class<?>[] extraParamTypes) {
+        this.extraParamTypes = extraParamTypes;
+    }
+    
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
         processingLock.lock();
@@ -1004,6 +1010,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             builder.append("\" ");
         }
         builder.append("context-insensitive=\"").append(isContextSensitive()).append("\" ");
+        
+        if(extraParamTypes!=null && extraParamTypes.length>0) {
+            builder.append("extra-parameters=\"[");
+            for(int i=0; i<extraParamTypes.length; ++i) {
+                if(i>0) builder.append(",");
+                builder.append(extraParamTypes[i].getName());
+            }
+            builder.append("]\" ");
+        }
         return builder.toString();
     }
     
