@@ -6,4 +6,6 @@ public interface UntypedStateMachineBuilder extends StateMachineBuilder<UntypedS
     <T extends UntypedStateMachine> T newUntypedStateMachine(Object initialStateId, Class<T> stateMachineImplClazz);
     
     <T extends UntypedStateMachine> T newUntypedStateMachine(Object initialStateId);
+    
+    <T> T newAnyStateMachine(Object initialStateId);
 }

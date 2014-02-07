@@ -22,7 +22,6 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineImporterImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.collect.Lists;
@@ -360,7 +359,7 @@ public class ParallelStateMachineTest {
 	}
 	
 	@Test
-	public void testExportParallelState() {
+	public void testExportAndImportParallelState() {
 		SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
 				new TypeReference<SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer>>() {} );
         stateMachine.accept(visitor);
@@ -368,10 +367,8 @@ public class ParallelStateMachineTest {
         
         String xmlDef = visitor.getScxml(false);
         
-        StateMachineImporterImpl<ParallelStateMachine, PState, PEvent, Integer> importer = 
-                new StateMachineImporterImpl<ParallelStateMachine, PState, PEvent, Integer>();
-        StateMachineBuilder<ParallelStateMachine, PState, PEvent, Integer> builder = importer.importFromString(xmlDef);
-        stateMachine = builder.newStateMachine(PState.A);
+        UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(xmlDef);
+        stateMachine = builder.newAnyStateMachine(PState.A);
         
         stateMachine.start();
         assertThat(stateMachine.consumeLog(), is(equalTo("enterTotal.enterA.enterA1.enterA1a.enterA2.enterA2b")));

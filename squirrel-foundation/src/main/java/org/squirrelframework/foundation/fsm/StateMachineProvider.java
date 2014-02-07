@@ -1,6 +1,8 @@
 package org.squirrelframework.foundation.fsm;
 
-public class StateMachineProvider<T extends StateMachine<T, S, E, C>, S, E, C> {
+import org.squirrelframework.foundation.component.SquirrelInstanceProvider;
+
+public class StateMachineProvider<T extends StateMachine<T, S, E, C>, S, E, C> implements SquirrelInstanceProvider<T> {
     
     private final StateMachineBuilder<T, S, E, C> stateMachineBuilder;
     
@@ -16,7 +18,7 @@ public class StateMachineProvider<T extends StateMachine<T, S, E, C>, S, E, C> {
         this.extraParams = extraParams;
     }
     
-    public StateMachine<T, S, E, C> get() {
+    public T get() {
         return stateMachineBuilder.newStateMachine(initialState, extraParams);
     }
 }

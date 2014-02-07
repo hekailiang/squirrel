@@ -15,8 +15,9 @@ import org.squirrelframework.foundation.fsm.SCXMLVisitor;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
+import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
+import org.squirrelframework.foundation.fsm.UntypedStateMachineImporter;
 import org.squirrelframework.foundation.fsm.atm.ATMStateMachine.ATMState;
-import org.squirrelframework.foundation.fsm.impl.StateMachineImporterImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class ATMStateMachineTest {
@@ -87,13 +88,9 @@ public class ATMStateMachineTest {
         stateMachine.accept(visitor);
         // visitor.convertSCXMLFile("ATMStateMachine", true);
         String xmlDef = visitor.getScxml(false);
+        UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(xmlDef);
         
-        StateMachineImporterImpl<ATMStateMachine, ATMState, String, Void> importer = 
-                new StateMachineImporterImpl<ATMStateMachine, ATMState, String, Void>();
-        
-        StateMachineBuilder<ATMStateMachine, ATMState, String, Void> builder = importer.importFromString(xmlDef);
-        
-        ATMStateMachine stateMachine = builder.newStateMachine(ATMState.Idle);
+        ATMStateMachine stateMachine = builder.newAnyStateMachine(ATMState.Idle);
         stateMachine.start();
         assertThat(stateMachine.consumeLog(), is(equalTo("entryIdle")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.Idle)));

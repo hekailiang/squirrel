@@ -34,9 +34,7 @@ public class StateMachineBuilderFactory {
     }
     
     public static UntypedStateMachineBuilder create(
-            Class<? extends UntypedStateMachine> stateMachineClazz, Class<?>... extraConstParamTypes) {
-        final StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder = 
-                create(stateMachineClazz, Object.class, Object.class, Object.class, false, extraConstParamTypes);
+            final StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder) {
         return (UntypedStateMachineBuilder) Proxy.newProxyInstance(
                 UntypedStateMachineBuilder.class.getClassLoader(), 
                 new Class[]{UntypedStateMachineBuilder.class}, 
@@ -45,7 +43,8 @@ public class StateMachineBuilderFactory {
                     public Object invoke(Object proxy, Method method, Object[] args)
                             throws Throwable {
                         try {
-                            if(method.getName().equals("newUntypedStateMachine")) {
+                            String methodName = method.getName();
+                            if(methodName.equals("newUntypedStateMachine") || methodName.equals("newAnyStateMachine")) {
                                 Object fsmInstance = builder.newStateMachine(args[0]);
                                 return fsmInstance;
                             }
@@ -55,6 +54,13 @@ public class StateMachineBuilderFactory {
                         }
                     }
                 });
+    }
+    
+    public static UntypedStateMachineBuilder create(
+            Class<? extends UntypedStateMachine> stateMachineClazz, Class<?>... extraConstParamTypes) {
+        final StateMachineBuilder<UntypedStateMachine, Object, Object, Object> builder = 
+                create(stateMachineClazz, Object.class, Object.class, Object.class, false, extraConstParamTypes);
+        return create(builder);
     }
     
     public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineBuilder<T, S, E, C> create(

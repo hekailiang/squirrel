@@ -564,6 +564,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         for(MutableState<T, S, E, C> state : states.values()) {
             if(!state.isFinalState()) continue;
             // defensive code: final state cannot be exited anymore
+            // TODO-hhe: no need to create new instance each time
             state.addExitAction(new FinalExitActionGuard<T, S, E, C>());
         }
     }

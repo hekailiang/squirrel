@@ -18,7 +18,6 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.fsm.impl.StateMachineImporterImpl;
 import org.squirrelframework.foundation.util.TypeReference;
 
 public class HierarchicalStateMachineTest {
@@ -489,17 +488,15 @@ public class HierarchicalStateMachineTest {
 	}
 	
 	@Test
-    public void testExportHierarchicalStateMachine() {
+    public void testExportAndImportHierarchicalStateMachine() {
         SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
         		new TypeReference<SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer>>() {} );
         stateMachine.accept(visitor);
 //        visitor.convertSCXMLFile("HierarchicalStateMachine", true);
         String xmlDef = visitor.getScxml(false);
         
-        StateMachineImporterImpl<HierachicalStateMachine, HState, HEvent, Integer> importer = 
-                new StateMachineImporterImpl<HierachicalStateMachine, HState, HEvent, Integer>();
-        StateMachineBuilder<HierachicalStateMachine, HState, HEvent, Integer> builder = importer.importFromString(xmlDef);
-        stateMachine = builder.newStateMachine(HState.A);
+        UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(xmlDef);
+        stateMachine = builder.newAnyStateMachine(HState.A);
         
         HState testResult = stateMachine.test(HEvent.A12A2, 1);
         assertThat(testResult, is(equalTo(HState.A2)));
