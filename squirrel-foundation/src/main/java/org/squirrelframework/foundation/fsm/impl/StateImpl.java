@@ -460,7 +460,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     }
     
     @Override
-    public void accept(Visitor<T, S, E, C> visitor) {
+    public void accept(Visitor visitor) {
         visitor.visitOnEntry(this);
         for(ImmutableTransition<T, S, E, C> transition : getAllTransitions()) {
             transition.accept(visitor);

@@ -22,7 +22,7 @@ import org.squirrelframework.foundation.component.SquirrelComponent;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C>  extends Visitable<T, S, E, C>, SquirrelComponent {
+public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C>  extends Visitable, SquirrelComponent {
     
     /**
      * @return Transition source state

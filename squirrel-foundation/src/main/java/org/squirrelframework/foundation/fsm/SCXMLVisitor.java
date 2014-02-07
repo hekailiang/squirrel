@@ -9,7 +9,7 @@ package org.squirrelframework.foundation.fsm;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface SCXMLVisitor<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitor<T, S, E, C> {
+public interface SCXMLVisitor extends Visitor {
 	
 	/**
 	 * @param beautifyXml whether beautify XML format or not

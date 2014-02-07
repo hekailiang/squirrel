@@ -18,7 +18,6 @@ import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineImporter;
 import org.squirrelframework.foundation.fsm.atm.ATMStateMachine.ATMState;
-import org.squirrelframework.foundation.util.TypeReference;
 
 public class ATMStateMachineTest {
     
@@ -83,8 +82,7 @@ public class ATMStateMachineTest {
     
     @Test
     public void exportAndImportATMStateMachine() {
-        SCXMLVisitor<ATMStateMachine, ATMState, String, Void> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<SCXMLVisitor<ATMStateMachine, ATMState, String, Void>>() {} );
+        SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
         stateMachine.accept(visitor);
         // visitor.convertSCXMLFile("ATMStateMachine", true);
         String xmlDef = visitor.getScxml(false);

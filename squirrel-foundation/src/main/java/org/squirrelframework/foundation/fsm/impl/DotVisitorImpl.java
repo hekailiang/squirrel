@@ -9,24 +9,24 @@ import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
-class DotVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractVisitor implements DotVisitor<T, S, E, C> {
+class DotVisitorImpl extends AbstractVisitor implements DotVisitor {
 
     protected final StringBuilder transBuf = new StringBuilder();
     
     @Override
-    public void visitOnEntry(StateMachine<T, S, E, C> visitable) {
+    public void visitOnEntry(StateMachine<?, ?, ?, ?> visitable) {
         writeLine("digraph {\ncompound=true;");
         writeLine("subgraph cluster_StateMachine {\nlabel=\""+visitable.getClass().getName()+"\";");
     }
 
     @Override
-    public void visitOnExit(StateMachine<T, S, E, C> visitable) {
+    public void visitOnExit(StateMachine<?, ?, ?, ?> visitable) {
         buffer.append(transBuf);
         writeLine("}}");
     }
 
     @Override
-    public void visitOnEntry(ImmutableState<T, S, E, C> visitable) {
+    public void visitOnEntry(ImmutableState<?, ?, ?, ?> visitable) {
         String stateId = visitable.getStateId().toString();
         if(visitable.hasChildStates()) {
             writeLine("subgraph cluster_"+stateId+" {\nlabel=\""+stateId+"\";");
@@ -41,16 +41,16 @@ class DotVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abstra
     }
 
     @Override
-    public void visitOnExit(ImmutableState<T, S, E, C> visitable) {
+    public void visitOnExit(ImmutableState<?, ?, ?, ?> visitable) {
         if(visitable.hasChildStates()) {
             writeLine("}");
         }
     }
 
     @Override
-    public void visitOnEntry(ImmutableTransition<T, S, E, C> visitable) {
-        ImmutableState<T, S, E, C> sourceState = visitable.getSourceState();
-        ImmutableState<T, S, E, C> targetState = visitable.getTargetState();
+    public void visitOnEntry(ImmutableTransition<?, ?, ?, ?> visitable) {
+        ImmutableState<?, ?, ?, ?> sourceState = visitable.getSourceState();
+        ImmutableState<?, ?, ?, ?> targetState = visitable.getTargetState();
         String sourceStateId = sourceState.getStateId().toString();
         String targetStateId = targetState.getStateId().toString();
         boolean sourceIsCluster=sourceState.hasChildStates();
@@ -65,14 +65,14 @@ class DotVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abstra
         transBuf.append("\n"+realStart+" -> "+realEnd+" ["+((ltail!=null)?ltail+",":"")+((lhead!=null)?lhead+",":"")+" label=\""+edgeLabel+"\"];");
     }
     
-    public ImmutableState<T, S, E, C> getSimpleChildOf(ImmutableState<T, S, E, C> sourceState) {
-        Queue<ImmutableState<T, S, E, C>> list=new LinkedList<ImmutableState<T, S, E, C>>();
+    public ImmutableState<?, ?, ?, ?> getSimpleChildOf(ImmutableState<?, ?, ?, ?> sourceState) {
+        Queue<ImmutableState<?, ?, ?, ?>> list=new LinkedList<ImmutableState<?, ?, ?, ?>>();
         list.add(sourceState);
         while(!list.isEmpty()) {
-            ImmutableState<T, S, E, C> x=list.poll();
+            ImmutableState<?, ?, ?, ?> x=list.poll();
             int l=x.getChildStates().size();
             for (int i=0; i<l; i++) {
-                ImmutableState<T, S, E, C> c = x.getChildStates().get(i);
+                ImmutableState<?, ?, ?, ?> c = x.getChildStates().get(i);
                 if (c.hasChildStates()) list.add(c);
                 else return c;
             }
@@ -81,8 +81,7 @@ class DotVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abstra
     }
 
     @Override
-    public void visitOnExit(ImmutableTransition<T, S, E, C> visitable) {
-        
+    public void visitOnExit(ImmutableTransition<?, ?, ?, ?> visitable) {
     }
 
     @Override

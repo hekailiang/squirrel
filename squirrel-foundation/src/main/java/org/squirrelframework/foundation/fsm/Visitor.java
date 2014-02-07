@@ -8,35 +8,35 @@ package org.squirrelframework.foundation.fsm;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface Visitor<T extends StateMachine<T, S, E, C>, S, E, C> {
+public interface Visitor {
     
 	/**
 	 * @param visitable the element to be visited.
 	 */
-    void visitOnEntry(StateMachine<T, S, E, C> visitable);
+    void visitOnEntry(StateMachine<?, ?, ?, ?> visitable);
     
     /**
 	 * @param visitable the element to be visited.
 	 */
-    void visitOnExit(StateMachine<T, S, E, C> visitable);
+    void visitOnExit(StateMachine<?, ?, ?, ?> visitable);
     
     /**
 	 * @param visitable the element to be visited.
 	 */
-    void visitOnEntry(ImmutableState<T, S, E, C> visitable);
+    void visitOnEntry(ImmutableState<?, ?, ?, ?> visitable);
     
     /**
 	 * @param visitable the element to be visited.
 	 */
-    void visitOnExit(ImmutableState<T, S, E, C> visitable);
+    void visitOnExit(ImmutableState<?, ?, ?, ?> visitable);
     
     /**
 	 * @param visitable the element to be visited.
 	 */
-    void visitOnEntry(ImmutableTransition<T, S, E, C> visitable);
+    void visitOnEntry(ImmutableTransition<?, ?, ?, ?> visitable);
     
     /**
 	 * @param visitable the element to be visited.
 	 */
-    void visitOnExit(ImmutableTransition<T, S, E, C> visitable);
+    void visitOnExit(ImmutableTransition<?, ?, ?, ?> visitable);
 }

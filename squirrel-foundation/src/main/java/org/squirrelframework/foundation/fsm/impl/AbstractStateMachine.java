@@ -561,7 +561,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
-    public void accept(Visitor<T, S, E, C> visitor) {
+    public void accept(Visitor visitor) {
         visitor.visitOnEntry(this);
         for(ImmutableState<T, S, E, C> state : data.read().rawStates()) {
             if(state.getParentState()==null)

@@ -216,7 +216,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
 	}
     
     @Override
-    public void accept(Visitor<T, S, E, C> visitor) {
+    public void accept(Visitor visitor) {
         visitor.visitOnEntry(this);
         visitor.visitOnExit(this);
     }

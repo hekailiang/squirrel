@@ -19,7 +19,7 @@ import org.squirrelframework.foundation.component.SquirrelComponent;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  extends Visitable<T, S, E, C>, SquirrelComponent {
+public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  extends Visitable, SquirrelComponent {
     
     /**
      * @return state id

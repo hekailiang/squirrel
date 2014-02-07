@@ -29,22 +29,22 @@ import org.xml.sax.InputSource;
  * @param <E> event type
  * @param <C> context type
  */
-class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractVisitor implements SCXMLVisitor<T, S, E, C> {
+class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     
     @Override
-    public void visitOnEntry(StateMachine<T, S, E, C> visitable) {
+    public void visitOnEntry(StateMachine<?, ?, ?, ?> visitable) {
         writeLine("<scxml initial=" + quoteName(visitable.getInitialState().toString()) + " version=\"1.0\" " +
         		"xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:sqrl=\"http://squirrelframework.org/squirrel\">");
         writeLine("<sqrl:fsm "+visitable.getDescription()+" />");
     }
 
     @Override
-    public void visitOnExit(StateMachine<T, S, E, C> visitable) {
+    public void visitOnExit(StateMachine<?, ?, ?, ?> visitable) {
         writeLine("</scxml>");
     }
 
     @Override
-    public void visitOnEntry(ImmutableState<T, S, E, C> visitable) {
+    public void visitOnEntry(ImmutableState<?, ?, ?, ?> visitable) {
     	if(visitable.isParallelState()) {
     		writeLine("<parallel id= " + quoteName(visitable.toString()) + ">");
     	} else if(visitable.isFinalState()) {
@@ -60,7 +60,7 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     	}
         if(!visitable.getEntryActions().isEmpty()) {
             writeLine("<onentry>");
-            for(Action<T, S, E, C> entryAction : visitable.getEntryActions()) {
+            for(Action<?, ?, ?, ?> entryAction : visitable.getEntryActions()) {
                 writeAction(entryAction);
             }
             writeLine("</onentry>");
@@ -71,10 +71,10 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     }
 
     @Override
-    public void visitOnExit(ImmutableState<T, S, E, C> visitable) {
+    public void visitOnExit(ImmutableState<?, ?, ?, ?> visitable) {
         if(!visitable.getExitActions().isEmpty()) {
             writeLine("<onexit>");
-            for(Action<T, S, E, C> exitAction : visitable.getExitActions()) {
+            for(Action<?, ?, ?, ?> exitAction : visitable.getExitActions()) {
                 writeAction(exitAction);
             }
             writeLine("</onexit>");
@@ -88,24 +88,24 @@ class SCXMLVisitorImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends Abst
     }
 
     @Override
-    public void visitOnEntry(ImmutableTransition<T, S, E, C> visitable) {
+    public void visitOnEntry(ImmutableTransition<?, ?, ?, ?> visitable) {
         writeLine("<transition event="
                 + quoteName(visitable.getEvent().toString()) + " sqrl:priority="
                 + quoteName(Integer.toString(visitable.getPriority())) + " sqrl:type="
                 + quoteName(visitable.getType().toString()) + " target="
                 + quoteName(visitable.getTargetState().toString()) + " cond="
                 + quoteName(visitable.getCondition().toString())+">");
-        for(Action<T, S, E, C> action : visitable.getActions()) {
+        for(Action<?, ?, ?, ?> action : visitable.getActions()) {
             writeAction(action);
         }
     }
 
     @Override
-    public void visitOnExit(ImmutableTransition<T, S, E, C> visitable) {
+    public void visitOnExit(ImmutableTransition<?, ?, ?, ?> visitable) {
         writeLine("</transition>");
     }
     
-    private void writeAction(final Action<T, S, E, C> action) {
+    private void writeAction(final Action<?, ?, ?, ?> action) {
         writeLine("<sqrl:action content="+quoteName(action.toString())+"/>");
     }
 

@@ -18,7 +18,6 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.util.TypeReference;
 
 public class HierarchicalStateMachineTest {
 	
@@ -489,8 +488,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
     public void testExportAndImportHierarchicalStateMachine() {
-        SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
-        		new TypeReference<SCXMLVisitor<HierachicalStateMachine, HState, HEvent, Integer>>() {} );
+        SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
         stateMachine.accept(visitor);
 //        visitor.convertSCXMLFile("HierarchicalStateMachine", true);
         String xmlDef = visitor.getScxml(false);
@@ -518,8 +516,7 @@ public class HierarchicalStateMachineTest {
 	
 	@Test
     public void testExportDotHierarchicalStateMachine() {
-        DotVisitor<HierachicalStateMachine, HState, HEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<DotVisitor<HierachicalStateMachine, HState, HEvent, Integer>>() {} );
+        DotVisitor visitor = SquirrelProvider.getInstance().newInstance(DotVisitor.class);
         stateMachine.accept(visitor);
         visitor.convertDotFile("HierarchicalStateMachine");
     }

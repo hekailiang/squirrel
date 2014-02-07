@@ -20,7 +20,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitable<T, S, E, C>, Observable {
+public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitable, Observable {
     
 	/**
 	 * Fires the specified event

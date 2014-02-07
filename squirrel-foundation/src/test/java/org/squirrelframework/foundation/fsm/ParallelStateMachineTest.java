@@ -22,7 +22,6 @@ import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
-import org.squirrelframework.foundation.util.TypeReference;
 
 import com.google.common.collect.Lists;
 
@@ -360,8 +359,7 @@ public class ParallelStateMachineTest {
 	
 	@Test
 	public void testExportAndImportParallelState() {
-		SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer> visitor = SquirrelProvider.getInstance().newInstance(
-				new TypeReference<SCXMLVisitor<ParallelStateMachine, PState, PEvent, Integer>>() {} );
+		SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
         stateMachine.accept(visitor);
 //        visitor.convertSCXMLFile("ParallelStateMachine", true);
         

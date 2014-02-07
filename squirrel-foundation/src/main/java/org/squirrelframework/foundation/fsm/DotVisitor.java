@@ -10,7 +10,7 @@ package org.squirrelframework.foundation.fsm;
  * @param <E> type of Event
  * @param <C> type of Context
  */
-public interface DotVisitor<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitor<T, S, E, C> {
+public interface DotVisitor extends Visitor {
     
     /**
      * Create dot file

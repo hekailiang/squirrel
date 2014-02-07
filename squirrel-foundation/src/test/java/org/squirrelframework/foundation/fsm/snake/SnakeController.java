@@ -10,7 +10,6 @@ import org.squirrelframework.foundation.fsm.DotVisitor;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.TransitionType;
-import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -19,7 +18,6 @@ import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeState;
-import org.squirrelframework.foundation.util.TypeReference;
 
 /**
  * This is an example on how to use state machine to build a game controller. The state machine was defined in declarative manner.
@@ -162,8 +160,7 @@ public class SnakeController extends AbstractUntypedStateMachine {
 	
 	public void export() {
 	    // export snake game state machine
-	    DotVisitor<UntypedStateMachine, Object, Object, Object> visitor = SquirrelProvider.getInstance().newInstance(
-                new TypeReference<DotVisitor<UntypedStateMachine, Object, Object, Object>>() {} );
+	    DotVisitor visitor = SquirrelProvider.getInstance().newInstance(DotVisitor.class);
         this.accept(visitor);
         visitor.convertDotFile("SnakeStateMachine");
 	}
