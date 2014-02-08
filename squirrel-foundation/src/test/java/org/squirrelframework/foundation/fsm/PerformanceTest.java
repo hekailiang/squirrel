@@ -7,11 +7,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
+import org.squirrelframework.foundation.fsm.threadsafe.BarrierThread;
 
 import com.google.common.base.Stopwatch;
 
@@ -136,8 +137,9 @@ public class PerformanceTest {
             };
         }
         
-        final CountDownLatch eventCondition = new CountDownLatch(2);
-        new Thread(new Runnable() {
+        CyclicBarrier entryBarrier = new CyclicBarrier(2);
+        CyclicBarrier exitBarrier = new CyclicBarrier(3);
+        new BarrierThread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < iterTimes; i++) {
@@ -146,11 +148,10 @@ public class PerformanceTest {
                     fsm1.fire(FSMEvent.ToC, 10);
                     fsm1.fire(FSMEvent.ToD, 10);
                 }
-                eventCondition.countDown();
             }
-        }).start();
+        }, "Performance-Test-Thread-1", entryBarrier, exitBarrier).start();
         
-        new Thread(new Runnable() {
+        new BarrierThread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < iterTimes; i++) {
@@ -159,14 +160,14 @@ public class PerformanceTest {
                     fsm2.fire(FSMEvent.ToC, 10);
                     fsm2.fire(FSMEvent.ToD, 10);
                 }
-                eventCondition.countDown();
             }
-        }).start();
+        }, "Performance-Test-Thread-2", entryBarrier, exitBarrier).start();
         
         try {
-            eventCondition.await();
-        } catch (InterruptedException e) {
-        }
+            exitBarrier.await();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } 
         
         if(showPerfResult!=null) {
             showPerfResult.run();
