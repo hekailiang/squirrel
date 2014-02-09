@@ -59,8 +59,6 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
     
     protected Boolean isEntryAction;
     
-    // TODO-hhe: String->Instance map registry for action/condition with parameters and also for reuse
-    
     public void startPrefixMapping (String prefix, String uri)
             throws SAXException {
         if(uri.equals(SQRL_NAMESPACE)) {
@@ -189,7 +187,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
                     getCurrentTranstionBuilder().callMethod(methodCallDesc);
                 }
             } else if(actionSchema.equals("instance")) {
-                // TODO-hhe: handle if action instance constructor has parameter
+                // NOTE: user should provider no-args constructor for action always
                 Action<T, S, E, C> action = ReflectUtils.newInstance(actionValue);
                 if(isConstructState()) {
                     if(Boolean.TRUE==isEntryAction) {
@@ -238,7 +236,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             String condSchema = conditionScript.substring(0, condPos);
             String condContent = conditionScript.substring(condPos+1);
             if(condSchema.equals("instance")) {
-                // TODO-hhe: handle if condition instance constructor has parameter
+                // NOTE: user should provider no-args constructor for condition always
                 Condition<C> cond = ReflectUtils.newInstance(condContent);
                 getCurrentTranstionBuilder().when(cond);
             } else if(condSchema.equals("mvel")) {
