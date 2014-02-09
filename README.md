@@ -17,7 +17,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.5</version>
+  	<version>0.2.6</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.6-SNAPSHOT</version>
+  	<version>0.2.7-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -777,6 +777,18 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 	```  
 
 ## Release Notes  
+*Version 0.2.6 - 2014-2-9*  
+1. Fix bugs around linked state feature  
+2. Support timeout for asynchronized action  
+3. Improve state transition performance [Issue 11][11] (Thanks to Jeremy)  
+4. Add **StateMachinePerformanceMonitor** to help analysing performance issue  
+5. Fix data correctness issues including test event, data isolation during transition and so on  
+6. Implement **State Machine Importer** feature  
+7. Add API ImmutableState.getAcceptableEvents()  
+8. Add API StateMachine.exportXMLDefinition(boolean) to simplify state machine export usage   
+9. **Remove** UntypedStateMachineBuilder.newUntypedStateMachine(Object, Class) method  
+10. **Deprecate** AbstractCondition, replaced with **AnonymousCondition**
+  
 *Version 0.2.5 - 2014-1-19*  
 1. Support asynchronized method call execution  
 2. Support asynchronized declarative event dispatch  
@@ -828,9 +840,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 
 ## Future Plan  
 * **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
-* State machine import  
 * Support dynamic extend state machine definition  
-* State machine statistics info including action invoke times, max/min/average invoke time and so on  
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
@@ -847,3 +857,4 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 [8]: https://google.com/+HeHenry
 [9]: http://www.uml-diagrams.org/state-machine-diagrams.html
 [10]: http://qt-project.org/doc/qt-4.8/statemachine-api.html
+[11]: https://github.com/hekailiang/squirrel/pull/11
