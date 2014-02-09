@@ -379,11 +379,8 @@ public class UntypedStateMachineTest {
                 UntypedStateMachineSampleEx2.class, Integer.class, String.class);
         UntypedStateMachineSampleEx2 fsmEx= builder.newUntypedStateMachine("a", 10, "Hello World");
         
-        SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
-        fsmEx.accept(visitor);
-        
         UntypedStateMachineBuilder importedBuilder = 
-            new UntypedStateMachineImporter().importDefinition(visitor.getScxml(false));
+            new UntypedStateMachineImporter().importDefinition(fsmEx.exportXMLDefinition(false));
         UntypedStateMachineSampleEx2 fsmEx2 =
             importedBuilder.newUntypedStateMachine("a", 11, "Hello World!");
         assertTrue(fsmEx2.param1==11);

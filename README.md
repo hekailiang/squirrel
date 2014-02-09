@@ -618,6 +618,7 @@ If no ExecutorService instance was registered, *SquirrelConfiguration* will prov
 	stateMachine.accept(visitor);
 	visitor.convertSCXMLFile("MyStateMachine", true);
 	```
+	BTW, user can also call *StateMachine.exportXMLDefinition(true)* to export beautified XML definition.  
 **DotVisitor** can be used to generate state diagram which can be viewed by [GraphViz] [3].
 	```java  
 	DotVisitor visitor = SquirrelProvider.getInstance().newInstance(DotVisitor.class);

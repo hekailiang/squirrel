@@ -41,6 +41,7 @@ import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
+import org.squirrelframework.foundation.fsm.SCXMLVisitor;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
@@ -1020,6 +1021,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             builder.append("]\" ");
         }
         return builder.toString();
+    }
+    
+    @Override
+    public String exportXMLDefinition(boolean beautifyXml) {
+        SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
+        accept(visitor);
+        return visitor.getScxml(beautifyXml);
     }
     
     private void removeDeclarativeListener(Observable observable, final Object listenTarget) {

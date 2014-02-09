@@ -162,39 +162,7 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     String getDescription();
     
-//    public static class Query {
-//
-//        public static <T extends StateMachine<T, S, E, C>, S, E, C> Collection<ImmutableTransition<T, S, E, C>> possibleTransitions(
-//                StateMachine<T, S, E, C> fsm, S stateId) {
-//            ImmutableState<T, S, E, C> state = fsm.getRawStateFrom(stateId);
-//            if (state != null) {
-//                return state.getAllTransitions();
-//            }
-//            return Collections.emptyList();
-//        }
-//
-//        public static <T extends StateMachine<T, S, E, C>, S, E, C> Collection<E> acceptableEvents(
-//                StateMachine<T, S, E, C> fsm, S stateId) {
-//            Collection<ImmutableTransition<T, S, E, C>> transitions = possibleTransitions(
-//                    fsm, stateId);
-//            Set<E> events = Sets.newLinkedHashSet();
-//            for (ImmutableTransition<T, S, E, C> t : transitions) {
-//                events.add(t.getEvent());
-//            }
-//            return events;
-//        }
-//
-//        public static <T extends StateMachine<T, S, E, C>, S, E, C> Collection<S> possibleNextStates(
-//                StateMachine<T, S, E, C> fsm, S stateId) {
-//            Collection<ImmutableTransition<T, S, E, C>> transitions = possibleTransitions(
-//                    fsm, stateId);
-//            Set<S> nextStates = Sets.newLinkedHashSet();
-//            for (ImmutableTransition<T, S, E, C> t : transitions) {
-//                nextStates.add(t.getTargetState().getStateId());
-//            }
-//            return nextStates;
-//        }
-//    }
+    String exportXMLDefinition(boolean beautifyXml);
     
     void addDeclarativeListener(Object listener);
     
