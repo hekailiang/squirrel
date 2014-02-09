@@ -1,16 +1,18 @@
 package org.squirrelframework.foundation.fsm;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionBeginEvent;
@@ -90,15 +92,15 @@ public class UntypedStateMachineTest {
         UntypedStateMachineSample mockedObject = fsm.mockedObject();
         InOrder callSequence = Mockito.inOrder(mockedObject);
         
-        Assert.assertTrue(fsm.getCurrentState().equals("a"));
+        assertTrue(fsm.getCurrentState().equals("a"));
         fsm.fire(TestEvent.toB, 1);
-        Assert.assertTrue(fsm.getCurrentState().equals("b"));
+        assertTrue(fsm.getCurrentState().equals("b"));
         fsm.fire(TestEvent.toC, 2);
-        Assert.assertTrue(fsm.getCurrentState().equals("c"));
+        assertTrue(fsm.getCurrentState().equals("c"));
         fsm.fire(TestEvent.toD, 3);
-        Assert.assertTrue(fsm.getCurrentState().equals("d"));
+        assertTrue(fsm.getCurrentState().equals("d"));
         fsm.fire(TestEvent.toA, 4);
-        Assert.assertTrue(fsm.getCurrentState().equals("a"));
+        assertTrue(fsm.getCurrentState().equals("a"));
         
         callSequence.verify(mockedObject, Mockito.times(1)).fromAToB("a", "b", TestEvent.toB, 1);
         callSequence.verify(mockedObject, Mockito.times(1)).transitFromdToaOntoA("d", "a", TestEvent.toA, 4);
@@ -145,11 +147,11 @@ public class UntypedStateMachineTest {
         fsm.fire(TestEvent.toB, 1);
         // TransitionBegin, TransitionDeclined, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
-        Assert.assertTrue(smCallTimes.get()==7);
-        Assert.assertTrue( tCallTimes.get()==6);
-        Assert.assertTrue(teCallTimes.get()==2);
-        Assert.assertTrue(tbCallTimes.get()==2);
-        Assert.assertTrue(tcCallTimes.get()==1);
+        assertTrue(smCallTimes.get()==7);
+        assertTrue( tCallTimes.get()==6);
+        assertTrue(teCallTimes.get()==2);
+        assertTrue(tbCallTimes.get()==2);
+        assertTrue(tcCallTimes.get()==1);
     }
     
     static class TestListenTarget {
@@ -170,16 +172,16 @@ public class UntypedStateMachineTest {
         @OnTransitionEnd
         @OnTransitionBegin
         public void transitionBegin(TestEvent event) {
-            Assert.assertTrue(event==TestEvent.toB);
+            assertTrue(event==TestEvent.toB);
             tbCallTimes.incrementAndGet();
         }
         
         @OnTransitionComplete
         public void transitionComplete(String from, String to, TestEvent event, Integer context) {
-            Assert.assertTrue(from.equals("a"));
-            Assert.assertTrue(to.equals("b"));
-            Assert.assertTrue(event==TestEvent.toB);
-            Assert.assertTrue(context==1);
+            assertTrue(from.equals("a"));
+            assertTrue(to.equals("b"));
+            assertTrue(event==TestEvent.toB);
+            assertTrue(context==1);
             tcCallTimes.incrementAndGet();
         }
         
@@ -190,20 +192,20 @@ public class UntypedStateMachineTest {
         
         @OnTransitionDecline
         public void transitionDeclined(String from, TestEvent event, Integer context) {
-            Assert.assertTrue(from.equals("b"));
-            Assert.assertTrue(event==TestEvent.toB);
-            Assert.assertTrue(context==2);
+            assertTrue(from.equals("b"));
+            assertTrue(event==TestEvent.toB);
+            assertTrue(context==2);
             tdCallTimes.incrementAndGet();
         }
         
         @OnActionExecute
         public void transitionAction(String from, String to, TestEvent event, Integer context, int[] mOfn) {
-            Assert.assertTrue(from.equals("a"));
-            Assert.assertTrue(to.equals("b"));
-            Assert.assertTrue(event==TestEvent.toB);
-            Assert.assertTrue(context==1);
-            Assert.assertTrue(mOfn[0]==1||mOfn[0]==2);
-            Assert.assertTrue(mOfn[1]==2);
+            assertTrue(from.equals("a"));
+            assertTrue(to.equals("b"));
+            assertTrue(event==TestEvent.toB);
+            assertTrue(context==1);
+            assertTrue(mOfn[0]==1||mOfn[0]==2);
+            assertTrue(mOfn[1]==2);
             adCallTimes.incrementAndGet();
         }
         
@@ -217,23 +219,23 @@ public class UntypedStateMachineTest {
     public void testTransitionDeclarativeEvent() {
         TestListenTarget listenTarget = new TestListenTarget();
         fsm.addDeclarativeListener(listenTarget);
-        Assert.assertTrue(fsm.getListenerSize()==7);
-        Assert.assertTrue(fsm.getExecutorListenerSize()==2);
+        assertTrue(fsm.getListenerSize()==7);
+        assertTrue(fsm.getExecutorListenerSize()==2);
         // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm.fire(TestEvent.toB, 1);
         // TransitionBegin, TransitionDeclined, TransitionEnd
         fsm.fire(TestEvent.toB, 2);
-        Assert.assertTrue(listenTarget.tbCallTimes.get()==4);
-        Assert.assertTrue(listenTarget.teCallTimes.get()==3);
-        Assert.assertTrue(listenTarget.tcCallTimes.get()==1);
-        Assert.assertTrue(listenTarget.tdCallTimes.get()==1);
-        Assert.assertTrue(listenTarget.adCallTimes.get()==2);
-        Assert.assertTrue(listenTarget.acCallTimes.get()==2);
-        Assert.assertTrue(listenTarget.tcCallTimesCausedByToD.get()==0);
+        assertTrue(listenTarget.tbCallTimes.get()==4);
+        assertTrue(listenTarget.teCallTimes.get()==3);
+        assertTrue(listenTarget.tcCallTimes.get()==1);
+        assertTrue(listenTarget.tdCallTimes.get()==1);
+        assertTrue(listenTarget.adCallTimes.get()==2);
+        assertTrue(listenTarget.acCallTimes.get()==2);
+        assertTrue(listenTarget.tcCallTimesCausedByToD.get()==0);
         
         fsm.removeDeclarativeListener(listenTarget);
-        Assert.assertTrue(fsm.getListenerSize()==0);
-        Assert.assertTrue(fsm.getExecutorListenerSize()==0);
+        assertTrue(fsm.getListenerSize()==0);
+        assertTrue(fsm.getExecutorListenerSize()==0);
     }
     
     @Test
@@ -241,8 +243,8 @@ public class UntypedStateMachineTest {
         TestListenTarget listenTarget = new TestListenTarget();
         fsm.addDeclarativeListener(listenTarget);
         fsm.addDeclarativeListener(listenTarget);
-        Assert.assertTrue(fsm.getListenerSize()==14);           // double called
-        Assert.assertTrue(fsm.getExecutorListenerSize()==4);    // double called
+        assertTrue(fsm.getListenerSize()==14);           // double called
+        assertTrue(fsm.getExecutorListenerSize()==4);    // double called
     }
     
     @Transitions({
@@ -265,30 +267,30 @@ public class UntypedStateMachineTest {
         
         @OnTransitionEnd
         public void transitionEnd(UntypedStateMachine stateMachine) {
-            Assert.assertTrue(stateMachine!=null);
+            assertTrue(stateMachine!=null);
             teCallTimes.incrementAndGet();
         }
         
         @OnTransitionBegin
         public void transitionBegin(String from, String event) {
-            Assert.assertTrue(event.equals("toB"));
+            assertTrue(event.equals("toB"));
             tbCallTimes.incrementAndGet();
         }
         
         @OnTransitionComplete
         public void transitionComplete(String from, String to, String event, String context) {
-            Assert.assertTrue(from.equals("a"));
-            Assert.assertTrue(to.equals("b"));
-            Assert.assertTrue(event.equals("toB"));
-            Assert.assertTrue(context.equals("1"));
+            assertTrue(from.equals("a"));
+            assertTrue(to.equals("b"));
+            assertTrue(event.equals("toB"));
+            assertTrue(context.equals("1"));
             tcCallTimes.incrementAndGet();
         }
         
         @OnTransitionDecline
         public void transitionDeclined(String from, String event, String context) {
-            Assert.assertTrue(from.equals("b"));
-            Assert.assertTrue(event.equals("toB"));
-            Assert.assertTrue(context.equals("2"));
+            assertTrue(from.equals("b"));
+            assertTrue(event.equals("toB"));
+            assertTrue(context.equals("2"));
             tdCallTimes.incrementAndGet();
         }
     }
@@ -296,24 +298,24 @@ public class UntypedStateMachineTest {
     @Test
     public void testParameterValueInfer() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSample2.class);
-        UntypedStateMachineSample2 fsm2= builder.newUntypedStateMachine("a", UntypedStateMachineSample2.class);
+        UntypedStateMachineSample2 fsm2= builder.newUntypedStateMachine("a");
         
         TestListenTarget2 listenTarget = new TestListenTarget2();
         fsm2.addDeclarativeListener(listenTarget);
-        Assert.assertTrue(fsm2.getListenerSize()==4);
-        Assert.assertTrue(fsm2.getExecutorListenerSize()==0);
+        assertTrue(fsm2.getListenerSize()==4);
+        assertTrue(fsm2.getExecutorListenerSize()==0);
         // StateMachineStart, TransitionBegin, TransitionComplete, TransitionEnd
         fsm2.fire("toB", "1");
         // TransitionBegin, TransitionDeclined, TransitionEnd
         fsm2.fire("toB", "2");
-        Assert.assertTrue(listenTarget.tbCallTimes.get()==2);
-        Assert.assertTrue(listenTarget.teCallTimes.get()==2);
-        Assert.assertTrue(listenTarget.tcCallTimes.get()==1);
-        Assert.assertTrue(listenTarget.tdCallTimes.get()==1);
+        assertTrue(listenTarget.tbCallTimes.get()==2);
+        assertTrue(listenTarget.teCallTimes.get()==2);
+        assertTrue(listenTarget.tcCallTimes.get()==1);
+        assertTrue(listenTarget.tdCallTimes.get()==1);
         
         fsm2.removeDeclarativeListener(listenTarget);
-        Assert.assertTrue(fsm2.getListenerSize()==0);
-        Assert.assertTrue(fsm2.getExecutorListenerSize()==0);
+        assertTrue(fsm2.getListenerSize()==0);
+        assertTrue(fsm2.getExecutorListenerSize()==0);
     }
     
     @Test(expected=RuntimeException.class)
@@ -324,5 +326,67 @@ public class UntypedStateMachineTest {
     @Test(expected=RuntimeException.class)
     public void testParamterTypeCheck2() {
         fsm.fire(TestEvent.toB, "TypeNotCorrect");
+    }
+    
+    @Transitions({
+        @Transit(from="a", to="b", on="toB")
+    })
+    @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
+    static class UntypedStateMachineSampleEx1 extends AbstractUntypedStateMachine {
+        final int param1;
+        protected UntypedStateMachineSampleEx1(ImmutableUntypedState initialState,
+                Map<Object, ImmutableUntypedState> states, int param1) {
+            super(initialState, states);
+            this.param1 = param1;
+        }
+    }
+    
+    @Test
+    public void testCreateUntypedStateMachineWithExtraSingleParams() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
+                UntypedStateMachineSampleEx1.class, int.class);
+        UntypedStateMachineSampleEx1 fsmEx= builder.newUntypedStateMachine("a", 123);
+        assertTrue(fsmEx.param1==123);
+    }
+    
+    @Transitions({
+        @Transit(from="a", to="b", on="toB")
+    })
+    @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
+    static class UntypedStateMachineSampleEx2 extends AbstractUntypedStateMachine {
+        final Integer param1;
+        final String param2;
+        protected UntypedStateMachineSampleEx2(ImmutableUntypedState initialState,
+                Map<Object, ImmutableUntypedState> states, Integer param1, String param2) {
+            super(initialState, states);
+            this.param1 = param1;
+            this.param2 = param2;
+        }
+    }
+    
+    @Test
+    public void testCreateUntypedStateMachineWithExtraTwoParams() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
+                UntypedStateMachineSampleEx2.class, Integer.class, String.class);
+        UntypedStateMachineSampleEx2 fsmEx= builder.newUntypedStateMachine("a", 10, "Hello World");
+        assertTrue(fsmEx.param1==10);
+        assertTrue(fsmEx.param2.equals("Hello World"));
+    }
+    
+    @Test
+    public void testCreateUntypedStateMachineWithExtraTwoParamsExportAndImport() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
+                UntypedStateMachineSampleEx2.class, Integer.class, String.class);
+        UntypedStateMachineSampleEx2 fsmEx= builder.newUntypedStateMachine("a", 10, "Hello World");
+        
+        SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
+        fsmEx.accept(visitor);
+        
+        UntypedStateMachineBuilder importedBuilder = 
+            new UntypedStateMachineImporter().importDefinition(visitor.getScxml(false));
+        UntypedStateMachineSampleEx2 fsmEx2 =
+            importedBuilder.newUntypedStateMachine("a", 11, "Hello World!");
+        assertTrue(fsmEx2.param1==11);
+        assertTrue(fsmEx2.param2.equals("Hello World!"));
     }
 }

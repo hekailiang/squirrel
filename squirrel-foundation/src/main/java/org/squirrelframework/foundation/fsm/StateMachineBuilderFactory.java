@@ -45,15 +45,14 @@ public class StateMachineBuilderFactory {
                         try {
                             String methodName = method.getName();
                             if(methodName.equals("newUntypedStateMachine") || methodName.equals("newAnyStateMachine")) {
-                                Object fsmInstance = builder.newStateMachine(args[0]);
-//                                Object fsmInstance = null;
-//                                if(args.length==2) {
-//                                    fsmInstance = builder.newStateMachine(args[0], args[1]);
-//                                } else if(args.length==1) {
-//                                    fsmInstance = builder.newStateMachine(args[0]);
-//                                } else {
-//                                    throw new IllegalArgumentException("Illegal argument number.");
-//                                }
+                                Object fsmInstance = null;
+                                if(args.length==2 && args[1].getClass().isArray()) {
+                                    fsmInstance = builder.newStateMachine(args[0], (Object[])args[1]);
+                                } else if(args.length==1) {
+                                    fsmInstance = builder.newStateMachine(args[0]);
+                                } else {
+                                    throw new IllegalArgumentException("Illegal argument number.");
+                                }
                                 return fsmInstance;
                             }
                             return method.invoke(builder, args);

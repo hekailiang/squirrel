@@ -107,7 +107,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
                 }
             }
             stateMachineBuilder = StateMachineBuilderFactory.create(
-                    stateMachineClazz, stateClazz, eventClazz, contextClazz, new Class<?>[0]);
+                    stateMachineClazz, stateClazz, eventClazz, contextClazz, extraParamTypes);
             ((StateMachineBuilderImpl<T, S, E, C>)stateMachineBuilder).setScanAnnotations(false);
             
             String finishEventName = attributes.getValue("finish-event");
