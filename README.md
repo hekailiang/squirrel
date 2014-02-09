@@ -787,7 +787,8 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 7. Add API ImmutableState.getAcceptableEvents()  
 8. Add API StateMachine.exportXMLDefinition(boolean) to simplify state machine export usage   
 9. **Remove** UntypedStateMachineBuilder.newUntypedStateMachine(Object, Class) method  
-10. **Deprecate** AbstractCondition, replaced with **AnonymousCondition**
+10. **Deprecate** AbstractCondition, replaced with **AnonymousCondition**  
+11. **Deprecate** AnonymousUntypedAction, replaced with **UntypedAnonymousAction**  
   
 *Version 0.2.5 - 2014-1-19*  
 1. Support asynchronized method call execution  
