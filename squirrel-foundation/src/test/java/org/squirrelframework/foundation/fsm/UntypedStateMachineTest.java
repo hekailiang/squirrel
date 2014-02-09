@@ -12,7 +12,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionBeginEvent;
@@ -22,8 +21,8 @@ import org.squirrelframework.foundation.fsm.StateMachine.TransitionCompleteListe
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEndListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionEvent;
-import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
+import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
@@ -198,7 +197,7 @@ public class UntypedStateMachineTest {
             tdCallTimes.incrementAndGet();
         }
         
-        @OnActionExecute
+        @OnBeforeActionExecuted
         public void transitionAction(String from, String to, TestEvent event, Integer context, int[] mOfn) {
             assertTrue(from.equals("a"));
             assertTrue(to.equals("b"));

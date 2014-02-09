@@ -51,7 +51,6 @@ import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
-import org.squirrelframework.foundation.fsm.annotation.OnActionExecute;
 import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
@@ -928,7 +927,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     };
     
     private static final Class<?>[][] actionExecutorListenerMapping = {
-        {OnActionExecute.class,         BeforeExecActionListener.class,     BeforeExecActionEvent.class},
         {OnBeforeActionExecuted.class,  BeforeExecActionListener.class,     BeforeExecActionEvent.class},
         {OnAfterActionExecuted.class,   AfterExecActionListener.class,      AfterExecActionEvent.class},
         {OnActionExecException.class,   ExecActionExceptionListener.class,  ExecActionExceptionEvent.class},
