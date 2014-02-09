@@ -99,16 +99,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private final ExecutionContext executionContext;
     
-    private final boolean contextInsensitive;
-    
     private boolean isScanAnnotations = true;
     
     private final Class<?>[] extraParamTypes;
     
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
-            Class<E> eventClazz, Class<C> contextClazz, boolean isContextInsensitive, 
-            Class<?>... extraConstParamTypes) {
+            Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
         Preconditions.checkArgument(isInstantiableType(stateMachineImplClazz), "The state machine class \""
                 + stateMachineImplClazz.getName() + "\" cannot be instantiated.");
         Preconditions.checkArgument(isStateMachineType(stateMachineImplClazz), 
@@ -139,15 +136,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.eventConverter = ConverterProvider.INSTANCE.getConverter(this.eventClazz);
         this.scriptManager = SquirrelProvider.getInstance().newInstance(MvelScriptManager.class);
         
-        boolean _isContextInsensitive = isContextInsensitive;
-        if(!_isContextInsensitive && findAnnotation(ContextInsensitive.class)!=null) {
-            _isContextInsensitive = true;
-        }
-        methodCallParamTypes = _isContextInsensitive ? 
+        boolean contextInsensitive = findAnnotation(ContextInsensitive.class)!=null;
+        methodCallParamTypes = contextInsensitive ? 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
-        this.contextInsensitive = _isContextInsensitive;
+        
         this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
         this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
         
@@ -636,7 +630,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         stateMachineImpl.setStartEvent(startEvent);
         stateMachineImpl.setFinishEvent(finishEvent);
         stateMachineImpl.setTerminateEvent(terminateEvent);
-        stateMachineImpl.setContextInsensitive(contextInsensitive);
         stateMachineImpl.setExtraParamTypes(extraParamTypes);
         
         stateMachineImpl.setTypeOfStateMachine(stateMachineImplClazz);

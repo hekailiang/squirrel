@@ -118,8 +118,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private MvelScriptManager scriptManager;
     
     // state machine options
-    private boolean isContextInsensitiveEnabled;
-    
     private boolean isAutoStartEnabled = true;
     
     private boolean isAutoTerminateEnabled = true;
@@ -613,14 +611,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     E getFinishEvent() {
     	return finishEvent;
-    }
-    
-    void setContextInsensitive(boolean isContextInsensitive) {
-        this.isContextInsensitiveEnabled = isContextInsensitive;
-    }
-    
-    boolean isContextInsensitive() {
-        return isContextInsensitiveEnabled;
     }
     
     void setExtraParamTypes(Class<?>[] extraParamTypes) {

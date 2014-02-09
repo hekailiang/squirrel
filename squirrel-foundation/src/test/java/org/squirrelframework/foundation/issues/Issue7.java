@@ -9,7 +9,8 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachineWithoutContext;
+import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 public class Issue7 {
     @Test 
@@ -23,7 +24,7 @@ public class Issue7 {
 
     private static FSM createFSM() {
         StateMachineBuilder<FSM, State, Event, Void> builder =
-                StateMachineBuilderFactory.create(FSM.class, State.class, Event.class);
+                StateMachineBuilderFactory.create(FSM.class, State.class, Event.class, Void.class);
 
         builder.externalTransition().from(State.Calm).to(State.GoingWild).on(Event.GoWild);
         builder.externalTransition().from(State.GoingWild).to(State.GoneWild).on(Event.GoneWild);
@@ -45,7 +46,8 @@ public class Issue7 {
         return builder.newStateMachine(State.Calm);
     }
 
-    private static class FSM extends AbstractStateMachineWithoutContext<FSM, State, Event> {
+    @ContextInsensitive
+    private static class FSM extends AbstractStateMachine<FSM, State, Event, Void> {
         protected FSM(ImmutableState<FSM, State, Event, Void> initialState,
                       Map<State, ImmutableState<FSM, State, Event, Void>> states) {
             super(initialState, states);
