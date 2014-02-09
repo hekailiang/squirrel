@@ -57,7 +57,7 @@ public interface Action<T extends StateMachine<T, S, E, C>, S, E, C> extends Squ
         
         @Override
         public String name() {
-            return "_DUMMY_ACTION";
+            return "__DUMMY_ACTION";
         }
     };
 }

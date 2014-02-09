@@ -55,7 +55,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
 
         @Override
         public String name() {
-            return "_TIMED_STATE_ENTRY_ACTION";
+            return "__TIMED_STATE_ENTRY_ACTION";
         }
     };
     
@@ -76,7 +76,7 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
 
         @Override
         public String name() {
-            return "_TIMED_STATE_EXIT_ACTION";
+            return "__TIMED_STATE_EXIT_ACTION";
         }
     };
 

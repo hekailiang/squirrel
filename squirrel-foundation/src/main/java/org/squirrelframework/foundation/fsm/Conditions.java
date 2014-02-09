@@ -9,19 +9,14 @@ import java.util.List;
  */
 public class Conditions {
     
-    public static abstract class AbstractCondition<C> implements Condition<C> {
-        @Override
-        public String name() {
-            return getClass().getSimpleName();
-        }
-        
-        @Override
-        final public String toString() {
-            return "instance#"+getClass().getName();
-        }
+    /**
+     * Renamed to AnonymousCondition
+     */
+    @Deprecated
+    public static abstract class AbstractCondition<C> extends AnonymousCondition<C> {
     }
     
-    public static class Always<C> extends AbstractCondition<C> {
+    public static class Always<C> extends AnonymousCondition<C> {
         @Override
         public boolean isSatisfied(C context) {
             return true;
@@ -32,7 +27,7 @@ public class Conditions {
         return new Always<C>();
     }
     
-    public static class Never<C> extends AbstractCondition<C> {
+    public static class Never<C> extends AnonymousCondition<C> {
         @Override
         public boolean isSatisfied(C context) {
             return false;

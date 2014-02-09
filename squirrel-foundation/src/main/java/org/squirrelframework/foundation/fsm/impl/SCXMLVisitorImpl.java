@@ -106,7 +106,12 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     }
     
     private void writeAction(final Action<?, ?, ?, ?> action) {
-        writeLine("<sqrl:action content="+quoteName(action.toString())+"/>");
+        if(isExternalAction(action))
+            writeLine("<sqrl:action content="+quoteName(action.toString())+"/>");
+    }
+    
+    private boolean isExternalAction(final Action<?, ?, ?, ?> action) {
+        return action.name().startsWith("__")==false;
     }
 
     @Override

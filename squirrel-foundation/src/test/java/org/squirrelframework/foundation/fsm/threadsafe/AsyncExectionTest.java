@@ -77,26 +77,27 @@ public class AsyncExectionTest {
     
     @Test(timeout=1000)
     public void testTimedoutActionCall() {
-        builder.transition().from("A").to("B").on("FIRST").perform(new AnonymousUntypedAction() {
-            @Override
-            public void execute(Object from, Object to, Object event, Object context,
-                    UntypedStateMachine stateMachine) {
-                try {
-                    Thread.sleep(100000);
-                } catch (InterruptedException e) {
-                }
-            }
-            
-            @Override
-            public long timeout() {
-                return 10;
-            }
-            
-            @Override
-            public boolean isAsync() {
-                return true;
-            }
-        });
+        builder.transition().from("A").to("B").on("FIRST")
+                .perform(new AnonymousUntypedAction() {
+                    @Override
+                    public void execute(Object from, Object to, Object event,
+                            Object context, UntypedStateMachine stateMachine) {
+                        try {
+                            Thread.sleep(100000);
+                        } catch (InterruptedException e) {
+                        }
+                    }
+
+                    @Override
+                    public long timeout() {
+                        return 10;
+                    }
+
+                    @Override
+                    public boolean isAsync() {
+                        return true;
+                    }
+                });
         
         final ConcurrentSimpleStateMachine fsm = builder.newUntypedStateMachine("A");
         try {

@@ -101,7 +101,7 @@ public class PerformanceTest {
     
     void performTest(final int iterTimes, final boolean addPerfMonitor, final Runnable task) {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(StateMachineSample.class);
-        Action<UntypedStateMachine, Object, Object, Object> action = new AnonymousAction<UntypedStateMachine, Object, Object, Object>() {
+        UntypedAnonymousAction action = new UntypedAnonymousAction() {
             @Override
             public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
                 if(task!=null) task.run();

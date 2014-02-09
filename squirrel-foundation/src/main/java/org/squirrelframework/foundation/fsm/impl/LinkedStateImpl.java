@@ -50,7 +50,7 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
 
         @Override
         public String name() {
-            return "_LINK_STATE_ENTRY_ACTION";
+            return "__LINK_STATE_ENTRY_ACTION";
         }
     };
     
@@ -66,7 +66,7 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
 
         @Override
         public String name() {
-            return "_LINK_STATE_EXIT_ACTION";
+            return "__LINK_STATE_EXIT_ACTION";
         }
     };
 

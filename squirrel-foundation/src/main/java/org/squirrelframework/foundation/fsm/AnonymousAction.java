@@ -5,7 +5,7 @@ public abstract class AnonymousAction<T extends StateMachine<T, S, E, C>, S, E, 
 
     @Override
     public String name() {
-        return "_ANONYMOUS_ACTION";
+        return getClass().getSimpleName();
     }
     
     @Override

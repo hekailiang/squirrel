@@ -556,19 +556,22 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
-    static class FinalExitActionGuard<T extends StateMachine<T, S, E, C>, S, E, C> extends AnonymousAction<T, S, E, C> {
-        @Override
-        public void execute(S from, S to, E event, C context, T stateMachine) {
-            throw new IllegalStateException("Final state cannot be exited anymore.");
-        }
-    }
-    
     private void installFinalStateActions() {
         for(MutableState<T, S, E, C> state : states.values()) {
             if(!state.isFinalState()) continue;
             // defensive code: final state cannot be exited anymore
-            // TODO-hhe: no need to create new instance each time
-            state.addExitAction(new FinalExitActionGuard<T, S, E, C>());
+            state.addExitAction(new AnonymousAction<T, S, E, C>() {
+                @Override
+                public void execute(S from, S to, E event, C context, T stateMachine) {
+                    throw new IllegalStateException("Final state cannot be exited anymore.");
+                }
+                
+                @Override
+                public String name() {
+                    return "__FINAL_STATE_ACTION_GUARD";
+                }
+            });
+            
         }
     }
     
