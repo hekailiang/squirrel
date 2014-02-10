@@ -8,9 +8,9 @@ import java.io.ObjectOutputStream;
 
 import org.squirrelframework.foundation.util.Base64Coder;
 
-abstract class StateMachineDataSerializableSupport {
+abstract class ObjectSerializableSupport {
     
-    public static <T extends StateMachine<T, S, E, C>, S, E, C> String serialize(StateMachineData.Reader<T, S, E, C> data) {
+    public static String serialize(Object data) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -26,13 +26,13 @@ abstract class StateMachineDataSerializableSupport {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends StateMachine<T, S, E, C>, S, E, C> StateMachineData.Reader<T, S, E, C> deserialize(String value) {
+    public static <T> T deserialize(String value) {
         try {
             byte [] data = Base64Coder.decode(value);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
             try {
                 Object object = ois.readObject();
-                return (StateMachineData.Reader<T, S, E, C>)object;
+                return (T)object;
             } finally {
                 ois.close();
             }

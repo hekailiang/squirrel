@@ -27,4 +27,16 @@ public class UntypedStateMachineImporter {
         return StateMachineBuilderFactory.create(stateMachineBuilder);
     }
     
+    public void registerReusableInstance(Object instance) {
+        delegator.registerReusableInstance(instance);
+    }
+
+    public void unregisterReusableInstance(String instanceName) {
+        delegator.unregisterReusableInstance(instanceName);
+    }
+
+    public void registerReusableInstance(String instanceName, Object instance) {
+        delegator.registerReusableInstance(instanceName, instance);
+    }
+    
 }

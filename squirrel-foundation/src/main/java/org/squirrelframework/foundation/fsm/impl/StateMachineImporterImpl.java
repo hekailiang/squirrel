@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.xml.parsers.SAXParser;
@@ -16,6 +17,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Condition;
+import org.squirrelframework.foundation.fsm.Conditions;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.HistoryType;
@@ -32,6 +34,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
 
 public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         extends DefaultHandler implements StateMachineImporter<T, S, E, C> {
@@ -58,6 +61,13 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             ArrayListMultimap.create();
     
     protected Boolean isEntryAction;
+    
+    protected Map<String, Object> reusableInstance = Maps.newHashMap();
+    
+    public StateMachineImporterImpl() {
+        registerReusableInstance(Conditions.always());
+        registerReusableInstance(Conditions.never());
+    }
     
     public void startPrefixMapping (String prefix, String uri)
             throws SAXException {
@@ -188,7 +198,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
                 }
             } else if(actionSchema.equals("instance")) {
                 // NOTE: user should provider no-args constructor for action always
-                Action<T, S, E, C> action = ReflectUtils.newInstance(actionValue);
+                Action<T, S, E, C> action = newInstance(actionValue);
                 if(isConstructState()) {
                     if(Boolean.TRUE==isEntryAction) {
                         stateMachineBuilder.onEntry(getCurrentState().getStateId()).perform(action);
@@ -237,7 +247,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             String condContent = conditionScript.substring(condPos+1);
             if(condSchema.equals("instance")) {
                 // NOTE: user should provider no-args constructor for condition always
-                Condition<C> cond = ReflectUtils.newInstance(condContent);
+                Condition<C> cond = newInstance(condContent);
                 getCurrentTranstionBuilder().when(cond);
             } else if(condSchema.equals("mvel")) {
                 getCurrentTranstionBuilder().whenMvel(condContent);
@@ -270,6 +280,15 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
         } else if(qName.equals("transition")) {
             currentTranstionBuilder=null;
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private <M> M newInstance(String instanceClassName) {
+        Object instance = reusableInstance.get(instanceClassName);
+        if(instance==null) {
+            instance = ReflectUtils.newInstance(instanceClassName);
+        }
+        return (M)instance;
     }
     
     protected MutableState<T, S, E, C> getCurrentState() {
@@ -305,5 +324,20 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("Canont find file", e);
         }
+    }
+
+    @Override
+    public void registerReusableInstance(Object instance) {
+        registerReusableInstance(instance.getClass().getName(), instance);
+    }
+
+    @Override
+    public void unregisterReusableInstance(String instanceName) {
+        reusableInstance.remove(instanceName);
+    }
+
+    @Override
+    public void registerReusableInstance(String instanceName, Object instance) {
+        reusableInstance.put(instanceName, instance);
     }
 }

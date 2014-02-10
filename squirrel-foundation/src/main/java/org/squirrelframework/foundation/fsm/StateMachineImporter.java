@@ -10,4 +10,10 @@ public interface StateMachineImporter<T extends StateMachine<T, S, E, C>, S, E, 
     StateMachineBuilder<T, S, E, C> importFromFile(File content);
     
     StateMachineBuilder<T, S, E, C> importFromInputStream(InputStream content);
+    
+    void registerReusableInstance(Object instance);
+    
+    void registerReusableInstance(String instanceName, Object instance);
+    
+    void unregisterReusableInstance(String instanceName);
 }

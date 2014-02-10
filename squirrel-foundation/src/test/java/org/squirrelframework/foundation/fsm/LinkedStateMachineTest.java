@@ -309,7 +309,7 @@ public class LinkedStateMachineTest {
             OutputStream file = new FileOutputStream("data.sqr");
             OutputStream buffer = new BufferedOutputStream(file);
             OutputStreamWriter osw = new OutputStreamWriter(buffer, "UTF-8"); 
-            osw.write(StateMachineDataSerializableSupport.serialize(savedData));
+            osw.write(ObjectSerializableSupport.serialize(savedData));
             osw.flush();
         } catch (IOException ex) {
             Assert.fail();
@@ -327,7 +327,7 @@ public class LinkedStateMachineTest {
             
             // deserialize the List
             StateMachineData.Reader<TestStateMachine, LState, LEvent, Integer> loadedSavedData = 
-                    StateMachineDataSerializableSupport.deserialize(fileContent);
+                    ObjectSerializableSupport.deserialize(fileContent);
             stateMachine.loadSavedData(loadedSavedData);
             stateMachine.fire(LEvent.A22A3, 0);
             assertThat(stateMachine.getCurrentState(), equalTo(LState.A3));
