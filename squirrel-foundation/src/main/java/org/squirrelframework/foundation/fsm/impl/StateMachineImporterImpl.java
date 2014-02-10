@@ -62,7 +62,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
     
     protected Boolean isEntryAction;
     
-    protected Map<String, Object> reusableInstance = Maps.newHashMap();
+    protected final Map<String, Object> reusableInstance = Maps.newHashMap();
     
     public StateMachineImporterImpl() {
         registerReusableInstance(Conditions.always());

@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 
 import org.squirrelframework.foundation.util.Base64Coder;
 
-abstract class ObjectSerializableSupport {
+public abstract class ObjectSerializableSupport {
     
     public static String serialize(Object data) {
         try {
