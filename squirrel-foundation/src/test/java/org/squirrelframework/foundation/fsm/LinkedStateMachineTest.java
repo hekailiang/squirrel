@@ -6,15 +6,14 @@ import static org.junit.Assert.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Map;
 
 import junit.framework.Assert;
@@ -295,7 +294,7 @@ public class LinkedStateMachineTest {
         assertThat(stateMachine.getCurrentState(), equalTo(LState.A3));
         assertThat(stateMachine.getCurrentRawState().getStateId(), equalTo(LState.A3));
     }
-
+    
     @Test
     public void testSavedData() {
         stateMachine.fire(LEvent.A12A2, 0);
@@ -304,17 +303,14 @@ public class LinkedStateMachineTest {
                 stateMachine.dumpSavedData();
         assertThat(savedData.linkedStates(), contains(LState.A));
         stateMachine.terminate(null);
-
+        
         try {
             // use buffering
             OutputStream file = new FileOutputStream("data.sqr");
             OutputStream buffer = new BufferedOutputStream(file);
-            ObjectOutput output = new ObjectOutputStream(buffer);
-            try {
-                output.writeObject(savedData);
-            } finally {
-                output.close();
-            }
+            OutputStreamWriter osw = new OutputStreamWriter(buffer, "UTF-8"); 
+            osw.write(StateMachineDataSerializableSupport.serialize(savedData));
+            osw.flush();
         } catch (IOException ex) {
             Assert.fail();
         }
@@ -325,18 +321,16 @@ public class LinkedStateMachineTest {
             // use buffering
             InputStream file = new FileInputStream("data.sqr");
             InputStream buffer = new BufferedInputStream(file);
-            ObjectInput input = new ObjectInputStream(buffer);
-            try {
-                // deserialize the List
-                @SuppressWarnings("unchecked")
-                StateMachineData.Reader<TestStateMachine, LState, LEvent, Integer> loadedSavedData = 
-                    (StateMachineData.Reader<TestStateMachine, LState, LEvent, Integer>) input.readObject();
-                stateMachine.loadSavedData(loadedSavedData);
-                stateMachine.fire(LEvent.A22A3, 0);
-                assertThat(stateMachine.getCurrentState(), equalTo(LState.A3));
-            } finally {
-                input.close();
-            }
+            InputStreamReader isr = new InputStreamReader(buffer, "UTF-8"); 
+            BufferedReader br = new BufferedReader(isr); 
+            String fileContent = br.readLine(); 
+            
+            // deserialize the List
+            StateMachineData.Reader<TestStateMachine, LState, LEvent, Integer> loadedSavedData = 
+                    StateMachineDataSerializableSupport.deserialize(fileContent);
+            stateMachine.loadSavedData(loadedSavedData);
+            stateMachine.fire(LEvent.A22A3, 0);
+            assertThat(stateMachine.getCurrentState(), equalTo(LState.A3));
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
