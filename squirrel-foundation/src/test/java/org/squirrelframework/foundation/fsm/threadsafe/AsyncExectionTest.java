@@ -10,8 +10,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.exception.TransitionException;
-import org.squirrelframework.foundation.fsm.AnonymousUntypedAction;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.UntypedAnonymousAction;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
@@ -31,7 +31,7 @@ public class AsyncExectionTest {
         final StringBuilder logger = new StringBuilder();
         // timed state must be defined before transition
         builder.defineTimedState("A", 4, 10, "FIRST", null);
-        builder.internalTransition().within("A").on("FIRST").perform(new AnonymousUntypedAction() {
+        builder.internalTransition().within("A").on("FIRST").perform(new UntypedAnonymousAction() {
             @Override
             public void execute(Object from, Object to, Object event,
                     Object context, UntypedStateMachine stateMachine) {
@@ -78,7 +78,7 @@ public class AsyncExectionTest {
     @Test(timeout=1000)
     public void testTimedoutActionCall() {
         builder.transition().from("A").to("B").on("FIRST")
-                .perform(new AnonymousUntypedAction() {
+                .perform(new UntypedAnonymousAction() {
                     @Override
                     public void execute(Object from, Object to, Object event,
                             Object context, UntypedStateMachine stateMachine) {
@@ -112,7 +112,7 @@ public class AsyncExectionTest {
     @Test
     public void testAsyncActionException() {
         final String errMsg = "This exception is thrown on purpse.";
-        builder.transition().from("A").to("B").on("FIRST").perform(new AnonymousUntypedAction() {
+        builder.transition().from("A").to("B").on("FIRST").perform(new UntypedAnonymousAction() {
             @Override
             public void execute(Object from, Object to, Object event, Object context,
                     UntypedStateMachine stateMachine) {

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.Conditions.AbstractCondition;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 import org.squirrelframework.foundation.fsm.DotVisitor;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
@@ -65,7 +65,7 @@ public class SnakeController extends AbstractUntypedStateMachine {
 		PRESS_START, TURN_UP, TURN_LEFT, TURN_RIGHT, TURN_DOWN, MOVE_AHEAD, PRESS_PAUSE
 	}
 	
-	public static class ContinueRunningCondition extends AbstractCondition<SnakeModel> {
+	public static class ContinueRunningCondition extends AnonymousCondition<SnakeModel> {
 		@Override
         public boolean isSatisfied(SnakeModel context) {
 			Point nextPoint = computeNextPoint(context.peekFirst(), context.getDirection());

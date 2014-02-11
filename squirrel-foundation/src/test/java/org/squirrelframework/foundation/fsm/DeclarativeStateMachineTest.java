@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.exception.TransitionException;
-import org.squirrelframework.foundation.fsm.Conditions.AbstractCondition;
 import org.squirrelframework.foundation.fsm.annotation.LogExecTime;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -71,7 +70,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         void terminate(Integer context);
     }
 
-    static class ExcellentCondition extends AbstractCondition<Integer> {
+    static class ExcellentCondition extends AnonymousCondition<Integer> {
         @Override
         public boolean isSatisfied(Integer context) {
             return context!=null && context>80;
