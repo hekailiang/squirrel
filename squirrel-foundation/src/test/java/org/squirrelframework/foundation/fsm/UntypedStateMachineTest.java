@@ -385,4 +385,33 @@ public class UntypedStateMachineTest {
         assertTrue(fsmEx2.param1==11);
         assertTrue(fsmEx2.param2.equals("Hello World!"));
     }
+    
+    @Transitions({
+        @Transit(from="a", to="b", on="toB", whenMvel="context<10", priority=12),   //  if(context<10)
+        @Transit(from="a", to="c", on="toB", whenMvel="context<20", priority=11),   //  else if(context>=10 && context<20)
+        @Transit(from="a", to="d", on="toB", priority=10)                           //  else ... context>=20
+    })
+    @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
+    static class UntypedStateMachineSampleEx3 extends AbstractUntypedStateMachine {
+        protected UntypedStateMachineSampleEx3(ImmutableUntypedState initialState,
+                Map<Object, ImmutableUntypedState> states) {
+            super(initialState, states);
+        }
+    }
+    
+    @Test
+    public void testCreateUntypedStateMachinePrioritizedTransition() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSampleEx3.class);
+        UntypedStateMachineSampleEx3 fsmEx= builder.newUntypedStateMachine("a");
+        fsmEx.fire(TestEvent.toB, 0);
+        assertTrue(fsmEx.getCurrentState().equals("b"));
+
+        fsmEx= builder.newUntypedStateMachine("a");
+        fsmEx.fire(TestEvent.toB, 15);
+        assertTrue(fsmEx.getCurrentState().equals("c"));
+        
+        fsmEx= builder.newUntypedStateMachine("a");
+        fsmEx.fire(TestEvent.toB, 25);
+        assertTrue(fsmEx.getCurrentState().equals("d"));
+    }
 }
