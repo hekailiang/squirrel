@@ -158,6 +158,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     Class<S> typeOfState();
     
+    TransitionException getLastException();
+    
     String getIdentifier();
     
     String getDescription();

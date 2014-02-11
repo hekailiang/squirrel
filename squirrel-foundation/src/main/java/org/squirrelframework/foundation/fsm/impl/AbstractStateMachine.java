@@ -128,6 +128,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private Class<?>[] extraParamTypes;
     
+    private TransitionException lastException = null;
+    
     protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         S intialStateId = initialState.getStateId();
         data = FSM.newStateMachineData(states);
@@ -179,12 +181,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             // unless this exception has been resolved and state machine status set back to normal again.
             setStatus(StateMachineStatus.ERROR);
             // wrap any exception into transition exception    
-            TransitionException te = (e instanceof TransitionException) ? (TransitionException) e :
+            lastException = (e instanceof TransitionException) ? (TransitionException) e :
                 new TransitionException(e, ErrorCodes.FSM_TRANSITION_ERROR, 
                         new Object[]{fromStateId, toStateId, event, context, "UNKNOWN", e.getMessage()});
-            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(te, fromStateId, 
+            fireEvent(new TransitionExceptionEventImpl<T, S, E, C>(lastException, fromStateId, 
                     localData.read().currentState(), event, context, getThis()));
-            afterTransitionCausedException(te, fromStateId, toStateId, event, context);
+            afterTransitionCausedException(fromStateId, toStateId, event, context);
         } finally {
             fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, toStateId, event, context, getThis()));
             afterTransitionEnd(fromStateId, getCurrentState(), event, context);
@@ -336,9 +338,24 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return getStatus()!=StateMachineStatus.BUSY;
     }
     
+    /**
+     * Replaced by <code>afterTransitionCausedException(S fromState, S toState, E event, C context)</code>. 
+     * Exception can be retrieved from <code>StateMachine.getLastException()</code>.
+     * @param e exception during transition
+     * @param fromState transition source state
+     * @param toState transition target state
+     * @param event transition event
+     * @param context transition context
+     */
+    @Deprecated
     protected void afterTransitionCausedException(
             TransitionException e, S fromState, S toState, E event, C context) {
         throw e;
+    }
+    
+    protected void afterTransitionCausedException(S fromState, S toState, E event, C context) {
+        afterTransitionCausedException(getLastException(), fromState, toState, event, context);
+        // throw getLastException()
     }
     
     protected void beforeTransitionBegin(S fromState, E event, C context) {
@@ -678,16 +695,28 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return true;
     }
     
+    @Override
     public Class<C> typeOfContext() {
         return data.read().typeOfContext();
     }
     
+    @Override
     public Class<E> typeOfEvent() {
         return data.read().typeOfEvent();
     }
     
+    @Override
     public Class<S> typeOfState() {
         return data.read().typeOfState();
+    }
+    
+    @Override
+    public TransitionException getLastException() {
+        return lastException;
+    }
+    
+    protected void setLastException(TransitionException lastException) {
+        this.lastException = lastException;
     }
     
     private interface DeclarativeLisener {
