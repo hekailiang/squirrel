@@ -17,7 +17,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.6</version>
+  	<version>0.2.7</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.7-SNAPSHOT</version>
+  	<version>0.2.8-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -777,6 +777,13 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 	```  
 
 ## Release Notes  
+*Version 0.2.7 - 2014-2-13*  
+1. **Remove** deprecated StateMachineWithoutContext Class and related artifacts  
+2. **Remove** deprecated OnActionExecute annotation  
+3. Support state machine data serialize/deserialize  
+4. Add API StateMachine.getLastException  
+5. **Deprecate** AbstractStateMachine.afterTransitionCausedException(TransitionException e, ...)  
+
 *Version 0.2.6 - 2014-2-9*  
 1. Fix bugs around linked state feature  
 2. Support timeout for asynchronized action  
