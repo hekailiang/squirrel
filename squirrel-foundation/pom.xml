@@ -136,6 +136,7 @@
 					<excludes>
 						<exclude>**/*TestCase.java</exclude>
 					</excludes>
+                    <argLine>-Xmx512m</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
