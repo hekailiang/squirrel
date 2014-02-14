@@ -130,13 +130,12 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.7.1</version>
 				<configuration>
-					<failIfNoTests>false</failIfNoTests>
-					<trimStackTrace>false</trimStackTrace>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<excludes>
-						<exclude>**/*TestCase.java</exclude>
-					</excludes>
-                    <argLine>-Xmx512m</argLine>
+					<argLine>-XX:MaxPermSize=128m -Xmx256m</argLine>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <!-- Force alphabetical order to have a reproducible build -->
+                    <runOrder>alphabetical</runOrder>
 				</configuration>
 			</plugin>
 			<plugin>
