@@ -21,14 +21,19 @@ import org.squirrelframework.foundation.util.ReflectUtils;
  */
 public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> extends Observable {
 	/**
-	 * Begin a action execution collection in the stack.
+	 * Begin a action execution collection in the bucket.
 	 */
 	void begin();
 	
 	/**
-	 * Execute all the actions collected on the top of stack.
+	 * Execute all the actions collected by front bucket.
 	 */
 	void execute();
+	
+	/**
+     * Execute all the actions collected on the all buckets.
+     */
+	void executeAll();
 	
 	/**
 	 * Set dummy execution true will cause no action being actually invoked when calling {@link ActionExecutionService#execute()}.

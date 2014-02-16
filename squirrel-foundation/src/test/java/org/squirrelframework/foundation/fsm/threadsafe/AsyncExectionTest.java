@@ -1,19 +1,25 @@
 package org.squirrelframework.foundation.fsm.threadsafe;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.exception.TransitionException;
+import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedAnonymousAction;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
+import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 
 public class AsyncExectionTest {
@@ -23,6 +29,14 @@ public class AsyncExectionTest {
     @Before
     public void setUp() throws Exception {
         builder = StateMachineBuilderFactory.create(ConcurrentSimpleStateMachine.class);
+        SquirrelConfiguration.registerNewExecutorService(4, 120, TimeUnit.MILLISECONDS);
+        SquirrelConfiguration.registerNewSchedulerService(4, 120, TimeUnit.MILLISECONDS);
+    }
+    
+    @After
+    public void tearDown() throws Exception {
+        SquirrelConfiguration.registerNewExecutorService(1, 120, TimeUnit.MILLISECONDS);
+        SquirrelConfiguration.registerNewSchedulerService(1, 120, TimeUnit.MILLISECONDS);
     }
     
     @Test
@@ -55,10 +69,6 @@ public class AsyncExectionTest {
         } catch (InterruptedException e) {
         }
         fsm.fire("SECOND");
-        try {
-            TimeUnit.MILLISECONDS.sleep(50);
-        } catch (InterruptedException e) {
-        }
         fsm.terminate();
         assertEquals("AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST", logger.toString());
     }
@@ -134,5 +144,78 @@ public class AsyncExectionTest {
             return;
         }
         fail();
+    }
+    
+    @Test
+    public void testAsynActionExecOrder() {
+        builder.onExit("AsyncA").perform(new UntypedAnonymousAction() {
+            @Override
+            public void execute(Object from, Object to, Object event,
+                    Object context, UntypedStateMachine stateMachine) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            @Override
+            public boolean isAsync() {
+                return true;
+            }
+            
+            @Override
+            public String name() {
+                return "Exit-AsyncA";
+            }
+        });
+
+        builder.externalTransition().from("AsyncA").to("AsyncB")
+                .on("AsyncFirst").perform(new UntypedAnonymousAction() {
+                    @Override
+                    public void execute(Object from, Object to, Object event,
+                            Object context, UntypedStateMachine stateMachine) {
+                        try {
+                            Thread.sleep(300);
+                        } catch (InterruptedException e) {
+                        }
+                    }
+
+                    @Override
+                    public boolean isAsync() {
+                        return true;
+                    }
+                    
+                    @Override
+                    public String name() {
+                        return "AsyncA-AsyncB";
+                    }
+                });
+
+        builder.onEntry("AsyncB").perform(new UntypedAnonymousAction() {
+            @Override
+            public void execute(Object from, Object to, Object event,
+                    Object context, UntypedStateMachine stateMachine) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            @Override
+            public boolean isAsync() {
+                return true;
+            }
+            
+            @Override
+            public String name() {
+                return "Entry-AsyncB";
+            }
+        });
+        
+        final ConcurrentSimpleStateMachine fsm = builder.newUntypedStateMachine("AsyncA");
+        fsm.start();
+        fsm.fire("AsyncFirst");
+        
+        assertThat(fsm.logger2.toString(), equalTo("AsyncA-null, AsyncA-AsyncB, null-AsyncB"));
     }
 }

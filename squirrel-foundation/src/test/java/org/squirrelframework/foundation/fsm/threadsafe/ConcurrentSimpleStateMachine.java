@@ -15,6 +15,8 @@ public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
     
     StringBuilder logger = new StringBuilder();
     
+    StringBuilder logger2 = new StringBuilder();
+    
     Thread fromAToBCallThread = null;
     
     Thread fromBToCCallThread = null;
@@ -41,5 +43,13 @@ public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
         if (logger.length() > 0) {
             logger.append('.');
         }
+        if(logger2.length() > 0) {
+            logger2.append(", ");
+        }
+    }
+    
+    @Override
+    protected void afterActionInvoked(Object fromState, Object toState, Object event, Object context) {
+        logger2.append(fromState+"-"+toState);
     }
 }

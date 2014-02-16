@@ -153,13 +153,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 localData.dump(orignalData.read());
             }
             
-            executionService.begin();
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
             StateContext<T, S, E, C> stateContext = FSM.newStateContext(this, localData, 
                     fromState, event, context, result, executionService);
             fromState.internalFire(stateContext);
             toStateId = result.getTargetState().getStateId();
-            executionService.execute();
+            executionService.executeAll();
             
             if(result.isAccepted()) {
                 localData.write().lastState(fromStateId);
@@ -485,14 +484,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void internalStart(C context, StateMachineData<T, S, E, C> localData,
             ActionExecutionService<T, S, E, C> executionService) {
-        executionService.begin();
         StateContext<T, S, E, C> stateContext = FSM.newStateContext(
                 this, localData, localData.read().currentRawState(), getStartEvent(), 
                 context, null, executionService);
+        
         entryAll(localData.read().initialRawState(), stateContext);
         ImmutableState<T, S, E, C> currentState = localData.read().currentRawState();
         ImmutableState<T, S, E, C> historyState = currentState.enterByHistory(stateContext);
-        executionService.execute();
+        executionService.executeAll();
         localData.write().currentState(historyState.getStateId());
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
     }
@@ -545,12 +544,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             return;
         }
         
-    	executor.begin();
         StateContext<T, S, E, C> stateContext = FSM.newStateContext(
                 this, data, data.read().currentRawState(), getTerminateEvent(), 
                 context, null, executor);
         exitAll(data.read().currentRawState(), stateContext);
-        executor.execute();
+        executor.executeAll();
         
         setStatus(StateMachineStatus.TERMINATED);
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));

@@ -1,10 +1,12 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +23,6 @@ import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C>, S, E, C> 
@@ -29,26 +30,28 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractExecutionService.class);
 
-    protected final Stack<List<ActionContext<T, S, E, C>>> stack = new Stack<List<ActionContext<T, S, E, C>>>();
+    protected final LinkedList<List<ActionContext<T, S, E, C>>> actionBuckets = 
+            new LinkedList<List<ActionContext<T, S, E, C>>>();
     
     protected boolean dummyExecution = false;
     
     @Override
     public void begin() {
         List<ActionContext<T, S, E, C>> actionContext = new ArrayList<ActionContext<T, S, E, C>>();
-        stack.push(actionContext);
+        actionBuckets.add(actionContext);
     }
     
     @Override
     public void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
-        Preconditions.checkNotNull(action);
-        List<ActionContext<T, S, E, C>> actions = stack.peek();
+        checkNotNull(action);
+        List<ActionContext<T, S, E, C>> actions = actionBuckets.peekLast();
         actions.add(ActionContext.get(action, from, to, event, context, stateMachine));
     }
     
     @Override
     public void execute() {
-        final List<ActionContext<T, S, E, C>> actionContexts = stack.pop();
+        final List<ActionContext<T, S, E, C>> actionContexts = actionBuckets.poll();
+        checkNotNull(actionContexts);
         final Map<ActionContext<T, S, E, C>, Future<?>> futures = Maps.newHashMap();
         final int actionSize = actionContexts.size();
         for (int i=0; i<actionSize; ++i) {
@@ -116,6 +119,12 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                 throw te;
             }
         }
+    }
+    
+    @Override
+    public void executeAll() {
+        while(actionBuckets.size()>0) 
+            execute();
     }
     
     @Override
