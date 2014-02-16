@@ -14,12 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelConfiguration;
 import org.squirrelframework.foundation.exception.TransitionException;
-import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedAnonymousAction;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
-import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 
 public class AsyncExectionTest {
