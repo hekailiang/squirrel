@@ -43,15 +43,16 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     @Override
     public void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
-        checkNotNull(action);
+        checkNotNull(action, "Action parameter cannot be null.");
         List<ActionContext<T, S, E, C>> actions = actionBuckets.peekLast();
+        checkNotNull(actions, "Action bucket currently is empty. Make sure execution service is began.");
         actions.add(ActionContext.get(action, from, to, event, context, stateMachine));
     }
     
     @Override
     public void execute() {
         final List<ActionContext<T, S, E, C>> actionContexts = actionBuckets.poll();
-        checkNotNull(actionContexts);
+        checkNotNull(actionContexts, "Action bucket cannot be empty when executing.");
         final Map<ActionContext<T, S, E, C>, Future<?>> futures = Maps.newHashMap();
         final int actionSize = actionContexts.size();
         for (int i=0; i<actionSize; ++i) {
