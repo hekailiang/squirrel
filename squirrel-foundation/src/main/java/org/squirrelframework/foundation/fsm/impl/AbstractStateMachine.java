@@ -91,10 +91,6 @@ import com.google.common.collect.Maps;
  */
 public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends AbstractSubject implements StateMachine<T, S, E, C> {
     
-    static {
-        SquirrelProvider.getInstance().register(ActionExecutionService.class, SynchronizedExecutionService.class);
-    }
-    
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
@@ -120,6 +116,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private boolean isAutoStartEnabled = true;
     
     private boolean isAutoTerminateEnabled = true;
+    
+    @SuppressWarnings("unused")
+    private long transitionTimeout = -1;
     
     // TODO-hhe: temporary hard-coded disable data isolation 
     private boolean isDataIsolateEnabled = false;

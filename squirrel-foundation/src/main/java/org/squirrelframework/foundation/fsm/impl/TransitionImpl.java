@@ -46,7 +46,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
 
     @Override
     public ImmutableState<T, S, E, C> transit(final StateContext<T, S, E, C> stateContext) {
-        stateContext.getExecutor().begin();
+        stateContext.getExecutor().begin("TRANSITION__"+this.toString());
         for(final Action<T, S, E, C> action : getActions()) {
         	stateContext.getExecutor().defer(action,
         			sourceState.getStateId(), targetState.getStateId(), stateContext.getEvent(), 

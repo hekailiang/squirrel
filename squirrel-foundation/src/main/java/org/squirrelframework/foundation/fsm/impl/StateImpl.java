@@ -138,7 +138,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     
     @Override
     public void entry(final StateContext<T, S, E, C> stateContext) {
-        stateContext.getExecutor().begin();
+        stateContext.getExecutor().begin("STATE_ENTRY__"+getStateId());
         for(final Action<T, S, E, C> entryAction : getEntryActions()) {
             stateContext.getExecutor().defer(entryAction, 
                     null, getStateId(), stateContext.getEvent(), 
@@ -173,7 +173,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     		stateContext.getStateMachineData().write().removeSubStatesOn(getStateId());
     	}
     	
-    	stateContext.getExecutor().begin();
+    	stateContext.getExecutor().begin("STATE_EXIT__"+getStateId());
         for(final Action<T, S, E, C> exitAction : getExitActions()) {
         	stateContext.getExecutor().defer(exitAction,
         			getStateId(), null, stateContext.getEvent(), 

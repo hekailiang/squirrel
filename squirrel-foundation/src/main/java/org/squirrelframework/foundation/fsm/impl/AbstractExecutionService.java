@@ -22,6 +22,7 @@ import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.ActionExecutionService;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
+import org.squirrelframework.foundation.util.Pair;
 
 import com.google.common.collect.Maps;
 
@@ -30,33 +31,31 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractExecutionService.class);
 
-    protected final LinkedList<List<ActionContext<T, S, E, C>>> actionBuckets = 
-            new LinkedList<List<ActionContext<T, S, E, C>>>();
+    protected final LinkedList<Pair<String, List<ActionContext<T, S, E, C>>>> actionBuckets = 
+            new LinkedList<Pair<String, List<ActionContext<T, S, E, C>>>>();
     
     protected boolean dummyExecution = false;
     
     @Override
-    public void begin() {
+    public void begin(String bucketName) {
         List<ActionContext<T, S, E, C>> actionContext = new ArrayList<ActionContext<T, S, E, C>>();
-        actionBuckets.add(actionContext);
+        actionBuckets.add(new Pair<String, List<ActionContext<T, S, E, C>>>(bucketName, actionContext));
     }
     
     @Override
     public void defer(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
         checkNotNull(action, "Action parameter cannot be null.");
-        List<ActionContext<T, S, E, C>> actions = actionBuckets.peekLast();
+        List<ActionContext<T, S, E, C>> actions = actionBuckets.peekLast().second();
         checkNotNull(actions, "Action bucket currently is empty. Make sure execution service is began.");
         actions.add(ActionContext.get(action, from, to, event, context, stateMachine));
     }
     
-    @Override
-    public void execute() {
-        final List<ActionContext<T, S, E, C>> actionContexts = actionBuckets.poll();
-        checkNotNull(actionContexts, "Action bucket cannot be empty when executing.");
+    private void doExecute(String bucketName, List<ActionContext<T, S, E, C>> bucketActions) {
+        checkNotNull(bucketActions, "Action bucket cannot be empty when executing.");
         final Map<ActionContext<T, S, E, C>, Future<?>> futures = Maps.newHashMap();
-        final int actionSize = actionContexts.size();
+        final int actionSize = bucketActions.size();
         for (int i=0; i<actionSize; ++i) {
-            final ActionContext<T, S, E, C> actionContext = actionContexts.get(i);
+            final ActionContext<T, S, E, C> actionContext = bucketActions.get(i);
             if(actionContext.action.weight()!=Action.IGNORE_WEIGHT) {
                 try {
                     fireEvent(BeforeExecActionEventImpl.get(i+1, actionSize, actionContext));
@@ -101,11 +100,13 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
             final Future<?> future = entry.getValue();
             final ActionContext<T, S, E, C> actionContext = entry.getKey();
             try {
+                logger.debug("Waiting action \'"+actionContext.action.toString()+"\' to finish.");
                 if(actionContext.action.timeout()>=0) {
                     future.get(actionContext.action.timeout(), TimeUnit.MILLISECONDS);
                 } else {
                     future.get();
                 }
+                logger.debug("Action \'"+actionContext.action.toString()+"\' finished.");
             } catch (Exception e) {
                 future.cancel(true);
                 Throwable t = e;
@@ -116,16 +117,26 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                         new Object[]{actionContext.from, actionContext.to, actionContext.event, 
                         actionContext.context, actionContext.action.name(), e.getMessage()});
                 fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, 
-                        actionContexts.indexOf(actionContext)+1, actionSize, actionContext));
+                        bucketActions.indexOf(actionContext)+1, actionSize, actionContext));
                 throw te;
             }
         }
     }
     
     @Override
+    public void execute() {
+        Pair<String, List<ActionContext<T, S, E, C>>> actionBucket = actionBuckets.poll();
+        String bucketName = actionBucket.first();
+        List<ActionContext<T, S, E, C>> actionContexts = actionBucket.second();
+        doExecute(bucketName, actionContexts);
+        logger.debug("Actions within \'"+bucketName+"' invoked.");
+    }
+    
+    @Override
     public void executeAll() {
-        while(actionBuckets.size()>0) 
+        while(actionBuckets.size()>0) {
             execute();
+        }
     }
     
     @Override

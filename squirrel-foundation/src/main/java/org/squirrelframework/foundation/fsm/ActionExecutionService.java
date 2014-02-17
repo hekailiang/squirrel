@@ -23,7 +23,7 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	/**
 	 * Begin a action execution collection in the bucket.
 	 */
-	void begin();
+	void begin(String bucketName);
 	
 	/**
 	 * Execute all the actions collected by front bucket.
