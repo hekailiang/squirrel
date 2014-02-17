@@ -17,16 +17,16 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.7</version>
+  	<version>0.2.8</version>
 </dependency>
 ``` 
 
-Latest Snapshot Version:
+~~Latest Snapshot Version:~~
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.8-SNAPSHOT</version>
+  	<version>0.2.9-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -777,6 +777,10 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 	```  
 
 ## Release Notes  
+*Version 0.2.8 - 2014-2-17*  
+1. Action execution bug fixed. State exit actions(both sync/async) should be all executed successfully then begin transition actions, so as the state entry actions.   
+2. Add debug loggings while action execution.
+
 *Version 0.2.7 - 2014-2-13*  
 1. **Remove** deprecated StateMachineWithoutContext Class and related artifacts  
 2. **Remove** deprecated OnActionExecute annotation  
