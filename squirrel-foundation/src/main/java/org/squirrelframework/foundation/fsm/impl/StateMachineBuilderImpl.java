@@ -36,6 +36,7 @@ import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.StateMachineProvider;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
@@ -584,17 +585,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         return method;
     }
     
+    @Override
     public T newStateMachine(S initialStateId) {
     	return newStateMachine(initialStateId, new Object[0]);
     }
     
-    private boolean isValidState(S initialStateId) {
-        return states.get(initialStateId) != null;
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public T newStateMachine(S initialStateId, Object... extraParams) {
+        return newStateMachine(initialStateId, StateMachineConfiguration.Default.getInstance(), extraParams);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public T newStateMachine(S initialStateId, StateMachineConfiguration configuration, Object... extraParams) {
         if(!prepared) prepare();
         if(!isValidState(initialStateId)) {
             throw new IllegalArgumentException(getClass()+" cannot find Initial state \'"+ 
@@ -603,7 +606,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         T stateMachine = ReflectUtils.newInstance(contructor, extraParams);
         AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
-        stateMachineImpl.postConstruction(initialStateId, states);
+        stateMachineImpl.postConstruction(initialStateId, states, configuration);
         stateMachineImpl.setStartEvent(startEvent);
         stateMachineImpl.setFinishEvent(finishEvent);
         stateMachineImpl.setTerminateEvent(terminateEvent);
@@ -617,6 +620,10 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
         return stateMachine;
+    }
+
+    private boolean isValidState(S initialStateId) {
+        return states.get(initialStateId) != null;
     }
     
     private T postProcessStateMachine(Class<T> clz, T component) {

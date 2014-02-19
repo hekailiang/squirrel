@@ -11,6 +11,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.squirrelframework.foundation.component.IdProvider;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.StateMachineListener;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionBeginEvent;
@@ -65,6 +66,8 @@ public class UntypedStateMachineTest {
     
     private UntypedStateMachineSample fsm;
     
+    private UntypedStateMachineBuilder builder;
+    
     @After
     public void teardown() {
         if(fsm.getStatus()!=StateMachineStatus.TERMINATED)
@@ -74,7 +77,7 @@ public class UntypedStateMachineTest {
     
     @Before
     public void setup() {
-        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
+        builder = StateMachineBuilderFactory.create(UntypedStateMachineSample.class);
         builder.externalTransition().from("d").to("a").on(TestEvent.toA);
         fsm = builder.newUntypedStateMachine("a");
         MockitoAnnotations.initMocks(fsm);
@@ -308,6 +311,8 @@ public class UntypedStateMachineTest {
         assertTrue(fsm2.getExecutorListenerSize()==0);
     }
     
+    
+    
     @Test(expected=RuntimeException.class)
     public void testParamterTypeCheck1() {
         fsm.fire("TypeNotCorrect", 1);
@@ -316,6 +321,16 @@ public class UntypedStateMachineTest {
     @Test(expected=RuntimeException.class)
     public void testParamterTypeCheck2() {
         fsm.fire(TestEvent.toB, "TypeNotCorrect");
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testStateMachineConfiguration() {
+        StateMachineConfiguration configuration = new StateMachineConfiguration.Default();
+        configuration.setAutoStartEnabled(false);
+        configuration.setIdProvider(IdProvider.UUIDProvider.getInstance());
+        fsm = builder.newUntypedStateMachine("a", configuration, (Object[])null);
+        System.out.println("StateMachine ID: "+fsm.getIdentifier());
+        fsm.fire(TestEvent.toA);
     }
     
     @Transitions({

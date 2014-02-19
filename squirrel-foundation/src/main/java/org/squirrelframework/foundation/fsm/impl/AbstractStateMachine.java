@@ -16,7 +16,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +43,7 @@ import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.SCXMLVisitor;
 import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
@@ -120,20 +120,23 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @SuppressWarnings("unused")
     private long transitionTimeout = -1;
     
-    // TODO-hhe: temporary hard-coded disable data isolation 
     private boolean isDataIsolateEnabled = false;
-    
-    private static final int ID_LENGTH = 10;
     
     private Class<?>[] extraParamTypes;
     
     private TransitionException lastException = null;
     
-    void postConstruction(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
+    void postConstruction(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states, 
+            StateMachineConfiguration configuration) {
         data = FSM.newStateMachineData(states);
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
-        data.write().identifier(RandomStringUtils.randomAlphanumeric(ID_LENGTH));
+        data.write().identifier(configuration.getIdProvider().get());
+        
+        // retrieve options value from state machine configuration
+        this.isAutoStartEnabled = configuration.isAutoStartEnabled();
+        this.isAutoTerminateEnabled = configuration.isAutoTerminateEnabled();
+        this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
     }
     
     private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> orignalData, 

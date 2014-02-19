@@ -42,7 +42,11 @@ public class StateMachineBuilderFactory {
                             String methodName = method.getName();
                             if(methodName.equals("newUntypedStateMachine") || methodName.equals("newAnyStateMachine")) {
                                 Object fsmInstance = null;
-                                if(args.length==2 && args[1].getClass().isArray()) {
+                                if(args.length==3 && StateMachineConfiguration.class.isAssignableFrom(args[1].getClass()) && 
+                                        (args[2]==null || args[2].getClass().isArray())) {
+                                    fsmInstance = builder.newStateMachine(args[0], 
+                                            (StateMachineConfiguration)args[1], (Object[])args[2]);
+                                } else if(args.length==2 && (args[1]==null || args[1].getClass().isArray())) {
                                     fsmInstance = builder.newStateMachine(args[0], (Object[])args[1]);
                                 } else if(args.length==1) {
                                     fsmInstance = builder.newStateMachine(args[0]);
