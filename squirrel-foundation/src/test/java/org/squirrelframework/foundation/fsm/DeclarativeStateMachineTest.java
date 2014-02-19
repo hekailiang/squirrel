@@ -10,7 +10,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.LogExecTime;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.States;
@@ -61,8 +60,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         void beforeTransitionBegin(TestState from, TestEvent event, Integer context);
         void afterTransitionCompleted(TestState from, TestState to, TestEvent event, Integer context);
         void afterTransitionDeclined(TestState from, TestEvent event, Integer context);
-        void afterTransitionCausedException(TransitionException e, TestState fromState, 
-                TestState toState, TestEvent event, Integer context);
+        void afterTransitionCausedException(TestState fromState, TestState toState, TestEvent event, Integer context);
 
         void start(Integer context);
         void terminate(Integer context);
@@ -182,11 +180,11 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
         }
 
         @Override
-        public void afterTransitionCausedException(TransitionException e, TestState fromState, 
+        public void afterTransitionCausedException(TestState fromState, 
                 TestState toState, TestEvent event, Integer context) {
-            if(e.getTargetException().getMessage().equals("This exception is thrown on purpose.")) 
+            if(getLastException().getTargetException().getMessage().equals("This exception is thrown on purpose.")) 
                 return;
-            super.afterTransitionCausedException(e, fromState, toState, event, context);
+            super.afterTransitionCausedException(fromState, toState, event, context);
         }
 
         @Override

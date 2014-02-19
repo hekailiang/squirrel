@@ -34,18 +34,17 @@ public class StateMachineExceptionTest {
         }
         
         @Override
-        protected void afterTransitionCausedException(TransitionException te, Object fromState, 
-                Object toState, Object event, Object context) {
-            Throwable targeException = te.getTargetException();
+        protected void afterTransitionCausedException(Object fromState, Object toState, Object event, Object context) {
+            Throwable targeException = getLastException().getTargetException();
             if(targeException instanceof IllegalArgumentException && 
                     fromState.equals("A") && toState.equals("B") && event.equals("ToB")) {
-                Assert.assertEquals(te.getTargetException().getMessage(), "This exception can be recovered.");
+                Assert.assertEquals(targeException.getMessage(), "This exception can be recovered.");
                 // do some error clean up job here
                 // ...
                 // after recovered from this exception, reset the state machine status back to normal
                 setStatus(StateMachineStatus.IDLE);
             } else {
-                super.afterTransitionCausedException(te, fromState, toState, event, context);
+                super.afterTransitionCausedException(fromState, toState, event, context);
             }
         }
     }

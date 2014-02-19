@@ -338,24 +338,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     	return getStatus()!=StateMachineStatus.BUSY;
     }
     
-    /**
-     * Replaced by <code>afterTransitionCausedException(S fromState, S toState, E event, C context)</code>. 
-     * Exception can be retrieved from <code>StateMachine.getLastException()</code>.
-     * @param e exception during transition
-     * @param fromState transition source state
-     * @param toState transition target state
-     * @param event transition event
-     * @param context transition context
-     */
-    @Deprecated
-    protected void afterTransitionCausedException(
-            TransitionException e, S fromState, S toState, E event, C context) {
-        throw e;
-    }
-    
     protected void afterTransitionCausedException(S fromState, S toState, E event, C context) {
-        afterTransitionCausedException(getLastException(), fromState, toState, event, context);
-        // throw getLastException()
+         throw getLastException();
     }
     
     protected void beforeTransitionBegin(S fromState, E event, C context) {
