@@ -646,12 +646,12 @@ And also user can load above *savedData* into another state machine whose status
 newStateMachineInstance.loadSavedData(savedData);
 	``` 
 * **State Machine Configuration**  
-When create new state machine instance, user can configure state machine instance behavior through 	*StateMachineConfiguration*, e.g.    
+When creating new state machine instance, user can configure its behavior through 	*StateMachineConfiguration*, e.g.    
 	```java
-		StateMachineConfiguration configuration = new StateMachineConfiguration.Default();
-        configuration.setAutoStartEnabled(false);
-        configuration.setIdProvider(IdProvider.UUIDProvider.getInstance());
-        UntypedStateMachine fsm = builder.newUntypedStateMachine("a", configuration, new Object[0]);
+	StateMachineConfiguration configuration = new StateMachineConfiguration.Default();
+    configuration.setAutoStartEnabled(false);
+    configuration.setIdProvider(IdProvider.UUIDProvider.getInstance());
+    UntypedStateMachine fsm = builder.newUntypedStateMachine("a", configuration, new Object[0]);
 	``` 
 	The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.
 
