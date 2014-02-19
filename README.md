@@ -17,7 +17,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.8</version>
+  	<version>0.2.9</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.9-SNAPSHOT</version>
+  	<version>0.3.0-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -259,11 +259,11 @@ To create a new state machine instance from state machine builder, you need to p
     })
     @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     class UntypedStateMachineSample extends AbstractUntypedStateMachine {
-        
-        protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
-        	Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
+        // No need to specify constructor anymore since 0.2.9  
+        // protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
+        // 	Map<Object, ImmutableUntypedState> states) {
+        //    super(initialState, states);
+        // }
         
         protected void fromAToB(String from, String to, TestEvent event, Integer context) {
             // transition action still type safe ...
@@ -556,10 +556,11 @@ Define asynchronously invoked action method:
 	@ContextInsensitive
 	@StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
 	public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
-    	protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
-            Map<Object, ImmutableUntypedState> states) {
-        	super(initialState, states);
-    	}
+		// No need to specify constructor anymore since 0.2.9
+    	// protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
+        //    Map<Object, ImmutableUntypedState> states) {
+        //	super(initialState, states);
+    	// }
     
     	@AsyncExecute
     	protected void fromAToB(String from, String to, String event) {
@@ -644,6 +645,15 @@ And also user can load above *savedData* into another state machine whose status
 	``` java 
 newStateMachineInstance.loadSavedData(savedData);
 	``` 
+* **State Machine Configuration**  
+When create new state machine instance, user can configure state machine instance behavior through 	*StateMachineConfiguration*, e.g.    
+	```java
+		StateMachineConfiguration configuration = new StateMachineConfiguration.Default();
+        configuration.setAutoStartEnabled(false);
+        configuration.setIdProvider(IdProvider.UUIDProvider.getInstance());
+        UntypedStateMachine fsm = builder.newUntypedStateMachine("a", configuration, new Object[0]);
+	``` 
+	The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.
 
 * **State Machine Diagnose**  
 	*StateMachineLogger* is used to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on, e.g.  
@@ -778,6 +788,10 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 	```  
 
 ## Release Notes  
+*Version 0.2.9 - 2014-2-19*  
+1. Support state machine behavior configuration  
+2. **Breaking Change:** Removed tedious state machine constructor from *AbstractStateMachine*. Please remove extended constructor in your state machine implementation class.  
+
 *Version 0.2.8 - 2014-2-17*  
 1. Action execution bug fixed. State exit actions(both sync/async) should be all executed successfully then begin transition actions, so as the state entry actions.   
 2. Add debug loggings while action execution.
@@ -854,7 +868,6 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ## Future Plan  
 * **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
 * Support dynamic extend state machine definition  
-* StateMachineOption including AutoStartEnable, DataSeparationEnable and so on.  
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
