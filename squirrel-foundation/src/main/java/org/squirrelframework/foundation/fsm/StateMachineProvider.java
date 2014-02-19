@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import org.squirrelframework.foundation.component.SquirrelInstanceProvider;
 
+@Deprecated
 public class StateMachineProvider<T extends StateMachine<T, S, E, C>, S, E, C> implements SquirrelInstanceProvider<T> {
     
     private final StateMachineBuilder<T, S, E, C> stateMachineBuilder;

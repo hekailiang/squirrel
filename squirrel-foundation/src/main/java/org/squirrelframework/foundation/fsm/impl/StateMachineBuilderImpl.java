@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.component.SquirrelInstanceProvider;
 import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
@@ -37,7 +38,6 @@ import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
-import org.squirrelframework.foundation.fsm.StateMachineProvider;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
@@ -652,16 +652,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     @Override
-    public MutableState<T, S, E, C> defineLinkedState(S stateId, 
-            StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, 
-            S initialLinkedState, Object... extraParams) {
+    public MutableState<T, S, E, C> defineLinkedState(final S stateId, 
+            final StateMachineBuilder<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateMachineBuilder, 
+            final S initialLinkedState, final Object... extraParams) {
         checkState();
         MutableState<T, S, E, C> state = states.get(stateId);
         if(state==null) {
             MutableLinkedState<T, S, E, C> linkedState = FSM.newLinkedState(stateId);
-            @SuppressWarnings({ "unchecked", "rawtypes" }) // TODO-hhe: type safty
-            StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider = 
-                    new StateMachineProvider(linkedStateMachineBuilder, initialLinkedState, extraParams);
+            SquirrelInstanceProvider<StateMachine<?, S, E, C>> provider = new SquirrelInstanceProvider<StateMachine<?, S, E, C>>() {
+                @Override
+                public StateMachine<?, S, E, C> get() {
+                    return linkedStateMachineBuilder.newStateMachine(initialLinkedState, extraParams);
+                }
+            };
             linkedState.setLinkedStateMachineProvider(provider);
             states.put(stateId, linkedState);
             state = linkedState;

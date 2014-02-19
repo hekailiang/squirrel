@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.squirrelframework.foundation.component.SquirrelInstanceProvider;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
@@ -13,7 +14,6 @@ import org.squirrelframework.foundation.fsm.StateContext;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
-import org.squirrelframework.foundation.fsm.StateMachineProvider;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 
 import com.google.common.collect.Maps;
@@ -35,7 +35,7 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
         }
     }
     
-    private StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider;
+    private SquirrelInstanceProvider<? extends StateMachine<?, S, E, C>> provider;
     
     private Map<String, StateMachine<? extends StateMachine<?, S, E, C>, S, E, C>> 
         linkedStateMachineInstances = Maps.newConcurrentMap();
@@ -76,7 +76,7 @@ class LinkedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends State
 
     @Override
     public void setLinkedStateMachineProvider(
-            StateMachineProvider<? extends StateMachine<?, S, E, C>, S, E, C> provider) {
+            SquirrelInstanceProvider<? extends StateMachine<?, S, E, C>> provider) {
         this.provider = provider;
     }
     
