@@ -129,7 +129,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private TransitionException lastException = null;
     
-    protected void postConstruction(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
+    void postConstruction(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         data = FSM.newStateMachineData(states);
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
