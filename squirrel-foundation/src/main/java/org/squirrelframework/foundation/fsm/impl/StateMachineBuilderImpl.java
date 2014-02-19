@@ -623,7 +623,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
 
     private boolean isValidState(S initialStateId) {
-        return states.get(initialStateId) != null;
+        return initialStateId!=null && states.get(initialStateId) != null;
     }
     
     private T postProcessStateMachine(Class<T> clz, T component) {

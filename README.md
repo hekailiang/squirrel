@@ -43,12 +43,7 @@ public class QuickStartSample {
     // 2. Define State Machine Class
     @StateMachineParameters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
     static class StateMachineSample extends AbstractUntypedStateMachine {
-        // No need to specify constructor anymore since 0.2.9
-        // protected StateMachineSample(ImmutableUntypedState initialState, 
-        //        Map<Object, ImmutableUntypedState> states) {
-        //    super(initialState, states);
-        // }
-
+        
         protected void fromAToB(String from, String to, FSMEvent event, Integer context) {
             System.out.println("Transition from '"+from+"' to '"+to+"' on event '"+event+
                 "' with context '"+context+"'.");
