@@ -1,7 +1,5 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.Map;
-
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -27,11 +25,6 @@ public class StateMachineExceptionTest {
     @ContextInsensitive
     static class StateMachineExceptionSample extends AbstractUntypedStateMachine {
 
-        protected StateMachineExceptionSample(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
-        
         protected void transitFromAToBOnToB(String from, String to, String event) {
             throw new IllegalArgumentException("This exception can be recovered.");
         }
@@ -100,10 +93,6 @@ public class StateMachineExceptionTest {
     @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
     @ContextInsensitive
     static class StateMachineExceptionSample2 extends AbstractUntypedStateMachine {
-        protected StateMachineExceptionSample2(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     
     @Test(expected=IllegalArgumentException.class)
@@ -133,10 +122,6 @@ public class StateMachineExceptionTest {
     @StateMachineParameters(stateType=MyState.class, eventType=MyEvent.class, contextType=Void.class)
     @ContextInsensitive
     static class StateMachineExceptionSample3 extends AbstractUntypedStateMachine {
-        protected StateMachineExceptionSample3(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     @Test(expected=IllegalStateException.class) 
     public void testUnregisterStateConverter() {
@@ -146,10 +131,6 @@ public class StateMachineExceptionTest {
     
     @ContextEvent(finishEvent="FINISH")
     static class StateMachineExceptionSample4 extends StateMachineExceptionSample3 {
-        protected StateMachineExceptionSample4(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     @Test(expected=SquirrelRuntimeException.class) 
     public void testUnregisterEventConverter() {

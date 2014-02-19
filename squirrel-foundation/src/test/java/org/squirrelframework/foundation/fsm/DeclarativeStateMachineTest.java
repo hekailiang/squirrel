@@ -4,8 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -81,14 +79,10 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     static class DeclarativeStateMachineException extends RuntimeException {
     }
 
-    private static class DeclarativeStateMachineImpl extends AbstractStateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> implements DeclarativeStateMachine {
+    public static class DeclarativeStateMachineImpl extends AbstractStateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> implements DeclarativeStateMachine {
         private final DeclarativeStateMachine monitor;
 
-        protected DeclarativeStateMachineImpl(
-                ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                DeclarativeStateMachine delegator) {
-            super(initialState, states);
+        protected DeclarativeStateMachineImpl(DeclarativeStateMachine delegator) {
             this.monitor = delegator;
         }
 

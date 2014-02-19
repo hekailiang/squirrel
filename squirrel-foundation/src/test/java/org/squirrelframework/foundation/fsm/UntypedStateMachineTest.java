@@ -2,7 +2,6 @@ package org.squirrelframework.foundation.fsm;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
@@ -48,11 +47,6 @@ public class UntypedStateMachineTest {
         
         @Mock
         private UntypedStateMachineSample mockObject;
-        
-        protected UntypedStateMachineSample(ImmutableUntypedState initialState, 
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
         
         protected void fromAToB(String from, String to, TestEvent event, Integer context) {
             mockObject.fromAToB(from, to, event, context);
@@ -250,9 +244,6 @@ public class UntypedStateMachineTest {
         @Transit(from="a", to="b", on="toB")
     })
     static class UntypedStateMachineSample2 extends AbstractUntypedStateMachine implements ParamtersAnnotationPlaceHolder {
-        protected UntypedStateMachineSample2(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     
     @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=String.class)
@@ -333,9 +324,7 @@ public class UntypedStateMachineTest {
     @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     static class UntypedStateMachineSampleEx1 extends AbstractUntypedStateMachine {
         final int param1;
-        protected UntypedStateMachineSampleEx1(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states, int param1) {
-            super(initialState, states);
+        protected UntypedStateMachineSampleEx1(int param1) {
             this.param1 = param1;
         }
     }
@@ -355,9 +344,7 @@ public class UntypedStateMachineTest {
     static class UntypedStateMachineSampleEx2 extends AbstractUntypedStateMachine {
         final Integer param1;
         final String param2;
-        protected UntypedStateMachineSampleEx2(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states, Integer param1, String param2) {
-            super(initialState, states);
+        protected UntypedStateMachineSampleEx2(Integer param1, String param2) {
             this.param1 = param1;
             this.param2 = param2;
         }
@@ -393,10 +380,6 @@ public class UntypedStateMachineTest {
     })
     @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     static class UntypedStateMachineSampleEx3 extends AbstractUntypedStateMachine {
-        protected UntypedStateMachineSampleEx3(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     
     @Test

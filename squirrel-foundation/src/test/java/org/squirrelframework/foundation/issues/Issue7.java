@@ -2,11 +2,8 @@ package org.squirrelframework.foundation.issues;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Map;
-
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
-import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
@@ -48,10 +45,6 @@ public class Issue7 {
 
     @ContextInsensitive
     private static class FSM extends AbstractStateMachine<FSM, State, Event, Void> {
-        protected FSM(ImmutableState<FSM, State, Event, Void> initialState,
-                      Map<State, ImmutableState<FSM, State, Event, Void>> states) {
-            super(initialState, states);
-        }
     }
 
     private static enum State {

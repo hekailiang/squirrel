@@ -1,14 +1,12 @@
 package org.squirrelframework.foundation.fsm.snake;
 
 import java.awt.Point;
-import java.util.Map;
 import java.util.Random;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.AnonymousCondition;
 import org.squirrelframework.foundation.fsm.DotVisitor;
 import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.TransitionType;
 import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
@@ -75,10 +73,6 @@ public class SnakeController extends AbstractUntypedStateMachine {
 			return insideBorder && bodyNotCollapsed;
         }
 	}
-	
-	protected SnakeController(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
-        super(initialState, states);
-    }
 	
 	private Random random = new Random();
 	

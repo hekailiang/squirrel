@@ -1,8 +1,5 @@
 package org.squirrelframework.foundation.fsm.threadsafe;
 
-import java.util.Map;
-
-import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
@@ -21,11 +18,6 @@ public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
     
     Thread fromBToCCallThread = null;
 
-    protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
-            Map<Object, ImmutableUntypedState> states) {
-        super(initialState, states);
-    }
-    
     @AsyncExecute
     protected void fromAToB(String from, String to, String event) {
         logger.append("fromAToB");

@@ -4,10 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
-
 import org.junit.Test;
-import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
@@ -26,10 +23,6 @@ public class StateMachineContextTest {
     static class StateMachineSample extends AbstractUntypedStateMachine {
         
         StateMachineSample currentInstance;
-        
-        protected StateMachineSample(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
         
         @AsyncExecute
         public void onAToB(String from, String to, FSMEvent event, Integer context) {

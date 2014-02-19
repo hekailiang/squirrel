@@ -96,7 +96,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
     		new TypeReference<ActionExecutionService<T, S, E, C>>(){});
     
-    private final StateMachineData<T, S, E, C> data;
+    private StateMachineData<T, S, E, C> data;
     
     private volatile StateMachineStatus status = StateMachineStatus.INITIALIZED;
     
@@ -129,8 +129,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private TransitionException lastException = null;
     
-    protected AbstractStateMachine(ImmutableState<T, S, E, C> initialState, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
-        S intialStateId = initialState.getStateId();
+    protected void postConstruction(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states) {
         data = FSM.newStateMachineData(states);
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
@@ -233,7 +232,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         queuedEvents.add(new Pair<E, C>(event, context));
         processEvents();
         
-        ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
+        ImmutableState<T, S, E, C> rawState = getCurrentRawState();
         if(isAutoTerminateEnabled && rawState.isRootState() && rawState.isFinalState()) {
             terminate(context);
         }

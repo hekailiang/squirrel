@@ -105,7 +105,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
-            Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraConstParamTypes) {
+            Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraParamTypes) {
         Preconditions.checkArgument(isInstantiableType(stateMachineImplClazz), "The state machine class \""
                 + stateMachineImplClazz.getName() + "\" cannot be instantiated.");
         Preconditions.checkArgument(isStateMachineType(stateMachineImplClazz), 
@@ -113,7 +113,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             "\" must be extended from AbstractStateMachine.class.");
         
         this.stateMachineImplClazz = stateMachineImplClazz;
-        this.extraParamTypes = extraConstParamTypes;
+        this.extraParamTypes = extraParamTypes;
         
         StateMachineParameters genericsParamteres = findAnnotation(StateMachineParameters.class);
         if(stateClazz==Object.class && genericsParamteres!=null) {
@@ -140,11 +140,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         methodCallParamTypes = contextInsensitive ? 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
-        Class<?>[] constParamTypes = getConstParamTypes(extraConstParamTypes);
         
-        this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, constParamTypes);
+        this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, extraParamTypes);
         this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
-        
         // after initialized state machine builder
         defineContextEvent();
     }
@@ -180,25 +178,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         });
         M genericsParamteres = genericsParamteresRef.get();
         return genericsParamteres;
-    }
-    
-    private Class<?>[] getConstParamTypes(Class<?>[] extraConstParamTypes) {
-        Class<?>[] parameterTypes = null;
-        if(extraConstParamTypes!=null) {
-            parameterTypes = new Class<?>[extraConstParamTypes.length+2];
-        } else {
-            parameterTypes = new Class<?>[2];
-        }
-        // add fixed constructor parameters
-        parameterTypes[0] = (UntypedStateMachine.class.isAssignableFrom(stateMachineImplClazz)) ? 
-                ImmutableUntypedState.class : ImmutableState.class;
-        parameterTypes[1] = Map.class;
-        
-        //  add additional constructor parameters extended by derived state machine implementation 
-        if(extraConstParamTypes!=null) {
-            System.arraycopy(extraConstParamTypes, 0, parameterTypes, 2, extraConstParamTypes.length);
-        }
-        return parameterTypes;
     }
     
     private void checkState() {
@@ -608,25 +587,23 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public T newStateMachine(S initialStateId) {
     	return newStateMachine(initialStateId, new Object[0]);
     }
+    
+    private boolean isValidState(S initialStateId) {
+        return states.get(initialStateId) != null;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
     public T newStateMachine(S initialStateId, Object... extraParams) {
         if(!prepared) prepare();
-        Object[] parameters = new Object[extraParams.length+2];
-        parameters[0] = states.get(initialStateId);
-        if(parameters[0] == null) {
+        if(!isValidState(initialStateId)) {
             throw new IllegalArgumentException(getClass()+" cannot find Initial state \'"+ 
                     initialStateId+"\' in state machine.");
         }
-        parameters[1] = states;
-        if(extraParams!=null) {
-            System.arraycopy(extraParams, 0, parameters, 2, extraParams.length);
-        }
-        T stateMachine = postProcessStateMachine((Class<T>)stateMachineImplClazz, 
-                ReflectUtils.newInstance(contructor, parameters));
         
+        T stateMachine = ReflectUtils.newInstance(contructor, extraParams);
         AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
+        stateMachineImpl.postConstruction(initialStateId, states);
         stateMachineImpl.setStartEvent(startEvent);
         stateMachineImpl.setFinishEvent(finishEvent);
         stateMachineImpl.setTerminateEvent(terminateEvent);
@@ -638,6 +615,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         stateMachineImpl.setTypeOfContext(contextClazz);
         stateMachineImpl.setScriptManager(scriptManager);
         
+        postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
         return stateMachine;
     }
     

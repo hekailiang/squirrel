@@ -1,8 +1,5 @@
 package org.squirrelframework.foundation.fsm.samples;
 
-import java.util.Map;
-
-import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
@@ -19,10 +16,6 @@ public class QuickStartSample {
     // 2. Define State Machine Class
     @StateMachineParameters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
     static class StateMachineSample extends AbstractUntypedStateMachine {
-        protected StateMachineSample(ImmutableUntypedState initialState, 
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
 
         protected void fromAToB(String from, String to, FSMEvent event, Integer context) {
             System.out.println("Transition from '"+from+"' to '"+to+"' on event '"+event+

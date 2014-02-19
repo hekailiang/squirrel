@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -69,11 +68,6 @@ public class ParallelStateMachineTest {
 	static class ParallelStateMachine extends AbstractStateMachine<ParallelStateMachine, PState, PEvent, Integer> {
 		private StringBuilder logger = new StringBuilder();
 
-		protected ParallelStateMachine(ImmutableState<ParallelStateMachine, PState, PEvent, Integer> initialState,
-                Map<PState, ImmutableState<ParallelStateMachine, PState, PEvent, Integer>> states) {
-	        super(initialState, states);
-        }
-		
 		public void transitA1a2B(PState from, PState to, PEvent event, Integer context) {
 			logger.append("transitA1a2B");
 		}

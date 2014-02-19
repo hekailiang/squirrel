@@ -1,8 +1,5 @@
 package org.squirrelframework.foundation.fsm.atm;
 
-import java.util.Map;
-
-import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.atm.ATMStateMachine.ATMState;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
@@ -15,12 +12,6 @@ public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMSt
     }
     
     private StringBuilder logger = new StringBuilder();
-    
-    protected ATMStateMachine(
-            ImmutableState<ATMStateMachine, ATMState, String, Void> initialState,
-            Map<ATMState, ImmutableState<ATMStateMachine, ATMState, String, Void>> states) {
-        super(initialState, states);
-    }
     
     public void entryIdle(ATMState from, ATMState to, String event) {
         addOptionalDot();

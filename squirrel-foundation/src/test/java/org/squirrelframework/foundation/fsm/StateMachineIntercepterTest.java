@@ -1,7 +1,5 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -10,7 +8,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachineIntercepter;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
@@ -24,13 +21,6 @@ public class StateMachineIntercepterTest extends AbstractStateMachineTest {
         @Transit(from="A", to="B", on="ToB"), @Transit(from="A", to="D", on="ToD", callMethod="transitFail")
     })
     static class DeclarativeStateMachine extends AbstractStateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> {
-
-        public DeclarativeStateMachine(
-                ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states) {
-            super(initialState, states);
-        }
-        
         public void transitFail(TestState from, TestState to, TestEvent event, Integer context) {
             throw new RuntimeException("fail on purpose");
         }

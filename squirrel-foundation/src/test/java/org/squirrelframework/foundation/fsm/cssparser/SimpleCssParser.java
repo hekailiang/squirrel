@@ -1,14 +1,12 @@
 package org.squirrelframework.foundation.fsm.cssparser;
 
 import java.util.List;
-import java.util.Map;
 
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.cssparser.SimpleCssParser.ParserContext;
@@ -152,12 +150,6 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
                 return name.charAt(0);
             }
         });
-    }
-    
-    protected SimpleCssParser(
-            ImmutableState<SimpleCssParser, ParserState, Character, ParserContext> initialState,
-            Map<ParserState, ImmutableState<SimpleCssParser, ParserState, Character, ParserContext>> states) {
-        super(initialState, states);
     }
     
     public String getBufferValue() {

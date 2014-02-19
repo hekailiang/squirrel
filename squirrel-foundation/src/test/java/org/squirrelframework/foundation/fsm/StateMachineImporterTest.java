@@ -2,8 +2,6 @@ package org.squirrelframework.foundation.fsm;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
-
 import org.junit.Test;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
@@ -22,10 +20,6 @@ public class StateMachineImporterTest {
     })
     @StateMachineParameters(stateType=String.class, eventType=TestEvent.class, contextType=Integer.class)
     class ImportParameterizedActionCase extends AbstractUntypedStateMachine {
-        protected ImportParameterizedActionCase(ImmutableUntypedState initialState, 
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     
     @Test(expected=SquirrelRuntimeException.class)

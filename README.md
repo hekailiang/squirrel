@@ -21,7 +21,7 @@ Latest Released Version:
 </dependency>
 ``` 
 
-~~Latest Snapshot Version:~~
+Latest Snapshot Version:  
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
@@ -43,10 +43,11 @@ public class QuickStartSample {
     // 2. Define State Machine Class
     @StateMachineParameters(stateType=String.class, eventType=FSMEvent.class, contextType=Integer.class)
     static class StateMachineSample extends AbstractUntypedStateMachine {
-        protected StateMachineSample(ImmutableUntypedState initialState, 
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
+        // No need to specify constructor anymore since 0.2.9
+        // protected StateMachineSample(ImmutableUntypedState initialState, 
+        //        Map<Object, ImmutableUntypedState> states) {
+        //    super(initialState, states);
+        // }
 
         protected void fromAToB(String from, String to, FSMEvent event, Integer context) {
             System.out.println("Transition from '"+from+"' to '"+to+"' on event '"+event+
@@ -853,6 +854,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ## Future Plan  
 * **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
 * Support dynamic extend state machine definition  
+* StateMachineOption including AutoStartEnable, DataSeparationEnable and so on.  
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]

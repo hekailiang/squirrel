@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -51,11 +50,7 @@ public class LinkedStateMachineTest {
 
         private StringBuilder logger;
 
-        protected TestStateMachine(
-                ImmutableState<TestStateMachine, LState, LEvent, Integer> initialState,
-                Map<LState, ImmutableState<TestStateMachine, LState, LEvent, Integer>> states,
-                StringBuilder logger) {
-            super(initialState, states);
+        protected TestStateMachine(StringBuilder logger) {
             this.logger = logger;
         }
 
@@ -156,11 +151,7 @@ public class LinkedStateMachineTest {
 
         private StringBuilder logger;
 
-        protected LinkedStateMachine(
-                ImmutableState<LinkedStateMachine, LState, LEvent, Integer> initialState,
-                Map<LState, ImmutableState<LinkedStateMachine, LState, LEvent, Integer>> states,
-                StringBuilder logger) {
-            super(initialState, states);
+        protected LinkedStateMachine(StringBuilder logger) {
             this.logger = logger;
         }
 

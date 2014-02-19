@@ -4,8 +4,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Map;
-
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -29,11 +27,6 @@ public class ExtensionMethodCallTest {
         
         protected StringBuilder logger = new StringBuilder();
 
-        protected UntypedStateMachineBase(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
-        
         protected void leftA(String from, String to, String event) {
             logger.append("leftA");
         }

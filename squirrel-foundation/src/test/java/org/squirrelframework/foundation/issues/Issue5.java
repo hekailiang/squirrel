@@ -1,15 +1,13 @@
 package org.squirrelframework.foundation.issues;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 import org.junit.Test;
-import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
@@ -90,9 +88,6 @@ public class Issue5 {
     }
  
     private static class FSM extends AbstractStateMachine<FSM, St, Ev, Object> {
-        protected FSM(ImmutableState<FSM, St, Ev, Object> initialState, Map<St, ImmutableState<FSM, St, Ev, Object>> states) {
-            super(initialState, states);
-        }
     }
  
     private static enum St {

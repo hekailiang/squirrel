@@ -4,8 +4,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Map;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -60,12 +58,6 @@ public class HierarchicalStateMachineTest {
 	static class HierachicalStateMachine extends AbstractStateMachine<HierachicalStateMachine, HState, HEvent, Integer> {
 		
 		private StringBuilder logger = new StringBuilder();
-
-		protected HierachicalStateMachine(
-                ImmutableState<HierachicalStateMachine, HState, HEvent, Integer> initialState,
-                Map<HState, ImmutableState<HierachicalStateMachine, HState, HEvent, Integer>> states) {
-	        super(initialState, states);
-        }
 
 		public void entryA(HState from, HState to, HEvent event, Integer context) {
 			logger.append("entryA");

@@ -13,8 +13,6 @@ import static org.squirrelframework.foundation.fsm.TestState.C;
 import static org.squirrelframework.foundation.fsm.TestState.D;
 import static org.squirrelframework.foundation.fsm.TestState.Final;
 
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -84,11 +82,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
     })
     static class StateMachineImpl extends AbstractDeclarativeStateMachine {
 
-        public StateMachineImpl(
-                ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                CallSequenceMonitor monitor) {
-            super(initialState, states, monitor);
+        public StateMachineImpl(CallSequenceMonitor monitor) {
+            super(monitor);
         }
         
         protected void beforeEntryB(TestState from, TestState to, TestEvent event, Integer context) {
@@ -139,11 +134,7 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
         
         protected CallSequenceMonitor monitor;
         
-        public AbstractDeclarativeStateMachine(
-                ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<DeclarativeStateMachine, TestState, TestEvent, Integer>> states,
-                CallSequenceMonitor monitor) {
-            super(initialState, states);
+        public AbstractDeclarativeStateMachine(CallSequenceMonitor monitor) {
             this.monitor = monitor;
         }
 

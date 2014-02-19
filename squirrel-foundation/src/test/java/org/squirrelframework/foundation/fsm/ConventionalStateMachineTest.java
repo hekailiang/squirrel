@@ -15,8 +15,6 @@ import static org.squirrelframework.foundation.fsm.TestState.C;
 import static org.squirrelframework.foundation.fsm.TestState.D;
 import static org.squirrelframework.foundation.fsm.TestState.Final;
 
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -76,11 +74,7 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
         
         private final CallSequenceMonitor monitor;
         
-        protected ConventionalStateMachine(
-                ImmutableState<ConventionalStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<ConventionalStateMachine, TestState, TestEvent, Integer>> states,
-                CallSequenceMonitor monitor) {
-            super(initialState, states);
+        protected ConventionalStateMachine(CallSequenceMonitor monitor) {
             this.monitor = monitor;
         }
         

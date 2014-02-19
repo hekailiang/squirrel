@@ -4,8 +4,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -34,11 +32,6 @@ public class WeightedActionTest {
         
         protected StringBuilder logger = new StringBuilder();
 
-        protected UntypedStateMachineBase(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
-        
         protected void fromAToB(String from, String to, String event) {
             logger.append("fromAToB");
         }
@@ -85,11 +78,6 @@ public class WeightedActionTest {
     })
     static class UntypedStateMachineExt extends UntypedStateMachineBase {
 
-        protected UntypedStateMachineExt(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
-        
         protected void beforeFromAToB(String from, String to, String event) {
             logger.append("beforeFromAToB");
         }
@@ -123,10 +111,6 @@ public class WeightedActionTest {
         @State(name="D", entryCallMethod="entryD:+200") // override extension method weight
     })
     static class UntypedStateMachineExt2 extends UntypedStateMachineExt {
-        protected UntypedStateMachineExt2(ImmutableUntypedState initialState,
-                Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
     
     private UntypedStateMachineExt fsm;

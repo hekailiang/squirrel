@@ -1,7 +1,5 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -16,11 +14,6 @@ public class StateMachineVerifyTest extends AbstractStateMachineTest {
         @Transit(from="A", to="B", on="ToB", callMethod="test", type=TransitionType.INTERNAL)
     })
     private static class InvalidInternalTransitionStateMachine extends AbstractStateMachine<InvalidInternalTransitionStateMachine, TestState, TestEvent, Integer> {
-        protected InvalidInternalTransitionStateMachine(
-                ImmutableState<InvalidInternalTransitionStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<InvalidInternalTransitionStateMachine, TestState, TestEvent, Integer>> states) {
-            super(initialState, states);
-        }
         @SuppressWarnings("unused")
         public void test(TestState from, TestState to, TestEvent event, Integer context) {
         }
@@ -31,11 +24,6 @@ public class StateMachineVerifyTest extends AbstractStateMachineTest {
         @Transit(from="A", to="B", on="ToB", callMethod="test", type=TransitionType.LOCAL),
     })
     private static class ConflictTransitionStateMachine extends AbstractStateMachine<ConflictTransitionStateMachine, TestState, TestEvent, Integer> {
-        protected ConflictTransitionStateMachine(
-                ImmutableState<ConflictTransitionStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<ConflictTransitionStateMachine, TestState, TestEvent, Integer>> states) {
-            super(initialState, states);
-        }
         @SuppressWarnings("unused")
         public void test(TestState from, TestState to, TestEvent event, Integer context) {
         }
@@ -48,11 +36,6 @@ public class StateMachineVerifyTest extends AbstractStateMachineTest {
         @Transit(from="A", to="B", on="ToB", callMethod="test")
     })
     private static class InvalidFinalStateMachine extends AbstractStateMachine<InvalidFinalStateMachine, TestState, TestEvent, Integer> {
-        protected InvalidFinalStateMachine(
-                ImmutableState<InvalidFinalStateMachine, TestState, TestEvent, Integer> initialState,
-                Map<TestState, ImmutableState<InvalidFinalStateMachine, TestState, TestEvent, Integer>> states) {
-            super(initialState, states);
-        }
         @SuppressWarnings("unused")
         public void test(TestState from, TestState to, TestEvent event, Integer context) {
         }

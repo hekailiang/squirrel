@@ -6,7 +6,6 @@ package org.squirrelframework.foundation.fsm;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 
 import org.junit.Test;
@@ -24,9 +23,6 @@ public class PerformanceTest {
 
     @StateMachineParameters(stateType = String.class, eventType = FSMEvent.class, contextType = Integer.class)
     static class StateMachineSample extends AbstractUntypedStateMachine {
-        protected StateMachineSample(ImmutableUntypedState initialState, Map<Object, ImmutableUntypedState> states) {
-            super(initialState, states);
-        }
     }
 
     @Test(timeout = 10000)
