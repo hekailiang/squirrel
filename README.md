@@ -639,6 +639,7 @@ And also user can load above *savedData* into another state machine whose status
 	``` java 
 newStateMachineInstance.loadSavedData(savedData);
 	``` 
+**NOTE**: The state machine data can be serialized to/deserialized from Base64 encoded string with the help of *ObjectSerializableSupport* class.
 * **State Machine Configuration**  
 When creating new state machine instance, user can configure its behavior through 	*StateMachineConfiguration*, e.g.    
 	```java
