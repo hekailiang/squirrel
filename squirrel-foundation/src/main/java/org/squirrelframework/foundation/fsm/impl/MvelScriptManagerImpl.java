@@ -8,14 +8,13 @@ import org.squirrelframework.foundation.fsm.MvelScriptManager;
 
 public class MvelScriptManagerImpl implements MvelScriptManager {
     
-    private Map<String, Object> compiledExpressions = 
-            new ConcurrentHashMap<String, Object>();
+    private Map<String, Object> compiledExpressions;
 
     @Override
     public <T> T eval(String script, Object context, Class<T> returnType) {
         Object evaluateResult = null;
-        if(compiledExpressions.containsKey(script)) {
-            Object exp = compiledExpressions.get(script);
+        if(getCompiledExpression().containsKey(script)) {
+            Object exp = getCompiledExpression().get(script);
             evaluateResult = MVEL.executeExpression(exp, context);
         } else {
             evaluateResult = MVEL.eval(script, context);
@@ -25,12 +24,18 @@ public class MvelScriptManagerImpl implements MvelScriptManager {
 
     @Override
     public void compile(String script) {
-        if(!compiledExpressions.containsKey(script)) {
+        if(!getCompiledExpression().containsKey(script)) {
             Object compiled = MVEL.compileExpression(script);
             if(compiled!=null) {
-                compiledExpressions.put(script, compiled);
+                getCompiledExpression().put(script, compiled);
             }
         }
+    }
+    
+    private Map<String, Object> getCompiledExpression() {
+        if(compiledExpressions==null) 
+            compiledExpressions = new ConcurrentHashMap<String, Object>();
+        return compiledExpressions;
     }
 
     @Override
