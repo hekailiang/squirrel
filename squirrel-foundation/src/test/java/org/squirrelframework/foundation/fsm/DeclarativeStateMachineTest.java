@@ -78,9 +78,9 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     }
 
     public static class DeclarativeStateMachineImpl extends AbstractStateMachine<DeclarativeStateMachine, TestState, TestEvent, Integer> implements DeclarativeStateMachine {
-        private final DeclarativeStateMachine monitor;
+        private DeclarativeStateMachine monitor;
 
-        protected DeclarativeStateMachineImpl(DeclarativeStateMachine delegator) {
+        protected void postConstruct(DeclarativeStateMachine delegator) {
             this.monitor = delegator;
         }
 

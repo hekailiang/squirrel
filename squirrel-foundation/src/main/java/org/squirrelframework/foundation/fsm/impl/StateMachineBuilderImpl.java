@@ -84,7 +84,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private boolean prepared = false;
     
-    private final Constructor<? extends T> contructor;
+    private final Constructor<? extends T> constructor;
+    
+    private final Method postConstructMethod;
     
     protected final Converter<S> stateConverter;
     
@@ -142,7 +144,24 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         
-        this.contructor = ReflectUtils.getConstructor(stateMachineImplClazz, extraParamTypes);
+        Constructor<? extends T> fsmContructor = null;
+        try {
+            fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, extraParamTypes);
+        } catch(Exception e1) {
+            try {
+                fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, new Class<?>[0]);
+            } catch(Exception e2) {
+                throw new IllegalArgumentException("Cannot find matched constructor for \'"+stateMachineImplClazz.getName()+"\'.");
+            }
+        }
+        this.constructor = fsmContructor;
+        
+        Method postInit = null;
+        try {
+            postInit = ReflectUtils.getMethod(stateMachineImplClazz, "postConstruct", extraParamTypes);
+        } catch (Exception e) {}
+        this.postConstructMethod = postInit;
+        
         this.executionContext = new ExecutionContext(scriptManager, stateMachineImplClazz, methodCallParamTypes);
         // after initialized state machine builder
         defineContextEvent();
@@ -604,22 +623,35 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                     initialStateId+"\' in state machine.");
         }
         
-        T stateMachine = ReflectUtils.newInstance(contructor, extraParams);
-        AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
-        stateMachineImpl.postConstruction(initialStateId, states, configuration);
-        stateMachineImpl.setStartEvent(startEvent);
-        stateMachineImpl.setFinishEvent(finishEvent);
-        stateMachineImpl.setTerminateEvent(terminateEvent);
-        stateMachineImpl.setExtraParamTypes(extraParamTypes);
+        Class<?>[] constParamTypes = constructor.getParameterTypes();
+        final T stateMachine;
+        if(constParamTypes==null || constParamTypes.length==0) {
+            stateMachine = ReflectUtils.newInstance(constructor);
+        } else { 
+            stateMachine = ReflectUtils.newInstance(constructor, extraParams);
+        }
+                
+        final AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
+        stateMachineImpl.prePostConstruct(initialStateId, states, configuration, new Runnable() {
+            @Override
+            public void run() {
+                stateMachineImpl.setStartEvent(startEvent);
+                stateMachineImpl.setFinishEvent(finishEvent);
+                stateMachineImpl.setTerminateEvent(terminateEvent);
+                stateMachineImpl.setExtraParamTypes(extraParamTypes);
+                
+                stateMachineImpl.setTypeOfStateMachine(stateMachineImplClazz);
+                stateMachineImpl.setTypeOfState(stateClazz);
+                stateMachineImpl.setTypeOfEvent(eventClazz);
+                stateMachineImpl.setTypeOfContext(contextClazz);
+                stateMachineImpl.setScriptManager(scriptManager);
+            }
+        });
         
-        stateMachineImpl.setTypeOfStateMachine(stateMachineImplClazz);
-        stateMachineImpl.setTypeOfState(stateClazz);
-        stateMachineImpl.setTypeOfEvent(eventClazz);
-        stateMachineImpl.setTypeOfContext(contextClazz);
-        stateMachineImpl.setScriptManager(scriptManager);
-        
-        postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
-        return stateMachine;
+        if(postConstructMethod!=null) {
+            ReflectUtils.invoke(postConstructMethod, stateMachine, extraParams);
+        }
+        return postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
     }
 
     private boolean isValidState(S initialStateId) {

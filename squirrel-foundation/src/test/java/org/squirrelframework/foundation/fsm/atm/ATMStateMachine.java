@@ -7,6 +7,10 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 @ContextInsensitive
 public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
     
+    void postConstruct() {
+        System.out.println("ATMStateMachine PostConstruct Touched!");
+    }
+    
     public enum ATMState {
         Idle, Loading, OutOfService, Disconnected, InService
     }

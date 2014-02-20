@@ -126,8 +126,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private TransitionException lastException = null;
     
-    void postConstruction(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states, 
-            StateMachineConfiguration configuration) {
+    void prePostConstruct(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states, 
+            StateMachineConfiguration configuration, Runnable cb) {
         data = FSM.newStateMachineData(states);
         data.write().initalState(intialStateId);
         data.write().currentState(intialStateId);
@@ -137,6 +137,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isAutoStartEnabled = configuration.isAutoStartEnabled();
         this.isAutoTerminateEnabled = configuration.isAutoTerminateEnabled();
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
+        
+        cb.run();
     }
     
     private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> orignalData, 
