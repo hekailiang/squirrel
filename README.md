@@ -17,16 +17,16 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.2.9</version>
+  	<version>0.3.0</version>
 </dependency>
 ``` 
 
-Latest Snapshot Version:  
+~~Latest Snapshot Version:~~  
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.0-SNAPSHOT</version>
+  	<version>0.3.1-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -797,6 +797,18 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 	```  
 
 ## Release Notes  
+*Version 0.3.0 - 2014-2-21*  
+1. **Remove** deprecated state machine intercepter classes  
+2. **Deprecate** StateMachineProvider  
+3. Support **postConstruct** after state machine initialized  
+4. **Remove** deprecated exception handling method in AbstractStateMachine  
+5. Add API StateMachine.canAccept(E event)  
+6. Improve state machine create exception handling  
+7. **Breaking Change:** Reimplement StateMachinConfiguration to simplify its usage    
+8. More easy way to enable state machine logger by set state machine debug configure to true  
+9. Allow configuration to be set on state machine builder  
+10. Make both StateMachineData.Reader and StateMachineData.Writer serializable  
+
 *Version 0.2.9 - 2014-2-19*  
 1. Support state machine behavior configuration  
 2. **Breaking Change:** Removed tedious state machine constructor from *AbstractStateMachine*. Please remove extended constructor in your state machine implementation class.  
@@ -808,7 +820,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 *Version 0.2.7 - 2014-2-13*  
 1. **Remove** deprecated StateMachineWithoutContext Class and related artifacts  
 2. **Remove** deprecated OnActionExecute annotation  
-3. Support state machine data serialize/deserialize  
+3. Support state machine data serialize/deserialize by ObjectSerializableSupport  
 4. Add API StateMachine.getLastException  
 5. **Deprecate** AbstractStateMachine.afterTransitionCausedException(TransitionException e, ...)  
 
