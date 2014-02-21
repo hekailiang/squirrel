@@ -226,12 +226,15 @@ After user defined state machine behaviour, user could create a new state machin
 	T newStateMachine(S initialStateId, Object... extraParams);
 	```
 To create a new state machine instance from state machine builder, you need to pass following parameters.
-	1. *initialStateId*: When started, the initial state of the state machine.
-	2. *extraParams*: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
+	1. ```initialStateId```: When started, the initial state of the state machine.
+	2. ```extraParams```: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
+	a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also defined extra parameters' type when creating the state machine builder. Otherwise, extra parameter will be ignored.  
+	b. Extra parameters can be passed into state machine instance in two ways. One is through state machine constructor which means user need to define a constructor with the same parameters' type and order for the state machine instance. Another way is define a method named ```postConstruct``` and also with the same parameters' type and order.
+	4. If no extra parameters need to passed to state machine, a convenient way is to call ```T newStateMachine(S initialStateId)```.
 	
-	New state machine from state machine builder.
+	New state machine from state machine builder. (In this case, no extra parameters need to be passed.)
 	```java
-	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial, new Object[0]);
+	MyStateMachine stateMachine = builder.newStateMachine(MyState.Initial);
 	```
 
 * **Trigger Transitions**  

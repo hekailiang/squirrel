@@ -18,6 +18,7 @@ import org.squirrelframework.foundation.component.SquirrelInstanceProvider;
 import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
+import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.Condition;
@@ -27,12 +28,10 @@ import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
-import org.squirrelframework.foundation.fsm.UntypedImmutableState;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTimedState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.UntypedMutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -40,6 +39,8 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.UntypedImmutableState;
+import org.squirrelframework.foundation.fsm.UntypedMutableState;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
@@ -116,7 +117,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             "\" must be extended from AbstractStateMachine.class.");
         
         this.stateMachineImplClazz = stateMachineImplClazz;
-        this.extraParamTypes = extraParamTypes;
+        this.extraParamTypes = extraParamTypes!=null ? extraParamTypes : new Class<?>[0];
         
         StateMachineParameters genericsParamteres = findAnnotation(StateMachineParameters.class);
         if(stateClazz==Object.class && genericsParamteres!=null) {
@@ -146,7 +147,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         Constructor<? extends T> fsmContructor = null;
         try {
-            fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, extraParamTypes);
+            fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, this.extraParamTypes);
         } catch(Exception e1) {
             try {
                 fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, new Class<?>[0]);
@@ -158,7 +159,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         Method postInit = null;
         try {
-            postInit = ReflectUtils.getMethod(stateMachineImplClazz, "postConstruct", extraParamTypes);
+            postInit = ReflectUtils.getMethod(stateMachineImplClazz, "postConstruct", this.extraParamTypes);
         } catch (Exception e) {}
         this.postConstructMethod = postInit;
         
@@ -625,10 +626,15 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         
         Class<?>[] constParamTypes = constructor.getParameterTypes();
         final T stateMachine;
-        if(constParamTypes==null || constParamTypes.length==0) {
-            stateMachine = ReflectUtils.newInstance(constructor);
-        } else { 
-            stateMachine = ReflectUtils.newInstance(constructor, extraParams);
+        try {
+            if(constParamTypes==null || constParamTypes.length==0) {
+                stateMachine = ReflectUtils.newInstance(constructor);
+            } else { 
+                stateMachine = ReflectUtils.newInstance(constructor, extraParams);
+            }
+        } catch(SquirrelRuntimeException e) {
+            throw new IllegalStateException(
+                    "New state machine instance failed.", e.getTargetException());
         }
                 
         final AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
@@ -648,9 +654,14 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             }
         });
         
-        if(postConstructMethod!=null) {
-            ReflectUtils.invoke(postConstructMethod, stateMachine, extraParams);
-        }
+        if(postConstructMethod!=null && extraParamTypes.length==extraParams.length) {
+            try {
+                ReflectUtils.invoke(postConstructMethod, stateMachine, extraParams);
+            } catch(SquirrelRuntimeException e) {
+                throw new IllegalStateException(
+                        "Invoke state machine postConstruct method failed.", e.getTargetException());
+            }
+        } 
         return postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
     }
 
