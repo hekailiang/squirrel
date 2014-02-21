@@ -42,7 +42,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
      */
     Writer<T, S, E, C> write();
     
-    public interface Reader<T extends StateMachine<T, S, E, C>, S, E, C> {
+    public interface Reader<T extends StateMachine<T, S, E, C>, S, E, C> extends Serializable {
         /**
          * @return state machine identifier
          */
@@ -148,7 +148,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
         Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
     }
 
-    public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> {
+    public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> extends Serializable {
         /**
          * @return state machine identifier
          */
