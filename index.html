@@ -61,16 +61,16 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.2.9&lt;/version&gt;
+    &lt;version&gt;0.3.0&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
-<p>Latest Snapshot Version:  </p>
+<p><del>Latest Snapshot Version:</del>  </p>
 
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.3.0-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;0.3.1-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -89,12 +89,6 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
     <span class="c1">// 2. Define State Machine Class</span>
     <span class="nd">@StateMachineParameters</span><span class="o">(</span><span class="n">stateType</span><span class="o">=</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">eventType</span><span class="o">=</span><span class="n">FSMEvent</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">contextType</span><span class="o">=</span><span class="n">Integer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
     <span class="kd">static</span> <span class="kd">class</span> <span class="nc">StateMachineSample</span> <span class="kd">extends</span> <span class="n">AbstractUntypedStateMachine</span> <span class="o">{</span>
-        <span class="c1">// No need to specify constructor anymore since 0.2.9</span>
-        <span class="c1">// protected StateMachineSample(ImmutableUntypedState initialState, </span>
-        <span class="c1">//        Map&lt;Object, ImmutableUntypedState&gt; states) {</span>
-        <span class="c1">//    super(initialState, states);</span>
-        <span class="c1">// }</span>
-
         <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">fromAToB</span><span class="o">(</span><span class="n">String</span> <span class="n">from</span><span class="o">,</span> <span class="n">String</span> <span class="n">to</span><span class="o">,</span> <span class="n">FSMEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
             <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Transition from '"</span><span class="o">+</span><span class="n">from</span><span class="o">+</span><span class="s">"' to '"</span><span class="o">+</span><span class="n">to</span><span class="o">+</span><span class="s">"' on event '"</span><span class="o">+</span><span class="n">event</span><span class="o">+</span>
                 <span class="s">"' with context '"</span><span class="o">+</span><span class="n">context</span><span class="o">+</span><span class="s">"'."</span><span class="o">);</span>
@@ -318,14 +312,19 @@ After user defined state machine behaviour, user could create a new state machin
 
 <ol>
 <li>
-<em>initialStateId</em>: When started, the initial state of the state machine.</li>
+<code>initialStateId</code>: When started, the initial state of the state machine.</li>
 <li>
-<em>extraParams</em>: Extra parameters that needed for create new state machine instance. Set to <em>"new Object[0]"</em> for no extra parameters needed.<br>
+<p><code>extraParams</code>: Extra parameters that needed for create new state machine instance. Set to <em>"new Object[0]"</em> for no extra parameters needed.  </p>
+
+<p>a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also defined extra parameters' type when creating the state machine builder. Otherwise, extra parameter will be ignored.<br>
+b. Extra parameters can be passed into state machine instance in two ways. One is through state machine constructor which means user need to define a constructor with the same parameters' type and order for the state machine instance. Another way is define a method named <code>postConstruct</code> and also with the same parameters' type and order.          </p>
 </li>
 </ol>
-<p>New state machine from state machine builder.</p>
+<p>If no extra parameters need to passed to state machine, user can simply call <code>T newStateMachine(S initialStateId)</code> to create a new state machine instance.  </p>
 
-<div class="highlight highlight-java"><pre><span class="n">MyStateMachine</span> <span class="n">stateMachine</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">Initial</span><span class="o">,</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+<p>New state machine from state machine builder. (In this case, no extra parameters need to be passed.)</p>
+
+<div class="highlight highlight-java"><pre><span class="n">MyStateMachine</span> <span class="n">stateMachine</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newStateMachine</span><span class="o">(</span><span class="n">MyState</span><span class="o">.</span><span class="na">Initial</span><span class="o">);</span>
 </pre></div>
 </li>
 <li>
@@ -781,18 +780,22 @@ User can save data of state machine when state machine is in idle status.</p>
 
 <div class="highlight highlight-java"><pre><span class="n">newStateMachineInstance</span><span class="o">.</span><span class="na">loadSavedData</span><span class="o">(</span><span class="n">savedData</span><span class="o">);</span>
 </pre></div>
+
+<p><strong>NOTE</strong>: The state machine data can be serialized to/deserialized from Base64 encoded string with the help of <em>ObjectSerializableSupport</em> class.</p>
 </li>
 <li>
 <p><strong>State Machine Configuration</strong><br>
 When creating new state machine instance, user can configure its behavior through   <em>StateMachineConfiguration</em>, e.g.    </p>
 
-<div class="highlight highlight-java"><pre><span class="n">StateMachineConfiguration</span> <span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StateMachineConfiguration</span><span class="o">.</span><span class="na">Default</span><span class="o">();</span>
-<span class="n">configuration</span><span class="o">.</span><span class="na">setAutoStartEnabled</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-<span class="n">configuration</span><span class="o">.</span><span class="na">setIdProvider</span><span class="o">(</span><span class="n">IdProvider</span><span class="o">.</span><span class="na">UUIDProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">());</span>
-<span class="n">UntypedStateMachine</span> <span class="n">fsm</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newUntypedStateMachine</span><span class="o">(</span><span class="s">"a"</span><span class="o">,</span> <span class="n">configuration</span><span class="o">,</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+<div class="highlight highlight-java"><pre><span class="n">UntypedStateMachine</span> <span class="n">fsm</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">newUntypedStateMachine</span><span class="o">(</span><span class="s">"a"</span><span class="o">,</span> 
+     <span class="n">StateMachineConfiguration</span><span class="o">.</span><span class="na">create</span><span class="o">().</span><span class="na">setAutoStartEnabled</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">setIdProvider</span><span class="o">(</span><span class="n">IdProvider</span><span class="o">.</span><span class="na">UUIDProvider</span><span class="o">.</span><span class="na">getInstance</span><span class="o">()),</span> 
+     <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span> <span class="c1">// since 0.3.0</span>
+<span class="n">fsm</span><span class="o">.</span><span class="na">fire</span><span class="o">(</span><span class="n">TestEvent</span><span class="o">.</span><span class="na">toA</span><span class="o">);</span>
 </pre></div>
 
-<p>The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.</p>
+<p>The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.<br>
+StateMachineConfigure can also be set on state machine builder which means all the state machine instance created by <code>builder.newStateMachine(S initialStateId)</code> or <code>builder.newStateMachine(S initialStateId, Object... extraParams)</code> will use this configuration.</p>
 </li>
 <li>
 <p><strong>State Machine Diagnose</strong><br><em>StateMachineLogger</em> is used to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on, e.g.  </p>
@@ -814,6 +817,13 @@ When creating new state machine instance, user can configure its behavior throug
 <span class="nl">HierachicalStateMachine:</span> <span class="n">Transition</span> <span class="n">from</span> <span class="s">"B2a"</span> <span class="n">to</span> <span class="s">"A1"</span> <span class="n">on</span> <span class="s">"B2A"</span> <span class="n">complete</span> <span class="n">which</span> <span class="n">took</span> <span class="mi">2</span><span class="n">ms</span><span class="o">.</span>
 <span class="o">...</span>
 </pre></div>
+
+<p><em>Since v0.3.0 state machine logger can be used more easy way by just set StateMachineConfiguration enable debug mode to ture, e.g.</em></p>
+
+<pre><code>StateMachine&lt;?,?,?,?&gt; stateMachine = builder.newStateMachine(HState.A,
+        StateMachineConfiguration.create().setDebugEnabled(true),
+        new Object[0]);
+</code></pre>
 
 <p><em>StateMachinePerformanceMonitor</em> can be used to monitor state machine execution performance information, including total transition times count, average transition consumed time and so on, e.g.</p>
 
@@ -943,6 +953,18 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 </ul><h2>
 <a name="release-notes" class="anchor" href="#release-notes"><span class="octicon octicon-link"></span></a>Release Notes</h2>
 
+<p><em>Version 0.3.0 - 2014-2-21</em><br>
+1. <strong>Remove</strong> deprecated state machine intercepter classes<br>
+2. <strong>Deprecate</strong> StateMachineProvider<br>
+3. Support <strong>postConstruct</strong> after state machine initialized<br>
+4. <strong>Remove</strong> deprecated exception handling method in AbstractStateMachine<br>
+5. Add API StateMachine.canAccept(E event)<br>
+6. Improve state machine create exception handling<br>
+7. <strong>Breaking Change:</strong> Reimplement StateMachinConfiguration to simplify its usage<br>
+8. More easy way to enable state machine logger by set state machine debug configure to true<br>
+9. Allow configuration to be set on state machine builder<br>
+10. Make both StateMachineData.Reader and StateMachineData.Writer serializable  </p>
+
 <p><em>Version 0.2.9 - 2014-2-19</em><br>
 1. Support state machine behavior configuration<br>
 2. <strong>Breaking Change:</strong> Removed tedious state machine constructor from <em>AbstractStateMachine</em>. Please remove extended constructor in your state machine implementation class.  </p>
@@ -954,7 +976,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 <p><em>Version 0.2.7 - 2014-2-13</em><br>
 1. <strong>Remove</strong> deprecated StateMachineWithoutContext Class and related artifacts<br>
 2. <strong>Remove</strong> deprecated OnActionExecute annotation<br>
-3. Support state machine data serialize/deserialize<br>
+3. Support state machine data serialize/deserialize by ObjectSerializableSupport<br>
 4. Add API StateMachine.getLastException<br>
 5. <strong>Deprecate</strong> AbstractStateMachine.afterTransitionCausedException(TransitionException e, ...)  </p>
 
