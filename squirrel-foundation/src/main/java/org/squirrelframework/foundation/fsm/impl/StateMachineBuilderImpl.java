@@ -27,12 +27,12 @@ import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.ImmutableState;
 import org.squirrelframework.foundation.fsm.ImmutableTransition;
-import org.squirrelframework.foundation.fsm.ImmutableUntypedState;
+import org.squirrelframework.foundation.fsm.UntypedImmutableState;
 import org.squirrelframework.foundation.fsm.MutableLinkedState;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.MutableTimedState;
 import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.MutableUntypedState;
+import org.squirrelframework.foundation.fsm.UntypedMutableState;
 import org.squirrelframework.foundation.fsm.MvelScriptManager;
 import org.squirrelframework.foundation.fsm.StateCompositeType;
 import org.squirrelframework.foundation.fsm.StateMachine;
@@ -452,9 +452,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(UntypedStateMachine.class.isAssignableFrom(stateMachineImplClazz)) {
             Map<S, MutableState<T, S, E, C>> untypedStates = Maps.newHashMap();
             for(final MutableState<T, S, E, C> state : states.values()) {
-                MutableUntypedState untypedState = (MutableUntypedState) Proxy.newProxyInstance(
-                        MutableUntypedState.class.getClassLoader(), 
-                        new Class[]{MutableUntypedState.class, ImmutableUntypedState.class}, 
+                UntypedMutableState untypedState = (UntypedMutableState) Proxy.newProxyInstance(
+                        UntypedMutableState.class.getClassLoader(), 
+                        new Class[]{UntypedMutableState.class, UntypedImmutableState.class}, 
                         new InvocationHandler() {
                             @Override
                             public Object invoke(Object proxy, Method method, Object[] args)
