@@ -50,6 +50,12 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     S test(E event);
     
     /**
+     * @param event test event
+     * @return true is passed in event is acceptable otherwise return false
+     */
+    boolean canAccept(E event);
+    
+    /**
      * Start state machine under external context
      * @param context external context
      */

@@ -158,9 +158,6 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     
     @Override
     public void exit(final StateContext<T, S, E, C> stateContext) {
-    	if(isFinalState()) {
-            return;
-    	}
     	if(isParallelState()) {
     		List<ImmutableState<T, S, E, C>> subStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
     		for(ImmutableState<T, S, E, C> subState : subStates) {
@@ -172,6 +169,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     		}
     		stateContext.getStateMachineData().write().removeSubStatesOn(getStateId());
     	}
+    	
+    	if(isFinalState()) return;
     	
     	stateContext.getExecutor().begin("STATE_EXIT__"+getStateId());
         for(final Action<T, S, E, C> exitAction : getExitActions()) {

@@ -336,6 +336,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return test(event, null);
     }
     
+    @Override
+    public boolean canAccept(E event) {
+        return getCurrentRawState().getAcceptableEvents().contains(event);
+    }
+    
     protected boolean isIdle() {
     	return getStatus()!=StateMachineStatus.BUSY;
     }

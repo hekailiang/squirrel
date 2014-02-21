@@ -2,6 +2,8 @@ package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.squirrelframework.foundation.fsm.TestEvent.InternalA;
 import static org.squirrelframework.foundation.fsm.TestEvent.Started;
 import static org.squirrelframework.foundation.fsm.TestEvent.Terminated;
@@ -228,6 +230,12 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
                 ")"
         );
         stateMachine = builder.newStateMachine(A, monitor);
+    }
+    
+    @Test
+    public void testCanAcceptEvent() {
+        assertTrue(stateMachine.canAccept(ToB));
+        assertFalse(stateMachine.canAccept(ToC));
     }
     
     @Test
