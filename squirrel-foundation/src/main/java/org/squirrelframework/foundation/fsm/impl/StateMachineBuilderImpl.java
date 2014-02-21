@@ -107,6 +107,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private final Class<?>[] extraParamTypes;
     
+    private StateMachineConfiguration defaultConfiguration = StateMachineConfiguration.getInstance();
+    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraParamTypes) {
@@ -612,7 +614,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public T newStateMachine(S initialStateId, Object... extraParams) {
-        return newStateMachine(initialStateId, StateMachineConfiguration.getInstance(), extraParams);
+        return newStateMachine(initialStateId, defaultConfiguration, extraParams);
     }
     
     @SuppressWarnings("unchecked")
@@ -829,5 +831,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     void setScanAnnotations(boolean isScanAnnotations) {
         this.isScanAnnotations = isScanAnnotations;
+    }
+
+    @Override
+    public void setStateMachineConfiguration(StateMachineConfiguration configure) {
+        checkState();
+        this.defaultConfiguration = configure;
     }
 }

@@ -654,7 +654,8 @@ When creating new state machine instance, user can configure its behavior throug
          new Object[0]); // since 0.3.0
     fsm.fire(TestEvent.toA);
 	``` 
-	The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.
+	The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.  
+	StateMachineConfigure can also be set on state machine builder which means all the state machine instance created by ```builder.newStateMachine(S initialStateId)``` or ```builder.newStateMachine(S initialStateId, Object... extraParams)``` will use this configuration.
 
 * **State Machine Diagnose**  
 	*StateMachineLogger* is used to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on, e.g.  

@@ -171,4 +171,10 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return new state machine
      */
     T newStateMachine(S initialStateId, StateMachineConfiguration configuration, Object... extraParams);
+    
+    /**
+     * Set default state machine configuration for state machine instance created by this builder 
+     * @param configure state machine default configuration
+     */
+    void setStateMachineConfiguration(StateMachineConfiguration configure);
 }

@@ -413,4 +413,12 @@ public class UntypedStateMachineTest {
         fsmEx.fire(TestEvent.toB, 25);
         assertTrue(fsmEx.getCurrentState().equals("d"));
     }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testUntypedStateMachineConfiguration() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSampleEx3.class);
+        builder.setStateMachineConfiguration(StateMachineConfiguration.create().setAutoStartEnabled(false));
+        UntypedStateMachineSampleEx3 fsmEx= builder.newUntypedStateMachine("a");
+        fsmEx.fire(TestEvent.toB, 0);
+    }
 }
