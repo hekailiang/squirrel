@@ -276,7 +276,6 @@ public class HierarchicalStateMachineTest {
 	
 	@After
 	public void teardown() {
-	    fsmLogger.terminateLogging();
 		if(stateMachine.getStatus()!=StateMachineStatus.TERMINATED)
 			stateMachine.terminate(null);
 		System.out.println("-------------------------------------------------");
@@ -299,9 +298,9 @@ public class HierarchicalStateMachineTest {
 		
 		builder.defineFinishEvent(HEvent.Finish);
 		
-		stateMachine = builder.newStateMachine(HState.A);
-		fsmLogger = new StateMachineLogger(stateMachine);
-		fsmLogger.startLogging();
+		stateMachine = builder.newStateMachine(HState.A,
+		        StateMachineConfiguration.create().setDebugEnabled(true),
+		        new Object[0]);
 	}
 	
 	@Test

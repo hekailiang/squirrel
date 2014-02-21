@@ -121,15 +121,14 @@ public class WeightedActionTest {
     public void teardown() {
         if(fsm.getStatus()!=StateMachineStatus.TERMINATED)
             fsm.terminate(null);
-        logger.terminateLogging();
     }
     
     @Before
     public void setup() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineExt.class);
-        fsm = builder.newUntypedStateMachine("A");
-        logger = new StateMachineLogger(fsm);
-        logger.startLogging();
+        fsm = builder.newUntypedStateMachine("A", 
+                StateMachineConfiguration.create().setDebugEnabled(true),
+                new Object[0]);
     }
     
     @Test

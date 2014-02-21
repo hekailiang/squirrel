@@ -7,83 +7,76 @@ import org.squirrelframework.foundation.component.SquirrelSingleton;
  * This class is used to configure state machine runtime behavior
  * @author Henry.He
  */
-public interface StateMachineConfiguration {
+public class StateMachineConfiguration implements SquirrelSingleton {
     
-    boolean isAutoStartEnabled();
+    private static StateMachineConfiguration instance = StateMachineConfiguration.create();
+
+    public static StateMachineConfiguration getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(StateMachineConfiguration instance) {
+        StateMachineConfiguration.instance = instance;
+    }
     
-    void setAutoStartEnabled(boolean isAutoStartEnabled);
+    public static StateMachineConfiguration create() {
+        return new StateMachineConfiguration();
+    }
     
-    boolean isAutoTerminateEnabled();
+    private StateMachineConfiguration() {}
     
-    void setAutoTerminateEnabled(boolean isAutoTerminateEnabled);
+    private boolean isAutoStartEnabled = true;
     
-    boolean isDataIsolateEnabled();
+    private boolean isAutoTerminateEnabled = true;
     
-    void setDataIsolateEnabled(boolean isDataIsolateEnabled);
+    private boolean isDataIsolateEnabled = false;
     
-    IdProvider getIdProvider();
+    private boolean isDebugEnabled= false;
     
-    void setIdProvider(IdProvider idProvider);
+    private IdProvider idProvider = IdProvider.Default.getInstance();
     
-    public class Default implements StateMachineConfiguration, SquirrelSingleton {
-        
-        private static StateMachineConfiguration instance = new Default();
+    public boolean isAutoStartEnabled() {
+        return isAutoStartEnabled;
+    }
 
-        public static StateMachineConfiguration getInstance() {
-            return instance;
-        }
+    public StateMachineConfiguration setAutoStartEnabled(boolean isAutoStartEnabled) {
+        this.isAutoStartEnabled = isAutoStartEnabled;
+        return this;
+    }
 
-        public static void setInstance(StateMachineConfiguration instance) {
-            Default.instance = instance;
-        }
-        
-        private boolean isAutoStartEnabled = true;
-        
-        private boolean isAutoTerminateEnabled = true;
-        
-        private boolean isDataIsolateEnabled = false;
-        
-        private IdProvider idProvider = IdProvider.Default.getInstance();
-        
-        @Override
-        public boolean isAutoStartEnabled() {
-            return isAutoStartEnabled;
-        }
+    public boolean isAutoTerminateEnabled() {
+        return isAutoTerminateEnabled;
+    }
 
-        @Override
-        public void setAutoStartEnabled(boolean isAutoStartEnabled) {
-            this.isAutoStartEnabled = isAutoStartEnabled;
-        }
+    public StateMachineConfiguration setAutoTerminateEnabled(boolean isAutoTerminateEnabled) {
+        this.isAutoTerminateEnabled = isAutoTerminateEnabled;
+        return this;
+    }
 
-        @Override
-        public boolean isAutoTerminateEnabled() {
-            return isAutoTerminateEnabled;
-        }
+    public boolean isDataIsolateEnabled() {
+        return isDataIsolateEnabled;
+    }
 
-        @Override
-        public void setAutoTerminateEnabled(boolean isAutoTerminateEnabled) {
-            this.isAutoTerminateEnabled = isAutoTerminateEnabled;
-        }
+    public StateMachineConfiguration setDataIsolateEnabled(boolean isDataIsolateEnabled) {
+        this.isDataIsolateEnabled = isDataIsolateEnabled;
+        return this;
+    }
 
-        @Override
-        public boolean isDataIsolateEnabled() {
-            return isDataIsolateEnabled;
-        }
+    public IdProvider getIdProvider() {
+        return idProvider;
+    }
 
-        @Override
-        public void setDataIsolateEnabled(boolean isDataIsolateEnabled) {
-            this.isDataIsolateEnabled = isDataIsolateEnabled;
-        }
+    public StateMachineConfiguration setIdProvider(IdProvider idProvider) {
+        this.idProvider = idProvider;
+        return this;
+    }
 
-        @Override
-        public IdProvider getIdProvider() {
-            return idProvider;
-        }
+    public boolean isDebugEnabled() {
+        return isDebugEnabled;
+    }
 
-        @Override
-        public void setIdProvider(IdProvider idProvider) {
-            this.idProvider = idProvider;
-        }
-        
+    public StateMachineConfiguration setDebugEnabled(boolean isDebugEnabled) {
+        this.isDebugEnabled = isDebugEnabled;
+        return this;
     }
 }

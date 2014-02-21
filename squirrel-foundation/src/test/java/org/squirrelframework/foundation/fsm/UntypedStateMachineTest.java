@@ -325,10 +325,11 @@ public class UntypedStateMachineTest {
     
     @Test(expected=IllegalStateException.class)
     public void testStateMachineConfiguration() {
-        StateMachineConfiguration configuration = new StateMachineConfiguration.Default();
-        configuration.setAutoStartEnabled(false);
-        configuration.setIdProvider(IdProvider.UUIDProvider.getInstance());
-        fsm = builder.newUntypedStateMachine("a", configuration, (Object[])null);
+        fsm = builder.newUntypedStateMachine("a", 
+                StateMachineConfiguration.create()
+                .setAutoStartEnabled(false)
+                .setIdProvider(IdProvider.UUIDProvider.getInstance()), 
+                (Object[])null);
         System.out.println("StateMachine ID: "+fsm.getIdentifier());
         fsm.fire(TestEvent.toA);
     }

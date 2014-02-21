@@ -612,7 +612,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public T newStateMachine(S initialStateId, Object... extraParams) {
-        return newStateMachine(initialStateId, StateMachineConfiguration.Default.getInstance(), extraParams);
+        return newStateMachine(initialStateId, StateMachineConfiguration.getInstance(), extraParams);
     }
     
     @SuppressWarnings("unchecked")

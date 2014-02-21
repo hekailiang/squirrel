@@ -46,6 +46,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.StateMachineContext;
 import org.squirrelframework.foundation.fsm.StateMachineData;
+import org.squirrelframework.foundation.fsm.StateMachineLogger;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
@@ -122,6 +123,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean isDataIsolateEnabled = false;
     
+    private boolean isDebugEnabled = false;
+    
     private Class<?>[] extraParamTypes;
     
     private TransitionException lastException = null;
@@ -137,8 +140,28 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isAutoStartEnabled = configuration.isAutoStartEnabled();
         this.isAutoTerminateEnabled = configuration.isAutoTerminateEnabled();
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
-        
+        this.isDebugEnabled = configuration.isDebugEnabled();
         cb.run();
+        
+        prepare();
+    }
+    
+    protected void prepare() {
+        if(isDebugEnabled) {
+            final StateMachineLogger logger = new StateMachineLogger(this);
+            addStartListener(new StartListener<T, S, E, C>() {
+                @Override
+                public void started(StartEvent<T, S, E, C> event) {
+                    logger.startLogging();
+                }
+            });
+            addTerminateListener(new TerminateListener<T, S, E, C>() {
+                @Override
+                public void terminated(TerminateEvent<T, S, E, C> event) {
+                    logger.stopLogging();
+                }
+            });
+        }
     }
     
     private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> orignalData, 

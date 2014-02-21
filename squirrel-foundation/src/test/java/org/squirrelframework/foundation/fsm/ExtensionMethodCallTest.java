@@ -3,6 +3,7 @@ package org.squirrelframework.foundation.fsm;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
@@ -108,9 +109,9 @@ public class ExtensionMethodCallTest {
     @Test
     public void testExtensionMethodCallSequence() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
-        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A");
-        StateMachineLogger logger = new StateMachineLogger(fsm);
-        logger.startLogging();
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A", 
+                StateMachineConfiguration.create().setDebugEnabled(true), 
+                new Object[0]);
         fsm.start();
         fsm.consumeLog();
         fsm.fire("ToB", 91);
@@ -120,6 +121,6 @@ public class ExtensionMethodCallTest {
                 "transitFromAnyToBOnToB.transitFromAToAnyOnToB.transitFromAToB.onToB." +
                 "beforeEntryAny.enterB.entryB.afterEntryAny")));
         fsm.terminate();
-        logger.terminateLogging();
+        assertTrue(fsm.getListenerSize()==2); // start event listener to attach logger and terminate event listener to detach logger
     }
 }
