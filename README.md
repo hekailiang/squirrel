@@ -676,6 +676,13 @@ When creating new state machine instance, user can configure its behavior throug
 	HierachicalStateMachine: Transition from "B2a" to "A1" on "B2A" complete which took 2ms.
 	...
 	```   
+	*Since v0.3.0 state machine logger can be used more easy way by just set StateMachineConfiguration enable debug mode to ture, e.g.*
+	```
+	StateMachine<?,?,?,?> stateMachine = builder.newStateMachine(HState.A,
+    		StateMachineConfiguration.create().setDebugEnabled(true),
+            new Object[0]);
+	```   
+	
 	*StateMachinePerformanceMonitor* can be used to monitor state machine execution performance information, including total transition times count, average transition consumed time and so on, e.g.
 	```java
 	final UntypedStateMachine fsm = builder.newStateMachine("D");
