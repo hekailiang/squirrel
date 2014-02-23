@@ -31,9 +31,9 @@ public interface ActionExecutionService<T extends StateMachine<T, S, E, C>, S, E
 	void execute();
 	
 	/**
-     * Execute all the actions collected on the all buckets.
-     */
-	void executeAll();
+	 * Reset all deferred actions and its count
+	 */
+	void reset();
 	
 	/**
 	 * Set dummy execution true will cause no action being actually invoked when calling {@link ActionExecutionService#execute()}.

@@ -375,6 +375,50 @@ public class UntypedStateMachineTest {
         assertTrue(fsmEx.param2.equals("Hello World"));
     }
     
+    @Test(expected=IllegalStateException.class)
+    public void testInitialStateMachineFailBecauseMissingParam() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
+                UntypedStateMachineSampleEx2.class, Integer.class, String.class);
+        builder.newUntypedStateMachine("a");
+    }
+    
+    @Test
+    public void testActionExecutionPosition() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(
+                UntypedStateMachineSampleEx2.class, Integer.class, String.class);
+        builder.onEntry("b").perform(new UntypedAnonymousAction() {
+            @Override
+            public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
+                System.out.println("Entry B");
+            }
+        });
+        builder.onExit("a").perform(new UntypedAnonymousAction() {
+            @Override
+            public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
+                System.out.println("Exit A");
+            }
+        });
+        builder.transition().from("a").to("b").on(TestEvent.toB).perform(new UntypedAnonymousAction() {
+            @Override
+            public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
+                System.out.println("Transit from A to B");
+            }
+        });
+        UntypedStateMachineSampleEx2 fsm = builder.newUntypedStateMachine("a", 10, "Hello World");
+        final StringBuilder strBuilder = new StringBuilder();
+        fsm.addDeclarativeListener(new Object() {
+            @SuppressWarnings("unused")
+            @OnBeforeActionExecuted
+            public void onBeforeActionExecuted(int[] mOfN) {
+                if(strBuilder.length()>0)
+                    strBuilder.append("-");
+                strBuilder.append(mOfN[0]).append(".").append(mOfN[1]);
+            }
+        });
+        fsm.fire(TestEvent.toB);
+        assertTrue("1.3-2.3-3.3".equals(strBuilder.toString()));
+    }
+    
     @Test
     public void testCreateUntypedStateMachineWithExtraTwoParamsExportAndImport() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(

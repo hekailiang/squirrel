@@ -310,8 +310,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             for(ImmutableTransition<T, S, E, C> t : theFromState.getAllTransitions()) {
                 if(t.isMatch(fromState, toState, event, transit.priority(), transit.when(), transit.type())) {
                     MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)t;
-                    Action<T, S, E, C> methodCallAction = FSM.newMethodCallActionProxy(transit.callMethod(), executionContext);
-                    mutableTransition.addAction(methodCallAction);
+                    String callMethodExpression = transit.callMethod();
+                    if(callMethodExpression!=null && callMethodExpression.length()>0) {
+                        Action<T, S, E, C> methodCallAction = FSM.newMethodCallActionProxy(callMethodExpression, executionContext);
+                        mutableTransition.addAction(methodCallAction);
+                    }
                     return;
                 }
             }

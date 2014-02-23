@@ -36,6 +36,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     
     protected boolean dummyExecution = false;
     
+    private int actionTotalSize = 0;
+    
     @Override
     public void begin(String bucketName) {
         List<ActionContext<T, S, E, C>> actionContext = new ArrayList<ActionContext<T, S, E, C>>();
@@ -47,18 +49,17 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         checkNotNull(action, "Action parameter cannot be null.");
         List<ActionContext<T, S, E, C>> actions = actionBuckets.peekLast().second();
         checkNotNull(actions, "Action bucket currently is empty. Make sure execution service is began.");
-        actions.add(ActionContext.get(action, from, to, event, context, stateMachine));
+        actions.add(ActionContext.get(action, from, to, event, context, stateMachine, ++actionTotalSize));
     }
     
     private void doExecute(String bucketName, List<ActionContext<T, S, E, C>> bucketActions) {
         checkNotNull(bucketActions, "Action bucket cannot be empty when executing.");
         final Map<ActionContext<T, S, E, C>, Future<?>> futures = Maps.newHashMap();
-        final int actionSize = bucketActions.size();
-        for (int i=0; i<actionSize; ++i) {
+        for (int i=0, actionSize = bucketActions.size(); i<actionSize; ++i) {
             final ActionContext<T, S, E, C> actionContext = bucketActions.get(i);
             if(actionContext.action.weight()!=Action.IGNORE_WEIGHT) {
                 try {
-                    fireEvent(BeforeExecActionEventImpl.get(i+1, actionSize, actionContext));
+                    fireEvent(BeforeExecActionEventImpl.get(actionContext.position, actionTotalSize, actionContext));
                     if(dummyExecution) continue;
                     if(actionContext.action.isAsync()) {
                         final boolean isTestEvent = StateMachineContext.isTestEvent();
@@ -117,14 +118,13 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                         new Object[]{actionContext.from, actionContext.to, actionContext.event, 
                         actionContext.context, actionContext.action.name(), e.getMessage()});
                 fireEvent(new ExecActionExceptionEventImpl<T, S, E, C>(te, 
-                        bucketActions.indexOf(actionContext)+1, actionSize, actionContext));
+                        actionContext.position, actionTotalSize, actionContext));
                 throw te;
             }
         }
     }
     
-    @Override
-    public void execute() {
+    private void executeActions() {
         Pair<String, List<ActionContext<T, S, E, C>>> actionBucket = actionBuckets.poll();
         String bucketName = actionBucket.first();
         List<ActionContext<T, S, E, C>> actionContexts = actionBucket.second();
@@ -133,10 +133,20 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
     }
     
     @Override
-    public void executeAll() {
-        while(actionBuckets.size()>0) {
-            execute();
+    public void execute() {
+        try {
+            while(actionBuckets.size()>0) {
+                executeActions();
+            }
+        } finally {
+            reset();
         }
+    }
+    
+    @Override
+    public void reset() {
+        actionBuckets.clear();
+        actionTotalSize = 0;
     }
     
     @Override
@@ -273,19 +283,21 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
         final E event;
         final C context;
         final T fsm;
+        final int position;
         
-        private ActionContext(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
+        private ActionContext(Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine, int position) {
             this.action = action;
             this.from = from;
             this.to = to;
             this.event = event;
             this.context = context;
             this.fsm = stateMachine;
+            this.position = position;
         }
         
         static <T extends StateMachine<T, S, E, C>, S, E, C> ActionContext<T, S, E, C> get(
-                Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine) {
-            return new ActionContext<T, S, E, C>(action, from, to, event, context, stateMachine);
+                Action<T, S, E, C> action, S from, S to, E event, C context, T stateMachine, int position) {
+            return new ActionContext<T, S, E, C>(action, from, to, event, context, stateMachine, position);
         }
 
         void run() {

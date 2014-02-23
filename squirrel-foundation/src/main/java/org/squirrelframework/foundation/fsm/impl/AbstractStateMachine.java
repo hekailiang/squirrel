@@ -184,7 +184,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     fromState, event, context, result, executionService);
             fromState.internalFire(stateContext);
             toStateId = result.getTargetState().getStateId();
-            executionService.executeAll();
+            executionService.execute();
             
             if(result.isAccepted()) {
                 localData.write().lastState(fromStateId);
@@ -506,7 +506,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         entryAll(localData.read().initialRawState(), stateContext);
         ImmutableState<T, S, E, C> currentState = localData.read().currentRawState();
         ImmutableState<T, S, E, C> historyState = currentState.enterByHistory(stateContext);
-        executionService.executeAll();
+        executionService.execute();
         localData.write().currentState(historyState.getStateId());
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
     }
@@ -563,7 +563,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 this, data, data.read().currentRawState(), getTerminateEvent(), 
                 context, null, executor);
         exitAll(data.read().currentRawState(), stateContext);
-        executor.executeAll();
+        executor.execute();
         
         setStatus(StateMachineStatus.TERMINATED);
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
@@ -977,6 +977,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     @SuppressWarnings("unchecked")
     public void addDeclarativeListener(final Object listenerMethodProvider) {
+        // If no declarative listener was register, please make sure your listener was public method
         List<String> visitedMethods = Lists.newArrayList();
         for(final Method listenerMethod : listenerMethodProvider.getClass().getMethods()) {
             String methodSignature = listenerMethod.toString();
