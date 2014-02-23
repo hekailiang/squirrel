@@ -893,7 +893,11 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
 * For discussions or questions please join the [squirrel state machine group][4]
-* For any issue or requirement, please submit an [issue][6]
+* For any issue or requirement, please submit an [issue][6]  
+* **If you use Squirrel State Machine code in your application, I'll be appreciate if you inform the author about it (email: hekailiang@gmail.com) like this**:  
+
+	**Subject:** Squirrel State Machine Usage Notification  		
+	**Text:** I use Squirrel State Machine \<lib\_version\> in \<project\_name\> - http://link\_to\_project. I [allow | don't allow] to mention my project in section "Who using Squirrel State Machine" on GitHub.
 
 [1]: http://en.wikipedia.org/wiki/UML_state_machine
 [2]: http://www.w3.org/TR/scxml/
