@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -109,7 +109,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private E startEvent, finishEvent, terminateEvent;
     
-    private final Lock processingLock = new ReentrantLock();
+    protected final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    
+    protected final Lock writeLock = rwLock.writeLock();
+    
+    protected final Lock readLock = rwLock.readLock();
     
     private MvelScriptManager scriptManager;
     
@@ -221,24 +225,30 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void processEvents() {
         if (isIdle()) {
+            writeLock.lock();
             setStatus(StateMachineStatus.BUSY);
-            processingLock.lock();
             try {
                 Pair<E, C> eventInfo = null;
+                E event = null;
+                C context = null;
                 while ((eventInfo=queuedEvents.poll())!=null) {
                     // response to cancel operation
                     if(Thread.interrupted()) {
                         queuedEvents.clear();
                         break;
                     }
-                    E event = eventInfo.first();
-                    C context = eventInfo.second();
+                    event = eventInfo.first();
+                    context = eventInfo.second();
                     processEvent(event, context, data, executor, isDataIsolateEnabled);
+                }
+                ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
+                if(isAutoTerminateEnabled && rawState.isRootState() && rawState.isFinalState()) {
+                    terminate(context);
                 }
             } finally {
             	if(getStatus()==StateMachineStatus.BUSY)
             	    setStatus(StateMachineStatus.IDLE);
-            	processingLock.unlock();
+            	writeLock.unlock();
             }
         }
     }
@@ -259,11 +269,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
         queuedEvents.add(new Pair<E, C>(event, context));
         processEvents();
-        
-        ImmutableState<T, S, E, C> rawState = getCurrentRawState();
-        if(isAutoTerminateEnabled && rawState.isRootState() && rawState.isFinalState()) {
-            terminate(context);
-        }
     }
     
     private boolean isEntryPoint() {
@@ -403,14 +408,24 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public ImmutableState<T, S, E, C> getCurrentRawState() {
-        ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
-        return resolveRawState(rawState);
+        readLock.lock();
+        try {
+            ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
+            return resolveRawState(rawState);
+        } finally {
+            readLock.unlock();
+        }
     }
     
     @Override
     public ImmutableState<T, S, E, C> getLastRawState() {
-        ImmutableState<T, S, E, C> lastRawState = data.read().lastRawState();
-        return resolveRawState(lastRawState);
+        readLock.lock();
+        try {
+            ImmutableState<T, S, E, C> lastRawState = data.read().lastRawState();
+            return resolveRawState(lastRawState);
+        } finally {
+            readLock.unlock();
+        }
     }
     
     @Override
@@ -420,17 +435,32 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public ImmutableState<T, S, E, C> getRawStateFrom(S stateId) {
-        return data.read().rawStateFrom(stateId);
+        readLock.lock();
+        try {
+            return data.read().rawStateFrom(stateId);
+        } finally {
+            readLock.unlock();
+        }
     }
     
     @Override
     public Collection<ImmutableState<T, S, E, C>> getAllRawStates() {
-        return data.read().rawStates();
+        readLock.lock();
+        try {
+            return data.read().rawStates();
+        } finally {
+            readLock.unlock();
+        }
     }
     
     @Override
     public Collection<S> getAllStates() {
-        return data.read().states();
+        readLock.lock();
+        try {
+            return data.read().states();
+        } finally {
+            readLock.unlock();
+        }
     }
     
     private S resolveState(S state, StateMachineData<T, S, E, C> localData) {
@@ -445,31 +475,31 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S getCurrentState() {
-        processingLock.lock();
+        readLock.lock();
         try {
             return resolveState(data.read().currentState(), data);
         } finally {
-            processingLock.unlock();
+            readLock.unlock();
         }
     }
     
     @Override
     public S getLastState() {
-        processingLock.lock();
+        readLock.lock();
         try {
             return resolveState(data.read().lastState(), data);
         } finally {
-            processingLock.unlock();
+            readLock.unlock();
         }
     }
     
     @Override
     public S getInitialState() {
-        processingLock.lock();
+        readLock.lock();
         try {
             return data.read().initialState();
         } finally {
-            processingLock.unlock();
+            readLock.unlock();
         }
     }
 
@@ -535,21 +565,21 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public S getLastActiveChildStateOf(S parentStateId) {
-        processingLock.lock();
+        readLock.lock();
         try {
             return data.read().lastActiveChildStateOf(parentStateId);
         } finally {
-            processingLock.unlock();
+            readLock.unlock();
         }
     }
     
     @Override
     public List<S> getSubStatesOn(S parentStateId) {
-        processingLock.lock();
+        readLock.lock();
         try {
             return data.read().subStatesOn(parentStateId);
         } finally {
-            processingLock.unlock();
+            readLock.unlock();
         }
     }
     
@@ -591,7 +621,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public void accept(Visitor visitor) {
         visitor.visitOnEntry(this);
-        for(ImmutableState<T, S, E, C> state : data.read().rawStates()) {
+        for(ImmutableState<T, S, E, C> state : getAllRawStates()) {
             if(state.getParentState()==null)
                 state.accept(visitor);
         }
@@ -615,10 +645,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     void setScriptManager(MvelScriptManager scriptManager) {
+        checkState(this.scriptManager==null);
         this.scriptManager = scriptManager;
     }
     
     void setStartEvent(E startEvent) {
+        checkState(this.startEvent==null);
     	this.startEvent=startEvent;
     }
     
@@ -627,6 +659,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     void setTerminateEvent(E terminateEvent) {
+        checkState(this.terminateEvent==null);
     	this.terminateEvent=terminateEvent;
     }
     
@@ -635,6 +668,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     void setFinishEvent(E finishEvent) {
+        checkState(this.finishEvent==null);
     	this.finishEvent=finishEvent;
     }
     
@@ -643,12 +677,13 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     void setExtraParamTypes(Class<?>[] extraParamTypes) {
+        checkState(this.extraParamTypes==null);
         this.extraParamTypes = extraParamTypes;
     }
     
     @Override
     public StateMachineData.Reader<T, S, E, C> dumpSavedData() {
-        processingLock.lock();
+        readLock.lock();
         try {
             StateMachineData<T, S, E, C> savedData = 
                     FSM.newStateMachineData(data.read().orginalStates());
@@ -658,7 +693,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             saveLinkedStateData(data.read(), savedData.write());
             return savedData.read();
         } finally {
-            processingLock.unlock();
+            readLock.unlock();
         }
     }
     
@@ -682,7 +717,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public boolean loadSavedData(StateMachineData.Reader<T, S, E, C> savedData) {
         Preconditions.checkNotNull(savedData, "Saved data cannot be null");
-        if(processingLock.tryLock()) {
+        if(writeLock.tryLock()) {
             try {
                 data.dump(savedData);
                 // process linked state if any
@@ -697,7 +732,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 setStatus(StateMachineStatus.IDLE);
                 return true;
             } finally {
-                processingLock.unlock();
+                writeLock.unlock();
             }
         }
         return false;

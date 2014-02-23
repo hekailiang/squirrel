@@ -1,5 +1,7 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -271,21 +273,25 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public void typeOfStateMachine(Class<? extends T> stateMachineType) {
+        checkState(this.stateMachineType==null);
         this.stateMachineType = stateMachineType;
     }
 
     @Override
     public void typeOfState(Class<S> stateClass) {
+        checkState(this.stateType==null);
         this.stateType = stateClass;
     }
 
     @Override
     public void typeOfEvent(Class<E> eventClass) {
+        checkState(this.eventType==null);
         this.eventType = eventClass;
     }
 
     @Override
     public void typeOfContext(Class<C> contextClass) {
+        checkState(this.contextType==null);
         this.contextType = contextClass;
     }
 
