@@ -21,7 +21,7 @@ Latest Released Version:
 </dependency>
 ``` 
 
-~~Latest Snapshot Version:~~  
+Latest Snapshot Version:  
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
@@ -229,7 +229,7 @@ To create a new state machine instance from state machine builder, you need to p
 	1. ```initialStateId```: When started, the initial state of the state machine.
 	2. ```extraParams```: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
 	
-		a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also defined extra parameters' type when creating the state machine builder. Otherwise, extra parameter will be ignored.  
+		a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also had defined type of extra parameters when creating the state machine builder. Otherwise, extra parameter will be ignored.  
 		b. Extra parameters can be passed into state machine instance in two ways. One is through state machine constructor which means user need to define a constructor with the same parameters' type and order for the state machine instance. Another way is define a method named ```postConstruct``` and also with the same parameters' type and order.  		
 	
 	If no extra parameters need to passed to state machine, user can simply call ```T newStateMachine(S initialStateId)``` to create a new state machine instance.  

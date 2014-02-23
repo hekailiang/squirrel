@@ -374,7 +374,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected void afterTransitionCausedException(S fromState, S toState, E event, C context) {
-         throw getLastException();
+        getLastException().getTargetException().printStackTrace();
+        throw getLastException();
     }
     
     protected void beforeTransitionBegin(S fromState, E event, C context) {

@@ -311,7 +311,13 @@ public class UntypedStateMachineTest {
         assertTrue(fsm2.getExecutorListenerSize()==0);
     }
     
-    
+    @Test
+    public void testIgnoreExtraParam() {
+        fsm = builder.newUntypedStateMachine("a", 1, 2, 3, 4);
+        MockitoAnnotations.initMocks(fsm);
+        fsm.fire(TestEvent.toB);
+        assertTrue(fsm.getCurrentState().equals("b"));
+    }
     
     @Test(expected=RuntimeException.class)
     public void testParamterTypeCheck1() {
