@@ -8,7 +8,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -51,6 +53,7 @@ import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.Visitor;
 import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
+import org.squirrelframework.foundation.fsm.annotation.ListenerOrder;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
 import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
 import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
@@ -1016,7 +1019,29 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public void addDeclarativeListener(final Object listenerMethodProvider) {
         // If no declarative listener was register, please make sure your listener was public method
         List<String> visitedMethods = Lists.newArrayList();
-        for(final Method listenerMethod : listenerMethodProvider.getClass().getMethods()) {
+        Method[] methods = listenerMethodProvider.getClass().getMethods();
+        Arrays.sort(methods, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) {
+                ListenerOrder or1 = o1.getAnnotation(ListenerOrder.class);
+                ListenerOrder or2 = o2.getAnnotation(ListenerOrder.class);
+                // nulls last
+                if (or1 != null && or2 != null) {
+                    return or1.value() - or2.value();
+                } else
+                if (or1 != null && or2 == null) {
+                    return -1;
+                } else
+                if (or1 == null && or2 != null) {
+                    return 1;
+                }
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        
+        for(final Method listenerMethod : methods) {
+            if("--wait-notify-notifyAll-toString-equals-hashCode-getClass--".
+                    indexOf("-"+listenerMethod.getName()+"-")>0) continue;
             String methodSignature = listenerMethod.toString();
             if(visitedMethods.contains(methodSignature)) continue;
             visitedMethods.add(methodSignature);
