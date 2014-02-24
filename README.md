@@ -889,6 +889,8 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 ## Future Plan  
 * **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
 * Support dynamic extend state machine definition  
+* Support state machine definition profile(activate different profile behave differently)  
+
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]

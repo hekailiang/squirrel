@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -104,7 +105,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private volatile StateMachineStatus status = StateMachineStatus.INITIALIZED;
     
-    private LinkedBlockingQueue<Pair<E, C>> queuedEvents = new LinkedBlockingQueue<Pair<E, C>>();
+    private LinkedBlockingDeque<Pair<E, C>> queuedEvents = new LinkedBlockingDeque<Pair<E, C>>();
     
     private LinkedBlockingQueue<Pair<E, C>> queuedTestEvents = new LinkedBlockingQueue<Pair<E, C>>();
     
@@ -256,7 +257,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
-    private void internalFire(E event, C context) {
+    private void internalFire(E event, C context, boolean insertAtFirst) {
         if(getStatus()==StateMachineStatus.INITIALIZED) {
             if(isAutoStartEnabled) {
                 start(context);
@@ -270,7 +271,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(getStatus()==StateMachineStatus.ERROR) {
             throw new IllegalStateException("The state machine is corruptted.");
         }
-        queuedEvents.add(new Pair<E, C>(event, context));
+        if(insertAtFirst) {
+            queuedEvents.addFirst(new Pair<E, C>(event, context));
+        } else {
+            queuedEvents.addLast(new Pair<E, C>(event, context));
+        }
         processEvents();
     }
     
@@ -278,8 +283,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         return StateMachineContext.currentInstance()==null;
     }
     
-    @Override
-    public void fire(E event, C context) {
+    private void fire(E event, C context, boolean insertAtFirst) {
         boolean isEntryPoint = isEntryPoint();
         if(isEntryPoint) {
             StateMachineContext.set(getThis());
@@ -292,7 +296,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             if(StateMachineContext.isTestEvent()) {
                 internalTest(event, context);
             } else {
-                internalFire(event, context);
+                internalFire(event, context, insertAtFirst);
             }
         } finally {
             if(isEntryPoint) {
@@ -302,8 +306,30 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
+    public void fire(E event, C context) {
+        fire(event, context, false);
+    }
+    
+    @Override
+    public void fireImmediate(E event, C context) {
+        fire(event, context, true);
+    }
+    
+    @Override
     public void fire(E event) {
         fire(event, null);
+    }
+    
+    @Override
+    public void fireImmediate(E event) {
+        fireImmediate(event, null);
+    }
+    
+    /**
+     * Clean all queued events
+     */
+    protected void cleanQueuedEvents() {
+        queuedEvents.clear();
     }
     
     private ActionExecutionService<T, S, E, C> getDummyExecutor() {

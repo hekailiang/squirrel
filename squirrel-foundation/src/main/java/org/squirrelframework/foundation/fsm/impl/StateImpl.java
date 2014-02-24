@@ -392,8 +392,6 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 				if(subTransitionResult.getTargetState().isFinalState()) {
 					ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();
     				ImmutableState<T, S, E, C> grandParentState = parentState.getParentState();
-    				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
-                			stateContext.getStateMachine();
     				// When all of the children reach final states, the parallel state itself is considered 
             		// to be in a final state, and a completion event is generated.
             		if(grandParentState!=null && grandParentState.isParallelState()) {
@@ -406,10 +404,9 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             				}
             			}
             			if(allReachedFinal) {
-            				StateContext<T, S, E, C> finishContext = FSM.newStateContext(stateContext.getStateMachine(), 
-            				        stateContext.getStateMachineData(), grandParentState, abstractStateMachine.getFinishEvent(), 
-            				        stateContext.getContext(), currentTransitionResult, stateContext.getExecutor());
-                    		grandParentState.internalFire(finishContext);
+            			    StateMachine<T, S, E, C> stateMachine = stateContext.getStateMachine();
+            			    AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
+            			    stateMachine.fireImmediate(stateMachineImpl.getFinishEvent(), stateContext.getContext());
                     		return;
             			}
     				} 

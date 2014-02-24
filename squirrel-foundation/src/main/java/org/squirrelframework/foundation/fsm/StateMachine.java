@@ -30,6 +30,14 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void fire(E event, C context);
     
     /**
+     * Fires event with context immediately, if current state machine is busy, the next processing event 
+     * is this event.
+     * @param event the event
+     * @param context external context
+     */
+    void fireImmediate(E event, C context);
+    
+    /**
      * Test transition result under circumstance
      * @param event test event
      * @param context text context
@@ -42,6 +50,12 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      * @param event
      */
     void fire(E event);
+    
+    /**
+     * Fire event immediately
+     * @param event
+     */
+    void fireImmediate(E event);
     
     /**
      * Test event

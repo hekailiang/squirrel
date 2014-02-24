@@ -27,6 +27,13 @@ public abstract class AbstractUntypedStateMachine
     }
     
     @Override
+    public void fireImmediate(Object event, Object context) {
+        Preconditions.checkNotNull(event, "Cannot fire null event.");
+        verifyParameterType(event, context);
+        super.fire(event, context);
+    }
+    
+    @Override
     public Object test(Object event, Object context) {
         Preconditions.checkNotNull(event, "Cannot fire null event.");
         verifyParameterType(event, context);
