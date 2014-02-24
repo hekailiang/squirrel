@@ -910,3 +910,7 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 [9]: http://www.uml-diagrams.org/state-machine-diagrams.html
 [10]: http://qt-project.org/doc/qt-4.8/statemachine-api.html
 [11]: https://github.com/hekailiang/squirrel/pull/11
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hekailiang/squirrel/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
