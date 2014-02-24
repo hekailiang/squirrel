@@ -65,7 +65,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 &lt;/dependency&gt;
 </code></pre>
 
-<p><del>Latest Snapshot Version:</del>  </p>
+<p>Latest Snapshot Version:  </p>
 
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
@@ -316,7 +316,7 @@ After user defined state machine behaviour, user could create a new state machin
 <li>
 <p><code>extraParams</code>: Extra parameters that needed for create new state machine instance. Set to <em>"new Object[0]"</em> for no extra parameters needed.  </p>
 
-<p>a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also defined extra parameters' type when creating the state machine builder. Otherwise, extra parameter will be ignored.<br>
+<p>a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also had defined type of extra parameters when creating the state machine builder. Otherwise, extra parameter will be ignored.<br>
 b. Extra parameters can be passed into state machine instance in two ways. One is through state machine constructor which means user need to define a constructor with the same parameters' type and order for the state machine instance. Another way is define a method named <code>postConstruct</code> and also with the same parameters' type and order.          </p>
 </li>
 </ol>
@@ -1059,9 +1059,14 @@ To Integrate with Spring IoC container, basically user can add @Configurable ann
 </li>
 <li>For discussions or questions please join the <a href="http://groups.google.com/group/squirrel-state-machine">squirrel state machine group</a>
 </li>
-<li>For any issue or requirement, please submit an <a href="https://github.com/hekailiang/squirrel/issues?state=open">issue</a>
+<li>For any issue or requirement, please submit an <a href="https://github.com/hekailiang/squirrel/issues?state=open">issue</a><br>
 </li>
-</ul>
+<li>
+<p><strong>If you use Squirrel State Machine code in your application, I'll be appreciate if you inform the author about it (email: <a href="mailto:hekailiang@gmail.com">hekailiang@gmail.com</a>) like this</strong>:  </p>
+
+<p><strong>Subject:</strong> Squirrel State Machine Usage Notification<br><strong>Text:</strong> I use Squirrel State Machine &lt;lib_version&gt; in &lt;project_name&gt; - http://link_to_project. I [allow | don't allow] to mention my project in section "Who using Squirrel State Machine" on GitHub.</p>
+</li>
+</ul><p><a href="https://bitdeli.com/free" title="Bitdeli Badge"><img src="https://d2weczhvl823v0.cloudfront.net/hekailiang/squirrel/trend.png" alt="Bitdeli Badge"></a></p>
       </section>
 
     </div>
