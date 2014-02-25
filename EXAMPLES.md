@@ -27,7 +27,7 @@ Squirrel state machine does not have any heavy dependencies, so basically it sho
 	}
 
 	@Configurable(preConstruction=true)
-	abstract class AbstractStateMachineBean extends AbstractStateMachine<StateMachineBean, MyState, 		MyEvent, MyContext> implements StateMachineBean {
+	abstract class AbstractStateMachineBean extends AbstractStateMachine<StateMachineBean, MyState, MyEvent, MyContext> implements StateMachineBean {
 		@Autowired
   		private ApplicationContext applicationContext;
 		...
