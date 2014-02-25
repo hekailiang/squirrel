@@ -369,7 +369,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     		 * transition in response to the event. (Similarly, one child state may take a transition 
     		 * in response to an event, while another child ignores it.)
     		 */
-    		for(ImmutableState<T, S, E, C> parallelState : getSubStatesOn(this, stateContext.getStateMachineData().read())) {
+    	    List<ImmutableState<T, S, E, C>> parallelStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
+    		for(ImmutableState<T, S, E, C> parallelState : parallelStates) {
     			if(parallelState.isFinalState()) continue;
     			// context isolation as entering a new region
     			TransitionResult<T, S, E, C> subTransitionResult = 
@@ -388,7 +389,6 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     			}
     			stateContext.getStateMachineData().write().subStateFor(getStateId(), 
     			        subTransitionResult.getTargetState().getStateId());
-				// TODO-hhe: fire event to notify listeners???
 				if(subTransitionResult.getTargetState().isFinalState()) {
 					ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();
     				ImmutableState<T, S, E, C> grandParentState = parentState.getParentState();
