@@ -450,6 +450,7 @@ Adding above event listener to state machine sometime annoying to user, and too 
 	```java
 	static class ExternalModule {
         @OnTransitionEnd
+        @ListenerOrder(10) // Since 0.3.1 ListenerOrder can be used to insure listener invoked orderly
         public void transitionEnd() {
             // method annotated with TransitionEnd will be invoked when transition end...
             // the method must be public and return nothing
