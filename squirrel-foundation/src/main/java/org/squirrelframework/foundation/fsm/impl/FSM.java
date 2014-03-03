@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm.impl;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
@@ -19,6 +20,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineData;
 import org.squirrelframework.foundation.fsm.TransitionResult;
 import org.squirrelframework.foundation.fsm.TransitionType;
+import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
@@ -61,6 +63,13 @@ abstract class FSM {
             states.put(stateId, state);
         }
         return state;
+    }
+    
+    static <T extends StateMachine<T, S, E, C>, S, E, C> DeferBoundActionBuilder<T, S, E, C> newDeferBoundActionBuilder(
+            List<DeferBoundActionInfo<T, S, E, C>> deferBoundActionInfoList, ExecutionContext executionContext
+            ) {
+        return SquirrelProvider.getInstance().newInstance( new TypeReference<DeferBoundActionBuilderImpl<T, S, E, C>>(){}, 
+                new Class[]{List.class, ExecutionContext.class}, new Object[]{deferBoundActionInfoList, executionContext} );
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> ExternalTransitionBuilder<T, S, E, C> newExternalTransitionBuilder(

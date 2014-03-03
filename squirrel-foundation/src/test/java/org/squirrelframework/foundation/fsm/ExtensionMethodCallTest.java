@@ -76,6 +76,10 @@ public class ExtensionMethodCallTest {
             logger.append("transitFromAnyToBOnToB");
         }
         
+        protected void transitFromAnyToBOnToBEx(String from, String to, String event) {
+            logger.append("transitFromAnyToBOnToBEx");
+        }
+        
         protected void transitFromAToAnyOnToB(String from, String to, String event) {
             logger.append("transitFromAToAnyOnToB");
         }
@@ -109,6 +113,7 @@ public class ExtensionMethodCallTest {
     @Test
     public void testExtensionMethodCallSequence() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
+        builder.transit().fromAny().to("B").on("ToB").callMethod("transitFromAnyToBOnToBEx");
         UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A", 
                 StateMachineConfiguration.create().setDebugEnabled(true), 
                 new Object[0]);
@@ -117,7 +122,7 @@ public class ExtensionMethodCallTest {
         fsm.fire("ToB", 91);
         assertThat(fsm.consumeLog(), is(equalTo(
                 "beforeExitAny.leftA.exitA.afterExitAny." +
-                "fromAToB.transitFromAToBOnToBWhenExcellect.transitFromAToBOnToB." +
+                "fromAToB.transitFromAnyToBOnToBEx.transitFromAToBOnToBWhenExcellect.transitFromAToBOnToB." +
                 "transitFromAnyToBOnToB.transitFromAToAnyOnToB.transitFromAToB.onToB." +
                 "beforeEntryAny.enterB.entryB.afterEntryAny")));
         fsm.terminate();

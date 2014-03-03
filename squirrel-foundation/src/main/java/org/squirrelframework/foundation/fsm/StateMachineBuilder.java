@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm;
 
+import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
@@ -28,6 +29,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return External transition builder
      */
     ExternalTransitionBuilder<T, S, E, C> transition();
+    
+    DeferBoundActionBuilder<T, S, E, C> transit();
     
     /**
      * Start to build local transition

@@ -49,6 +49,7 @@ import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
+import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.From;
@@ -63,6 +64,7 @@ import org.squirrelframework.foundation.util.ReflectUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateMachineBuilder<T, S, E, C> {
@@ -102,6 +104,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private E startEvent, finishEvent, terminateEvent;
     
     private final ExecutionContext executionContext;
+    
+    private final List<DeferBoundActionInfo<T, S, E, C>> deferBoundActionInfoList = Lists.newArrayList();
     
     private boolean isScanAnnotations = true;
     
@@ -220,6 +224,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public ExternalTransitionBuilder<T, S, E, C> transition() {
         checkState();
         return externalTransition(TransitionPriority.NORMAL);
+    }
+    
+    @Override
+    public DeferBoundActionBuilder<T, S, E, C> transit() {
+        checkState();
+        return FSM.newDeferBoundActionBuilder(deferBoundActionInfoList, executionContext);
     }
     
     @Override
@@ -431,6 +441,29 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
+    private void installDeferBoundActions() {
+        if(deferBoundActionInfoList.isEmpty()) 
+            return;
+        for(DeferBoundActionInfo<T, S, E, C> deferBoundActionInfo : deferBoundActionInfoList) {
+            installDeferBoundAction(deferBoundActionInfo);
+        }
+    }
+    
+    private void installDeferBoundAction(DeferBoundActionInfo<T, S, E, C> deferBoundActionInfo) {
+        for(MutableState<T, S, E, C> mutableState : states.values()) {
+            if(!deferBoundActionInfo.isFromStateMatch(mutableState.getStateId())) {
+                continue;
+            }
+            for(ImmutableTransition<T, S, E, C> transition : mutableState.getAllTransitions()) {
+                if(deferBoundActionInfo.isToStateMatch(transition.getTargetState().getStateId())
+                        && deferBoundActionInfo.isEventStateMatch(transition.getEvent())) {
+                    MutableTransition<T, S, E, C> mutableTransition = (MutableTransition<T, S, E, C>)transition;
+                    mutableTransition.addActions(deferBoundActionInfo.getActions());
+                }
+            }
+        }
+    }
+    
     private synchronized void prepare() {
         if(prepared) return;
         
@@ -439,6 +472,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             walkThroughStateMachineClass(new DeclareStateFunction());
             // 2. install all the declare transitions
             walkThroughStateMachineClass(new DeclareTransitionFunction());
+            // 2.5 install all the defer bound actions
+            installDeferBoundActions();
         }
         // 3. install all the extension method call when state machine builder freeze
         installExtensionMethods();
