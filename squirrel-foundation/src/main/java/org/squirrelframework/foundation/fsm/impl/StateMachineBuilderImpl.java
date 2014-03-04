@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -296,9 +297,50 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
+    private boolean isDeclareDeferBoundAction(Transit transit) {
+        return "*".equals(transit.from()) || "*".equals(transit.to()) || "*".equals(transit.on());
+    }
+    
+    private void buildDeferBoundActionAnnotation(Transit transit) {
+        S from = "*".equals(transit.from()) ? null : 
+            stateConverter.convertFromString(parseStateId(transit.from()));
+        S to  = "*".equals(transit.to()) ? null :
+            stateConverter.convertFromString(parseStateId(transit.to()));
+        E event = "*".equals(transit.on()) ? null :
+            eventConverter.convertFromString(transit.on());
+        DeferBoundActionInfo<T, S, E, C> deferBoundActionInfo = 
+                new DeferBoundActionInfo<T, S, E, C>(from, to, event);
+        if(!transit.callMethod().isEmpty()) {
+            Action<T, S, E, C> action = FSM.newMethodCallActionProxy(transit.callMethod(), executionContext);
+            if(!transit.whenMvel().isEmpty()) {
+                final String mvelConditionScript = transit.whenMvel();
+                final Action<T, S, E, C> delegator = action;
+                action = new AnonymousAction<T, S, E, C>() {
+                    Condition<C> condition = FSM.newMvelCondition(mvelConditionScript, scriptManager);
+                    @Override
+                    public void execute(S from, S to, E event, C context, T stateMachine) {
+                        if(condition.isSatisfied(context)) {
+                            delegator.execute(from, to, event, context, stateMachine);
+                        }
+                    }
+                };
+            }
+            deferBoundActionInfo.setActions(Collections.singletonList(action));
+        }
+        
+        deferBoundActionInfoList.add(deferBoundActionInfo);
+        return;
+    }
+    
     @SuppressWarnings("unchecked")
     private void buildDeclareTransition(Transit transit) {
         if(transit==null) return;
+        
+        // if not explicit specify 'from', 'to' and 'event', it is declaring a defer bound action.
+        if(isDeclareDeferBoundAction(transit)) {
+            buildDeferBoundActionAnnotation(transit);
+            return;
+        }
         
         Preconditions.checkState(stateConverter!=null, "Do not register state converter");
         Preconditions.checkState(eventConverter!=null, "Do not register event converter");

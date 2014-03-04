@@ -28,6 +28,8 @@ public class ExtensionMethodCallTest {
         @Transit(from="B", to="C", on="StillToC", callMethod="fromBToCOnStillToC"),
         @Transit(from="B", to="D", on="ToD", callMethod="fromBToD"),
         @Transit(from="B", to="E", on="ToE", callMethod="fromBToE"),
+        @Transit(from="B", to="E", on="*", callMethod="fromBToEOnAny"),
+        @Transit(from="B", to="E", on="*", whenMvel="Excellect:::(context>=90)", callMethod="fromBToEOnAnyWithCondition")
     })
     @States({
         @State(name="A", exitCallMethod="leftA"), 
@@ -138,6 +140,14 @@ public class ExtensionMethodCallTest {
             logger.append("fromBToE");
         }
         
+        protected void fromBToEOnAny(String from, String to, String event) {
+            logger.append("fromBToEOnAny");
+        }
+        
+        protected void fromBToEOnAnyWithCondition(String from, String to, String event) {
+            logger.append("fromBToEOnAnyWithCondition");
+        }
+        
         @Override
         protected void beforeActionInvoked(Object fromState, Object toState, Object event, Object context) {
             addOptionalDot();
@@ -230,6 +240,30 @@ public class ExtensionMethodCallTest {
         fsm.fire("ToD");
         assertThat(fsm.consumeLog(), is(equalTo(
                 "beforeExitAny.afterExitAny.fromBToD.fromBToAny.beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
+    }
+    
+    @Test
+    public void testDeferBoundActionAnnotation() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("B");
+        fsm.start(); 
+        fsm.consumeLog();
+        fsm.fire("ToE");
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.afterExitAny.fromBToE.fromBToEOnAny..beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
+    }
+    
+    @Test
+    public void testDeferBoundActionAnnotation2() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("B");
+        fsm.start(); 
+        fsm.consumeLog();
+        fsm.fire("ToE", 91);
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.afterExitAny.fromBToE.fromBToEOnAny.fromBToEOnAnyWithCondition.beforeEntryAny.afterEntryAny")));
         fsm.terminate();
     }
 }
