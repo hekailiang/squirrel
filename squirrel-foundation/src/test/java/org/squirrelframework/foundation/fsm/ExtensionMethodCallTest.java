@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -18,6 +19,15 @@ public class ExtensionMethodCallTest {
     
     @Transitions({
         @Transit(from="A", to="B", on="ToB", callMethod="fromAToB", whenMvel="Excellect:::(context>=90)"),
+        
+        @Transit(from="A", to="C", on="ToC", callMethod="fromAToC"),
+        @Transit(from="A", to="D", on="ToD", callMethod="fromAToD"),
+        @Transit(from="A", to="E", on="ToE", callMethod="fromAToE"),
+        
+        @Transit(from="B", to="C", on="ToC", callMethod="fromBToCOnToC"),
+        @Transit(from="B", to="C", on="StillToC", callMethod="fromBToCOnStillToC"),
+        @Transit(from="B", to="D", on="ToD", callMethod="fromBToD"),
+        @Transit(from="B", to="E", on="ToE", callMethod="fromBToE"),
     })
     @States({
         @State(name="A", exitCallMethod="leftA"), 
@@ -92,6 +102,42 @@ public class ExtensionMethodCallTest {
             logger.append("onToB");
         }
         
+        protected void fromAToC(String from, String to, String event) {
+            logger.append("fromAToC");
+        }
+        
+        protected void fromAnyToC(String from, String to, String event) {
+            logger.append("fromAnyToC");
+        }
+        
+        protected void fromAToD(String from, String to, String event) {
+            logger.append("fromAToD");
+        }
+        
+        protected void fromAToE(String from, String to, String event) {
+            logger.append("fromAToE");
+        }
+        
+        protected void fromBToAny(String from, String to, String event) {
+            logger.append("fromBToAny");
+        }
+        
+        protected void fromBToCOnToC(String from, String to, String event) {
+            logger.append("fromBToCOnToC");
+        }
+        
+        protected void fromBToCOnStillToC(String from, String to, String event) {
+            logger.append("fromBToCOnStillToC");
+        }
+        
+        protected void fromBToD(String from, String to, String event) {
+            logger.append("fromBToD");
+        }
+        
+        protected void fromBToE(String from, String to, String event) {
+            logger.append("fromBToE");
+        }
+        
         @Override
         protected void beforeActionInvoked(Object fromState, Object toState, Object event, Object context) {
             addOptionalDot();
@@ -127,5 +173,63 @@ public class ExtensionMethodCallTest {
                 "beforeEntryAny.enterB.entryB.afterEntryAny")));
         fsm.terminate();
         assertTrue(fsm.getListenerSize()==2); // start event listener to attach logger and terminate event listener to detach logger
+    }
+    
+    @Test
+    public void testDeferBoundActionFromAny() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
+        builder.transit().fromAny().to("C").on("ToC").callMethod("fromAnyToC");
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A");
+        assertNull(fsm.getCurrentState());
+        assertNull(fsm.getCurrentRawState());
+        fsm.start();
+        fsm.consumeLog();
+        fsm.fire("ToC");
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.leftA.exitA.afterExitAny.fromAToC.fromAnyToC.beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
+        
+        fsm.start(); // start again
+        fsm.fire("ToB", 91);
+        fsm.consumeLog();
+        fsm.fire("ToC");
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.afterExitAny.fromBToCOnToC.fromAnyToC.beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
+    }
+    
+    @Test
+    public void testDeferBoundActionToAny() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
+        builder.transit().from("B").toAny().on("ToC").callMethod("fromBToAny");
+        
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("B");
+        fsm.start(); 
+        fsm.consumeLog();
+        fsm.fire("ToC");
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.afterExitAny.fromBToCOnToC.fromBToAny.beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
+        
+        fsm.start(); 
+        fsm.consumeLog();
+        fsm.fire("ToD");
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.afterExitAny.fromBToD.beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
+    }
+    
+    @Test
+    public void testDeferBoundActionOnAny() {
+        UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
+        builder.transit().from("B").toAny().onAny().callMethod("fromBToAny");
+        
+        UntypedStateMachineBase fsm = builder.newUntypedStateMachine("B");
+        fsm.start(); 
+        fsm.consumeLog();
+        fsm.fire("ToD");
+        assertThat(fsm.consumeLog(), is(equalTo(
+                "beforeExitAny.afterExitAny.fromBToD.fromBToAny.beforeEntryAny.afterEntryAny")));
+        fsm.terminate();
     }
 }

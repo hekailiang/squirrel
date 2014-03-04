@@ -61,7 +61,7 @@ public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, 
     }
 
     @Override
-    public When<T, S, E, C> onAny(E event) {
+    public When<T, S, E, C> onAny() {
         deferBoundActionInfo = new DeferBoundActionInfo<T, S, E, C>(from, to, null);
         deferBoundActionInfoList.add(deferBoundActionInfo);
         return this;
