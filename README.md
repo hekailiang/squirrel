@@ -173,6 +173,21 @@ At now you may have many questions about the sample code, please be patient. The
     ```
     Those method conventions listed above also provided **AOP-like** functionalities, which provided build-in flexible extension capability for squirrel state machine at any granularity.  
     For more information, please refer to test case "*org.squirrelframework.foundation.fsm.ExtensionMethodCallTest*".  
+    Since 0.3.1, there is another way to define these extension methods which is through fluent API (thanks suggestion from [vittali](https://github.com/vittali)), e.g.
+    ```java
+    // since 0.3.1
+    builder.transit().fromAny().to("C").on("ToC").callMethod("fromAnyToC");
+    builder.transit().from("B").toAny().on("ToC").callMethod("fromBToAny");
+   	builder.transit().from("B").toAny().onAny().callMethod("fromBToAny");
+    ```  
+    Or through declarative annotation, e.g.
+    ```java
+    // since 0.3.1
+    @Transitions({
+    	 @Transit(from="B", to="E", on="*",   callMethod="fromBToEOnAny"),
+         @Transit(from="*", to="E", on="ToE", callMethod="fromAnyToEOnToE")
+    })
+    ```
 * **Declarative Annotation**  
 A declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
