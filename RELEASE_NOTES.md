@@ -1,3 +1,11 @@
+*Version 0.3.1 - 2014-3-4*  
+---
+1. Fix action execution position bug  
+2. Support custom listener order and fix listener order caused issue  
+3. Support fire event immediately, StateMachine.fireImmediate  
+4. Fix state machine initial get current state issue  
+5. Support method extension from fluent API and annotation  
+
 *Version 0.3.0 - 2014-2-21*
 ---
 1. **Remove** deprecated state machine intercepter classes  

@@ -17,16 +17,16 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.0</version>
+  	<version>0.3.1</version>
 </dependency>
 ``` 
 
-Latest Snapshot Version:  
+~~Latest Snapshot Version:~~  
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.1-SNAPSHOT</version>
+  	<version>0.3.2-SNAPSHOT</version>
 </dependency>
 ``` 
 
