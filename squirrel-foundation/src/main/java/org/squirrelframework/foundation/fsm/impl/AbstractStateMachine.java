@@ -141,7 +141,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             StateMachineConfiguration configuration, Runnable cb) {
         data = FSM.newStateMachineData(states);
         data.write().initalState(intialStateId);
-        data.write().currentState(intialStateId);
+        data.write().currentState(null);
         data.write().identifier(configuration.getIdProvider().get());
         
         // retrieve options value from state machine configuration
@@ -395,7 +395,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public boolean canAccept(E event) {
-        return getCurrentRawState().getAcceptableEvents().contains(event);
+        ImmutableState<T, S, E, C> testRawState = getCurrentRawState();
+        if(testRawState==null) {
+            if(isAutoStartEnabled) {
+                testRawState = getInitialRawState();
+            } else {
+                return false;
+            }
+        }
+        return testRawState.getAcceptableEvents().contains(event);
     }
     
     protected boolean isIdle() {
@@ -560,13 +568,12 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private void internalStart(C context, StateMachineData<T, S, E, C> localData,
             ActionExecutionService<T, S, E, C> executionService) {
+        ImmutableState<T, S, E, C> initialRawState = localData.read().initialRawState();
         StateContext<T, S, E, C> stateContext = FSM.newStateContext(
-                this, localData, localData.read().currentRawState(), getStartEvent(), 
-                context, null, executionService);
+                this, localData, initialRawState, getStartEvent(), context, null, executionService);
         
-        entryAll(localData.read().initialRawState(), stateContext);
-        ImmutableState<T, S, E, C> currentState = localData.read().currentRawState();
-        ImmutableState<T, S, E, C> historyState = currentState.enterByHistory(stateContext);
+        entryAll(initialRawState, stateContext);
+        ImmutableState<T, S, E, C> historyState = initialRawState.enterByHistory(stateContext);
         executionService.execute();
         localData.write().currentState(historyState.getStateId());
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));

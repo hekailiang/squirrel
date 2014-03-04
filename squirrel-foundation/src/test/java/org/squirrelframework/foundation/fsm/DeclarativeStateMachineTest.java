@@ -3,6 +3,7 @@ package org.squirrelframework.foundation.fsm;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -247,7 +248,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     @Test
     public void testExternalTransition() {
         InOrder callSequence = Mockito.inOrder(monitor);
-        assertThat(stateMachine.getCurrentState(), equalTo(TestState.A));
+        assertNull(stateMachine.getCurrentState());
         stateMachine.fire(TestEvent.ToB, null);
         callSequence.verify(monitor, Mockito.times(1)).beforeTransitionBegin(
                 TestState.A, TestEvent.ToB, null);
@@ -345,7 +346,7 @@ public class DeclarativeStateMachineTest extends AbstractStateMachineTest {
     @Test
     public void testTransitionWithException() {
         InOrder callSequence = Mockito.inOrder(monitor);
-        assertThat(stateMachine.getCurrentRawState().getAcceptableEvents(), 
+        assertThat(stateMachine.getInitialRawState().getAcceptableEvents(), 
                 containsInAnyOrder(TestEvent.InternalA, TestEvent.ToB));
         stateMachine.fire(TestEvent.ToB, null);
         stateMachine.fire(TestEvent.ToC, null);

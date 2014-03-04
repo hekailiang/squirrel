@@ -1,5 +1,6 @@
 package org.squirrelframework.foundation.fsm;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,7 +89,8 @@ public class UntypedStateMachineTest {
         UntypedStateMachineSample mockedObject = fsm.mockedObject();
         InOrder callSequence = Mockito.inOrder(mockedObject);
         
-        assertTrue(fsm.getCurrentState().equals("a"));
+        assertTrue(fsm.getInitialState().equals("a"));
+        assertNull(fsm.getCurrentState());
         fsm.fire(TestEvent.toB, 1);
         assertTrue(fsm.getCurrentState().equals("b"));
         fsm.fire(TestEvent.toC, 2);

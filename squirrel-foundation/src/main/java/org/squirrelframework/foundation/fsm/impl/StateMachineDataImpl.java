@@ -231,7 +231,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public ImmutableState<T, S, E, C> currentRawState() {
-        return rawStateFrom(currentState);
+        return currentState!=null ? rawStateFrom(currentState) : null;
     }
 
     @Override
