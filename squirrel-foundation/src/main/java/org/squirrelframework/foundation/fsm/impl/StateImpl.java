@@ -429,6 +429,14 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             				abstractStateMachine.getFinishEvent(), stateContext.getContext(), 
             				currentTransitionResult, stateContext.getExecutor());
             		parentState.internalFire(finishContext);
+            		
+//            		if(!parentState.isRegion()) {
+//                        currentTransitionResult.setTargetState(parentState);
+//                        StateMachine<T, S, E, C> stateMachine = stateContext.getStateMachine();
+//                        AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)
+//                                stateContext.getStateMachine();
+//                        stateMachine.fireImmediate(stateMachineImpl.getFinishEvent(), stateContext.getContext());
+//                    }
         		}
         		return;
         	}
