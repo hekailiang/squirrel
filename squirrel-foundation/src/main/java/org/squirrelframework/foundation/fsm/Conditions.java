@@ -9,6 +9,14 @@ import java.util.List;
  */
 public class Conditions {
     
+    public static <C> boolean isSatified(Condition<C> condition, C context) {
+        return condition!=null && context!=null && condition.isSatisfied(context);
+    }
+    
+    public static <C> boolean isNotSatified(Condition<C> condition, C context) {
+        return condition==null || context==null || !condition.isSatisfied(context);
+    }
+    
     /**
      * Renamed to AnonymousCondition
      */

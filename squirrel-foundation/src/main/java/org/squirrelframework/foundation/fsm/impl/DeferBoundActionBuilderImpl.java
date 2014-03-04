@@ -5,27 +5,38 @@ import java.util.List;
 
 import org.squirrelframework.foundation.component.SquirrelComponent;
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.Condition;
+import org.squirrelframework.foundation.fsm.Conditions;
+import org.squirrelframework.foundation.fsm.ActionWrapper;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
 import org.squirrelframework.foundation.fsm.builder.DeferBoundActionFrom;
 import org.squirrelframework.foundation.fsm.builder.DeferBoundActionTo;
+import org.squirrelframework.foundation.fsm.builder.On;
 import org.squirrelframework.foundation.fsm.builder.When;
 
-public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> 
-        implements DeferBoundActionBuilder<T, S, E, C>, DeferBoundActionFrom<T, S, E, C>, 
-        DeferBoundActionTo<T, S, E, C>, When<T, S, E, C>, SquirrelComponent {
-    
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
+public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C>
+        implements DeferBoundActionBuilder<T, S, E, C>,
+        DeferBoundActionFrom<T, S, E, C>, DeferBoundActionTo<T, S, E, C>,
+        On<T, S, E, C>, SquirrelComponent {
+
     private final List<DeferBoundActionInfo<T, S, E, C>> deferBoundActionInfoList;
-    
+
     private final ExecutionContext executionContext;
-    
+
     private S from;
-    
+
     private S to;
-    
+
     private DeferBoundActionInfo<T, S, E, C> deferBoundActionInfo;
-    
-    DeferBoundActionBuilderImpl(List<DeferBoundActionInfo<T, S, E, C>> deferBoundActionInfoList, 
+
+    private Condition<C> condition;
+
+    DeferBoundActionBuilderImpl(
+            List<DeferBoundActionInfo<T, S, E, C>> deferBoundActionInfoList,
             ExecutionContext executionContext) {
         this.deferBoundActionInfoList = deferBoundActionInfoList;
         this.executionContext = executionContext;
@@ -33,36 +44,56 @@ public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, 
 
     @Override
     public void perform(Action<T, S, E, C> action) {
-        deferBoundActionInfo.setActions(Collections.singletonList(action));
+        if (condition == null) {
+            deferBoundActionInfo.setActions(Collections.singletonList(action));
+        } else {
+            deferBoundActionInfo.setActions(Collections
+                    .singletonList(warpConditionalAction(action)));
+        }
     }
 
     @Override
     public void perform(List<Action<T, S, E, C>> actions) {
-        deferBoundActionInfo.setActions(actions);
+        if (condition == null) {
+            deferBoundActionInfo.setActions(actions);
+        } else {
+            List<Action<T, S, E, C>> wrapActions = Lists.transform(actions,
+                    new Function<Action<T, S, E, C>, Action<T, S, E, C>>() {
+                        @Override
+                        public Action<T, S, E, C> apply(Action<T, S, E, C> action) {
+                            return warpConditionalAction(action);
+                        }
+                    });
+            deferBoundActionInfo.setActions(wrapActions);
+        }
     }
 
     @Override
     public void evalMvel(String expression) {
-        Action<T, S, E, C> action = FSM.newMvelAction(expression, executionContext);
-        deferBoundActionInfo.setActions(Collections.singletonList(action));
+        Action<T, S, E, C> action = FSM.newMvelAction(expression,
+                executionContext);
+        perform(action);
     }
 
     @Override
     public void callMethod(String methodName) {
-        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName, executionContext);
-        deferBoundActionInfo.setActions(Collections.singletonList(action));
+        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName,
+                executionContext);
+        perform(action);
     }
 
     @Override
-    public When<T, S, E, C> on(E event) {
-        deferBoundActionInfo = new DeferBoundActionInfo<T, S, E, C>(from, to, event);
+    public On<T, S, E, C> on(E event) {
+        deferBoundActionInfo = new DeferBoundActionInfo<T, S, E, C>(from, to,
+                event);
         deferBoundActionInfoList.add(deferBoundActionInfo);
         return this;
     }
 
     @Override
-    public When<T, S, E, C> onAny() {
-        deferBoundActionInfo = new DeferBoundActionInfo<T, S, E, C>(from, to, null);
+    public On<T, S, E, C> onAny() {
+        deferBoundActionInfo = new DeferBoundActionInfo<T, S, E, C>(from, to,
+                null);
         deferBoundActionInfoList.add(deferBoundActionInfo);
         return this;
     }
@@ -89,4 +120,27 @@ public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, 
         return this;
     }
 
+    @Override
+    public When<T, S, E, C> when(Condition<C> condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    @Override
+    public When<T, S, E, C> whenMvel(String expression) {
+        condition = FSM.newMvelCondition(expression,
+                executionContext.getScriptManager());
+        return this;
+    }
+
+    private Action<T, S, E, C> warpConditionalAction(Action<T, S, E, C> action) {
+        return new ActionWrapper<T, S, E, C>(action) {
+            @Override
+            public void execute(S from, S to, E event, C context, T stateMachine) {
+                if (Conditions.isSatified(condition, context)) {
+                    super.execute(from, to, event, context, stateMachine);
+                }
+            }
+        };
+    }
 }

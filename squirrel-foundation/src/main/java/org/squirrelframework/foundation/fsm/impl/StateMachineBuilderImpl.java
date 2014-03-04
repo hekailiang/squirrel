@@ -21,6 +21,7 @@ import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.ActionWrapper;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.Condition;
 import org.squirrelframework.foundation.fsm.Conditions;
@@ -297,11 +298,22 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
     }
     
-    private boolean isDeclareDeferBoundAction(Transit transit) {
+    private boolean isDeferBoundAction(Transit transit) {
         return "*".equals(transit.from()) || "*".equals(transit.to()) || "*".equals(transit.on());
     }
     
-    private void buildDeferBoundActionAnnotation(Transit transit) {
+    private Action<T, S, E, C> warpConditionalAction(Action<T, S, E, C> action, final Condition<C> condition) {
+        return new ActionWrapper<T, S, E, C>(action) {
+            @Override
+            public void execute(S from, S to, E event, C context, T stateMachine) {
+                if(condition.isSatisfied(context)) {
+                    super.execute(from, to, event, context, stateMachine);
+                }
+            }
+        };
+    }
+    
+    private void buildDeferBoundAction(Transit transit) {
         S from = "*".equals(transit.from()) ? null : 
             stateConverter.convertFromString(parseStateId(transit.from()));
         S to  = "*".equals(transit.to()) ? null :
@@ -313,17 +325,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         if(!transit.callMethod().isEmpty()) {
             Action<T, S, E, C> action = FSM.newMethodCallActionProxy(transit.callMethod(), executionContext);
             if(!transit.whenMvel().isEmpty()) {
-                final String mvelConditionScript = transit.whenMvel();
-                final Action<T, S, E, C> delegator = action;
-                action = new AnonymousAction<T, S, E, C>() {
-                    Condition<C> condition = FSM.newMvelCondition(mvelConditionScript, scriptManager);
-                    @Override
-                    public void execute(S from, S to, E event, C context, T stateMachine) {
-                        if(condition.isSatisfied(context)) {
-                            delegator.execute(from, to, event, context, stateMachine);
-                        }
-                    }
-                };
+                final Condition<C> condition = FSM.newMvelCondition(transit.whenMvel(), scriptManager);
+                action = warpConditionalAction(action, condition);
+            }
+            if(transit.when()!=Conditions.Always.class) {
+                @SuppressWarnings("unchecked")
+                final Condition<C> condition = ReflectUtils.newInstance(transit.when());
+                action = warpConditionalAction(action, condition);
             }
             deferBoundActionInfo.setActions(Collections.singletonList(action));
         }
@@ -336,14 +344,15 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private void buildDeclareTransition(Transit transit) {
         if(transit==null) return;
         
+        Preconditions.checkState(stateConverter!=null, "Do not register state converter");
+        Preconditions.checkState(eventConverter!=null, "Do not register event converter");
+        
         // if not explicit specify 'from', 'to' and 'event', it is declaring a defer bound action.
-        if(isDeclareDeferBoundAction(transit)) {
-            buildDeferBoundActionAnnotation(transit);
+        if(isDeferBoundAction(transit)) {
+            buildDeferBoundAction(transit);
             return;
         }
         
-        Preconditions.checkState(stateConverter!=null, "Do not register state converter");
-        Preconditions.checkState(eventConverter!=null, "Do not register event converter");
         Preconditions.checkArgument(isInstantiableType(transit.when()), 
                 "Condition \'when\' should be concrete class or static inner class.");
         Preconditions.checkArgument(

@@ -9,8 +9,8 @@ public interface DeferBoundActionTo<T extends StateMachine<T, S, E, C>, S, E, C>
      * @param event transition event
      * @return On clause builder
      */
-    When<T, S, E, C> on(E event);
+    On<T, S, E, C> on(E event);
     
-    When<T, S, E, C> onAny();
+    On<T, S, E, C> onAny();
     
 }
