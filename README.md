@@ -770,7 +770,8 @@ See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_N
 ## Future Plan  
 * **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
 * Support dynamic extend state machine definition  
-* Support state machine definition profile(activate different profile behave differently) 
+* Support state machine definition profile(activate different profile behave differently)  
+* Support custom state plugin mechanism  
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
