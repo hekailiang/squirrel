@@ -299,7 +299,7 @@ public class HierarchicalStateMachineTest {
 		builder.defineFinishEvent(HEvent.Finish);
 		
 		stateMachine = builder.newStateMachine(HState.A,
-		        StateMachineConfiguration.create().setDebugEnabled(true),
+		        StateMachineConfiguration.create().enableDebugMode(true),
 		        new Object[0]);
 	}
 	

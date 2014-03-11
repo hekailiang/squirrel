@@ -127,7 +127,7 @@ public class WeightedActionTest {
     public void setup() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineExt.class);
         fsm = builder.newUntypedStateMachine("A", 
-                StateMachineConfiguration.create().setDebugEnabled(true),
+                StateMachineConfiguration.create().enableDebugMode(true),
                 new Object[0]);
     }
     

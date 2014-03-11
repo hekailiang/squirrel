@@ -31,7 +31,9 @@ public class StateMachineConfiguration implements SquirrelSingleton {
     
     private boolean isDataIsolateEnabled = false;
     
-    private boolean isDebugEnabled= false;
+    private boolean isDebugModeEnabled = false;
+    
+    private boolean isDelegatorModeEnabled = false;
     
     private IdProvider idProvider = IdProvider.Default.getInstance();
     
@@ -70,13 +72,39 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         this.idProvider = idProvider;
         return this;
     }
-
+    
+    /**
+     * Replaced by isDebugModeEnabled
+     */
+    @Deprecated
     public boolean isDebugEnabled() {
-        return isDebugEnabled;
+        return isDebugModeEnabled;
+    }
+    
+    public boolean isDebugModeEnabled() {
+        return isDebugModeEnabled;
+    }
+    
+    /**
+     * Replaced by enableDebugMode
+     */
+    @Deprecated
+    public StateMachineConfiguration setDebugEnabled(boolean isDebugEnabled) {
+        this.isDebugModeEnabled = isDebugEnabled;
+        return this;
+    }
+    
+    public StateMachineConfiguration enableDebugMode(boolean isDebugModeEnabled) {
+        this.isDebugModeEnabled = isDebugModeEnabled;
+        return this;
+    }
+    
+    public boolean isDelegatorModeEnabled() {
+        return isDelegatorModeEnabled;
     }
 
-    public StateMachineConfiguration setDebugEnabled(boolean isDebugEnabled) {
-        this.isDebugEnabled = isDebugEnabled;
+    public StateMachineConfiguration enableDelegatorMode(boolean isDelegatorModeEnabled) {
+        this.isDelegatorModeEnabled = isDelegatorModeEnabled;
         return this;
     }
 }

@@ -171,7 +171,7 @@ public class ExtensionMethodCallTest {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineBase.class);
         builder.transit().fromAny().to("B").on("ToB").callMethod("transitFromAnyToBOnToBEx");
         UntypedStateMachineBase fsm = builder.newUntypedStateMachine("A", 
-                StateMachineConfiguration.create().setDebugEnabled(true), 
+                StateMachineConfiguration.create().enableDebugMode(true), 
                 new Object[0]);
         fsm.start();
         fsm.consumeLog();

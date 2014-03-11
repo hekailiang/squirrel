@@ -126,12 +126,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean isAutoTerminateEnabled = true;
     
+    private boolean isDelgatorModeEnabled = false;
+    
     @SuppressWarnings("unused")
     private long transitionTimeout = -1;
     
     private boolean isDataIsolateEnabled = false;
     
-    private boolean isDebugEnabled = false;
+    private boolean isDebugModeEnabled = false;
     
     private Class<?>[] extraParamTypes;
     
@@ -148,14 +150,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isAutoStartEnabled = configuration.isAutoStartEnabled();
         this.isAutoTerminateEnabled = configuration.isAutoTerminateEnabled();
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
-        this.isDebugEnabled = configuration.isDebugEnabled();
+        this.isDebugModeEnabled = configuration.isDebugModeEnabled();
+        this.isDelgatorModeEnabled = configuration.isDelegatorModeEnabled();
         cb.run();
         
         prepare();
     }
     
     protected void prepare() {
-        if(isDebugEnabled) {
+        if(isDebugModeEnabled) {
             final StateMachineLogger logger = new StateMachineLogger(this);
             addStartListener(new StartListener<T, S, E, C>() {
                 @Override
@@ -287,7 +290,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         boolean isEntryPoint = isEntryPoint();
         if(isEntryPoint) {
             StateMachineContext.set(getThis());
-        } else if(StateMachineContext.currentInstance()!=this) {
+        } else if(isDelgatorModeEnabled && StateMachineContext.currentInstance()!=this) {
             T currentInstance = StateMachineContext.currentInstance();
             currentInstance.fire(event, context);
             return;
