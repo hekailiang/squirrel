@@ -1,3 +1,7 @@
+*Version 0.3.1 - 2014-3-12* 
+---
+1. Fixed [Issue 14](https://github.com/hekailiang/squirrel/issues/14) - Event fired against wrong state machine when FSMs collaborate   
+
 *Version 0.3.1 - 2014-3-4*  
 ---
 1. Fix action execution position bug  
