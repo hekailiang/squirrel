@@ -21,7 +21,7 @@ Latest Released Version:
 </dependency>
 ``` 
 
-~~Latest Snapshot Version:~~  
+Latest Snapshot Version:  
 ```maven
 <dependency>
 	<groupId>org.squirrelframework</groupId>
@@ -758,8 +758,11 @@ If no ScheduledExecutorService instance was registered, *SquirrelConfiguration* 
 	A linked state is semantically equivalent to a composite state. The regions of the submachine state machine are the regions of the composite state. The entry, exit, and behavior actions and internal transitions are defined as part of the state. Submachine state is a decomposition mechanism that allows factoring of common behaviors and their reuse.  
 	The linked state can be defined by following sample code.
 	```java
-	builderOfTestStateMachine.definedLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1);
+	builderOfTestStateMachine.definedLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1);	
 	```
+	
+* **JMX Support**  
+	Since 0.3.3, user can remote monitor state machine instance(e.g. current status, name) and modify configurations(e.g. toggle loggings/toggle performance monitor/remote fire event) at runtime. All the state machine instances information will be under "org.squirrelframework" domain.
 
 ## Examples
 See [EXAMPLES](https://github.com/hekailiang/squirrel/blob/master/EXAMPLES.md) file.
