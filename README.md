@@ -762,7 +762,11 @@ If no ScheduledExecutorService instance was registered, *SquirrelConfiguration* 
 	```
 	
 * **JMX Support**  
-	Since 0.3.3, user can remote monitor state machine instance(e.g. current status, name) and modify configurations(e.g. toggle loggings/toggle performance monitor/remote fire event) at runtime. All the state machine instances information will be under "org.squirrelframework" domain.
+	Since 0.3.3, user can remote monitor state machine instance(e.g. current status, name) and modify configurations(e.g. toggle loggings/toggle performance monitor/remote fire event) at runtime. All the state machine instances information will be under "org.squirrelframework" domain. The following sample code shows how to enable JMX support.  
+	```java
+	UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(...);
+    builder.setStateMachineConfiguration(StateMachineConfiguration.create().enableRemoteMonitor(true));
+	```
 
 ## Examples
 See [EXAMPLES](https://github.com/hekailiang/squirrel/blob/master/EXAMPLES.md) file.

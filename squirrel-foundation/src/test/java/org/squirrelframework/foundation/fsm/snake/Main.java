@@ -3,6 +3,7 @@ package org.squirrelframework.foundation.fsm.snake;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionCompleteEvent;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.snake.SnakeController.SnakeEvent;
@@ -13,6 +14,8 @@ public class Main {
     public static void main(String[] args) {
         final SnakeModel gameModel = new SnakeModel();
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(SnakeController.class);
+        builder.setStateMachineConfiguration(StateMachineConfiguration.create().enableRemoteMonitor(true));
+        
         // define timed state
         builder.defineTimedState(SnakeState.UP, 0, GameConfigure.FRAME_TIME, SnakeEvent.MOVE_AHEAD, gameModel);
         builder.defineTimedState(SnakeState.DOWN, 0, GameConfigure.FRAME_TIME, SnakeEvent.MOVE_AHEAD, gameModel);

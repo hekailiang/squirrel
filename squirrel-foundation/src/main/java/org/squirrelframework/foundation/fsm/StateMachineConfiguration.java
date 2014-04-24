@@ -43,7 +43,13 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return isAutoStartEnabled;
     }
 
+    @Deprecated
     public StateMachineConfiguration setAutoStartEnabled(boolean isAutoStartEnabled) {
+        this.isAutoStartEnabled = isAutoStartEnabled;
+        return this;
+    }
+    
+    public StateMachineConfiguration enableAutoStart(boolean isAutoStartEnabled) {
         this.isAutoStartEnabled = isAutoStartEnabled;
         return this;
     }
@@ -52,7 +58,13 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return isAutoTerminateEnabled;
     }
 
+    @Deprecated
     public StateMachineConfiguration setAutoTerminateEnabled(boolean isAutoTerminateEnabled) {
+        this.isAutoTerminateEnabled = isAutoTerminateEnabled;
+        return this;
+    }
+    
+    public StateMachineConfiguration enableAutoTerminate(boolean isAutoTerminateEnabled) {
         this.isAutoTerminateEnabled = isAutoTerminateEnabled;
         return this;
     }
@@ -61,7 +73,13 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return isDataIsolateEnabled;
     }
 
+    @Deprecated
     public StateMachineConfiguration setDataIsolateEnabled(boolean isDataIsolateEnabled) {
+        this.isDataIsolateEnabled = isDataIsolateEnabled;
+        return this;
+    }
+    
+    public StateMachineConfiguration enableDataIsolate(boolean isDataIsolateEnabled) {
         this.isDataIsolateEnabled = isDataIsolateEnabled;
         return this;
     }

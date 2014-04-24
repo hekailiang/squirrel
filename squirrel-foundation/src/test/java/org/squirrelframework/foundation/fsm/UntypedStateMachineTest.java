@@ -335,7 +335,7 @@ public class UntypedStateMachineTest {
     public void testStateMachineConfiguration() {
         fsm = builder.newUntypedStateMachine("a", 
                 StateMachineConfiguration.create()
-                .setAutoStartEnabled(false)
+                .enableAutoStart(false)
                 .setIdProvider(IdProvider.UUIDProvider.getInstance()), 
                 (Object[])null);
         System.out.println("StateMachine ID: "+fsm.getIdentifier());
@@ -469,7 +469,7 @@ public class UntypedStateMachineTest {
     @Test(expected=IllegalStateException.class)
     public void testUntypedStateMachineConfiguration() {
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(UntypedStateMachineSampleEx3.class);
-        builder.setStateMachineConfiguration(StateMachineConfiguration.create().setAutoStartEnabled(false));
+        builder.setStateMachineConfiguration(StateMachineConfiguration.create().enableAutoStart(false));
         UntypedStateMachineSampleEx3 fsmEx= builder.newUntypedStateMachine("a");
         fsmEx.fire(TestEvent.toB, 0);
     }
