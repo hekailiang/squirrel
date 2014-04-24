@@ -304,7 +304,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 	 * @return the state
 	 */
 	private ImmutableState<T, S, E, C> enterHistoryDeep(StateContext<T, S, E, C> stateContext) {
-		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
+		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(
+		        this, stateContext.getStateMachineData().read() );
 		return lastActiveState != null ? lastActiveState.enterDeep(stateContext) : this;
 	}
     

@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm;
 
 import org.squirrelframework.foundation.component.SquirrelProvider;
 
+@Deprecated
 public interface StringConverter extends Converter<String> {
     
     public static final Converter<String> INSTANCE = SquirrelProvider.getInstance().newInstance(StringConverterImpl.class);

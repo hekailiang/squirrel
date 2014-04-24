@@ -5,7 +5,7 @@ import java.util.Map;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
-import org.squirrelframework.foundation.fsm.StringConverter;
+import org.squirrelframework.foundation.fsm.GeneralConverter;
 
 import com.google.common.collect.Maps;
 
@@ -34,12 +34,7 @@ public class ConverterProviderImpl implements ConverterProvider {
     public <T> Converter<T> getConverter(Class<T> clazz) {
         Converter<T> converter = (Converter<T>)converterRegistry.get(clazz);
         if(converter==null) {
-            if(String.class.isAssignableFrom(clazz)) {
-                converter = (Converter<T>) StringConverter.INSTANCE;
-            } else if (Enum.class.isAssignableFrom(clazz)) {
-                converter = (Converter<T>) new Converter.EnumConverter(clazz);
-            } else {
-            }
+            converter = new GeneralConverter(clazz);
         }
         return converter;
     }

@@ -116,7 +116,7 @@ public class StateMachineExceptionTest {
     class MyEvent {}
     class MyState {}
     @Transitions({
-        @Transit(from="A", to="B", on="ToB", type=TransitionType.INTERNAL)
+        @Transit(from="A", to="B", on="ToB")
     })
     @StateMachineParameters(stateType=MyState.class, eventType=MyEvent.class, contextType=Void.class)
     @ContextInsensitive

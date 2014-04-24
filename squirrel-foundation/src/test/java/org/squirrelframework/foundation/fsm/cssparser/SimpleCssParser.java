@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.Converter;
-import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
@@ -135,19 +133,6 @@ public class SimpleCssParser extends AbstractStateMachine<SimpleCssParser, Parse
                     ParserContext context, SimpleCssParser stateMachine) {
                 if(stateMachine.getCurrProperty()!=null && !event.equals(SLASH))
                     stateMachine.getCurrProperty().setValue(stateMachine.getBufferValue());
-            }
-        });
-        
-        ConverterProvider.INSTANCE.register(ParserState.class, new Converter.EnumConverter<ParserState>(ParserState.class));
-        ConverterProvider.INSTANCE.register(Character.class, new Converter<Character>() {
-            @Override
-            public String convertToString(Character obj) {
-                return obj.toString();
-            }
-
-            @Override
-            public Character convertFromString(String name) {
-                return name.charAt(0);
             }
         });
     }

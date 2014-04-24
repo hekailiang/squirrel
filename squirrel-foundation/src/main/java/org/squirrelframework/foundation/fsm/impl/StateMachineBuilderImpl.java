@@ -60,6 +60,7 @@ import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
 import org.squirrelframework.foundation.fsm.builder.On;
 import org.squirrelframework.foundation.fsm.builder.To;
 import org.squirrelframework.foundation.fsm.builder.When;
+import org.squirrelframework.foundation.fsm.jmx.ManagementService;
 import org.squirrelframework.foundation.util.DuplicateChecker;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -114,6 +115,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private final Class<?>[] extraParamTypes;
     
     private StateMachineConfiguration defaultConfiguration = StateMachineConfiguration.getInstance();
+    
+    private ManagementService managementService = new ManagementService();
     
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
@@ -753,7 +756,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                         "Invoke state machine postConstruct method failed.", e.getTargetException());
             }
         } 
-        return postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
+        postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
+        
+        if(configuration.isRemoteMonitorEnabled()) {
+            managementService.register(stateMachine);
+        }
+        return stateMachine;
     }
 
     private boolean isValidState(S initialStateId) {

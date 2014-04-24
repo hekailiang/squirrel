@@ -33,6 +33,7 @@ public interface Converter<T> extends SquirrelComponent {
      * 
      * @param <T> enum type
      */
+    @Deprecated
     public class EnumConverter<T extends Enum<T>> implements Converter<T> {
         
         private final Class<T> enumType;

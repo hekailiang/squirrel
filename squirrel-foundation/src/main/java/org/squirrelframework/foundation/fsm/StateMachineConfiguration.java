@@ -35,6 +35,8 @@ public class StateMachineConfiguration implements SquirrelSingleton {
     
     private boolean isDelegatorModeEnabled = false;
     
+    private boolean isRemoteMonitorEnabled = false;
+    
     private IdProvider idProvider = IdProvider.Default.getInstance();
     
     public boolean isAutoStartEnabled() {
@@ -105,6 +107,15 @@ public class StateMachineConfiguration implements SquirrelSingleton {
 
     public StateMachineConfiguration enableDelegatorMode(boolean isDelegatorModeEnabled) {
         this.isDelegatorModeEnabled = isDelegatorModeEnabled;
+        return this;
+    }
+    
+    public boolean isRemoteMonitorEnabled() {
+        return isRemoteMonitorEnabled;
+    }
+
+    public StateMachineConfiguration enableRemoteMonitor(boolean isRemoteMonitorEnabled) {
+        this.isRemoteMonitorEnabled = isRemoteMonitorEnabled;
         return this;
     }
 }

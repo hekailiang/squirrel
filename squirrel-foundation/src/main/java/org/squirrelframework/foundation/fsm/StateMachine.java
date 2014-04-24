@@ -190,6 +190,14 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     
     void removeDeclarativeListener(Object listener);
     
+    boolean isRemoteMonitorEnabled();
+    
+    boolean isStarted();
+    
+    boolean isTerminated();
+    
+    boolean isError();
+    
     interface StateMachineListener<T extends StateMachine<T, S, E, C>, S, E, C> {
         public static final String METHOD_NAME = "stateMachineEvent";
         // leverage bridge method to call the method of actual listener

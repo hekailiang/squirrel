@@ -135,6 +135,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean isDebugModeEnabled = false;
     
+    private boolean isRemoteMonitorEnabled = false;
+    
     private Class<?>[] extraParamTypes;
     
     private TransitionException lastException = null;
@@ -152,9 +154,15 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
         this.isDebugModeEnabled = configuration.isDebugModeEnabled();
         this.isDelgatorModeEnabled = configuration.isDelegatorModeEnabled();
+        this.isRemoteMonitorEnabled = configuration.isRemoteMonitorEnabled();
         cb.run();
         
         prepare();
+    }
+    
+    @Override
+    public boolean isRemoteMonitorEnabled() {
+        return isRemoteMonitorEnabled;
     }
     
     protected void prepare() {
@@ -311,6 +319,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public void fire(E event, C context) {
         fire(event, context, false);
+    }
+    
+    public void untypedFire(Object event, Object context) {
+        fire(typeOfEvent().cast(event), typeOfContext().cast(context));
     }
     
     @Override
@@ -587,12 +599,19 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         start(null);
     }
     
-    private boolean isStarted() {
+    @Override
+    public boolean isStarted() {
         return getStatus()==StateMachineStatus.IDLE || getStatus()==StateMachineStatus.BUSY;
     }
     
-    private boolean isTerminiated() {
+    @Override
+    public boolean isTerminated() {
     	return getStatus()==StateMachineStatus.TERMINATED;
+    }
+    
+    @Override
+    public boolean isError() {
+        return getStatus()==StateMachineStatus.ERROR;
     }
     
     @Override
@@ -626,7 +645,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public synchronized void terminate(C context) {
-    	if(isTerminiated()) {
+    	if(isTerminated()) {
             return;
         }
         
