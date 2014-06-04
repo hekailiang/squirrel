@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm;
 
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
@@ -95,8 +96,8 @@ public class StateMachinePerformanceMonitor {
     
     @OnStateMachineStart
     public void onStateMachineStart(StateMachine<?,?,?,?> fsm) {
-        transitionWatches.put(fsm.getIdentifier(), new Stopwatch());
-        actionWatches.put(fsm.getIdentifier(), new Stopwatch());
+        transitionWatches.put(fsm.getIdentifier(), Stopwatch.createUnstarted());
+        actionWatches.put(fsm.getIdentifier(), Stopwatch.createUnstarted());
     }
     
     @OnStateMachineTerminate
@@ -116,7 +117,7 @@ public class StateMachinePerformanceMonitor {
             Object event, Object context, StateMachine<?,?,?,?> fsm) {
         waitIfBusyStat();
         String tKey = getTransitionKey(sourceState, targetState, event, context);
-        long delta = transitionWatches.get(fsm.getIdentifier()).stop().elapsedMillis();
+        long delta = transitionWatches.get(fsm.getIdentifier()).stop().elapsed(TimeUnit.MILLISECONDS);
         transitionElapsedMillis.putIfAbsent(tKey, new AtomicLong(0));
         transitionElapsedMillis.get(tKey).addAndGet(delta);
         transitionInvokeTimes.putIfAbsent(tKey, new AtomicLong(0));
@@ -159,7 +160,7 @@ public class StateMachinePerformanceMonitor {
     public void onAfterActionExecuted(StateMachine<?,?,?,?> fsm, Action<?, ?, ?,?> action) {
         waitIfBusyStat();
         String aKey = action.toString();
-        long delta = actionWatches.get(fsm.getIdentifier()).stop().elapsedMillis();
+        long delta = actionWatches.get(fsm.getIdentifier()).stop().elapsed(TimeUnit.MILLISECONDS);
         actionElapsedMillis.putIfAbsent(aKey, new AtomicLong(0));
         actionElapsedMillis.get(aKey).addAndGet(delta);
         actionInvokeTimes.putIfAbsent(aKey, new AtomicLong(0));

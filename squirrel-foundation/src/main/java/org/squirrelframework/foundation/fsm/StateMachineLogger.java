@@ -61,8 +61,7 @@ public class StateMachineLogger {
 	
     @OnTransitionBegin
     public void onTransitionBegin(Object sourceState, Object event, Object context) {
-        transitionWatch = new Stopwatch();
-        transitionWatch.start();
+        transitionWatch = Stopwatch.createStarted();
         logger.info(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" on \"" + event + "\" with context \""+context+"\" begin.");
     }
@@ -71,7 +70,7 @@ public class StateMachineLogger {
     public void onTransitionComplete(Object sourceState, Object targetState, Object event, Object context) {
         logger.info(stateMachineLabel + ": Transition from \"" + sourceState + 
                 "\" to \"" + targetState + "\" on \"" + event
-                + "\" complete which took " + transitionWatch.elapsedMillis() + "ms.");
+                + "\" complete which took " + transitionWatch + ".");
     }
     
     @OnTransitionDecline
@@ -89,15 +88,14 @@ public class StateMachineLogger {
     @OnBeforeActionExecuted
     public void onBeforeActionExecuted(Object sourceState, Object targetState, 
             Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-        actionWatch = new Stopwatch();
-        actionWatch.start();
+        actionWatch = Stopwatch.createStarted();
         logger.info("Before execute method call action \""+action.name()+":"+action.weight()+"\" ("+ mOfN[0] + " of "+mOfN[1]+").");
     }
     
     @OnAfterActionExecuted
     public void onAfterActionExecuted(Object sourceState, Object targetState, 
             Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-        logger.info("After execute method call action \""+action.name()+":"+action.weight()+"\" which took "+actionWatch.elapsedMillis()+" ms.");
+        logger.info("After execute method call action \""+action.name()+":"+action.weight()+"\" which took "+actionWatch+".");
     }
     
     @OnActionExecException

@@ -84,9 +84,9 @@ public class MethodCallActionImpl<T extends StateMachine<T, S, E, C>, S, E, C> i
         Object[] paramValues = Lists.newArrayList(from, to, event, context).
                 subList(0, executionContext.getMethodCallParamTypes().length).toArray();
         if(logExecTime && logger.isDebugEnabled()) {
-            Stopwatch sw = new Stopwatch().start();
+            Stopwatch sw = Stopwatch.createStarted();
             ReflectUtils.invoke(method, stateMachine, paramValues);
-            logger.debug("Execute Method \""+methodDesc+"\" tooks "+sw.stop().elapsedMillis()+"ms.");
+            logger.debug("Execute Method \""+methodDesc+"\" tooks "+sw+".");
         } else {
             ReflectUtils.invoke(method, stateMachine, paramValues);
         }
