@@ -750,7 +750,7 @@ If no ScheduledExecutorService instance was registered, *SquirrelConfiguration* 
 	builder.defineTimedState("A", 50, 100, "FIRST", null);
     builder.internalTransition().within("A").on("FIRST");	
 	```
-	**NOTE**: Make sure timed state must be defined before describe its transitions or entry/exit actions.
+	**NOTE**: Make sure timed state must be defined before describe its transitions or entry/exit actions. *timeInterval* less than or equal to 0 will be considered only execute once after *initialDelay*.
 
 * **Linked State (so called Submachine State)**  
 	A **linked state** specifies the insertion of the specification of a submachine state machine. The state machine that contains the linked state is called the containing state machine. The same state machine may be a submachine more than once in the context of a single containing state machine.  
@@ -774,11 +774,9 @@ See [EXAMPLES](https://github.com/hekailiang/squirrel/blob/master/EXAMPLES.md) f
 ## Release Notes  
 See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_NOTES.md) file.
 
-## Future Plan  
-* **squirrel-foundation** project will rename to **squirrel-statemachine** in future release  
-* Support dynamic extend state machine definition  
-* Support state machine definition profile(activate different profile behave differently)  
-* Support custom state plugin mechanism  
+## Future Plan    
+* Support health metrics monitoring   
+* Support state machine definition profile(activate different profile behave differently)   
 
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
