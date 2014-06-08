@@ -33,19 +33,17 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
     private Action<T, S, E, C> lastEntryAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, final T stateMachine) {
-            Runnable scheduledTask = new Runnable() {
+            final Runnable scheduledTask = new Runnable() {
                 @Override
                 public void run() {
                     stateMachine.fire(autoFireEvent, autoFireContext);
                 }
             };
-            if(timeInterval==0) {
-                scheduler.schedule(scheduledTask, initialDelay, TimeUnit.MILLISECONDS);
-            } else {
-                Future<?> future = scheduler.scheduleAtFixedRate(scheduledTask, 
+            final Future<?> future = (timeInterval<=0) ? 
+                scheduler.schedule(scheduledTask, initialDelay, TimeUnit.MILLISECONDS) :
+                scheduler.scheduleAtFixedRate(scheduledTask, 
                         initialDelay, timeInterval, TimeUnit.MILLISECONDS);
-                futures.put(getKey(stateMachine), future);
-            }
+            futures.put(getKey(stateMachine), future);
         }
         
         @Override
@@ -62,7 +60,6 @@ public class TimedStateImpl<T extends StateMachine<T, S, E, C>, S, E, C> extends
     private Action<T, S, E, C> firstExitAction = new AnonymousAction<T, S, E, C>() {
         @Override
         public void execute(S from, S to, E event, C context, T stateMachine) {
-            if(timeInterval==0) return;
             Future<?> future = futures.remove(getKey(stateMachine));
             if(future!=null) {
                 future.cancel(false);

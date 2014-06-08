@@ -81,6 +81,7 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                         actionContext.run();
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     Throwable t = (e instanceof SquirrelRuntimeException) ?
                             ((SquirrelRuntimeException)e).getTargetException() : e;
                     // wrap any exception into transition exception
