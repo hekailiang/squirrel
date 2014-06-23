@@ -203,9 +203,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     fromState, event, context, result, executionService);
             fromState.internalFire(stateContext);
             toStateId = result.getTargetState().getStateId();
-            executionService.execute();
             
             if(result.isAccepted()) {
+                executionService.execute();
                 localData.write().lastState(fromStateId);
                 localData.write().currentState(toStateId);
                 if(isDataIsolateEnabled) { 
@@ -232,6 +232,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     localData.read().currentState(), event, context, getThis()));
             afterTransitionCausedException(fromStateId, toStateId, event, context);
         } finally {
+            executionService.reset();
             fireEvent(new TransitionEndEventImpl<T, S, E, C>(fromStateId, toStateId, event, context, getThis()));
             afterTransitionEnd(fromStateId, getCurrentState(), event, context);
         }

@@ -194,6 +194,11 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     
     @Override
     public void internalFire(StateContext<T, S, E, C> stateContext) {
+        // Fix issue17
+        if(type==TransitionType.INTERNAL && stateContext.
+                getSourceState().getStateId()!=targetState.getStateId()) {
+            return;
+        }
     	if(condition.isSatisfied(stateContext.getContext())) {
     		ImmutableState<T, S, E, C> newState = stateContext.getSourceState();
         	if(type==TransitionType.INTERNAL) {
