@@ -778,6 +778,9 @@ See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_N
 * Support health metrics monitoring   
 * Support state machine definition profile(activate different profile behave differently)   
 
+## Sponsors
+![IDEA](http://www.jetbrains.com/img/logos/logo_intellij_idea.png)
+
 ## More Information  
 * For the **latest updates** follow my twitter [@hhe11][5] or [+HeHenry][8]
 * For discussions or questions please join the [squirrel state machine group][4]
@@ -799,6 +802,4 @@ See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_N
 [10]: http://qt-project.org/doc/qt-4.8/statemachine-api.html
 [11]: https://github.com/hekailiang/squirrel/pull/11
 
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hekailiang/squirrel/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
