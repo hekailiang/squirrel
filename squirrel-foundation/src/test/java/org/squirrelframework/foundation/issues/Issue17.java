@@ -1,7 +1,6 @@
 package org.squirrelframework.foundation.issues;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedEvent;
 import org.squirrelframework.foundation.fsm.StateMachine.TransitionDeclinedListener;
@@ -28,7 +27,7 @@ public class Issue17 {
         void onSameWithinA(Issue17State from, Issue17State to, Issue17Event cause) {
             logger.append("onSameWithinA");
         }
-        String comsumeLog() {
+        String consumeLog() {
             final String result = logger.toString();
             logger = new StringBuilder();
             return result;
@@ -47,13 +46,13 @@ public class Issue17 {
             @Override
             public void transitionDeclined(
                     TransitionDeclinedEvent<UntypedStateMachine, Object, Object, Object> event) {
-                System.out.println("Transition decliend from state "+event.getSourceState()+" on event "+event.getCause());
+                System.out.println("Transition declined from state "+event.getSourceState()+" on event "+event.getCause());
             }
         });
         fsm.start();
         fsm.fire(Issue17Event.NEXT);
         fsm.fire(Issue17Event.SAME);
-        Assert.assertTrue(fsm.comsumeLog().equals("onA1ToA2"));
+        Assert.assertTrue(fsm.consumeLog().equals("onA1ToA2"));
     }
 
 }
