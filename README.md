@@ -776,7 +776,8 @@ See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_N
 
 ## Future Plan    
 * Support health metrics monitoring   
-* Support state machine definition profile(activate different profile behave differently)   
+* Support state machine definition profile(activate different profile behave differently)  
+* [Javascript version of Squirrel State Machine](https://github.com/hekailiang/squirrel-statemachine-js) is still under development 
 
 ## Sponsors
 ![IDEA](http://www.jetbrains.com/img/logos/logo_intellij_idea.png)
