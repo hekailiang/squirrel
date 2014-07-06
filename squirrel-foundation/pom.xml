@@ -133,8 +133,6 @@
 				<configuration>
 					<!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
 					<argLine>-XX:MaxPermSize=128m -Xmx256m</argLine>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
                     <!-- Force alphabetical order to have a reproducible build -->
                     <runOrder>alphabetical</runOrder>
 				</configuration>

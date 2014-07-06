@@ -52,31 +52,11 @@ public class Issue18 {
     public void testIssue18() {
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(Issue18StateMachine.class);
         builder.externalTransition(10).from(Issue18State.A).to(Issue18State.B).on(Issue18Event.GO).
-                when(new Condition<Object>() {
-                    int counter = 5;
-                    @Override
-                    public boolean isSatisfied(Object context) {
-                        return --counter==0;
-                    }
-                    @Override
-                    public String name() {
-                        return "Count_5_A";
-                    }
-        }).callMethod("onA2B");
+                when(new CounterCondition(5, "Count_5_A")).callMethod("onA2B");
         builder.internalTransition(1).within(Issue18State.A).on(Issue18Event.GO).callMethod("onA2A");
 
         builder.externalTransition(10).from(Issue18State.B).to(Issue18State.A).on(Issue18Event.GO).
-                when(new Condition<Object>() {
-                    int counter = 5;
-                    @Override
-                    public boolean isSatisfied(Object context) {
-                        return --counter==0;
-                    }
-                    @Override
-                    public String name() {
-                        return "Count_5_B";
-                    }
-                }).callMethod("onB2A");
+                when(new CounterCondition(5, "Count_5_B")).callMethod("onB2A");
         builder.internalTransition(1).within(Issue18State.B).on(Issue18Event.GO).callMethod("onB2B");
 
         Issue18StateMachine fsm = builder.newUntypedStateMachine(Issue18State.A);
@@ -95,4 +75,24 @@ public class Issue18 {
         Assert.assertTrue("onB2B.onB2B.onB2B.onB2B.onB2A".equals(fsm.consumeLog()));
     }
 
+}
+
+class CounterCondition implements Condition<Object> {
+    int counter;
+    final String name;
+
+    CounterCondition(int init, String name) {
+        this.counter = init;
+        this.name = name;
+    }
+
+    @Override
+    public boolean isSatisfied(Object context) {
+        return --counter==0;
+    }
+
+    @Override
+    public String name() {
+        return name;
+    }
 }
