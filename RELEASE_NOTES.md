@@ -1,3 +1,12 @@
+*Version 0.3.3 - 2014-7-6*
+---
+1. Support remote monitor and configure state machine instance
+2. Rename state machine configuration methods
+3. Update project dependency Guava version 16.0.1
+4. Fixed [Issue 16](https://github.com/hekailiang/squirrel/issues/16) - timed state behaves strangely when timeInterval = 0
+5. Fixed [Issue 17](https://github.com/hekailiang/squirrel/issues/17) - nested states and internal transitions do not work together well
+
+
 *Version 0.3.1 - 2014-3-12* 
 ---
 1. Fixed [Issue 14](https://github.com/hekailiang/squirrel/issues/14) - Event fired against wrong state machine when FSMs collaborate   
