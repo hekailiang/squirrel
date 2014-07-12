@@ -19,5 +19,7 @@ public interface MultiTransitionBuilder<T extends StateMachine<T, S, E, C>, S, E
      * @param stateIds id of states
      * @return single from clause builder
      */
-    From<T, S, E, C> fromSome(S... stateIds);
+    From<T, S, E, C> fromAmong(S... stateIds);
+
+    Between<T, S, E, C> between(S fromStateId);
 }

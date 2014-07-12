@@ -12,5 +12,5 @@ public interface MultiFrom<T extends StateMachine<T, S, E, C>, S, E, C> {
      * @param stateIds id of states
      * @return To clause builder
      */
-    MultiTo<T, S, E, C> toSome(S... stateIds);
+    MultiTo<T, S, E, C> toAmong(S... stateIds);
 }

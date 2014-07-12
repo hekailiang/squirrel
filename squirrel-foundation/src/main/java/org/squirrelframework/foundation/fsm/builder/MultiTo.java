@@ -11,5 +11,5 @@ public interface MultiTo<T extends StateMachine<T, S, E, C>, S, E, C> {
      * @param events transition event
      * @return On clause builder
      */
-    On<T, S, E, C> onSome(E... events);
+    On<T, S, E, C> onEach(E... events);
 }

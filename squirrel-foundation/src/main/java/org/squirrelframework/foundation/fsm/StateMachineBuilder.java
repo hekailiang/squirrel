@@ -37,6 +37,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return Local transition builder
      */
     LocalTransitionBuilder<T, S, E, C> localTransition();
+
+    MultiTransitionBuilder<T, S, E, C> localTransitions();
     
     /**
      * Start to build internal transition
@@ -58,6 +60,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     MultiTransitionBuilder<T, S, E, C> transitions(int priority);
     
     LocalTransitionBuilder<T, S, E, C> localTransition(int priority);
+
+    MultiTransitionBuilder<T, S, E, C> localTransitions(int priority);
     
     InternalTransitionBuilder<T, S, E, C> internalTransition(int priority);
     

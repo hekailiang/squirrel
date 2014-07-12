@@ -55,11 +55,11 @@ abstract class FSM {
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> MultiTransitionBuilder<T, S, E, C> newMultiTransitionBuilder(
-            Map<S, MutableState<T, S, E, C>> states, int priority, ExecutionContext executionContext
+            Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType, int priority, ExecutionContext executionContext
     ) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MultiTransitionBuilderImpl<T, S, E, C>>() {},
-                new Class[] { Map.class, int.class, ExecutionContext.class },
-                new Object[] { states, priority, executionContext });
+                new Class[] { Map.class, TransitionType.class, int.class, ExecutionContext.class },
+                new Object[] { states, transitionType, priority, executionContext });
     }
 
     static <T extends StateMachine<T, S, E, C>, S, E, C> ExternalTransitionBuilder<T, S, E, C> newExternalTransitionBuilder(

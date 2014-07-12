@@ -90,15 +90,15 @@ public class DecisionStateSampleTest {
         DecisionStateMachine fsm;
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
 
-        builder.transitions().from(DecisionState._A).toSome(DecisionState.B, DecisionState.C, DecisionState.D).
-                onSome(DecisionEvent.A2B, DecisionEvent.A2C, DecisionEvent.A2D).callMethod("a2b|a2c");
+        builder.transitions().from(DecisionState._A).toAmong(DecisionState.B, DecisionState.C, DecisionState.D).
+                onEach(DecisionEvent.A2B, DecisionEvent.A2C, DecisionEvent.A2D).callMethod("a2b|a2c|_");
 
-        builder.transitions().fromSome(DecisionState.B, DecisionState.C, DecisionState.D).
+        builder.transitions().fromAmong(DecisionState.B, DecisionState.C, DecisionState.D).
                 to(DecisionState.A).on(DecisionEvent.ANY2A);
 
         // use local transition avoid invoking state A exit functions
-        builder.localTransition().from(DecisionState.A).to(DecisionState._A).on(DecisionEvent.A2ANY).callMethod("makeDecision");
-        builder.localTransition().from(DecisionState._A).to(DecisionState.A).on(DecisionEvent.ANY2A);
+        builder.localTransitions().between(DecisionState.A).and(DecisionState._A).
+                onMutual(DecisionEvent.A2ANY, DecisionEvent.ANY2A).callMethod("makeDecision|_");
 
         fsm = builder.newUntypedStateMachine(DecisionState.A);
         return fsm;
@@ -141,7 +141,7 @@ public class DecisionStateSampleTest {
 
         fsm.fire(DecisionEvent.A2ANY, 30);
         Assert.assertTrue(fsm.getCurrentState().equals(DecisionState.D));
-        Assert.assertTrue("enterMakeDecision.leftMakeDecision.leftA.a2c".equals(fsm.consumeLog()));
+        Assert.assertTrue("enterMakeDecision.leftMakeDecision.leftA".equals(fsm.consumeLog()));
 
         fsm.terminate();
 //        System.out.println(fsm.exportXMLDefinition(true));

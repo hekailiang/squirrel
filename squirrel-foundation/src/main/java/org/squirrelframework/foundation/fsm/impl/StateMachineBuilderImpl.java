@@ -214,6 +214,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
 
     @Override
+    public MultiTransitionBuilder<T, S, E, C> localTransitions() {
+        checkState();
+        return localTransitions(TransitionPriority.NORMAL);
+    }
+
+    @Override
     public InternalTransitionBuilder<T, S, E, C> internalTransition() {
         checkState();
         return internalTransition(TransitionPriority.NORMAL);
@@ -240,13 +246,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public MultiTransitionBuilder<T, S, E, C> transitions(int priority) {
         checkState();
-        return FSM.newMultiTransitionBuilder(states, priority, executionContext);
+        return FSM.newMultiTransitionBuilder(states, TransitionType.EXTERNAL, priority, executionContext);
     }
     
     @Override
     public LocalTransitionBuilder<T, S, E, C> localTransition(int priority) {
         checkState();
         return FSM.newLocalTransitionBuilder(states, priority, executionContext);
+    }
+
+    @Override
+    public MultiTransitionBuilder<T, S, E, C> localTransitions(int priority) {
+        checkState();
+        return FSM.newMultiTransitionBuilder(states, TransitionType.LOCAL, priority, executionContext);
     }
 
     @Override

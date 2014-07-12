@@ -15,7 +15,7 @@ import java.util.Map;
  */
 class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements
         MultiTransitionBuilder<T, S, E, C>, MultiFrom<T, S, E, C>, From<T, S, E, C>, MultiTo<T, S, E, C>,
-        To<T, S, E, C>, On<T, S, E, C>, SquirrelComponent {
+        To<T, S, E, C>, On<T, S, E, C>, Between<T, S, E, C>, And<T, S, E, C>, SquirrelComponent {
 
     private final List<MutableTransition<T, S, E, C>> transitions = Lists.newArrayList();
 
@@ -29,14 +29,18 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
 
     private final ExecutionContext executionContext;
 
-    MultiTransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, int priority, ExecutionContext executionContext) {
+    private final TransitionType transitionType;
+
+    MultiTransitionBuilderImpl(Map<S, MutableState<T, S, E, C>> states, TransitionType transitionType,
+                               int priority, ExecutionContext executionContext) {
         this.states = states;
+        this.transitionType = transitionType;
         this.priority = priority;
         this.executionContext = executionContext;
     }
 
     @Override
-    public MultiTo<T, S, E, C> toSome(S... stateIds) {
+    public MultiTo<T, S, E, C> toAmong(S... stateIds) {
         for(S stateId : stateIds) {
             targetStates.add(FSM.getState(states, stateId));
         }
@@ -66,10 +70,38 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     }
 
     @Override
-    public From<T, S, E, C> fromSome(S... stateIds) {
+    public From<T, S, E, C> fromAmong(S... stateIds) {
         for(S stateId : stateIds) {
             sourceStates.add(FSM.getState(states, stateId));
         }
+        return this;
+    }
+
+    @Override
+    public Between<T, S, E, C> between(S fromStateId) {
+        sourceStates.add(FSM.getState(states, fromStateId));
+        return this;
+    }
+
+    @Override
+    public And<T, S, E, C> and(S stateId) {
+        targetStates.add(FSM.getState(states, stateId));
+        return this;
+    }
+
+    @Override
+    public On<T, S, E, C> onMutual(E fromEvent, E toEvent) {
+        MutableTransition<T, S, E, C> forwardTransition = sourceStates.get(0).addTransitionOn(fromEvent);
+        forwardTransition.setTargetState(targetStates.get(0));
+        forwardTransition.setType(transitionType);
+        forwardTransition.setPriority(priority);
+        transitions.add(forwardTransition);
+
+        MutableTransition<T, S, E, C> backwardTransition = targetStates.get(0).addTransitionOn(toEvent);
+        backwardTransition.setTargetState(sourceStates.get(0));
+        backwardTransition.setType(transitionType);
+        backwardTransition.setPriority(priority);
+        transitions.add(backwardTransition);
         return this;
     }
 
@@ -79,7 +111,7 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
             for(MutableState<T, S, E, C> targetState : targetStates) {
                 MutableTransition<T, S, E, C> transition = sourceState.addTransitionOn(event);
                 transition.setTargetState(targetState);
-                transition.setType(TransitionType.EXTERNAL);
+                transition.setType(transitionType);
                 transition.setPriority(priority);
                 transitions.add(transition);
             }
@@ -88,7 +120,7 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     }
 
     @Override
-    public On<T, S, E, C> onSome(E... events) {
+    public On<T, S, E, C> onEach(E... events) {
         Preconditions.checkNotNull(events);
         int eventLength = events.length;
         for(int i=0, srcStateLength=sourceStates.size(); i<srcStateLength; ++i) {
@@ -97,7 +129,7 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
                 int eventPos = statePos<eventLength ? statePos : eventLength-1;
                 MutableTransition<T, S, E, C> transition = sourceStates.get(i).addTransitionOn(events[eventPos]);
                 transition.setTargetState(targetStates.get(j));
-                transition.setType(TransitionType.EXTERNAL);
+                transition.setType(transitionType);
                 transition.setPriority(priority);
                 transitions.add(transition);
             }
@@ -131,8 +163,10 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
 
     @Override
     public void perform(List<Action<T, S, E, C>> actions) {
-        for(MutableTransition<T, S, E, C> transition : transitions) {
-            transition.addActions(actions);
+        int actionSize = actions.size();
+        for(int i=0, transitionLength=transitions.size(); i<transitionLength; ++i) {
+            int actionPos = i<actionSize ? i : actionSize-1;
+            transitions.get(i).addAction(actions.get(actionPos));
         }
     }
 
@@ -150,8 +184,9 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
         int methodsLength = methods.length;
 
         for(int i=0, transitionLength=transitions.size(); i<transitionLength; ++i) {
-            int methodPost = i<methodsLength ? i : methodsLength-1;
-            Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methods[methodPost], executionContext);
+            int methodPos = i<methodsLength ? i : methodsLength-1;
+            if("_".equals(methods[methodPos])) continue;
+            Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methods[methodPos], executionContext);
             transitions.get(i).addAction(action);
         }
     }
