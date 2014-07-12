@@ -89,13 +89,12 @@ public class DecisionStateSampleTest {
     DecisionStateMachine buildStateMachine() {
         DecisionStateMachine fsm;
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
-        builder.transition().from(DecisionState._A).to(DecisionState.B).on(DecisionEvent.A2B).callMethod("a2b");
-        builder.transition().from(DecisionState._A).to(DecisionState.C).on(DecisionEvent.A2C).callMethod("a2c");
-        builder.transition().from(DecisionState._A).to(DecisionState.D).on(DecisionEvent.A2D).callMethod("a2d");
 
-        builder.transition().from(DecisionState.B).to(DecisionState.A).on(DecisionEvent.ANY2A);
-        builder.transition().from(DecisionState.C).to(DecisionState.A).on(DecisionEvent.ANY2A);
-        builder.transition().from(DecisionState.D).to(DecisionState.A).on(DecisionEvent.ANY2A);
+        builder.transitions().from(DecisionState._A).toSome(DecisionState.B, DecisionState.C, DecisionState.D).
+                onSome(DecisionEvent.A2B, DecisionEvent.A2C, DecisionEvent.A2D).callMethod("a2b|a2c");
+
+        builder.transitions().fromSome(DecisionState.B, DecisionState.C, DecisionState.D).
+                to(DecisionState.A).on(DecisionEvent.ANY2A);
 
         // use local transition avoid invoking state A exit functions
         builder.localTransition().from(DecisionState.A).to(DecisionState._A).on(DecisionEvent.A2ANY).callMethod("makeDecision");
@@ -134,6 +133,14 @@ public class DecisionStateSampleTest {
 
         fsm.fire(DecisionEvent.A2ANY, 15);
         Assert.assertTrue(fsm.getCurrentState().equals(DecisionState.C));
+        Assert.assertTrue("enterMakeDecision.leftMakeDecision.leftA.a2c".equals(fsm.consumeLog()));
+
+        fsm.fire(DecisionEvent.ANY2A, 1000);
+        Assert.assertTrue(fsm.getCurrentState().equals(DecisionState.A));
+        Assert.assertTrue("enterA".equals(fsm.consumeLog()));
+
+        fsm.fire(DecisionEvent.A2ANY, 30);
+        Assert.assertTrue(fsm.getCurrentState().equals(DecisionState.D));
         Assert.assertTrue("enterMakeDecision.leftMakeDecision.leftA.a2c".equals(fsm.consumeLog()));
 
         fsm.terminate();

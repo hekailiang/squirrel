@@ -72,7 +72,7 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     
     @Override
     public To<T, S, E, C> toFinal(S stateId) {
-        targetState = (MutableState<T, S, E, C>) FSM.getState(states, stateId);
+        targetState = FSM.getState(states, stateId);
         if(!targetState.isFinalState()) {
             targetState.setFinal(true);
         }

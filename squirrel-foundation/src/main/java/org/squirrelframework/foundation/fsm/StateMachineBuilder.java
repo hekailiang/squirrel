@@ -25,6 +25,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return External transition builder
      */
     ExternalTransitionBuilder<T, S, E, C> transition();
+
+    MultiTransitionBuilder<T, S, E, C> transitions();
     
     DeferBoundActionBuilder<T, S, E, C> transit();
     
@@ -48,6 +50,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return External transition builder
      */
     ExternalTransitionBuilder<T, S, E, C> transition(int priority);
+
+    MultiTransitionBuilder<T, S, E, C> transitions(int priority);
     
     LocalTransitionBuilder<T, S, E, C> localTransition(int priority);
     

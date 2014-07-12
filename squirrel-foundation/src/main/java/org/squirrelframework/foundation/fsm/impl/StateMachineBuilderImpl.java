@@ -88,19 +88,19 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         this.stateMachineImplClazz = stateMachineImplClazz;
         this.extraParamTypes = extraParamTypes!=null ? extraParamTypes : new Class<?>[0];
         
-        StateMachineParameters genericsParamteres = findAnnotation(StateMachineParameters.class);
-        if(stateClazz==Object.class && genericsParamteres!=null) {
-            this.stateClazz = (Class<S>) genericsParamteres.stateType();
+        StateMachineParameters genericsParameters = findAnnotation(StateMachineParameters.class);
+        if(stateClazz==Object.class && genericsParameters!=null) {
+            this.stateClazz = (Class<S>) genericsParameters.stateType();
         } else {
             this.stateClazz = stateClazz;
         }
-        if(eventClazz==Object.class && genericsParamteres!=null) {
-            this.eventClazz = (Class<E>) genericsParamteres.eventType();
+        if(eventClazz==Object.class && genericsParameters!=null) {
+            this.eventClazz = (Class<E>) genericsParameters.eventType();
         } else {
             this.eventClazz = eventClazz;
         }
-        if(contextClazz==Object.class && genericsParamteres!=null) {
-            this.contextClazz = (Class<C>) genericsParamteres.contextType();
+        if(contextClazz==Object.class && genericsParameters!=null) {
+            this.contextClazz = (Class<C>) genericsParameters.contextType();
         } else {
             this.contextClazz = contextClazz;
         }
@@ -188,7 +188,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         checkState();
         return externalTransition(TransitionPriority.NORMAL);
     }
-    
+
+    @Override
+    public MultiTransitionBuilder<T, S, E, C> transitions() {
+        checkState();
+        return transitions(TransitionPriority.NORMAL);
+    }
+
     @Override
     public DeferBoundActionBuilder<T, S, E, C> transit() {
         checkState();
@@ -217,6 +223,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public ExternalTransitionBuilder<T, S, E, C> transition(int priority) {
         checkState();
         return externalTransition(priority);
+    }
+
+    @Override
+    public MultiTransitionBuilder<T, S, E, C> transitions(int priority) {
+        checkState();
+        return FSM.newMultiTransitionBuilder(states, priority, executionContext);
     }
     
     @Override
