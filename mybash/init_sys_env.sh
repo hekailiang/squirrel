@@ -6,7 +6,6 @@ export DEBIAN_FRONTEND=noninteractive
 echo "==> Install OpenJDK6"
 apt-get install openjdk-6-jdk
 
-
 echo "==> Install Maven2"
 apt-get install maven2
 

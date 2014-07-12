@@ -5,7 +5,7 @@ echo "==> Download Scripts"
 sleep 2
 mysite=hekailiang.github.io/squirrel/mybash
 wget http://$mysite/update-apt-get.sh -P $SCRIPT_HOME
-wget http://$mysite/init_sys_env.sh -P $SCRIPT_HOME
+wget http://$mysite/init_env.sh -P $SCRIPT_HOME
 wget http://$mysite/setup_eclipse.sh -P $SCRIPT_HOME
 wget http://$mysite/install_mysql.sh -P $SCRIPT_HOME
 wget http://$mysite/install_mongodb.sh -P $SCRIPT_HOME
