@@ -188,6 +188,16 @@ At now you may have many questions about the sample code, please be patient. The
          @Transit(from="*", to="E", on="ToE", callMethod="fromAnyToEOnToE")
     })
     ```
+    Since 0.3.4, multiple transitions can also be defined once at a time using following API, e.g.
+    ```java
+    // transitions(A->B@A2B=>a2b, A->C@A2C=>a2c, A->D@A2D) will be defined at once
+    builder.transitions().from(State._A).toAmong(State.B, State.C, State.D).
+            onEach(Event.A2B, Event.A2C, Event.A2D).callMethod("a2b|a2c|_");
+    
+    // transitions(A->_A@A2ANY=>makeDecision, _A->A@ANY2A) will be defined at once
+    builder.localTransitions().between(State.A).and(State._A).
+            onMutual(Event.A2ANY, Event.ANY2A).callMethod("makeDecision|_");
+    ```
 * **Declarative Annotation**  
 A declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
