@@ -3,6 +3,11 @@ Examples
 * **ATM State Machine - Example on context insensitive typed state machine**  
 The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.  
 
+* **Decision State Machine - Example on local transition**  
+	This example demonstrated how to leverage local transition and nested state to create a decision node.
+	![DecisionStateMachine](http://hekailiang.github.io/squirrel/images/decisionfsm.png)  
+	This example can be found in package *"org.squirrelframework.foundation.fsm.samples.DecisionStateSampleTest"*. 
+
 * **Simple CSS Parser - Example usage of fluent API**  
 	This example illustrates how to parse incoming characters by define parser grammar in state machine.  
 	![SimpleCssParser](http://hekailiang.github.io/squirrel/images/SimpleCssParser.png)  
