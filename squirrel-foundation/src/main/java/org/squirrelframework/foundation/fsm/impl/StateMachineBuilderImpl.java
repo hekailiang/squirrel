@@ -180,7 +180,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition() {
         checkState();
-        return externalTransition(TransitionPriority.NORMAL);
+        return externalTransition();
+    }
+
+    @Override
+    public MultiTransitionBuilder<T, S, E, C> externalTransitions() {
+        checkState();
+        return transitions(TransitionPriority.NORMAL);
     }
     
     @Override
@@ -217,6 +223,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority) {
         checkState();
         return FSM.newExternalTransitionBuilder(states, priority, executionContext);
+    }
+
+    @Override
+    public MultiTransitionBuilder<T, S, E, C> externalTransitions(int priority) {
+        checkState();
+        return transitions(priority);
     }
 
     @Override

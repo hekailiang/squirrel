@@ -19,6 +19,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return External transition builder
      */
     ExternalTransitionBuilder<T, S, E, C> externalTransition();
+
+    MultiTransitionBuilder<T, S, E, C> externalTransitions();
     
     /**
      * Start to build external transition, same as externalTransition
@@ -43,6 +45,8 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     InternalTransitionBuilder<T, S, E, C> internalTransition();
     
     ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority);
+
+    MultiTransitionBuilder<T, S, E, C> externalTransitions(int priority);
     
     /**
      * Same as externalTransition
