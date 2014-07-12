@@ -88,7 +88,7 @@ public class DecisionStateSampleTest {
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
 
         // _A is decision state for A
-        builder.defineSequentialStatesOn(DecisionState.A, HistoryType.NONE, true/*ignore initial state*/, DecisionState._A);
+        builder.defineNoInitSequentialStatesOn(DecisionState.A, HistoryType.NONE, DecisionState._A);
         builder.onEntry(DecisionState.A).callMethod("enterA");
         builder.onExit(DecisionState.A).callMethod("leftA");
         builder.onEntry(DecisionState._A).callMethod("enterMakeDecision");

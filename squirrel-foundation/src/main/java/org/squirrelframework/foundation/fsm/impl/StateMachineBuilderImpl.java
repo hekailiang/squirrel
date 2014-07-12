@@ -825,13 +825,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public void defineSequentialStatesOn(S parentStateId, S... childStateIds) {
         checkState();
-        defineSequentialStatesOn(parentStateId, HistoryType.NONE, false, childStateIds);
+        defineSequentialStatesOn(parentStateId, HistoryType.NONE, childStateIds);
     }
 
     @Override
-    public void defineSequentialStatesOn(S parentStateId, HistoryType historyType, boolean ignoreInitialState, S... childStateIds) {
+    public void defineNoInitSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
         checkState();
-        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, ignoreInitialState, childStateIds);
+        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, true, childStateIds);
     }
     
     @Override
