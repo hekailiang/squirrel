@@ -10,11 +10,11 @@ package org.squirrelframework.foundation.fsm;
  * @param <C> type of Context
  */
 public interface SCXMLVisitor extends Visitor {
-	
-	/**
-	 * @param beautifyXml whether beautify XML format or not
-	 * @return SCXML definition
-	 */
+
+    /**
+     * @param beautifyXml whether beautify XML format or not
+     * @return SCXML definition
+     */
     String getScxml(boolean beautifyXml);
     
     /**

@@ -1,9 +1,9 @@
 package org.squirrelframework.foundation.fsm;
 
+import org.squirrelframework.foundation.component.SquirrelComponent;
+
 import java.util.List;
 import java.util.Set;
-
-import org.squirrelframework.foundation.component.SquirrelComponent;
 
 /**
  * <p><b>State</b> The basic unit that composes a state machine. A state machine can be in one state at 
@@ -64,30 +64,30 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     void entry(StateContext<T, S, E, C> stateContext);
     
     /**
-	 * Enters this state by its history depending on its
-	 * <code>HistoryType</code>. The <code>Entry</code> method has to be called
-	 * already.
-	 * 
-	 * @param stateContext
-	 *            the state context.
-	 * @return the active state. (depends on this states<code>HistoryType</code>)
-	 */
+     * Enters this state by its history depending on its
+     * <code>HistoryType</code>. The <code>Entry</code> method has to be called
+     * already.
+     *
+     * @param stateContext
+     *            the state context.
+     * @return the active state. (depends on this states<code>HistoryType</code>)
+     */
     ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext);
     
     /**
-	 * Enters this state is deep mode: mode if there is one.
-	 * 
-	 * @param stateContext
-	 *            the event context.
-	 * @return the active state.
-	 */
+     * Enters this state is deep mode: mode if there is one.
+     *
+     * @param stateContext
+     *            the event context.
+     * @return the active state.
+     */
     ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext);
     
     /**
      * Enters this state is shallow mode: The entry action is executed and the
-	 * initial state is entered in shallow mode if there is one.
-	 * @param stateContext
-	 * @return child state entered by shadow
+     * initial state is entered in shallow mode if there is one.
+     * @param stateContext
+     * @return child state entered by shadow
      */
     ImmutableState<T, S, E, C> enterShallow(StateContext<T, S, E, C> stateContext);
     

@@ -1,30 +1,18 @@
 package org.squirrelframework.foundation.fsm;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToA;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToB;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToC;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToD;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToEnd;
-import static org.squirrelframework.foundation.fsm.TestState.A;
-import static org.squirrelframework.foundation.fsm.TestState.B;
-import static org.squirrelframework.foundation.fsm.TestState.C;
-import static org.squirrelframework.foundation.fsm.TestState.D;
-import static org.squirrelframework.foundation.fsm.TestState.Final;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.squirrelframework.foundation.fsm.annotation.ExecuteWhen;
-import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.States;
-import org.squirrelframework.foundation.fsm.annotation.Transit;
-import org.squirrelframework.foundation.fsm.annotation.Transitions;
+import org.squirrelframework.foundation.fsm.annotation.*;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.squirrelframework.foundation.fsm.TestEvent.*;
+import static org.squirrelframework.foundation.fsm.TestState.*;
 
 public class StateMachineExtensionTest extends AbstractStateMachineTest {
     
@@ -266,8 +254,8 @@ public class StateMachineExtensionTest extends AbstractStateMachineTest {
     
     @Test
     public void testOverrideMethodInvokeSequence() throws InterruptedException {
-    	stateMachine.fire(TestEvent.ToB, null);
-    	
+        stateMachine.fire(TestEvent.ToB, null);
+
         InOrder callSequence = Mockito.inOrder(monitor);
         stateMachine.fire(TestEvent.ToC, null);
         

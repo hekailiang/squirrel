@@ -1,13 +1,12 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.Converter;
 import org.squirrelframework.foundation.fsm.ConverterProvider;
 import org.squirrelframework.foundation.fsm.GeneralConverter;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 public class ConverterProviderImpl implements ConverterProvider {
     
@@ -39,8 +38,8 @@ public class ConverterProviderImpl implements ConverterProvider {
         return converter;
     }
 
-	@Override
+    @Override
     public void clearRegistry() {
-		converterRegistry.clear();
+        converterRegistry.clear();
     }
 }

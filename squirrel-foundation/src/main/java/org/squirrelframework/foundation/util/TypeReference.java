@@ -1,11 +1,6 @@
 package org.squirrelframework.foundation.util;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 
 /**
  * 
@@ -44,39 +39,39 @@ public abstract class TypeReference<T> {
      * </ul>
      */
     @SuppressWarnings("unchecked")
-	public final Class<T> getRawType() {
-		Class<?> rawType = getRawType(type);
-		// raw type is |T|
-		Class<T> result = (Class<T>) rawType;
-		return result;
-	}
+    public final Class<T> getRawType() {
+        Class<?> rawType = getRawType(type);
+        // raw type is |T|
+        Class<T> result = (Class<T>) rawType;
+        return result;
+    }
     
-	static Class<?> getRawType(Type type) {
-		if (type instanceof Class) {
-			return (Class<?>) type;
-		} else if (type instanceof ParameterizedType) {
-			ParameterizedType parameterizedType = (ParameterizedType) type;
-			// JDK implementation declares getRawType() to return Class<?>
-			return (Class<?>) parameterizedType.getRawType();
-		} else if (type instanceof GenericArrayType) {
-			GenericArrayType genericArrayType = (GenericArrayType) type;
-			return getArrayClass(getRawType(genericArrayType.getGenericComponentType()));
-		} else if (type instanceof TypeVariable) {
-			// First bound is always the "primary" bound that determines the
-			// runtime signature.
-			return getRawType(((TypeVariable<?>) type).getBounds()[0]);
-		} else if (type instanceof WildcardType) {
-			// Wildcard can have one and only one upper bound.
-			return getRawType(((WildcardType) type).getUpperBounds()[0]);
-		} else {
-			throw new AssertionError(type + " unsupported");
-		}
-	}
+    static Class<?> getRawType(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            // JDK implementation declares getRawType() to return Class<?>
+            return (Class<?>) parameterizedType.getRawType();
+        } else if (type instanceof GenericArrayType) {
+            GenericArrayType genericArrayType = (GenericArrayType) type;
+            return getArrayClass(getRawType(genericArrayType.getGenericComponentType()));
+        } else if (type instanceof TypeVariable) {
+            // First bound is always the "primary" bound that determines the
+            // runtime signature.
+            return getRawType(((TypeVariable<?>) type).getBounds()[0]);
+        } else if (type instanceof WildcardType) {
+            // Wildcard can have one and only one upper bound.
+            return getRawType(((WildcardType) type).getUpperBounds()[0]);
+        } else {
+            throw new AssertionError(type + " unsupported");
+        }
+    }
 
-	static Class<?> getArrayClass(Class<?> componentType) {
-		// TODO(user): This is not the most efficient way to handle generic
-		// arrays, but is there another way to extract the array class in a
-		// non-hacky way (i.e. using String value class names- "[L...")?
-		return Array.newInstance(componentType, 0).getClass();
-	}
+    static Class<?> getArrayClass(Class<?> componentType) {
+        // TODO(user): This is not the most efficient way to handle generic
+        // arrays, but is there another way to extract the array class in a
+        // non-hacky way (i.e. using String value class names- "[L...")?
+        return Array.newInstance(componentType, 0).getClass();
+    }
 }

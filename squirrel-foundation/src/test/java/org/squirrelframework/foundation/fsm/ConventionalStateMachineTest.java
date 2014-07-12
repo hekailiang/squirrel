@@ -1,22 +1,5 @@
 package org.squirrelframework.foundation.fsm;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.squirrelframework.foundation.fsm.TestEvent.InternalA;
-import static org.squirrelframework.foundation.fsm.TestEvent.Started;
-import static org.squirrelframework.foundation.fsm.TestEvent.Terminated;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToB;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToC;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToD;
-import static org.squirrelframework.foundation.fsm.TestEvent.ToEnd;
-import static org.squirrelframework.foundation.fsm.TestState.A;
-import static org.squirrelframework.foundation.fsm.TestState.B;
-import static org.squirrelframework.foundation.fsm.TestState.C;
-import static org.squirrelframework.foundation.fsm.TestState.D;
-import static org.squirrelframework.foundation.fsm.TestState.Final;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -26,6 +9,13 @@ import org.mockito.MockitoAnnotations;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.squirrelframework.foundation.fsm.TestEvent.*;
+import static org.squirrelframework.foundation.fsm.TestState.*;
 
 public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     
@@ -349,12 +339,12 @@ public class ConventionalStateMachineTest extends AbstractStateMachineTest {
     
     @Test
     public void testDeclaredEventType() {
-    	InOrder callSequence = Mockito.inOrder(monitor);
-    	stateMachine.start();
-    	callSequence.verify(monitor, Mockito.times(1)).entryA(null, A, Started, null);
-    	stateMachine.terminate();
-    	
-    	callSequence.verify(monitor, Mockito.times(1)).exitA(A, null, Terminated, null);
+        InOrder callSequence = Mockito.inOrder(monitor);
+        stateMachine.start();
+        callSequence.verify(monitor, Mockito.times(1)).entryA(null, A, Started, null);
+        stateMachine.terminate();
+
+        callSequence.verify(monitor, Mockito.times(1)).exitA(A, null, Terminated, null);
     }
     
     @Test(expected=RuntimeException.class)

@@ -2,7 +2,6 @@ package org.squirrelframework.foundation.fsm;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.squirrelframework.foundation.fsm.ConverterProvider;
 
 public class AbstractStateMachineTest {
     
@@ -11,7 +10,7 @@ public class AbstractStateMachineTest {
     }
     
     @AfterClass
-	public static void afterTest() {
-		ConverterProvider.INSTANCE.clearRegistry();
-	}
+    public static void afterTest() {
+        ConverterProvider.INSTANCE.clearRegistry();
+    }
 }

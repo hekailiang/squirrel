@@ -1,5 +1,12 @@
 package org.squirrelframework.foundation.component;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import org.squirrelframework.foundation.component.impl.CompositePostProcessorImpl;
+import org.squirrelframework.foundation.util.ClassComparator;
+import org.squirrelframework.foundation.util.ReflectUtils;
+import org.squirrelframework.foundation.util.TypeReference;
+
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,14 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.squirrelframework.foundation.component.impl.CompositePostProcessorImpl;
-import org.squirrelframework.foundation.util.ClassComparator;
-import org.squirrelframework.foundation.util.ReflectUtils;
-import org.squirrelframework.foundation.util.TypeReference;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class SquirrelPostProcessorProvider implements SquirrelComponent, SquirrelSingleton {
     
@@ -101,11 +100,11 @@ public class SquirrelPostProcessorProvider implements SquirrelComponent, Squirre
         return getBestMatchPostProcessor(componentClass, new ClassComparator<SquirrelPostProcessor<? super T>>());
     }
 
-	public <T> void register(Class<T> componentClass, TypeReference<? extends SquirrelPostProcessor<? super T>> typeReference) {
-		register(componentClass, typeReference.getRawType());
+    public <T> void register(Class<T> componentClass, TypeReference<? extends SquirrelPostProcessor<? super T>> typeReference) {
+        register(componentClass, typeReference.getRawType());
     }
-	
-	public <T> void register(TypeReference<T> typeRefComponent, SquirrelPostProcessor<? super T> postProcessor) {
-		register(typeRefComponent.getRawType(), postProcessor);
+
+    public <T> void register(TypeReference<T> typeRefComponent, SquirrelPostProcessor<? super T> postProcessor) {
+        register(typeRefComponent.getRawType(), postProcessor);
     }
 }

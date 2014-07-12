@@ -1,31 +1,13 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import org.squirrelframework.foundation.component.SquirrelProvider;
+import org.squirrelframework.foundation.fsm.*;
+import org.squirrelframework.foundation.fsm.builder.*;
+import org.squirrelframework.foundation.util.TypeReference;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-
-import org.squirrelframework.foundation.component.SquirrelProvider;
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.ActionExecutionService;
-import org.squirrelframework.foundation.fsm.Actions;
-import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.MutableLinkedState;
-import org.squirrelframework.foundation.fsm.MutableState;
-import org.squirrelframework.foundation.fsm.MutableTimedState;
-import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.MvelScriptManager;
-import org.squirrelframework.foundation.fsm.StateContext;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineData;
-import org.squirrelframework.foundation.fsm.TransitionResult;
-import org.squirrelframework.foundation.fsm.TransitionType;
-import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
-import org.squirrelframework.foundation.util.TypeReference;
 
 abstract class FSM {
 
@@ -119,10 +101,10 @@ abstract class FSM {
     }
     
     static <T extends StateMachine<T, S, E, C>, S, E, C> TransitionResult<T, S, E, C> newResult(
-			boolean accepted, ImmutableState<T, S, E, C> targetState, TransitionResult<T, S, E, C> parent) {
-		return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionResult<T, S, E, C>>() {}).
-				setAccepted(accepted).setTargetState(targetState).setParent(parent);
-	}
+            boolean accepted, ImmutableState<T, S, E, C> targetState, TransitionResult<T, S, E, C> parent) {
+        return SquirrelProvider.getInstance().newInstance(new TypeReference<TransitionResult<T, S, E, C>>() {}).
+                setAccepted(accepted).setTargetState(targetState).setParent(parent);
+    }
     
     static <C> Condition<C> newMvelCondition(String expression, MvelScriptManager scriptManager) {
         return SquirrelProvider.getInstance().newInstance(new TypeReference<MvelConditionImpl<C>>() {}, 

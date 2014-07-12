@@ -1,8 +1,8 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.List;
-
 import org.squirrelframework.foundation.component.SquirrelComponent;
+
+import java.util.List;
 
 /**
  * Action collection which insert new action in predefined order. 
@@ -15,11 +15,11 @@ import org.squirrelframework.foundation.component.SquirrelComponent;
  * @param <C> type of Context
  */
 public interface Actions<T extends StateMachine<T, S, E, C>, S, E, C> extends SquirrelComponent {
-	
-	/**
-	 * Add a new action
-	 * @param newAction new action
-	 */
+
+    /**
+     * Add a new action
+     * @param newAction new action
+     */
     void add(Action<T, S, E, C> newAction);
     
     /**

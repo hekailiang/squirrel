@@ -1,23 +1,17 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.ImmutableTransition;
-import org.squirrelframework.foundation.fsm.SCXMLVisitor;
-import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 /**
  * Use visitor pattern to export SCXML definition.
@@ -34,7 +28,7 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     @Override
     public void visitOnEntry(StateMachine<?, ?, ?, ?> visitable) {
         writeLine("<scxml initial=" + quoteName(visitable.getInitialState().toString()) + " version=\"1.0\" " +
-        		"xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:sqrl=\"http://squirrelframework.org/squirrel\">");
+                "xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:sqrl=\"http://squirrelframework.org/squirrel\">");
         writeLine("<sqrl:fsm "+visitable.getDescription()+" />");
     }
 
@@ -45,19 +39,19 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
 
     @Override
     public void visitOnEntry(ImmutableState<?, ?, ?, ?> visitable) {
-    	if(visitable.isParallelState()) {
-    		writeLine("<parallel id= " + quoteName(visitable.toString()) + ">");
-    	} else if(visitable.isFinalState()) {
+        if(visitable.isParallelState()) {
+            writeLine("<parallel id= " + quoteName(visitable.toString()) + ">");
+        } else if(visitable.isFinalState()) {
             writeLine("<final id= " + quoteName(visitable.toString()) + ">");
         } else { 
-    		StringBuilder builder = new StringBuilder("<state id= ");
-    		builder.append(quoteName(visitable.toString()));
-    		if(visitable.getInitialState()!=null) {
-    			builder.append(" initial= ").append(quoteName(visitable.getInitialState().toString()));
-    		}
-    		builder.append(">");
-			writeLine(builder.toString());
-    	}
+            StringBuilder builder = new StringBuilder("<state id= ");
+            builder.append(quoteName(visitable.toString()));
+            if(visitable.getInitialState()!=null) {
+                builder.append(" initial= ").append(quoteName(visitable.getInitialState().toString()));
+            }
+            builder.append(">");
+            writeLine(builder.toString());
+        }
         if(!visitable.getEntryActions().isEmpty()) {
             writeLine("<onentry>");
             for(Action<?, ?, ?, ?> entryAction : visitable.getEntryActions()) {
@@ -66,8 +60,8 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
             writeLine("</onentry>");
         }
         if(visitable.getHistoryType()!=HistoryType.NONE) {
-			writeLine("<history type= "+ quoteName(visitable.getHistoryType().name().toLowerCase())+"/>");
-		}
+            writeLine("<history type= "+ quoteName(visitable.getHistoryType().name().toLowerCase())+"/>");
+        }
     }
 
     @Override
@@ -80,11 +74,11 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
             writeLine("</onexit>");
         }
         if(visitable.isParallelState()) 
-        	writeLine("</parallel>");
+            writeLine("</parallel>");
         else if(visitable.isFinalState()) 
             writeLine("</final>");
         else 
-        	writeLine("</state>");
+            writeLine("</state>");
     }
 
     @Override

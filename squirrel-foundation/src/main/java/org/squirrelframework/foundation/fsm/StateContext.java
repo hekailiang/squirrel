@@ -12,9 +12,9 @@ package org.squirrelframework.foundation.fsm;
  */
 public interface StateContext<T extends StateMachine<T, S, E, C>, S, E, C> {
     
-	/**
-	 * @return current state machine object
-	 */
+    /**
+     * @return current state machine object
+     */
     StateMachine<T, S, E, C> getStateMachine();
     
     /**

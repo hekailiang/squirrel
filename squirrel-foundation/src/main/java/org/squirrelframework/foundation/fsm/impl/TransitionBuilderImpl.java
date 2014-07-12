@@ -1,22 +1,11 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import org.squirrelframework.foundation.component.SquirrelComponent;
+import org.squirrelframework.foundation.fsm.*;
+import org.squirrelframework.foundation.fsm.builder.*;
+
 import java.util.List;
 import java.util.Map;
-
-import org.squirrelframework.foundation.component.SquirrelComponent;
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.MutableState;
-import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.TransitionType;
-import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.From;
-import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.On;
-import org.squirrelframework.foundation.fsm.builder.To;
-import org.squirrelframework.foundation.fsm.builder.When;
 
 class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements 
     ExternalTransitionBuilder<T, S, E, C>, InternalTransitionBuilder<T, S, E, C>, LocalTransitionBuilder<T, S, E, C>, 
@@ -85,7 +74,7 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     public To<T, S, E, C> toFinal(S stateId) {
         targetState = (MutableState<T, S, E, C>) FSM.getState(states, stateId);
         if(!targetState.isFinalState()) {
-        	targetState.setFinal(true);
+            targetState.setFinal(true);
         }
         return this;
     }

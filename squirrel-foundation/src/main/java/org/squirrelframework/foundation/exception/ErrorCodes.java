@@ -19,7 +19,7 @@ public enum ErrorCodes {
     CLASS_NOT_FOUND(10015, "class '%s' not found"),
     METHOD_UNEXPECTED_PARAMETERS(10016, "Method requires unexpected parameters"),
     FSM_TRANSITION_ERROR(10017, "Transition from '%s' to '%s' on '%s' with context '%s' " +
-    		"when invoking action '%s' caused exception '%s'"),
+            "when invoking action '%s' caused exception '%s'"),
     
     // reserved error code from 10000-19999
     INTERNAL_ERROR (19998, "internal error"),

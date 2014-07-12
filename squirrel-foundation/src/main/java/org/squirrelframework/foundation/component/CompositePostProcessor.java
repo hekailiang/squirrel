@@ -8,11 +8,11 @@ package org.squirrelframework.foundation.component;
  * @param <T> bean type
  */
 public interface CompositePostProcessor<T> extends SquirrelPostProcessor<T> {
-	
-	/**
-	 * Compose new processor to composite processor list. Not allowed to composite duplicate processor.
-	 * @param processor new processor
-	 */
+
+    /**
+     * Compose new processor to composite processor list. Not allowed to composite duplicate processor.
+     * @param processor new processor
+     */
     void compose(SquirrelPostProcessor<? super T> processor);
     
     /**

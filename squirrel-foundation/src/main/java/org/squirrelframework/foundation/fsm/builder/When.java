@@ -1,9 +1,9 @@
 package org.squirrelframework.foundation.fsm.builder;
 
-import java.util.List;
-
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachine;
+
+import java.util.List;
 
 /**
  * When clause builder which is used to install actions during transition
@@ -17,10 +17,10 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  */
 public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
     
-	/**
-	 * Define action to be performed during transition
-	 * @param action performed action
-	 */
+    /**
+     * Define action to be performed during transition
+     * @param action performed action
+     */
     void perform(Action<T, S, E, C> action);
     
     /**

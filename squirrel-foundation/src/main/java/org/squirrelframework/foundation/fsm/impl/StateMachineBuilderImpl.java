@@ -1,17 +1,10 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,61 +13,26 @@ import org.squirrelframework.foundation.component.SquirrelPostProcessor;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.ActionWrapper;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
-import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.Conditions;
-import org.squirrelframework.foundation.fsm.Converter;
-import org.squirrelframework.foundation.fsm.ConverterProvider;
-import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.ImmutableTransition;
-import org.squirrelframework.foundation.fsm.MutableLinkedState;
-import org.squirrelframework.foundation.fsm.MutableState;
-import org.squirrelframework.foundation.fsm.MutableTimedState;
-import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.MvelScriptManager;
-import org.squirrelframework.foundation.fsm.StateCompositeType;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineBuilder;
-import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
-import org.squirrelframework.foundation.fsm.TransitionPriority;
-import org.squirrelframework.foundation.fsm.TransitionType;
-import org.squirrelframework.foundation.fsm.UntypedImmutableState;
-import org.squirrelframework.foundation.fsm.UntypedMutableState;
-import org.squirrelframework.foundation.fsm.UntypedStateMachine;
-import org.squirrelframework.foundation.fsm.annotation.ContextEvent;
-import org.squirrelframework.foundation.fsm.annotation.ContextInsensitive;
-import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
-import org.squirrelframework.foundation.fsm.annotation.States;
-import org.squirrelframework.foundation.fsm.annotation.Transit;
-import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.From;
-import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.On;
-import org.squirrelframework.foundation.fsm.builder.To;
-import org.squirrelframework.foundation.fsm.builder.When;
+import org.squirrelframework.foundation.fsm.*;
+import org.squirrelframework.foundation.fsm.annotation.*;
+import org.squirrelframework.foundation.fsm.builder.*;
 import org.squirrelframework.foundation.fsm.jmx.ManagementService;
 import org.squirrelframework.foundation.util.DuplicateChecker;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateMachineBuilder<T, S, E, C> {
-	
-	static {
-		DuplicateChecker.checkDuplicate(StateMachineBuilder.class);
-	}
+
+    static {
+        DuplicateChecker.checkDuplicate(StateMachineBuilder.class);
+    }
     
     private static final Logger logger = LoggerFactory.getLogger(StateMachineBuilderImpl.class);
     
@@ -215,7 +173,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private void checkState() {
         if(prepared) {
             throw new IllegalStateException("The state machine builder has been freezed and " +
-            		"cannot be changed anymore.");
+                    "cannot be changed anymore.");
         }
     }
     
@@ -243,21 +201,21 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         return localTransition(TransitionPriority.NORMAL);
     }
 
-	@Override
+    @Override
     public InternalTransitionBuilder<T, S, E, C> internalTransition() {
-	    checkState();
+        checkState();
         return internalTransition(TransitionPriority.NORMAL);
     }
-	
-	@Override
+
+    @Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority) {
         checkState();
         return FSM.newExternalTransitionBuilder(states, priority, executionContext);
     }
-	
-	@Override
+
+    @Override
     public ExternalTransitionBuilder<T, S, E, C> transition(int priority) {
-	    checkState();
+        checkState();
         return externalTransition(priority);
     }
     
@@ -387,13 +345,13 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         // if no existed transition is matched then create a new transition
         To<T, S, E, C> toBuilder = null;
         if(transit.type()==TransitionType.INTERNAL) {
-        	InternalTransitionBuilder<T, S, E, C> transitionBuilder = 
-        	        FSM.newInternalTransitionBuilder(states, transit.priority(), executionContext);
+            InternalTransitionBuilder<T, S, E, C> transitionBuilder =
+                    FSM.newInternalTransitionBuilder(states, transit.priority(), executionContext);
             toBuilder = transitionBuilder.within(fromState);
         } else {
-        	ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ? 
-        	        FSM.newLocalTransitionBuilder(states, transit.priority(), executionContext) : 
-        	            FSM.newExternalTransitionBuilder(states, transit.priority(), executionContext);
+            ExternalTransitionBuilder<T, S, E, C> transitionBuilder = (transit.type()==TransitionType.LOCAL) ?
+                    FSM.newLocalTransitionBuilder(states, transit.priority(), executionContext) :
+                        FSM.newExternalTransitionBuilder(states, transit.priority(), executionContext);
             From<T, S, E, C> fromBuilder = transitionBuilder.from(fromState);
             boolean isTargetFinal = transit.isTargetFinal() || FSM.getState(states, toState).isFinalState();
             toBuilder = isTargetFinal ? fromBuilder.toFinal(toState) : fromBuilder.to(toState);
@@ -434,18 +392,18 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         MutableState<T, S, E, C> newState = defineState(stateId);
         newState.setCompositeType(state.compositeType());
         if(!newState.isParallelState()) {
-        	newState.setHistoryType(state.historyType());
+            newState.setHistoryType(state.historyType());
         }
         newState.setFinal(state.isFinal());
         
         if(!Strings.isNullOrEmpty(state.parent())) {
-        	S parentStateId = stateConverter.convertFromString(parseStateId(state.parent()));
-        	MutableState<T, S, E, C> parentState = defineState(parentStateId);
-        	newState.setParentState(parentState);
-        	parentState.addChildState(newState);
-        	if(!parentState.isParallelState() && state.initialState()) {
-        		parentState.setInitialState(newState);
-        	}
+            S parentStateId = stateConverter.convertFromString(parseStateId(state.parent()));
+            MutableState<T, S, E, C> parentState = defineState(parentStateId);
+            newState.setParentState(parentState);
+            parentState.addChildState(newState);
+            if(!parentState.isParallelState() && state.initialState()) {
+                parentState.setInitialState(newState);
+            }
         }
         
         if(!Strings.isNullOrEmpty(state.entryCallMethod())) {
@@ -701,7 +659,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     @Override
     public T newStateMachine(S initialStateId) {
-    	return newStateMachine(initialStateId, new Object[0]);
+        return newStateMachine(initialStateId, new Object[0]);
     }
     
     @Override
@@ -788,9 +746,9 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public MutableState<T, S, E, C> defineFinalState(S stateId) {
         checkState();
-    	MutableState<T, S, E, C> newState = defineState(stateId);
-    	newState.setFinal(true);
-    	return newState;
+        MutableState<T, S, E, C> newState = defineState(stateId);
+        newState.setFinal(true);
+        return newState;
     }
     
     @Override
@@ -834,36 +792,36 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public void defineSequentialStatesOn(S parentStateId, S... childStateIds) {
         checkState();
-    	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, HistoryType.NONE, childStateIds);
+        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, HistoryType.NONE, childStateIds);
     }
     
     @Override
     public void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
         checkState();
-    	defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, childStateIds);
+        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, childStateIds);
     }
     
     @Override
     public void defineParallelStatesOn(S parentStateId, S... childStateIds) {
         checkState();
-    	defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, childStateIds);
+        defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, childStateIds);
     }
 
     private void defineChildStatesOn(S parentStateId, StateCompositeType compositeType, HistoryType historyType, S... childStateIds) {
         checkState();
-    	if(childStateIds!=null && childStateIds.length>0) {
-    		MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
-    		parentState.setCompositeType(compositeType);
-    		parentState.setHistoryType(historyType);
-    		for(int i=0, size=childStateIds.length; i<size; ++i) {
-    			MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
-    			if(i==0 && compositeType==StateCompositeType.SEQUENTIAL) { 
-    				parentState.setInitialState(childState); 
-    			}
-    			childState.setParentState(parentState);
-    			parentState.addChildState(childState);
-    		}
-    	}
+        if(childStateIds!=null && childStateIds.length>0) {
+            MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
+            parentState.setCompositeType(compositeType);
+            parentState.setHistoryType(historyType);
+            for(int i=0, size=childStateIds.length; i<size; ++i) {
+                MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
+                if(i==0 && compositeType==StateCompositeType.SEQUENTIAL) {
+                    parentState.setInitialState(childState);
+                }
+                childState.setParentState(parentState);
+                parentState.addChildState(childState);
+            }
+        }
     }
 
     @Override

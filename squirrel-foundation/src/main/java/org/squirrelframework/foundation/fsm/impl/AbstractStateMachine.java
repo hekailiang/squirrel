@@ -1,24 +1,9 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import static com.google.common.base.Preconditions.checkState;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,50 +14,22 @@ import org.squirrelframework.foundation.event.AsyncEventListener;
 import org.squirrelframework.foundation.event.ListenerMethod;
 import org.squirrelframework.foundation.exception.ErrorCodes;
 import org.squirrelframework.foundation.exception.TransitionException;
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.ActionExecutionService;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ActionEvent;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.AfterExecActionEvent;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.AfterExecActionListener;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.BeforeExecActionEvent;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.BeforeExecActionListener;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionEvent;
-import org.squirrelframework.foundation.fsm.ActionExecutionService.ExecActionExceptionListener;
-import org.squirrelframework.foundation.fsm.Converter;
-import org.squirrelframework.foundation.fsm.ConverterProvider;
-import org.squirrelframework.foundation.fsm.ImmutableLinkedState;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.MvelScriptManager;
-import org.squirrelframework.foundation.fsm.SCXMLVisitor;
-import org.squirrelframework.foundation.fsm.StateContext;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
-import org.squirrelframework.foundation.fsm.StateMachineContext;
-import org.squirrelframework.foundation.fsm.StateMachineData;
-import org.squirrelframework.foundation.fsm.StateMachineLogger;
-import org.squirrelframework.foundation.fsm.StateMachineStatus;
-import org.squirrelframework.foundation.fsm.TransitionResult;
-import org.squirrelframework.foundation.fsm.Visitor;
-import org.squirrelframework.foundation.fsm.annotation.AsyncExecute;
-import org.squirrelframework.foundation.fsm.annotation.ListenerOrder;
-import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
-import org.squirrelframework.foundation.fsm.annotation.OnAfterActionExecuted;
-import org.squirrelframework.foundation.fsm.annotation.OnBeforeActionExecuted;
-import org.squirrelframework.foundation.fsm.annotation.OnStateMachineStart;
-import org.squirrelframework.foundation.fsm.annotation.OnStateMachineTerminate;
-import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
-import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
-import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
-import org.squirrelframework.foundation.fsm.annotation.OnTransitionEnd;
-import org.squirrelframework.foundation.fsm.annotation.OnTransitionException;
+import org.squirrelframework.foundation.fsm.*;
+import org.squirrelframework.foundation.fsm.ActionExecutionService.*;
+import org.squirrelframework.foundation.fsm.annotation.*;
 import org.squirrelframework.foundation.util.Pair;
 import org.squirrelframework.foundation.util.ReflectUtils;
 import org.squirrelframework.foundation.util.TypeReference;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * The Abstract state machine provide several extension ability to cover different extension granularity. 
@@ -99,7 +56,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
     
     private final ActionExecutionService<T, S, E, C> executor = SquirrelProvider.getInstance().newInstance(
-    		new TypeReference<ActionExecutionService<T, S, E, C>>(){});
+            new TypeReference<ActionExecutionService<T, S, E, C>>(){});
     
     private StateMachineData<T, S, E, C> data;
     
@@ -262,9 +219,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                     terminate(context);
                 }
             } finally {
-            	if(getStatus()==StateMachineStatus.BUSY)
-            	    setStatus(StateMachineStatus.IDLE);
-            	writeLock.unlock();
+                if(getStatus()==StateMachineStatus.BUSY)
+                    setStatus(StateMachineStatus.IDLE);
+                writeLock.unlock();
             }
         }
     }
@@ -423,7 +380,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     protected boolean isIdle() {
-    	return getStatus()!=StateMachineStatus.BUSY;
+        return getStatus()!=StateMachineStatus.BUSY;
     }
     
     protected void afterTransitionCausedException(S fromState, S toState, E event, C context) {
@@ -559,26 +516,26 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
 
     private void entryAll(ImmutableState<T, S, E, C> origin, StateContext<T, S, E, C> stateContext) {
-    	Stack<ImmutableState<T, S, E, C>> stack = new Stack<ImmutableState<T, S, E, C>>();
+        Stack<ImmutableState<T, S, E, C>> stack = new Stack<ImmutableState<T, S, E, C>>();
 
-    	ImmutableState<T, S, E, C> state = origin;
-		while (state != null) {
-			stack.push(state);
-			state = state.getParentState();
-		}
-		while (stack.size() > 0) {
-			state = stack.pop();
-			state.entry(stateContext);
-		}
-	}
+        ImmutableState<T, S, E, C> state = origin;
+        while (state != null) {
+            stack.push(state);
+            state = state.getParentState();
+        }
+        while (stack.size() > 0) {
+            state = stack.pop();
+            state.entry(stateContext);
+        }
+    }
     
     @Override
     public synchronized void start(C context) {
-    	if(isStarted()) {
+        if(isStarted()) {
             return;
         }
-    	setStatus(StateMachineStatus.IDLE);
-    	internalStart(context, data, executor);
+        setStatus(StateMachineStatus.IDLE);
+        internalStart(context, data, executor);
         processEvents();
     }
     
@@ -607,7 +564,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public boolean isTerminated() {
-    	return getStatus()==StateMachineStatus.TERMINATED;
+        return getStatus()==StateMachineStatus.TERMINATED;
     }
     
     @Override
@@ -646,7 +603,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public synchronized void terminate(C context) {
-    	if(isTerminated()) {
+        if(isTerminated()) {
             return;
         }
         
@@ -666,17 +623,17 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private void exitAll(ImmutableState<T, S, E, C> current, StateContext<T, S, E, C> stateContext) {
-    	ImmutableState<T, S, E, C> state = current;
+        ImmutableState<T, S, E, C> state = current;
         while (state != null) {
-        	state.exit(stateContext);
-        	state = state.getParentState();
-		}
+            state.exit(stateContext);
+            state = state.getParentState();
+        }
     }
     
     @SuppressWarnings("unchecked")
     @Override
     public T getThis() {
-    	return (T)this;
+        return (T)this;
     }
     
     @Override
@@ -712,29 +669,29 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     void setStartEvent(E startEvent) {
         checkState(this.startEvent==null);
-    	this.startEvent=startEvent;
+        this.startEvent=startEvent;
     }
     
     E getStartEvent() {
-    	return startEvent;
+        return startEvent;
     }
     
     void setTerminateEvent(E terminateEvent) {
         checkState(this.terminateEvent==null);
-    	this.terminateEvent=terminateEvent;
+        this.terminateEvent=terminateEvent;
     }
     
     E getTerminateEvent() {
-    	return terminateEvent;
+        return terminateEvent;
     }
     
     void setFinishEvent(E finishEvent) {
         checkState(this.finishEvent==null);
-    	this.finishEvent=finishEvent;
+        this.finishEvent=finishEvent;
     }
     
     E getFinishEvent() {
-    	return finishEvent;
+        return finishEvent;
     }
     
     void setExtraParamTypes(Class<?>[] extraParamTypes) {
@@ -1281,19 +1238,19 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void addExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
-    	executor.addExecActionListener(listener);
+        executor.addExecActionListener(listener);
     }
-	
+
     @Override
-	public void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
-		executor.removeExecActionListener(listener);
-	}
+    public void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener) {
+        executor.removeExecActionListener(listener);
+    }
     
     public static abstract class AbstractStateMachineEvent<T extends StateMachine<T, S, E, C>, S, E, C> 
             implements StateMachine.StateMachineEvent<T, S, E, C> {
-    	private final T stateMachine;
+        private final T stateMachine;
         public AbstractStateMachineEvent(T stateMachine) {
-        	this.stateMachine = stateMachine;
+            this.stateMachine = stateMachine;
         }
         
         @Override

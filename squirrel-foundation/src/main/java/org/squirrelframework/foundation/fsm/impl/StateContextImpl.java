@@ -1,11 +1,6 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import org.squirrelframework.foundation.fsm.ActionExecutionService;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.StateContext;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineData;
-import org.squirrelframework.foundation.fsm.TransitionResult;
+import org.squirrelframework.foundation.fsm.*;
 
 class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements StateContext<T, S, E, C> {
     private final StateMachine<T, S, E, C> stateMachine;
@@ -18,7 +13,7 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
     
     StateContextImpl(StateMachine<T, S, E, C> stateMachine, StateMachineData<T, S, E, C> stateMachineData,
             ImmutableState<T, S, E, C> sourceState, E event, C context, 
-    		TransitionResult<T, S, E, C> result, ActionExecutionService<T, S, E, C> executor) {
+            TransitionResult<T, S, E, C> result, ActionExecutionService<T, S, E, C> executor) {
         this.stateMachine = stateMachine;
         this.stateMachineData = stateMachineData;
         this.sourceState = sourceState;
@@ -48,14 +43,14 @@ class StateContextImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements S
         return event;
     }
     
-	@Override
+    @Override
     public TransitionResult<T, S, E, C> getResult() {
-	    return result;
+        return result;
     }
 
-	@Override
+    @Override
     public ActionExecutionService<T, S, E, C> getExecutor() {
-	    return executor;
+        return executor;
     }
 
     @Override

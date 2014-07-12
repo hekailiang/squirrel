@@ -1,10 +1,6 @@
 package org.squirrelframework.foundation.fsm;
 
-import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.ExternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.InternalTransitionBuilder;
-import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
+import org.squirrelframework.foundation.fsm.builder.*;
 
 /**
  * State machine builder API.
@@ -17,11 +13,11 @@ import org.squirrelframework.foundation.fsm.builder.LocalTransitionBuilder;
  * @param <C> The type of implemented context
  */
 public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C> {
-	
-	/**
-	 * Start to build external transition
-	 * @return External transition builder
-	 */
+
+    /**
+     * Start to build external transition
+     * @return External transition builder
+     */
     ExternalTransitionBuilder<T, S, E, C> externalTransition();
     
     /**

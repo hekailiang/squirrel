@@ -1,14 +1,14 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.List;
-
 import org.squirrelframework.foundation.component.Observable;
 import org.squirrelframework.foundation.event.SquirrelEvent;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.ActionExecutionService.BeforeExecActionListener;
 import org.squirrelframework.foundation.util.ReflectUtils;
+
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Interface for finite state machine.
@@ -22,11 +22,11 @@ import org.squirrelframework.foundation.util.ReflectUtils;
  */
 public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> extends Visitable, Observable {
     
-	/**
-	 * Fires the specified event
-	 * @param event the event
-	 * @param context external context
-	 */
+    /**
+     * Fires the specified event
+     * @param event the event
+     * @param context external context
+     */
     void fire(E event, C context);
     
     /**
@@ -316,5 +316,5 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void removeTransitionEndListener(TransitionEndListener<T, S, E, C> listener);
     
     void addExecActionListener(BeforeExecActionListener<T, S, E, C> listener);
-	void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener);
+    void removeExecActionListener(BeforeExecActionListener<T, S, E, C> listener);
 }

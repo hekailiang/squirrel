@@ -8,10 +8,10 @@ package org.squirrelframework.foundation.component;
  * @param <T> type of object to be processed
  */
 public interface SquirrelPostProcessor<T> {
-	
-	/**
-	 * Post process created component
-	 * @param component created component
-	 */
+
+    /**
+     * Post process created component
+     * @param component created component
+     */
     void postProcess(T component);
 }

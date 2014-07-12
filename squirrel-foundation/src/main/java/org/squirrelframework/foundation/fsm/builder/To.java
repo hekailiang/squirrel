@@ -12,10 +12,10 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  * @param <C> type of Context
  */
 public interface To<T extends StateMachine<T, S, E, C>, S, E, C> {
-	/**
-	 * Build transition event
-	 * @param event transition event
-	 * @return On clause builder
-	 */
+    /**
+     * Build transition event
+     * @param event transition event
+     * @return On clause builder
+     */
     On<T, S, E, C> on(E event);
 }

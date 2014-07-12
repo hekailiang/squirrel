@@ -1,30 +1,16 @@
 package org.squirrelframework.foundation.fsm.impl;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.squirrelframework.foundation.fsm.*;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.Actions;
-import org.squirrelframework.foundation.fsm.Conditions;
-import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.ImmutableTransition;
-import org.squirrelframework.foundation.fsm.MutableState;
-import org.squirrelframework.foundation.fsm.MutableTransition;
-import org.squirrelframework.foundation.fsm.StateCompositeType;
-import org.squirrelframework.foundation.fsm.StateContext;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineData;
-import org.squirrelframework.foundation.fsm.TransitionResult;
-import org.squirrelframework.foundation.fsm.Visitor;
-
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * The state model of the state machine implementation.
@@ -37,10 +23,10 @@ import com.google.common.collect.Sets;
  * @param <C> The type of implemented context
  */
 class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableState<T, S, E, C> {
-	
-	private static final Logger logger = LoggerFactory.getLogger(StateImpl.class);
-	
-	protected final S stateId;
+
+    private static final Logger logger = LoggerFactory.getLogger(StateImpl.class);
+
+    protected final S stateId;
     
     protected final Actions<T, S, E, C> entryActions = FSM.newActions();
     
@@ -51,25 +37,25 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     private Set<E> acceptableEvents;
     
     /**
-	 * The super-state of this state. Null for states with <code>level</code> equal to 1.
-	 */
+     * The super-state of this state. Null for states with <code>level</code> equal to 1.
+     */
     private MutableState<T, S, E, C> parentState;
     
     private List<MutableState<T, S, E, C>> childStates;
     
     /**
-	 * The initial child state of this state.
-	 */
+     * The initial child state of this state.
+     */
     private MutableState<T, S, E, C> childInitialState;
     
     /**
-	 * The HistoryType of this state.
-	 */
-	private HistoryType historyType = HistoryType.NONE;
-	
-	/**
-	 * The level of this state within the state hierarchy [1..maxLevel].
-	 */
+     * The HistoryType of this state.
+     */
+    private HistoryType historyType = HistoryType.NONE;
+
+    /**
+     * The level of this state within the state hierarchy [1..maxLevel].
+     */
     private int level = 0;
     
     /**
@@ -83,10 +69,10 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     private StateCompositeType compositeType = StateCompositeType.SEQUENTIAL;
     
     StateImpl(S stateId) {
-    	this.stateId = stateId;
+        this.stateId = stateId;
     }
 
-	@Override
+    @Override
     public S getStateId() {
         return stateId;
     }
@@ -103,14 +89,14 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 
     @Override
     public List<ImmutableTransition<T, S, E, C>> getAllTransitions() {
-    	if(transitions==null) return Collections.emptyList();
+        if(transitions==null) return Collections.emptyList();
         return Lists.newArrayList(getTransitions().values());
     }
 
     @Override
     public List<ImmutableTransition<T, S, E, C>> getTransitions(E event) {
-    	if(transitions==null) return Collections.emptyList();
-    	return Lists.newArrayList(getTransitions().get(event));
+        if(transitions==null) return Collections.emptyList();
+        return Lists.newArrayList(getTransitions().get(event));
     }
     
     @Override
@@ -158,48 +144,48 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     
     @Override
     public void exit(final StateContext<T, S, E, C> stateContext) {
-    	if(isParallelState()) {
-    		List<ImmutableState<T, S, E, C>> subStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
-    		for(ImmutableState<T, S, E, C> subState : subStates) {
-    			if(!subState.isFinalState()) {
-    				subState.exit(stateContext);
-    			}
-    			if(subState.getParentState()!=this)
-    			    subState.getParentState().exit(stateContext);
-    		}
-    		stateContext.getStateMachineData().write().removeSubStatesOn(getStateId());
-    	}
-    	
-    	if(isFinalState()) return;
-    	
-    	stateContext.getExecutor().begin("STATE_EXIT__"+getStateId());
+        if(isParallelState()) {
+            List<ImmutableState<T, S, E, C>> subStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
+            for(ImmutableState<T, S, E, C> subState : subStates) {
+                if(!subState.isFinalState()) {
+                    subState.exit(stateContext);
+                }
+                if(subState.getParentState()!=this)
+                    subState.getParentState().exit(stateContext);
+            }
+            stateContext.getStateMachineData().write().removeSubStatesOn(getStateId());
+        }
+
+        if(isFinalState()) return;
+
+        stateContext.getExecutor().begin("STATE_EXIT__"+getStateId());
         for(final Action<T, S, E, C> exitAction : getExitActions()) {
-        	stateContext.getExecutor().defer(exitAction,
-        			getStateId(), null, stateContext.getEvent(), 
+            stateContext.getExecutor().defer(exitAction,
+                    getStateId(), null, stateContext.getEvent(),
                     stateContext.getContext(), stateContext.getStateMachine().getThis());
         }
          
         if (getParentState() != null) {
-        	// update historical state
-        	if(getParentState().getHistoryType()!=HistoryType.NONE) {
-        		stateContext.getStateMachineData().write().lastActiveChildStateFor(getParentState().getStateId(), getStateId());
-        	}
-        	if(getParentState().isRegion()) {
-        		S grandParentId = getParentState().getParentState().getStateId();
-        		stateContext.getStateMachineData().write().removeSubState(grandParentId, getStateId());
-        	}
-		}
+            // update historical state
+            if(getParentState().getHistoryType()!=HistoryType.NONE) {
+                stateContext.getStateMachineData().write().lastActiveChildStateFor(getParentState().getStateId(), getStateId());
+            }
+            if(getParentState().isRegion()) {
+                S grandParentId = getParentState().getParentState().getStateId();
+                stateContext.getStateMachineData().write().removeSubState(grandParentId, getStateId());
+            }
+        }
         logger.debug("State \""+getStateId()+"\" exit.");
     }
     
     @Override
     public ImmutableState<T, S, E, C> getParentState() {
-	    return parentState;
+        return parentState;
     }
     
     @Override
     public List<ImmutableState<T, S, E, C>> getChildStates() {
-	    return Lists.<ImmutableState<T, S, E, C>>newArrayList(childStates);
+        return Lists.<ImmutableState<T, S, E, C>>newArrayList(childStates);
     }
     
     @Override
@@ -209,113 +195,113 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     
     @Override
     public void setParentState(MutableState<T, S, E, C> parent) {
-    	if(this==parent) {
-    		throw new IllegalArgumentException("parent state cannot be state itself.");
-    	}
-	    if(this.parentState==null) {
-			this.parentState = parent;
-			setLevel(this.parentState!=null ? this.parentState.getLevel()+1 : 1);
-		} else {
-			throw new UnsupportedOperationException("Cannot change state parent.");
-		}
+        if(this==parent) {
+            throw new IllegalArgumentException("parent state cannot be state itself.");
+        }
+        if(this.parentState==null) {
+            this.parentState = parent;
+            setLevel(this.parentState!=null ? this.parentState.getLevel()+1 : 1);
+        } else {
+            throw new UnsupportedOperationException("Cannot change state parent.");
+        }
     }
     
     @Override
     public ImmutableState<T, S, E, C> getInitialState() {
-	    return childInitialState;
+        return childInitialState;
     }
 
-	@Override
+    @Override
     public void setInitialState(MutableState<T, S, E, C> childInitialState) {
-		if(isParallelState()) {
-			logger.warn("Ignoring attempt to set initial state of parallel state group.");
-			return;
-		}
-	    if(this.childInitialState==null) {
-	    	this.childInitialState = childInitialState;
-	    } else {
-	    	throw new UnsupportedOperationException("Cannot change child initial state.");
-	    }
+        if(isParallelState()) {
+            logger.warn("Ignoring attempt to set initial state of parallel state group.");
+            return;
+        }
+        if(this.childInitialState==null) {
+            this.childInitialState = childInitialState;
+        } else {
+            throw new UnsupportedOperationException("Cannot change child initial state.");
+        }
     }
 
     @Override
     public ImmutableState<T, S, E, C> enterByHistory(StateContext<T, S, E, C> stateContext) {
-    	if(isFinalState() || isParallelState()) // no historical info
-    		return this;
-    	
-    	ImmutableState<T, S, E, C> result = null;
-    	switch (this.historyType) {
-		case NONE:
-			result = enterHistoryNone(stateContext);
-			break;
-		case SHALLOW:
-			result = enterHistoryShallow(stateContext);
-			break;
-		case DEEP:
-			result = enterHistoryDeep(stateContext);
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown HistoryType : " + historyType);
-		}
-    	return result;
+        if(isFinalState() || isParallelState()) // no historical info
+            return this;
+
+        ImmutableState<T, S, E, C> result = null;
+        switch (this.historyType) {
+        case NONE:
+            result = enterHistoryNone(stateContext);
+            break;
+        case SHALLOW:
+            result = enterHistoryShallow(stateContext);
+            break;
+        case DEEP:
+            result = enterHistoryDeep(stateContext);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown HistoryType : " + historyType);
+        }
+        return result;
     }
     
     @Override
-	public ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext) {
-		this.entry(stateContext);
-		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
-		return lastActiveState == null ? this : lastActiveState.enterDeep(stateContext);
-	}
+    public ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext) {
+        this.entry(stateContext);
+        final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
+        return lastActiveState == null ? this : lastActiveState.enterDeep(stateContext);
+    }
     
     @Override
     public ImmutableState<T, S, E, C> enterShallow(StateContext<T, S, E, C> stateContext) {
-	    entry(stateContext);
-	    return childInitialState!=null ? childInitialState.enterShallow(stateContext) : this;
+        entry(stateContext);
+        return childInitialState!=null ? childInitialState.enterShallow(stateContext) : this;
     }
     
     /**
-	 * Enters this instance with history type = shallow.
-	 * 
-	 * @param stateContext
-	 *            state context
-	 * @return the entered state
-	 */
-	private ImmutableState<T, S, E, C> enterHistoryShallow(StateContext<T, S, E, C> stateContext) {
-		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
-		return lastActiveState != null ? lastActiveState.enterShallow(stateContext) : this;
-	}
+     * Enters this instance with history type = shallow.
+     *
+     * @param stateContext
+     *            state context
+     * @return the entered state
+     */
+    private ImmutableState<T, S, E, C> enterHistoryShallow(StateContext<T, S, E, C> stateContext) {
+        final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
+        return lastActiveState != null ? lastActiveState.enterShallow(stateContext) : this;
+    }
     
     /**
-	 * Enters with history type = none.
-	 * 
-	 * @param stateContext
-	 *            state context
-	 * @return the entered state.
-	 */
-	private ImmutableState<T, S, E, C> enterHistoryNone(StateContext<T, S, E, C> stateContext) {
-		return childInitialState != null ? childInitialState.enterShallow(stateContext) : this;
-	}
-	
-	/**
-	 * Enters this instance with history type = deep.
-	 * 
-	 * @param stateContext
-	 *            the state context.
-	 * @return the state
-	 */
-	private ImmutableState<T, S, E, C> enterHistoryDeep(StateContext<T, S, E, C> stateContext) {
-		final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(
-		        this, stateContext.getStateMachineData().read() );
-		return lastActiveState != null ? lastActiveState.enterDeep(stateContext) : this;
-	}
-    
-	private LinkedListMultimap<E, ImmutableTransition<T, S, E, C>> getTransitions() {
-    	if(transitions==null) {
-    		transitions = LinkedListMultimap.create();
-    	}
-    	return transitions;
+     * Enters with history type = none.
+     *
+     * @param stateContext
+     *            state context
+     * @return the entered state.
+     */
+    private ImmutableState<T, S, E, C> enterHistoryNone(StateContext<T, S, E, C> stateContext) {
+        return childInitialState != null ? childInitialState.enterShallow(stateContext) : this;
     }
-	
+
+    /**
+     * Enters this instance with history type = deep.
+     *
+     * @param stateContext
+     *            the state context.
+     * @return the state
+     */
+    private ImmutableState<T, S, E, C> enterHistoryDeep(StateContext<T, S, E, C> stateContext) {
+        final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(
+                this, stateContext.getStateMachineData().read() );
+        return lastActiveState != null ? lastActiveState.enterDeep(stateContext) : this;
+    }
+    
+    private LinkedListMultimap<E, ImmutableTransition<T, S, E, C>> getTransitions() {
+        if(transitions==null) {
+            transitions = LinkedListMultimap.create();
+        }
+        return transitions;
+    }
+
     @Override
     public MutableTransition<T, S, E, C> addTransitionOn(E event) {
         MutableTransition<T, S, E, C> newTransition = FSM.newTransition();
@@ -346,114 +332,114 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     }
     
     private boolean isParentOf(ImmutableState<T, S, E, C> state) {
-    	ImmutableState<T, S, E, C> parent = state.getParentState();
-    	while(parent!=null) {
-    		if(parent==this) 
-    			return true;
-    		parent=parent.getParentState();
-    	}
-    	return false;
+        ImmutableState<T, S, E, C> parent = state.getParentState();
+        while(parent!=null) {
+            if(parent==this)
+                return true;
+            parent=parent.getParentState();
+        }
+        return false;
     }
     
     @Override
     public void internalFire(StateContext<T, S, E, C> stateContext) {
-    	TransitionResult<T, S, E, C> currentTransitionResult = stateContext.getResult();
-    	if(isParallelState()) {
-    		/**
-    		 * The parallelism in the State Machine framework follows an interleaved semantics. 
-    		 * All parallel operations will be executed in a single, atomic step of the event 
-    		 * processing, so no event can interrupt the parallel operations. However, events 
-    		 * will still be processed sequentially, since the machine itself is single threaded.
-    		 * 
-    		 * The child states execute in parallel in the sense that any event that is processed 
-    		 * is processed in each child state independently, and each child state may take a different 
-    		 * transition in response to the event. (Similarly, one child state may take a transition 
-    		 * in response to an event, while another child ignores it.)
-    		 */
-    	    List<ImmutableState<T, S, E, C>> parallelStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
-    		for(ImmutableState<T, S, E, C> parallelState : parallelStates) {
-    			if(parallelState.isFinalState()) continue;
-    			// context isolation as entering a new region
-    			TransitionResult<T, S, E, C> subTransitionResult = 
-    					FSM.<T, S, E, C>newResult(false, parallelState, currentTransitionResult);
-    			StateContext<T, S, E, C> subStateContext = FSM.newStateContext(
-    					stateContext.getStateMachine(), stateContext.getStateMachineData(), 
-    					parallelState, stateContext.getEvent(), stateContext.getContext(), 
-    					subTransitionResult, stateContext.getExecutor());
-    			parallelState.internalFire(subStateContext); 
-    			if(subTransitionResult.isDeclined()) continue;
-    			
-    			if(!isParentOf(subTransitionResult.getTargetState())) {
-    				// child state transition exit the parallel state
-    				currentTransitionResult.setTargetState(subTransitionResult.getTargetState());
-    				return;
-    			}
-    			stateContext.getStateMachineData().write().subStateFor(getStateId(), 
-    			        subTransitionResult.getTargetState().getStateId());
-				if(subTransitionResult.getTargetState().isFinalState()) {
-					ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();
-    				ImmutableState<T, S, E, C> grandParentState = parentState.getParentState();
-    				// When all of the children reach final states, the parallel state itself is considered 
-            		// to be in a final state, and a completion event is generated.
-            		if(grandParentState!=null && grandParentState.isParallelState()) {
-            			boolean allReachedFinal = true;
-            			for( ImmutableState<T, S, E, C> subState : getSubStatesOn(
-            			        grandParentState, stateContext.getStateMachineData().read()) ) {
-            				if(!subState.isFinalState()) {
-            					allReachedFinal = false;
-            					break;
-            				}
-            			}
-            			if(allReachedFinal) {
-            			    StateMachine<T, S, E, C> stateMachine = stateContext.getStateMachine();
-            			    AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
-            			    stateMachine.fireImmediate(stateMachineImpl.getFinishEvent(), stateContext.getContext());
-                    		return;
-            			}
-    				} 
-				}
-    		}
-    	}
-    	
-    	List<ImmutableTransition<T, S, E, C>> transitions = getTransitions(stateContext.getEvent());
+        TransitionResult<T, S, E, C> currentTransitionResult = stateContext.getResult();
+        if(isParallelState()) {
+            /**
+             * The parallelism in the State Machine framework follows an interleaved semantics.
+             * All parallel operations will be executed in a single, atomic step of the event
+             * processing, so no event can interrupt the parallel operations. However, events
+             * will still be processed sequentially, since the machine itself is single threaded.
+             *
+             * The child states execute in parallel in the sense that any event that is processed
+             * is processed in each child state independently, and each child state may take a different
+             * transition in response to the event. (Similarly, one child state may take a transition
+             * in response to an event, while another child ignores it.)
+             */
+            List<ImmutableState<T, S, E, C>> parallelStates = getSubStatesOn(this, stateContext.getStateMachineData().read());
+            for(ImmutableState<T, S, E, C> parallelState : parallelStates) {
+                if(parallelState.isFinalState()) continue;
+                // context isolation as entering a new region
+                TransitionResult<T, S, E, C> subTransitionResult =
+                        FSM.<T, S, E, C>newResult(false, parallelState, currentTransitionResult);
+                StateContext<T, S, E, C> subStateContext = FSM.newStateContext(
+                        stateContext.getStateMachine(), stateContext.getStateMachineData(),
+                        parallelState, stateContext.getEvent(), stateContext.getContext(),
+                        subTransitionResult, stateContext.getExecutor());
+                parallelState.internalFire(subStateContext);
+                if(subTransitionResult.isDeclined()) continue;
+
+                if(!isParentOf(subTransitionResult.getTargetState())) {
+                    // child state transition exit the parallel state
+                    currentTransitionResult.setTargetState(subTransitionResult.getTargetState());
+                    return;
+                }
+                stateContext.getStateMachineData().write().subStateFor(getStateId(),
+                        subTransitionResult.getTargetState().getStateId());
+                if(subTransitionResult.getTargetState().isFinalState()) {
+                    ImmutableState<T, S, E, C> parentState = subTransitionResult.getTargetState().getParentState();
+                    ImmutableState<T, S, E, C> grandParentState = parentState.getParentState();
+                    // When all of the children reach final states, the parallel state itself is considered
+                    // to be in a final state, and a completion event is generated.
+                    if(grandParentState!=null && grandParentState.isParallelState()) {
+                        boolean allReachedFinal = true;
+                        for( ImmutableState<T, S, E, C> subState : getSubStatesOn(
+                                grandParentState, stateContext.getStateMachineData().read()) ) {
+                            if(!subState.isFinalState()) {
+                                allReachedFinal = false;
+                                break;
+                            }
+                        }
+                        if(allReachedFinal) {
+                            StateMachine<T, S, E, C> stateMachine = stateContext.getStateMachine();
+                            AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)stateMachine;
+                            stateMachine.fireImmediate(stateMachineImpl.getFinishEvent(), stateContext.getContext());
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        List<ImmutableTransition<T, S, E, C>> transitions = getTransitions(stateContext.getEvent());
         for(final ImmutableTransition<T, S, E, C> transition : transitions) {
-        	transition.internalFire(stateContext);
-        	if(currentTransitionResult.isAccepted()) {
-        		ImmutableState<T, S, E, C> targetState = currentTransitionResult.getTargetState();
-        		if(targetState.isFinalState() && !targetState.isRootState()) {
-        			// TODO-hhe: fire event to notify listeners???
-        			ImmutableState<T, S, E, C> parentState = targetState.getParentState();
-    				AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
-                			stateContext.getStateMachine();
-    				StateContext<T, S, E, C> finishContext = FSM.newStateContext(
-    						stateContext.getStateMachine(), stateContext.getStateMachineData(),parentState, 
-            				abstractStateMachine.getFinishEvent(), stateContext.getContext(), 
-            				currentTransitionResult, stateContext.getExecutor());
-            		parentState.internalFire(finishContext);
-            		
-//            		if(!parentState.isRegion()) {
+            transition.internalFire(stateContext);
+            if(currentTransitionResult.isAccepted()) {
+                ImmutableState<T, S, E, C> targetState = currentTransitionResult.getTargetState();
+                if(targetState.isFinalState() && !targetState.isRootState()) {
+                    // TODO-hhe: fire event to notify listeners???
+                    ImmutableState<T, S, E, C> parentState = targetState.getParentState();
+                    AbstractStateMachine<T, S, E, C> abstractStateMachine = (AbstractStateMachine<T, S, E, C>)
+                            stateContext.getStateMachine();
+                    StateContext<T, S, E, C> finishContext = FSM.newStateContext(
+                            stateContext.getStateMachine(), stateContext.getStateMachineData(),parentState,
+                            abstractStateMachine.getFinishEvent(), stateContext.getContext(),
+                            currentTransitionResult, stateContext.getExecutor());
+                    parentState.internalFire(finishContext);
+
+//                    if(!parentState.isRegion()) {
 //                        currentTransitionResult.setTargetState(parentState);
 //                        StateMachine<T, S, E, C> stateMachine = stateContext.getStateMachine();
 //                        AbstractStateMachine<T, S, E, C> stateMachineImpl = (AbstractStateMachine<T, S, E, C>)
 //                                stateContext.getStateMachine();
 //                        stateMachine.fireImmediate(stateMachineImpl.getFinishEvent(), stateContext.getContext());
 //                    }
-        		}
-        		return;
-        	}
+                }
+                return;
+            }
         }
         
         // fire to super state
         if(currentTransitionResult.isDeclined() && getParentState()!=null && 
                 !getParentState().isRegion() && !getParentState().isParallelState()) {
-        	logger.debug("Internal notify the same event to parent state");
-        	getParentState().internalFire(stateContext);
+            logger.debug("Internal notify the same event to parent state");
+            getParentState().internalFire(stateContext);
         }
     }
     
     @Override
     public boolean isRootState() {
-	    return parentState==null;
+        return parentState==null;
     }
     
     @Override
@@ -473,72 +459,72 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             transition.accept(visitor);
         }
         if(childStates!=null) {
-        	for (ImmutableState<T, S, E, C> childState : childStates) {
-        		childState.accept(visitor);
-    		}
+            for (ImmutableState<T, S, E, C> childState : childStates) {
+                childState.accept(visitor);
+            }
         }
         visitor.visitOnExit(this);
     }
     
-	@Override
+    @Override
     public int getLevel() {
-	    return level;
+        return level;
     }
 
-	@Override
+    @Override
     public void setLevel(int level) {
-	    this.level = level;
-	    if(childStates!=null) {
-	    	for (MutableState<T, S, E, C> state : childStates) {
-				state.setLevel(this.level+1);
-			}
-	    }
+        this.level = level;
+        if(childStates!=null) {
+            for (MutableState<T, S, E, C> state : childStates) {
+                state.setLevel(this.level+1);
+            }
+        }
     }
 
-	@Override
+    @Override
     public void addChildState(MutableState<T, S, E, C> childState) {
-		if(childState!=null) {
-			if(childStates==null) {
-		    	childStates = Lists.newArrayList();
-		    }
-			if(!childStates.contains(childState))
-				childStates.add(childState);
-		}
+        if(childState!=null) {
+            if(childStates==null) {
+                childStates = Lists.newArrayList();
+            }
+            if(!childStates.contains(childState))
+                childStates.add(childState);
+        }
     }
 
-	@Override
+    @Override
     public HistoryType getHistoryType() {
-	    return historyType;
+        return historyType;
     }
 
-	@Override
+    @Override
     public void setHistoryType(HistoryType historyType) {
-	    this.historyType = historyType;
-    }
-	
-	@Override
-    public StateCompositeType getCompositeType() {
-	    return compositeType;
+        this.historyType = historyType;
     }
 
-	@Override
+    @Override
+    public StateCompositeType getCompositeType() {
+        return compositeType;
+    }
+
+    @Override
     public void setCompositeType(StateCompositeType compositeType) {
-	    this.compositeType = compositeType;
+        this.compositeType = compositeType;
     }
-	
-	@Override
+
+    @Override
     public boolean isParallelState() {
-	    return compositeType==StateCompositeType.PARALLEL;
+        return compositeType==StateCompositeType.PARALLEL;
     }
-	
-	@Override
+
+    @Override
     public String toString() {
         return getStateId().toString();
     }
 
-	@Override
+    @Override
     public boolean isRegion() {
-	    return parentState!=null && parentState.isParallelState();
+        return parentState!=null && parentState.isParallelState();
     }
 
     @Override

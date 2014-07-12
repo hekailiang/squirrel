@@ -12,10 +12,10 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  * @param <C> type of Context
  */
 public interface InternalTransitionBuilder<T extends StateMachine<T, S, E, C>, S, E, C> {
-	/**
-	 * Build a internal transition
-	 * @param stateId id of transition
-	 * @return To clause builder
-	 */
-	To<T, S, E, C> within(S stateId);
+    /**
+     * Build a internal transition
+     * @param stateId id of transition
+     * @return To clause builder
+     */
+    To<T, S, E, C> within(S stateId);
 }

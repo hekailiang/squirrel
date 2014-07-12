@@ -14,11 +14,11 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  * @param <C> type of Context
  */
 public interface On<T extends StateMachine<T, S, E, C>, S, E, C> extends When<T, S, E, C> {
-	/**
-	 * Add condition for the transition
-	 * @param condition transition condition
-	 * @return When clause builder
-	 */
+    /**
+     * Add condition for the transition
+     * @param condition transition condition
+     * @return When clause builder
+     */
     When<T, S, E, C> when(Condition<C> condition);
     
     /**

@@ -13,11 +13,11 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  * @param <C> type of Context
  */
 public interface From<T extends StateMachine<T, S, E, C>, S, E, C> {
-	/**
-	 * Build transition target state and return to clause builder
-	 * @param stateId id of state
-	 * @return To clause builder
-	 */
+    /**
+     * Build transition target state and return to clause builder
+     * @param stateId id of state
+     * @return To clause builder
+     */
     To<T, S, E, C> to(S stateId);
     
     /**

@@ -7,10 +7,10 @@ package org.squirrelframework.foundation.fsm;
  *
  */
 public enum StateMachineStatus {
-	
-	/**
-	 * State machine is instantiated but not started
-	 */
+
+    /**
+     * State machine is instantiated but not started
+     */
     INITIALIZED, 
     
     /**
