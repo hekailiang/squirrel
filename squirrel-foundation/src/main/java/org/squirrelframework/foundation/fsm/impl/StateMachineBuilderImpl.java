@@ -114,17 +114,17 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz} : 
                 new Class<?>[]{this.stateClazz, this.stateClazz, this.eventClazz, this.contextClazz};
         
-        Constructor<? extends T> fsmContructor = null;
+        Constructor<? extends T> fsmConstructor;
         try {
-            fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, this.extraParamTypes);
+            fsmConstructor = ReflectUtils.getConstructor(stateMachineImplClazz, this.extraParamTypes);
         } catch(Exception e1) {
             try {
-                fsmContructor = ReflectUtils.getConstructor(stateMachineImplClazz, new Class<?>[0]);
+                fsmConstructor = ReflectUtils.getConstructor(stateMachineImplClazz, new Class<?>[0]);
             } catch(Exception e2) {
                 throw new IllegalArgumentException("Cannot find matched constructor for \'"+stateMachineImplClazz.getName()+"\'.");
             }
         }
-        this.constructor = fsmContructor;
+        this.constructor = fsmConstructor;
         
         Method postInit = null;
         try {
@@ -154,20 +154,20 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     private <M extends Annotation> M findAnnotation(final Class<M> annotationClass) {
-        final AtomicReference<M> genericsParamteresRef = new AtomicReference<M>();;
+        final AtomicReference<M> genericsParametersRef = new AtomicReference<M>();;
         walkThroughStateMachineClass(new Function<Class<?>, Boolean>() {
             @Override
             public Boolean apply(Class<?> input) {
                 M anno = input.getAnnotation(annotationClass);
                 if(anno!=null) {
-                    genericsParamteresRef.set(anno);
+                    genericsParametersRef.set(anno);
                     return false;
                 }
                 return true;
             }
         });
-        M genericsParamteres = genericsParamteresRef.get();
-        return genericsParamteres;
+        M genericsParameters = genericsParametersRef.get();
+        return genericsParameters;
     }
     
     private void checkState() {
@@ -298,7 +298,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         deferBoundActionInfoList.add(deferBoundActionInfo);
-        return;
     }
     
     @SuppressWarnings("unchecked")
@@ -318,7 +317,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 "Condition \'when\' should be concrete class or static inner class.");
         Preconditions.checkArgument(
                 transit.type()!=TransitionType.INTERNAL || transit.from().equals(transit.to()),
-                "Internal transiton must transit to the same source state.");
+                "Internal transition must transit to the same source state.");
         
         S fromState = stateConverter.convertFromString(parseStateId(transit.from()));
         Preconditions.checkNotNull(fromState, "Cannot convert state of name \""+fromState+"\".");
@@ -343,7 +342,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         
         // if no existed transition is matched then create a new transition
-        To<T, S, E, C> toBuilder = null;
+        final To<T, S, E, C> toBuilder;
         if(transit.type()==TransitionType.INTERNAL) {
             InternalTransitionBuilder<T, S, E, C> transitionBuilder =
                     FSM.newInternalTransitionBuilder(states, transit.priority(), executionContext);
@@ -383,7 +382,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
                 stateAliasToDescription.get(value.substring(1)) : value;
     }
     
-    private void buidlDeclareState(State state) {
+    private void buildDeclareState(State state) {
         if(state==null) return;
         
         Preconditions.checkState(stateConverter!=null, "Do not register state converter");
@@ -572,24 +571,24 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             
             // state exit extension method
             String[] exitMethodCallCandidates = getEntryExitStateMethodNames(state, false);
-            for(int i=0, size=exitMethodCallCandidates.length; i<size; ++i) {
-                addStateEntryExitMethodCallAction(exitMethodCallCandidates[i], 
+            for (String exitMethodCallCandidate : exitMethodCallCandidates) {
+                addStateEntryExitMethodCallAction(exitMethodCallCandidate,
                         methodCallParamTypes, state, false);
             }
             
             // transition extension methods
             for(ImmutableTransition<T, S, E, C> transition : state.getAllTransitions()) {
                 String[] transitionMethodCallCandidates = getTransitionMethodNames(transition);
-                for(int i=0, size=transitionMethodCallCandidates.length; i<size; ++i) {
-                    addTransitionMethodCallAction(transitionMethodCallCandidates[i], methodCallParamTypes, 
-                            (MutableTransition<T, S, E, C>)transition);
+                for (String transitionMethodCallCandidate : transitionMethodCallCandidates) {
+                    addTransitionMethodCallAction(transitionMethodCallCandidate, methodCallParamTypes,
+                            (MutableTransition<T, S, E, C>) transition);
                 }
             }
             
             // state entry extension method
             String[] entryMethodCallCandidates = getEntryExitStateMethodNames(state, true);
-            for(int i=0, size=entryMethodCallCandidates.length; i<size; ++i) {
-                addStateEntryExitMethodCallAction(entryMethodCallCandidates[i], 
+            for (String entryMethodCallCandidate : entryMethodCallCandidates) {
+                addStateEntryExitMethodCallAction(entryMethodCallCandidate,
                         methodCallParamTypes, state, true);
             }
         }
@@ -622,9 +621,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     private boolean isInstantiableType(Class<?> type) {
-        return type!=null && !type.isInterface() && !Modifier.isAbstract(type.getModifiers()) &&
-                ((type.getEnclosingClass()==null) || (type.getEnclosingClass()!=null && 
-                Modifier.isStatic(type.getModifiers())));
+        return type != null && !type.isInterface() && !Modifier.isAbstract(type.getModifiers()) &&
+                ( type.getEnclosingClass() == null || Modifier.isStatic(type.getModifiers()) );
     }
     
     private boolean isStateMachineType(Class<?> stateMachineClazz) {
@@ -653,8 +651,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     }
     
     static Method findMethodCallActionInternal(Class<?> target, String methodName, Class<?>[] parameterTypes) {
-        Method method = searchMethod(target, AbstractStateMachine.class, methodName, parameterTypes);
-        return method;
+        return searchMethod(target, AbstractStateMachine.class, methodName, parameterTypes);
     }
     
     @Override
@@ -855,11 +852,11 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private class DeclareStateFunction implements Function<Class<?>, Boolean> {
         @Override
         public Boolean apply(Class<?> k) {
-            buidlDeclareState(k.getAnnotation(State.class));
+            buildDeclareState(k.getAnnotation(State.class));
             States states = k.getAnnotation(States.class);
             if(states!=null && states.value()!=null) {
                 for(State s : states.value()) {
-                    StateMachineBuilderImpl.this.buidlDeclareState(s);
+                    StateMachineBuilderImpl.this.buildDeclareState(s);
                 }
             }
             return true;

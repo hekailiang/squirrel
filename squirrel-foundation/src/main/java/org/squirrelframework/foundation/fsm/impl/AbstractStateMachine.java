@@ -201,8 +201,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             writeLock.lock();
             setStatus(StateMachineStatus.BUSY);
             try {
-                Pair<E, C> eventInfo = null;
-                E event = null;
+                Pair<E, C> eventInfo;
+                E event;
                 C context = null;
                 while ((eventInfo=queuedEvents.poll())!=null) {
                     // response to cancel operation
@@ -1041,11 +1041,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 // nulls last
                 if (or1 != null && or2 != null) {
                     return or1.value() - or2.value();
-                } else
-                if (or1 != null && or2 == null) {
+                } else if (or1 != null && or2 == null) {
                     return -1;
-                } else
-                if (or1 == null && or2 != null) {
+                } else if (or1 == null && or2 != null) {
                     return 1;
                 }
                 return o1.getName().compareTo(o2.getName());
