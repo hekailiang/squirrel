@@ -821,26 +821,33 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         }
         return state;
     }
-    
+
     @Override
     public void defineSequentialStatesOn(S parentStateId, S... childStateIds) {
         checkState();
-        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, HistoryType.NONE, childStateIds);
+        defineSequentialStatesOn(parentStateId, HistoryType.NONE, false, childStateIds);
+    }
+
+    @Override
+    public void defineSequentialStatesOn(S parentStateId, HistoryType historyType, boolean ignoreInitialState, S... childStateIds) {
+        checkState();
+        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, ignoreInitialState, childStateIds);
     }
     
     @Override
     public void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds) {
         checkState();
-        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, childStateIds);
+        defineChildStatesOn(parentStateId, StateCompositeType.SEQUENTIAL, historyType, false, childStateIds);
     }
     
     @Override
     public void defineParallelStatesOn(S parentStateId, S... childStateIds) {
         checkState();
-        defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, childStateIds);
+        defineChildStatesOn(parentStateId, StateCompositeType.PARALLEL, HistoryType.NONE, true, childStateIds);
     }
 
-    private void defineChildStatesOn(S parentStateId, StateCompositeType compositeType, HistoryType historyType, S... childStateIds) {
+    private void defineChildStatesOn(S parentStateId, StateCompositeType compositeType,
+                                     HistoryType historyType, boolean ignoreInitialState, S... childStateIds) {
         checkState();
         if(childStateIds!=null && childStateIds.length>0) {
             MutableState<T, S, E, C> parentState = FSM.getState(states, parentStateId);
@@ -848,7 +855,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             parentState.setHistoryType(historyType);
             for(int i=0, size=childStateIds.length; i<size; ++i) {
                 MutableState<T, S, E, C> childState = FSM.getState(states, childStateIds[i]);
-                if(i==0 && compositeType==StateCompositeType.SEQUENTIAL) {
+                if(!ignoreInitialState && i==0) {
                     parentState.setInitialState(childState);
                 }
                 childState.setParentState(parentState);

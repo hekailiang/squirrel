@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.samples;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -22,10 +23,6 @@ public class DecisionStateSampleTest {
         A2ANY, A2B, A2C, A2D, ANY2A
     }
 
-    @States({
-            @State(name="A", entryCallMethod = "enterA", exitCallMethod = "leftA"),
-            @State(parent="A", name="_A", entryCallMethod = "enterMakeDecision", exitCallMethod = "leftMakeDecision") // _A is decision state for A
-    })
     @StateMachineParameters(stateType = DecisionState.class, eventType = DecisionEvent.class, contextType = Integer.class)
     static class DecisionStateMachine extends AbstractUntypedStateMachine {
 
@@ -89,6 +86,13 @@ public class DecisionStateSampleTest {
     DecisionStateMachine buildStateMachine() {
         DecisionStateMachine fsm;
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
+
+        // _A is decision state for A
+        builder.defineSequentialStatesOn(DecisionState.A, HistoryType.NONE, true/*ignore initial state*/, DecisionState._A);
+        builder.onEntry(DecisionState.A).callMethod("enterA");
+        builder.onExit(DecisionState.A).callMethod("leftA");
+        builder.onEntry(DecisionState._A).callMethod("enterMakeDecision");
+        builder.onExit(DecisionState._A).callMethod("leftMakeDecision");
 
         builder.transitions().from(DecisionState._A).toAmong(DecisionState.B, DecisionState.C, DecisionState.D).
                 onEach(DecisionEvent.A2B, DecisionEvent.A2C, DecisionEvent.A2D).callMethod("a2b|a2c|_");
