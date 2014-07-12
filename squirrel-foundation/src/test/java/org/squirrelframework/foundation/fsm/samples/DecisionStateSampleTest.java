@@ -5,9 +5,7 @@ import org.junit.Test;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
-import org.squirrelframework.foundation.fsm.annotation.State;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
-import org.squirrelframework.foundation.fsm.annotation.States;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
 
 /**
@@ -87,20 +85,21 @@ public class DecisionStateSampleTest {
         DecisionStateMachine fsm;
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
 
-        // _A is decision state for A
+        // _A is decision state for A and it is invisible to user
         builder.defineNoInitSequentialStatesOn(DecisionState.A, HistoryType.NONE, DecisionState._A);
         builder.onEntry(DecisionState.A).callMethod("enterA");
         builder.onExit(DecisionState.A).callMethod("leftA");
         builder.onEntry(DecisionState._A).callMethod("enterMakeDecision");
         builder.onExit(DecisionState._A).callMethod("leftMakeDecision");
 
+        // transition to left state A are all started with _A which means all transition cause exit state A must be router by _A
         builder.transitions().from(DecisionState._A).toAmong(DecisionState.B, DecisionState.C, DecisionState.D).
                 onEach(DecisionEvent.A2B, DecisionEvent.A2C, DecisionEvent.A2D).callMethod("a2b|a2c|_");
 
         builder.transitions().fromAmong(DecisionState.B, DecisionState.C, DecisionState.D).
                 to(DecisionState.A).on(DecisionEvent.ANY2A);
 
-        // use local transition avoid invoking state A exit functions
+        // use local transition avoid invoking state A exit functions when entering its decision state
         builder.localTransitions().between(DecisionState.A).and(DecisionState._A).
                 onMutual(DecisionEvent.A2ANY, DecisionEvent.ANY2A).callMethod("makeDecision|_");
 
