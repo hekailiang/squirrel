@@ -180,7 +180,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public ExternalTransitionBuilder<T, S, E, C> externalTransition() {
         checkState();
-        return externalTransition();
+        return externalTransition(TransitionPriority.NORMAL);
     }
 
     @Override
