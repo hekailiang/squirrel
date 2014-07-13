@@ -1,12 +1,12 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.List;
-
 import org.squirrelframework.foundation.component.SquirrelComponent;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
+
+import java.util.List;
 
 class EntryExitActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements 
     EntryExitActionBuilder<T, S, E, C>, SquirrelComponent {
@@ -34,7 +34,7 @@ class EntryExitActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     }
 
     @Override
-    public void perform(List<Action<T, S, E, C>> actions) {
+    public void perform(List<? extends Action<T, S, E, C>> actions) {
         if(isEntryAction) {
             state.addEntryActions(actions);
         } else {

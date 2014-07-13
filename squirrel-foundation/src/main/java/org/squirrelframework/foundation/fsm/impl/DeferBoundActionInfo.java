@@ -1,13 +1,13 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.List;
-
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
+import java.util.List;
+
 public class DeferBoundActionInfo<T extends StateMachine<T, S, E, C>, S, E, C> {
     
-    private List<Action<T, S, E, C>> actions;
+    private List<? extends Action<T, S, E, C>> actions;
     
     private S from;
     
@@ -33,11 +33,11 @@ public class DeferBoundActionInfo<T extends StateMachine<T, S, E, C>, S, E, C> {
         return this.event==null || this.event.equals(event);
     }
     
-    public List<Action<T, S, E, C>> getActions() {
+    public List<? extends Action<T, S, E, C>> getActions() {
         return actions;
     }
     
-    public void setActions(List<Action<T, S, E, C>> actions) {
+    public void setActions(List<? extends Action<T, S, E, C>> actions) {
         this.actions = actions;
     }
 

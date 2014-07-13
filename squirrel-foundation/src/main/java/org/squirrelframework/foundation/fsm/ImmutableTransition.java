@@ -1,8 +1,8 @@
 package org.squirrelframework.foundation.fsm;
 
-import java.util.List;
-
 import org.squirrelframework.foundation.component.SquirrelComponent;
+
+import java.util.List;
 
 /**
  * <p><b>Transition</b> A directed relationship between two states which represents the complete response 
@@ -74,7 +74,7 @@ public interface ImmutableTransition<T extends StateMachine<T, S, E, C>, S, E, C
     void internalFire(StateContext<T, S, E, C> stateContext);
     
     /**
-     * Verify tranistion correctness
+     * Verify transition correctness
      */
     void verify();
 }

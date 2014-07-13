@@ -39,7 +39,7 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     }
     
     @Override
-    public void perform(List<Action<T, S, E, C>> actions) {
+    public void perform(List<? extends Action<T, S, E, C>> actions) {
         transition.addActions(actions);
     }
     

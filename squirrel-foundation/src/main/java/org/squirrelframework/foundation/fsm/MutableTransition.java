@@ -10,7 +10,7 @@ public interface MutableTransition<T extends StateMachine<T, S, E, C>, S, E, C> 
     
     void addAction(Action<T, S, E, C> newAction);
     
-    void addActions(List<Action<T, S, E, C>> newActions);
+    void addActions(List<? extends Action<T, S, E, C>> newActions);
     
     void setCondition(Condition<C> condition);
     

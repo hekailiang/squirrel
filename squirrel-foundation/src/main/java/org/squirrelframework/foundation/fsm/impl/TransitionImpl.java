@@ -62,7 +62,7 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     }
 
     @Override
-    public void addActions(List<Action<T, S, E, C>> newActions) {
+    public void addActions(List<? extends Action<T, S, E, C>> newActions) {
         actions.addAll(newActions);
     }
 

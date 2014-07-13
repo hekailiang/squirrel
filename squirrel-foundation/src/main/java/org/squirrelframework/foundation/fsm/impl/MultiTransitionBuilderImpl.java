@@ -162,7 +162,7 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     }
 
     @Override
-    public void perform(List<Action<T, S, E, C>> actions) {
+    public void perform(List<? extends Action<T, S, E, C>> actions) {
         int actionSize = actions.size();
         for(int i=0, transitionLength=transitions.size(); i<transitionLength; ++i) {
             int actionPos = i<actionSize ? i : actionSize-1;

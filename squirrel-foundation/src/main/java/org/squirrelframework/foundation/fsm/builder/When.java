@@ -26,10 +26,11 @@ public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
     /**
      * Define actions to be performed during transition. When used in multiple transition builder,
      * the actions will be sequentially assigned to each transition. If actions size is less than
-     * transitions size, the last action will be assigned to the rest of transitions.
+     * transitions size, the last action will be assigned to the rest of transitions. null value in
+     * actions will be skipped which means no action will be assigned to corresponding transition.
      * @param actions performed actions
      */
-    void perform(List<Action<T, S, E, C>> actions);
+    void perform(List<? extends Action<T, S, E, C>> actions);
     
     /**
      * Define mvel action to be performed during transition

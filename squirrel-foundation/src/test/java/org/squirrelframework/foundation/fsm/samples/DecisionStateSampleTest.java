@@ -1,8 +1,11 @@
 package org.squirrelframework.foundation.fsm.samples;
 
+import com.google.common.collect.Lists;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.UntypedAnonymousAction;
+import org.squirrelframework.foundation.fsm.UntypedStateMachine;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
 import org.squirrelframework.foundation.fsm.impl.AbstractUntypedStateMachine;
@@ -41,18 +44,6 @@ public class DecisionStateSampleTest {
             logger.append("leftMakeDecision");
         }
 
-        public void makeDecision(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
-            if(context < 10) {
-                fire(DecisionEvent.A2B, context);
-            } else if(context < 20) {
-                fire(DecisionEvent.A2C, context);
-            } else if(context < 40) {
-                fire(DecisionEvent.A2D, context);
-            } else {
-                fire(DecisionEvent.ANY2A, context);
-            }
-        }
-
         public void a2b(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
             logger.append("a2b");
         }
@@ -80,6 +71,34 @@ public class DecisionStateSampleTest {
 
     }
 
+    static class DecisionMaker extends UntypedAnonymousAction {
+        // wrap any local state in action
+        final String name;
+
+        DecisionMaker(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
+            Integer typedContext = (Integer)context;
+            if(typedContext < 10) {
+                stateMachine.fire(DecisionEvent.A2B, context);
+            } else if(typedContext < 20) {
+                stateMachine.fire(DecisionEvent.A2C, context);
+            } else if(typedContext < 40) {
+                stateMachine.fire(DecisionEvent.A2D, context);
+            } else {
+                stateMachine.fire(DecisionEvent.ANY2A, context);
+            }
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+    }
+
     DecisionStateMachine buildStateMachine() {
         DecisionStateMachine fsm;
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
@@ -100,7 +119,8 @@ public class DecisionStateSampleTest {
 
         // use local transition avoid invoking state A exit functions when entering its decision state
         builder.localTransitions().between(DecisionState.A).and(DecisionState._A).
-                onMutual(DecisionEvent.A2ANY, DecisionEvent.ANY2A).callMethod("makeDecision|_");
+                onMutual(DecisionEvent.A2ANY, DecisionEvent.ANY2A).
+                perform(Lists.newArrayList(new DecisionMaker("SomeLocalState"), null));
 
         fsm = builder.newUntypedStateMachine(DecisionState.A);
         return fsm;
@@ -121,7 +141,6 @@ public class DecisionStateSampleTest {
         fsm.fire(DecisionEvent.A2ANY, 100);
         Assert.assertTrue(fsm.getCurrentState().equals(DecisionState.A));
         Assert.assertTrue("enterMakeDecision.leftMakeDecision".equals(fsm.consumeLog()));
-
 
         fsm.fire(DecisionEvent.A2ANY, 5);
         Assert.assertTrue(fsm.getCurrentState().equals(DecisionState.B));

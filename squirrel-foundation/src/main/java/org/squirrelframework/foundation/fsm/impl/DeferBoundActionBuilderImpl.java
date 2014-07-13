@@ -1,22 +1,13 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.squirrelframework.foundation.component.SquirrelComponent;
-import org.squirrelframework.foundation.fsm.Action;
-import org.squirrelframework.foundation.fsm.Condition;
-import org.squirrelframework.foundation.fsm.Conditions;
-import org.squirrelframework.foundation.fsm.ActionWrapper;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.builder.DeferBoundActionBuilder;
-import org.squirrelframework.foundation.fsm.builder.DeferBoundActionFrom;
-import org.squirrelframework.foundation.fsm.builder.DeferBoundActionTo;
-import org.squirrelframework.foundation.fsm.builder.On;
-import org.squirrelframework.foundation.fsm.builder.When;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.squirrelframework.foundation.component.SquirrelComponent;
+import org.squirrelframework.foundation.fsm.*;
+import org.squirrelframework.foundation.fsm.builder.*;
+
+import java.util.Collections;
+import java.util.List;
 
 public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         implements DeferBoundActionBuilder<T, S, E, C>,
@@ -53,7 +44,7 @@ public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, 
     }
 
     @Override
-    public void perform(List<Action<T, S, E, C>> actions) {
+    public void perform(List<? extends Action<T, S, E, C>> actions) {
         if (condition == null) {
             deferBoundActionInfo.setActions(actions);
         } else {

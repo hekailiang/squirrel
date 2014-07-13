@@ -1,14 +1,13 @@
 package org.squirrelframework.foundation.fsm.impl;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.Actions;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ActionsImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Actions<T, S, E, C> {
     
@@ -24,10 +23,10 @@ public class ActionsImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements
     }
     
     @Override
-    public void addAll(List<Action<T, S, E, C>> newActions) {
+    public void addAll(List<? extends Action<T, S, E, C>> newActions) {
         if(newActions!=null && !newActions.isEmpty()) {
             for(Action<T, S, E, C> action : newActions) {
-                add(action);
+                if(action!=null) add(action);
             }
         }
     }

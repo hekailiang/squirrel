@@ -26,7 +26,7 @@ public interface Actions<T extends StateMachine<T, S, E, C>, S, E, C> extends Sq
      * Add a list of new actions
      * @param newActions new actions
      */
-    void addAll(List<Action<T, S, E, C>> newActions);
+    void addAll(List<? extends Action<T, S, E, C>> newActions);
     
     /**
      * @return all sorted actions

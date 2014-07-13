@@ -317,7 +317,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     }
     
     @Override
-    public void addEntryActions(List<Action<T, S, E, C>> newActions) {
+    public void addEntryActions(List<? extends Action<T, S, E, C>> newActions) {
         entryActions.addAll(newActions);
     }
 
@@ -327,7 +327,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     }
 
     @Override
-    public void addExitActions(List<Action<T, S, E, C>> newActions) {
+    public void addExitActions(List<? extends Action<T, S, E, C>> newActions) {
         exitActions.addAll(newActions);
     }
     
