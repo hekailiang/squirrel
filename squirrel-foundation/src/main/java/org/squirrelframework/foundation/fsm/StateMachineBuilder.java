@@ -20,6 +20,10 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     ExternalTransitionBuilder<T, S, E, C> externalTransition();
 
+    /**
+     * Create multiple external transitions builder with default priority
+     * @return multiple external transitions builder
+     */
     MultiTransitionBuilder<T, S, E, C> externalTransitions();
     
     /**
@@ -28,8 +32,16 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     ExternalTransitionBuilder<T, S, E, C> transition();
 
+    /**
+     * The same as <code>externalTransitions</code>
+     * @return multiple external transitions builder
+     */
     MultiTransitionBuilder<T, S, E, C> transitions();
-    
+
+    /**
+     * Create defer bound action builder
+     * @return defer bound action builder
+     */
     DeferBoundActionBuilder<T, S, E, C> transit();
     
     /**
@@ -38,6 +50,10 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     LocalTransitionBuilder<T, S, E, C> localTransition();
 
+    /**
+     * Create multiple local transitions builder with default priority
+     * @return multiple local transitions builder
+     */
     MultiTransitionBuilder<T, S, E, C> localTransitions();
     
     /**
@@ -45,9 +61,19 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @return Internal transition builder
      */
     InternalTransitionBuilder<T, S, E, C> internalTransition();
-    
+
+    /**
+     * Create external transition builder with priority
+     * @param priority external transition priority
+     * @return external transition builder with priority
+     */
     ExternalTransitionBuilder<T, S, E, C> externalTransition(int priority);
 
+    /**
+     * Create multiple external transitions builder with priority
+     * @param priority external transitions priority
+     * @return multiple external transitions builder
+     */
     MultiTransitionBuilder<T, S, E, C> externalTransitions(int priority);
     
     /**
@@ -57,12 +83,32 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     ExternalTransitionBuilder<T, S, E, C> transition(int priority);
 
+    /**
+     * the same as <code>externalTransitions<code/>
+     * @param priority external transitions priority
+     * @return multiple external transitions builder
+     */
     MultiTransitionBuilder<T, S, E, C> transitions(int priority);
-    
+
+    /**
+     * Create local transition builder with priority
+     * @param priority local transition priority
+     * @return local transition builder
+     */
     LocalTransitionBuilder<T, S, E, C> localTransition(int priority);
 
+    /**
+     * Create multiple local transitions builder with priority
+     * @param priority local transition priority
+     * @return local transition builder
+     */
     MultiTransitionBuilder<T, S, E, C> localTransitions(int priority);
-    
+
+    /**
+     * Create internal transition builder with priority
+     * @param priority internal transition priority
+     * @return internal transition
+     */
     InternalTransitionBuilder<T, S, E, C> internalTransition(int priority);
     
     /**
@@ -119,6 +165,19 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      */
     void defineSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds);
 
+    /**
+     * Define sequential child states on parent state without initial state
+     * @param parentStateId id of parent state
+     * @param childStateIds child states id of parent state
+     */
+    void defineNoInitSequentialStatesOn(S parentStateId, S... childStateIds);
+
+    /**
+     * Define sequential child states on parent state without initial state
+     * @param parentStateId id of parent state
+     * @param historyType history type of parent state
+     * @param childStateIds child states id of parent state
+     */
     void defineNoInitSequentialStatesOn(S parentStateId, HistoryType historyType, S... childStateIds);
     
     /**

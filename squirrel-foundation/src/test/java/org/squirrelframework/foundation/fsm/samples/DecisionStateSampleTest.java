@@ -2,7 +2,6 @@ package org.squirrelframework.foundation.fsm.samples;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedStateMachineBuilder;
 import org.squirrelframework.foundation.fsm.annotation.StateMachineParameters;
@@ -86,7 +85,7 @@ public class DecisionStateSampleTest {
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
 
         // _A is decision state for A and it is invisible to user
-        builder.defineNoInitSequentialStatesOn(DecisionState.A, HistoryType.NONE, DecisionState._A);
+        builder.defineNoInitSequentialStatesOn(DecisionState.A, DecisionState._A);
         builder.onEntry(DecisionState.A).callMethod("enterA");
         builder.onExit(DecisionState.A).callMethod("leftA");
         builder.onEntry(DecisionState._A).callMethod("enterMakeDecision");

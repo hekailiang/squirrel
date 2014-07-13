@@ -24,7 +24,9 @@ public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
     void perform(Action<T, S, E, C> action);
     
     /**
-     * Define actions to be performed during transition
+     * Define actions to be performed during transition. When used in multiple transition builder,
+     * the actions will be sequentially assigned to each transition. If actions size is less than
+     * transitions size, the last action will be assigned to the rest of transitions.
      * @param actions performed actions
      */
     void perform(List<Action<T, S, E, C>> actions);
@@ -36,7 +38,11 @@ public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
     void evalMvel(String expression);
     
     /**
-     * Define action method to be called during transition
+     * Define action method to be called during transition. When used in multiple transition builder,
+     * the method name can be joined by '|'. Each method action will be sequentially assigned to each
+     * transition. If actions size is less than transitions size, the last method action  will be assigned
+     * to the rest of transitions. '_' represent a place holder which means no method action will be
+     * assigned to corresponding transition.
      * @param methodName method name
      */
     void callMethod(String methodName);

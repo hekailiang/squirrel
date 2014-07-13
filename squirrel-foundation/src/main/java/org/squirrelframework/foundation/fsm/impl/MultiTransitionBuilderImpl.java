@@ -185,8 +185,9 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
 
         for(int i=0, transitionLength=transitions.size(); i<transitionLength; ++i) {
             int methodPos = i<methodsLength ? i : methodsLength-1;
-            if("_".equals(methods[methodPos])) continue;
-            Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methods[methodPos], executionContext);
+            String theMethodName = methods[methodPos].trim();
+            if("_".equals(theMethodName)) continue;
+            Action<T, S, E, C> action = FSM.newMethodCallActionProxy(theMethodName, executionContext);
             transitions.get(i).addAction(action);
         }
     }
