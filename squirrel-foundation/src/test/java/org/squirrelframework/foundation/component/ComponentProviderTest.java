@@ -1,15 +1,19 @@
 package org.squirrelframework.foundation.component;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.notNullValue;
-
+import org.junit.After;
 import org.junit.Test;
 import org.squirrelframework.foundation.component.impl.ProgrammerImpl;
 import org.squirrelframework.foundation.component.impl.StudentImpl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 public class ComponentProviderTest {
+
+    @After
+    public void tearDown() {
+        SquirrelProvider.getInstance().clearRegistry();
+    }
     
     @Test
     public void testNewInstance() {
@@ -64,7 +68,7 @@ public class ComponentProviderTest {
     }
     
     @Test
-    public void testRegisterAnnotherImpl() {
+    public void testRegisterAnotherImpl() {
         SquirrelProvider.getInstance().register(Person.class, StudentImpl.class);
         Person p = SquirrelProvider.getInstance().newInstance(Person.class);
         assertThat(p, notNullValue());
@@ -73,7 +77,7 @@ public class ComponentProviderTest {
     }
     
     @Test
-    public void testRegisterAnnotherInterface() {
+    public void testRegisterAnotherInterface() {
         SquirrelProvider.getInstance().register(Person.class, Student.class);
         Person p = SquirrelProvider.getInstance().newInstance(Person.class);
         assertThat(p, notNullValue());
