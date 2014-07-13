@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.samples;
 
 import com.google.common.collect.Lists;
 import junit.framework.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.UntypedAnonymousAction;
@@ -23,10 +24,15 @@ public class DecisionStateSampleTest {
         A2ANY, A2B, A2C, A2D, ANY2A
     }
 
+    static StringBuilder logger;
+
+    @Before
+    public void setUp() {
+        logger = new StringBuilder();
+    }
+
     @StateMachineParameters(stateType = DecisionState.class, eventType = DecisionEvent.class, contextType = Integer.class)
     static class DecisionStateMachine extends AbstractUntypedStateMachine {
-
-        StringBuilder logger = new StringBuilder();
 
         public void enterA(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
             logger.append("enterA");
@@ -34,14 +40,6 @@ public class DecisionStateSampleTest {
 
         public void leftA(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
             logger.append("leftA");
-        }
-
-        public void enterMakeDecision(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
-            logger.append("enterMakeDecision");
-        }
-
-        public void leftMakeDecision(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
-            logger.append("leftMakeDecision");
         }
 
         public void a2b(DecisionState from, DecisionState to, DecisionEvent event, Integer context) {
@@ -73,6 +71,7 @@ public class DecisionStateSampleTest {
 
     static class DecisionMaker extends UntypedAnonymousAction {
         // wrap any local state in action
+        int transitionCount = 0;
         final String name;
 
         DecisionMaker(String name) {
@@ -81,15 +80,31 @@ public class DecisionStateSampleTest {
 
         @Override
         public void execute(Object from, Object to, Object event, Object context, UntypedStateMachine stateMachine) {
-            Integer typedContext = (Integer)context;
-            if(typedContext < 10) {
-                stateMachine.fire(DecisionEvent.A2B, context);
-            } else if(typedContext < 20) {
-                stateMachine.fire(DecisionEvent.A2C, context);
-            } else if(typedContext < 40) {
-                stateMachine.fire(DecisionEvent.A2D, context);
-            } else {
-                stateMachine.fire(DecisionEvent.ANY2A, context);
+            DecisionState typedFrom = (DecisionState)from;
+            DecisionState typedTo = (DecisionState)to;
+            DecisionEvent typedEvent = (DecisionEvent)event;
+            if(typedFrom!=null && typedTo==null) {
+                logger.append("leftMakeDecision");
+                // local state clean up at some situation, e.g. at some criteria restore transitionCount
+            } else if(typedFrom==null && typedTo!=null) {
+                logger.append("enterMakeDecision");
+                // local state initialize at some situation
+            } else if(typedFrom!=null && typedFrom!=null && typedEvent==DecisionEvent.A2ANY) {
+                // perform dynamic transitions
+                Integer typedContext = (Integer)context;
+                if(typedContext < 10) {
+                    stateMachine.fire(DecisionEvent.A2B, context);
+                    transitionCount++;
+                } else if(typedContext < 20) {
+                    stateMachine.fire(DecisionEvent.A2C, context);
+                    transitionCount++;
+                } else if(typedContext < 40) {
+                    stateMachine.fire(DecisionEvent.A2D, context);
+                    transitionCount++;
+                } else {
+                    stateMachine.fire(DecisionEvent.ANY2A, context);
+                }
+                // e.g. if transitionCount>10 then change transition router rules
             }
         }
 
@@ -102,13 +117,14 @@ public class DecisionStateSampleTest {
     DecisionStateMachine buildStateMachine() {
         DecisionStateMachine fsm;
         final UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(DecisionStateMachine.class);
+        final DecisionMaker decisionMaker = new DecisionMaker("DecisionMaker");
 
         // _A is decision state for A and it is invisible to user
         builder.defineNoInitSequentialStatesOn(DecisionState.A, DecisionState._A);
         builder.onEntry(DecisionState.A).callMethod("enterA");
         builder.onExit(DecisionState.A).callMethod("leftA");
-        builder.onEntry(DecisionState._A).callMethod("enterMakeDecision");
-        builder.onExit(DecisionState._A).callMethod("leftMakeDecision");
+        builder.onEntry(DecisionState._A).perform(decisionMaker);
+        builder.onExit(DecisionState._A).perform(decisionMaker);
 
         // transition to left state A are all started with _A which means all transition cause exit state A must be router by _A
         builder.transitions().from(DecisionState._A).toAmong(DecisionState.B, DecisionState.C, DecisionState.D).
@@ -120,7 +136,7 @@ public class DecisionStateSampleTest {
         // use local transition avoid invoking state A exit functions when entering its decision state
         builder.localTransitions().between(DecisionState.A).and(DecisionState._A).
                 onMutual(DecisionEvent.A2ANY, DecisionEvent.ANY2A).
-                perform(Lists.newArrayList(new DecisionMaker("SomeLocalState"), null));
+                perform(Lists.newArrayList(decisionMaker, null));
 
         fsm = builder.newUntypedStateMachine(DecisionState.A);
         return fsm;
