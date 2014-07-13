@@ -194,10 +194,12 @@ At now you may have many questions about the sample code, please be patient. The
     builder.transitions().from(State._A).toAmong(State.B, State.C, State.D).
             onEach(Event.A2B, Event.A2C, Event.A2D).callMethod("a2b|a2c|_");
     
-    // transitions(A->_A@A2ANY=>makeDecision, _A->A@ANY2A) will be defined at once
+    // transitions(A->_A@A2ANY=>DecisionMaker, _A->A@ANY2A) will be defined at once
     builder.localTransitions().between(State.A).and(State._A).
-            onMutual(Event.A2ANY, Event.ANY2A).callMethod("makeDecision|_");
+            onMutual(Event.A2ANY, Event.ANY2A).
+            perform( Lists.newArrayList(new DecisionMaker("SomeLocalState"), null) );
     ```
+    More information can be found in *org.squirrelframework.foundation.fsm.samples.DecisionStateSampleTest*;
 * **Declarative Annotation**  
 A declarative way is also provided to define and also to extend the state machine. Here is an example.  
 	```java
