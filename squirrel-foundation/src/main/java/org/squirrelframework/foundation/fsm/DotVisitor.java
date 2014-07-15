@@ -5,10 +5,6 @@ package org.squirrelframework.foundation.fsm;
  * 
  * @author Henry.He
  *
- * @param <T> type of State Machine
- * @param <S> type of State
- * @param <E> type of Event
- * @param <C> type of Context
  */
 public interface DotVisitor extends Visitor {
     

@@ -43,12 +43,6 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return isAutoStartEnabled;
     }
 
-    @Deprecated
-    public StateMachineConfiguration setAutoStartEnabled(boolean isAutoStartEnabled) {
-        this.isAutoStartEnabled = isAutoStartEnabled;
-        return this;
-    }
-    
     public StateMachineConfiguration enableAutoStart(boolean isAutoStartEnabled) {
         this.isAutoStartEnabled = isAutoStartEnabled;
         return this;
@@ -58,12 +52,6 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return isAutoTerminateEnabled;
     }
 
-    @Deprecated
-    public StateMachineConfiguration setAutoTerminateEnabled(boolean isAutoTerminateEnabled) {
-        this.isAutoTerminateEnabled = isAutoTerminateEnabled;
-        return this;
-    }
-    
     public StateMachineConfiguration enableAutoTerminate(boolean isAutoTerminateEnabled) {
         this.isAutoTerminateEnabled = isAutoTerminateEnabled;
         return this;
@@ -73,12 +61,6 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return isDataIsolateEnabled;
     }
 
-    @Deprecated
-    public StateMachineConfiguration setDataIsolateEnabled(boolean isDataIsolateEnabled) {
-        this.isDataIsolateEnabled = isDataIsolateEnabled;
-        return this;
-    }
-    
     public StateMachineConfiguration enableDataIsolate(boolean isDataIsolateEnabled) {
         this.isDataIsolateEnabled = isDataIsolateEnabled;
         return this;
@@ -93,25 +75,8 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         return this;
     }
     
-    /**
-     * Replaced by isDebugModeEnabled
-     */
-    @Deprecated
-    public boolean isDebugEnabled() {
-        return isDebugModeEnabled;
-    }
-    
     public boolean isDebugModeEnabled() {
         return isDebugModeEnabled;
-    }
-    
-    /**
-     * Replaced by enableDebugMode
-     */
-    @Deprecated
-    public StateMachineConfiguration setDebugEnabled(boolean isDebugEnabled) {
-        this.isDebugModeEnabled = isDebugEnabled;
-        return this;
     }
     
     public StateMachineConfiguration enableDebugMode(boolean isDebugModeEnabled) {

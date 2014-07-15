@@ -17,13 +17,6 @@ public class Conditions {
         return condition==null || context==null || !condition.isSatisfied(context);
     }
     
-    /**
-     * Renamed to AnonymousCondition
-     */
-    @Deprecated
-    public static abstract class AbstractCondition<C> extends AnonymousCondition<C> {
-    }
-    
     public static class Always<C> extends AnonymousCondition<C> {
         @Override
         public boolean isSatisfied(C context) {

@@ -3,11 +3,6 @@ package org.squirrelframework.foundation.fsm;
 /**
  * Visit state machine model structure and export SCXML definition.
  * @author Henry.He
- *
- * @param <T> type of State Machine
- * @param <S> type of State
- * @param <E> type of Event
- * @param <C> type of Context
  */
 public interface SCXMLVisitor extends Visitor {
 

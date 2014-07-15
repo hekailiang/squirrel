@@ -28,14 +28,6 @@ public class StateMachineLogger {
         stateMachine.addDeclarativeListener(this);
     }
 
-    /**
-     * Replace by <code>stopLogging</code>
-     */
-    @Deprecated
-    public void terminateLogging() {
-        stateMachine.removeDeclarativeListener(this);
-    }
-
     public void stopLogging() {
         stateMachine.removeDeclarativeListener(this);
     }
