@@ -800,7 +800,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
         final boolean isAsync = asyncAnnotation!=null;
         final long timeout = asyncAnnotation!=null ? asyncAnnotation.timeout() : -1;
-        InvocationHandler invokationHandler = new InvocationHandler() {
+        InvocationHandler invocationHandler = new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 if(method.getName().equals("getListenTarget")) {
@@ -838,7 +838,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 new Class<?>[]{listenerInterface, DeclarativeLisener.class, AsyncEventListener.class} : 
                 new Class<?>[]{listenerInterface, DeclarativeLisener.class};
         Object proxyListener = Proxy.newProxyInstance(StateMachine.class.getClassLoader(), 
-                implementedInterfaces, invokationHandler);
+                implementedInterfaces, invocationHandler);
         return proxyListener;
     }
     
