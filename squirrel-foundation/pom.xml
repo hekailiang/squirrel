@@ -3,7 +3,7 @@
     <groupId>org.squirrelframework</groupId>
     <artifactId>squirrel-foundation</artifactId>
     <version>0.3.4-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>squirrel foundation</name>
     <description>foundation module of squirrel framework which provided event driven infrastructure and a finite state machine implementation.</description>
 
@@ -150,6 +150,17 @@
                 </dependencies>
                 <configuration>
                     <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.squirrelframework.*</Export-Package>
+                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
