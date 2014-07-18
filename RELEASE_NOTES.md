@@ -1,3 +1,11 @@
+*Version 0.3.4 - 2014-7-18*
+---  
+1. Remove deprecated class **StringConverter**, **StateMachineProvider**
+2. Simplify state machine builder fluent API - support multiple transition build
+3. **StateMachineBuilder.defineNoInitSequentialStatesOn** allows to define sequential states without initial state
+4. [Issue 18](https://github.com/hekailiang/squirrel/pull/18) - Add sample code for how to implement decision state
+5. [Issue 20](https://github.com/hekailiang/squirrel/pull/20) - Add OSGI support
+
 *Version 0.3.3 - 2014-7-6*
 ---
 1. Support remote monitor and configure state machine instance
