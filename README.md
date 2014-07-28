@@ -173,11 +173,14 @@ At now you may have many questions about the sample code, please be patient. The
     ```
     Those method conventions listed above also provided **AOP-like** functionalities, which provided build-in flexible extension capability for squirrel state machine at any granularity.  
     For more information, please refer to test case "*org.squirrelframework.foundation.fsm.ExtensionMethodCallTest*".  
-    Since 0.3.1, there is another way to define these extension methods which is through fluent API (thanks suggestion from [vittali](https://github.com/vittali)), e.g.
+    Since 0.3.1, there is another way to define these AOP-like extension methods which is through fluent API (thanks suggestion from [vittali](https://github.com/vittali)), e.g.
     ```java
     // since 0.3.1
+    // the same effect as add method transitFromAnyToCOnToC in your state machine
     builder.transit().fromAny().to("C").on("ToC").callMethod("fromAnyToC");
+    // the same effect as add method transitFromBToAnyOnToC in your state machine
     builder.transit().from("B").toAny().on("ToC").callMethod("fromBToAny");
+    // the same effect as add method transitFromBToAny in your state machine
    	builder.transit().from("B").toAny().onAny().callMethod("fromBToAny");
     ```  
     Or through declarative annotation, e.g.
@@ -188,6 +191,7 @@ At now you may have many questions about the sample code, please be patient. The
          @Transit(from="*", to="E", on="ToE", callMethod="fromAnyToEOnToE")
     })
     ```
+    **Note**: These action methods will be attached to *matched and already existed transitions* but not to create any new transitions.     
     Since 0.3.4, multiple transitions can also be defined once at a time using following API, e.g.
     ```java
     // transitions(A->B@A2B=>a2b, A->C@A2C=>a2c, A->D@A2D) will be defined at once
