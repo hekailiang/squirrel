@@ -16,13 +16,13 @@ import static org.junit.Assert.assertThat;
 public class HierarchicalStateMachineTest {
 
     public enum HState {
-        A, A1, A1a, A1a1, A2, A2a, A3, A4, B, B1, B2, B2a, B3, C
+        A, A1, A1a, A1a1, A2, A2a, A3, A4, B, B1, B2, B2a, B3, D, E, E1, C
     }
 
     public enum HEvent {
         A2B, B2A, Finish,
         A12A2, A12A3, A12A4, A12A1a, A12A1a1, A1a12A1, A1a2A1a1, A1a12A1a, A32A1, A12B3, A22A2a,
-        B12B2, B22B2a, B22A
+        B12B2, B22B2a, B22A, A2D, D2E1
     }
 
     @States({
@@ -36,6 +36,9 @@ public class HierarchicalStateMachineTest {
         @State(parent="A2", name="A2a", entryCallMethod="enterA2a", exitCallMethod="leftA2a"),
         @State(name="B2", historyType=HistoryType.DEEP),
         @State(parent="B2", name="B2a", entryCallMethod="enterB2a", exitCallMethod="leftB2a"),
+        @State(name="D", entryCallMethod="enterD", exitCallMethod="leftD"),
+        @State(name="E", entryCallMethod="enterE", exitCallMethod="leftE"),
+        @State(parent="E", name="E1", entryCallMethod="enterE1", exitCallMethod="leftE1"),
         })
     @Transitions({
         @Transit(from="A", to="C", on="Finish", callMethod="transitA2C"),
@@ -50,6 +53,9 @@ public class HierarchicalStateMachineTest {
         @Transit(from="A1a1", to="A1a", on="A1a12A1a", callMethod="transitA1a12A1a", type=TransitionType.LOCAL),
         @Transit(from="A2", to="A2a", on="A22A2a", callMethod="transitA22A2a", type=TransitionType.LOCAL),
         @Transit(from="B2", to="B2a", on="B22B2a", callMethod="transitB22B2a", type=TransitionType.LOCAL),
+        @Transit(from="A", to="D", on="A2D", callMethod="transitA2D"),
+        @Transit(from="D", to="E1", on="D2E1", callMethod="transitD2E1"),
+        @Transit(from="A", to="C", on="Finish", callMethod="transitA2C"),
         })
     static class HierachicalStateMachine extends AbstractStateMachine<HierachicalStateMachine, HState, HEvent, Integer> {
 
@@ -233,6 +239,38 @@ public class HierarchicalStateMachineTest {
 
         public void leftC(HState from, HState to, HEvent event, Integer context) {
             logger.append("leftC");
+        }
+
+        public void enterD(HState from, HState to, HEvent event, Integer context) {
+            logger.append("enterD");
+        }
+
+        public void leftD(HState from, HState to, HEvent event, Integer context) {
+            logger.append("leftD");
+        }
+
+        public void transitA2D(HState from, HState to, HEvent event, Integer context) {
+            logger.append("transitA2D");
+        }
+
+        public void enterE(HState from, HState to, HEvent event, Integer context) {
+            logger.append("enterE");
+        }
+
+        public void leftE(HState from, HState to, HEvent event, Integer context) {
+            logger.append("leftE");
+        } 
+
+        public void enterE1(HState from, HState to, HEvent event, Integer context) {
+            logger.append("enterE1");
+        }
+
+        public void leftE1(HState from, HState to, HEvent event, Integer context) {
+            logger.append("leftE1");
+        } 
+
+        public void transitD2E1(HState from, HState to, HEvent event, Integer context) {
+            logger.append("transitD2E1");
         }
 
         @Override
@@ -504,5 +542,16 @@ public class HierarchicalStateMachineTest {
         DotVisitor visitor = SquirrelProvider.getInstance().newInstance(DotVisitor.class);
         stateMachine.accept(visitor);
         visitor.convertDotFile("HierarchicalStateMachine");
+    }
+
+    @Test
+    public void testChildTransition() {
+      stateMachine.start();
+        System.out.println(stateMachine.consumeLog());
+      stateMachine.fire(HEvent.A2D, 1);
+      System.out.println(stateMachine.consumeLog());
+      stateMachine.fire(HEvent.D2E1, 2);
+      assertThat(stateMachine.consumeLog(), is(equalTo("leftD.transitD2E1.enterE.enterE1")));
+      assertThat(stateMachine.getCurrentState(), is(equalTo(HState.E1)));
     }
 }

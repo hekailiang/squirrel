@@ -604,4 +604,13 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             return parentState.getPath() + "/" + currentId;
         }
     }
+
+    @Override
+    public boolean isChildStateOf(ImmutableState<T, S, E, C> input) {
+        ImmutableState<T, S, E, C> curr = this;
+        while(curr.getLevel()>input.getLevel()) {
+            curr = curr.getParentState();
+        }
+        return curr==input;
+    }
 }

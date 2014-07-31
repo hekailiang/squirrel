@@ -158,4 +158,6 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     ImmutableState<T, S, E, C> getThis();
     
     String getPath();
+
+    boolean isChildStateOf(ImmutableState<T, S, E, C> input);
 }
