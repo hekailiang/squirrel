@@ -53,3 +53,6 @@ Squirrel state machine does not have any heavy dependencies, so basically it sho
 	TypedStateMachineA fsmB = StateMachineBuilderFactory.create(TypedStateMachineB.class, 
 		MyState.class, MyEvent.class, MyContext.class).newStateMachine(MyState.Initial);
 	```  
+
+* **Andriod Integration**   
+Thanks to [Vyacheslav Blinov](https://github.com/dant3) to provide this [sample project](https://github.com/dant3/squirrel-android-example) for squirrel state machine used in android.
