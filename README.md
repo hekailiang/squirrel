@@ -9,7 +9,7 @@ Here is the state machine diagram which describes the state change of an ATM:
 ![ATMStateMachine](http://hekailiang.github.io/squirrel/images/ATMStateMachine.png)  
 The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.
 
-## Maven  
+## Maven
 squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.
 
 Latest Released Version:
@@ -711,7 +711,7 @@ When creating new state machine instance, user can configure its behavior throug
 	*Since v0.3.0 state machine logger can be used more easy way by just set StateMachineConfiguration enable debug mode to ture, e.g.*
 	```
 	StateMachine<?,?,?,?> stateMachine = builder.newStateMachine(HState.A,
-    		StateMachineConfiguration.create().setDebugEnabled(true),
+    		StateMachineConfiguration.create().enableDebugMode(true),
             new Object[0]);
 	```   
 	
