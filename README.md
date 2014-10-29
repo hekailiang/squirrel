@@ -9,7 +9,7 @@ Here is the state machine diagram which describes the state change of an ATM:
 ![ATMStateMachine](http://hekailiang.github.io/squirrel/images/ATMStateMachine.png)  
 The sample code could be found in package *"org.squirrelframework.foundation.fsm.atm"*.
 
-## Maven  s
+## Maven
 squirrel-foundation has been deployed to maven central repository, so you only need to add following  dependency to the pom.xml.
 
 Latest Released Version:
