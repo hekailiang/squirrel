@@ -680,7 +680,7 @@ newStateMachineInstance.loadSavedData(savedData);
 When creating new state machine instance, user can configure its behavior through 	*StateMachineConfiguration*, e.g.    
 	```java
     UntypedStateMachine fsm = builder.newUntypedStateMachine("a", 
-    	 StateMachineConfiguration.create().setAutoStartEnabled(false)
+    	 StateMachineConfiguration.create().enableAutoStart(false)
          		.setIdProvider(IdProvider.UUIDProvider.getInstance()), 
          new Object[0]); // since 0.3.0
     fsm.fire(TestEvent.toA);
