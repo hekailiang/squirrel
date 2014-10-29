@@ -83,7 +83,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private boolean isAutoTerminateEnabled = true;
     
-    private boolean isDelgatorModeEnabled = false;
+    private boolean isDelegatorModeEnabled = false;
     
     @SuppressWarnings("unused")
     private long transitionTimeout = -1;
@@ -98,10 +98,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private TransitionException lastException = null;
     
-    void prePostConstruct(S intialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states, 
+    void prePostConstruct(S initialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states,
             StateMachineConfiguration configuration, Runnable cb) {
         data = FSM.newStateMachineData(states);
-        data.write().initalState(intialStateId);
+        data.write().initalState(initialStateId);
         data.write().currentState(null);
         data.write().identifier(configuration.getIdProvider().get());
         
@@ -110,7 +110,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isAutoTerminateEnabled = configuration.isAutoTerminateEnabled();
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
         this.isDebugModeEnabled = configuration.isDebugModeEnabled();
-        this.isDelgatorModeEnabled = configuration.isDelegatorModeEnabled();
+        this.isDelegatorModeEnabled = configuration.isDelegatorModeEnabled();
         this.isRemoteMonitorEnabled = configuration.isRemoteMonitorEnabled();
         cb.run();
         
@@ -256,7 +256,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         boolean isEntryPoint = isEntryPoint();
         if(isEntryPoint) {
             StateMachineContext.set(getThis());
-        } else if(isDelgatorModeEnabled && StateMachineContext.currentInstance()!=this) {
+        } else if(isDelegatorModeEnabled && StateMachineContext.currentInstance()!=this) {
             T currentInstance = StateMachineContext.currentInstance();
             currentInstance.fire(event, context);
             return;

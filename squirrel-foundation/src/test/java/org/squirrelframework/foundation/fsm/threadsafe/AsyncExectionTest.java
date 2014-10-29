@@ -42,7 +42,7 @@ public class AsyncExectionTest {
     public void testTimedState() {
         final StringBuilder logger = new StringBuilder();
         // timed state must be defined before transition
-        builder.defineTimedState("A", 4, 10, "FIRST", null);
+        builder.defineTimedState("A", 10, 100, "FIRST", null);
         builder.internalTransition().within("A").on("FIRST").perform(new UntypedAnonymousAction() {
             @Override
             public void execute(Object from, Object to, Object event,
@@ -63,7 +63,7 @@ public class AsyncExectionTest {
         });
         fsm.start();
         try {
-            TimeUnit.MILLISECONDS.sleep(50);
+            TimeUnit.MILLISECONDS.sleep(500);
         } catch (InterruptedException e) {
         }
         fsm.fire("SECOND");
