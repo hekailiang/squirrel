@@ -785,11 +785,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.lastException = lastException;
     }
     
-    private interface DeclarativeLisener {
+    private interface DeclarativeListener {
         Object getListenTarget();
     }
-    
-    private Object newListenerMethodProxy(final Object listenTarget, 
+
+    private Object newListenerMethodProxy(final Object listenTarget,
             final Method listenerMethod, final Class<?> listenerInterface, final String condition) {
         final String listenerMethodName = ReflectUtils.getStatic(
                 ReflectUtils.getField(listenerInterface, "METHOD_NAME")).toString();
@@ -835,8 +835,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         };
         
         Class<?>[] implementedInterfaces = isAsync ? 
-                new Class<?>[]{listenerInterface, DeclarativeLisener.class, AsyncEventListener.class} : 
-                new Class<?>[]{listenerInterface, DeclarativeLisener.class};
+                new Class<?>[]{listenerInterface, DeclarativeListener.class, AsyncEventListener.class} :
+                new Class<?>[]{listenerInterface, DeclarativeListener.class};
         Object proxyListener = Proxy.newProxyInstance(StateMachine.class.getClassLoader(), 
                 implementedInterfaces, invocationHandler);
         return proxyListener;
@@ -1138,8 +1138,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         observable.removeListener(new Predicate<ListenerMethod>() {
             @Override
             public boolean apply(ListenerMethod input) {
-                return (input.getTarget() instanceof DeclarativeLisener) && 
-                      ((DeclarativeLisener)input.getTarget()).getListenTarget()==listenTarget;
+                return (input.getTarget() instanceof DeclarativeListener) &&
+                      ((DeclarativeListener)input.getTarget()).getListenTarget()==listenTarget;
             }
         });
     }
