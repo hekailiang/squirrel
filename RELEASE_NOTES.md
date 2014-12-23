@@ -1,3 +1,9 @@
+*Version 0.3.4 - 2014-12-23*  
+---
+1. Fix hierarchical state machine transition incorrectly  
+		state D, state E and its child state E1, when state D->E1, the expected behavior would be "leftD.transitD2E1.enterE.enterE1"  
+2. Fix serval typos and add a test case about nested hierarchy state transition issue  
+
 *Version 0.3.4 - 2014-7-18*
 ---  
 1. Remove deprecated class **StringConverter**, **StateMachineProvider**
