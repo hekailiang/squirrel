@@ -1,4 +1,4 @@
-*Version 0.3.4 - 2014-12-23*  
+*Version 0.3.5 - 2014-12-23*  
 ---
 1. Fix hierarchical state machine transition incorrectly  
 		state D, state E and its child state E1, when state D->E1, the expected behavior would be "leftD.transitD2E1.enterE.enterE1"  
