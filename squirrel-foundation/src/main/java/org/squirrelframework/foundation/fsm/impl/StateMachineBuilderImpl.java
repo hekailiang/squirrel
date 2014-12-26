@@ -69,12 +69,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private final List<DeferBoundActionInfo<T, S, E, C>> deferBoundActionInfoList = Lists.newArrayList();
     
     private boolean isScanAnnotations = true;
-    
+
     private final Class<?>[] extraParamTypes;
-    
+
     private StateMachineConfiguration defaultConfiguration = StateMachineConfiguration.getInstance();
-    
-    private ManagementService managementService = new ManagementService();
+
+    private ManagementService managementService;
     
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
@@ -750,9 +750,16 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
         
         if(configuration.isRemoteMonitorEnabled()) {
-            managementService.register(stateMachine);
+            getManagementService().register(stateMachine);
         }
         return stateMachine;
+    }
+
+    private ManagementService getManagementService() {
+        if(managementService==null) {
+            managementService = new ManagementService();
+        }
+        return managementService;
     }
 
     private boolean isValidState(S initialStateId) {
