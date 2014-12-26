@@ -1,3 +1,7 @@
+*Version 0.3.6 - 2014-12-26*  
+---
+1. Fix crash on creating state machine builder on Android  
+
 *Version 0.3.5 - 2014-12-23*  
 ---
 1. Fix hierarchical state machine transition incorrectly  

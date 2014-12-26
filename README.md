@@ -17,7 +17,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.5</version>
+  	<version>0.3.6</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.6-SNAPSHOT</version>
+  	<version>0.3.7-SNAPSHOT</version>
 </dependency>
 ``` 
 
