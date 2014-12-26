@@ -74,8 +74,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     
     private StateMachineConfiguration defaultConfiguration = StateMachineConfiguration.getInstance();
     
-    private ManagementService managementService = new ManagementService();
-    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraParamTypes) {
@@ -750,6 +748,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
         postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
         
         if(configuration.isRemoteMonitorEnabled()) {
+            ManagementService managementService = new ManagementService();
             managementService.register(stateMachine);
         }
         return stateMachine;
