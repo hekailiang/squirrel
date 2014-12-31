@@ -50,7 +50,7 @@ public class Issue27 {
         Issue17StateMachine fsm = builder.newUntypedStateMachine(Issue17State.Off);
         fsm.start();
         fsm.fire(Issue17Event.Move);
-        System.out.println(fsm.consumeLog());
+//        System.out.println(fsm.consumeLog());
         Assert.assertTrue(fsm.consumeLog().equals("entryOff-exitOff-entryOperating-entryMoving-"));
     }
 }

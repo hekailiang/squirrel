@@ -140,9 +140,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
-    private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> orignalData, 
+    private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> originalData,
             ActionExecutionService<T, S, E, C> executionService, boolean isDataIsolateEnabled) {
-        StateMachineData<T, S, E, C> localData = orignalData;
+        StateMachineData<T, S, E, C> localData = originalData;
         ImmutableState<T, S, E, C> fromState = localData.read().currentRawState();
         S fromStateId = fromState.getStateId(), toStateId = null;
         try {
@@ -151,8 +151,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             
             if(isDataIsolateEnabled) {
                 // use local data to isolation transition data write
-                localData = FSM.newStateMachineData(orignalData.read().orginalStates());
-                localData.dump(orignalData.read());
+                localData = FSM.newStateMachineData(originalData.read().orginalStates());
+                localData.dump(originalData.read());
             }
             
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
@@ -167,7 +167,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 localData.write().currentState(toStateId);
                 if(isDataIsolateEnabled) { 
                     // import local data after transition accepted
-                    orignalData.dump(localData.read());
+                    originalData.dump(localData.read());
                 }
                 fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, toStateId, 
                         event, context, getThis()));
@@ -534,8 +534,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(isStarted()) {
             return;
         }
-        setStatus(StateMachineStatus.IDLE);
+
+        setStatus(StateMachineStatus.BUSY);
         internalStart(context, data, executor);
+        setStatus(StateMachineStatus.IDLE);
         processEvents();
     }
     
