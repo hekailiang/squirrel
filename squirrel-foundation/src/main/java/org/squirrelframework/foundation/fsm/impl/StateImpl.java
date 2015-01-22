@@ -170,6 +170,22 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
             if(getParentState().getHistoryType()!=HistoryType.NONE) {
                 stateContext.getStateMachineData().write().lastActiveChildStateFor(getParentState().getStateId(), getStateId());
             }
+            else {
+                ImmutableState<T, S, E, C> parent = getParentState();
+                while (parent != null) {
+                    if(parent.getHistoryType()==HistoryType.DEEP) {
+                        ImmutableState<T, S, E, C> p = getParentState();
+                        while (p.getStateId() != parent.getStateId()) {
+                            stateContext.getStateMachineData().write().lastActiveChildStateFor(p.getStateId(), getStateId());
+                            p = p.getParentState();
+                        }
+                        parent = null;
+                    }
+                    else {
+                        parent = parent.getParentState();
+                    }
+                }
+            }
             if(getParentState().isRegion()) {
                 S grandParentId = getParentState().getParentState().getStateId();
                 stateContext.getStateMachineData().write().removeSubState(grandParentId, getStateId());
