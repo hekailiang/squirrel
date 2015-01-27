@@ -423,8 +423,9 @@ Both API and annotation are supported to define history type of state. e.g.
 	```
 or
 	```java  
-	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)
-	```
+	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)  
+	```  
+**Note:** Before 0.3.7, user need to define "HistoryType.DEEP" for each level of historical state, which is not quite convenient.(Thanks to [Voskuijlen](https://github.com/Voskuijlen) to provide solution [Issue33](https://github.com/hekailiang/squirrel/issues/33)). Now user only define "HistoryType.DEEP" at the top level of historical state, and all its children state historical information will be remembered.
 
 * **Transition Types**  
 According to the UML specification, a transition may be one of these three kinds:    
