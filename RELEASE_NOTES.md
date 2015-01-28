@@ -1,3 +1,8 @@
+*Version 0.3.6 - 2015-1-28*  
+---
+1. [Issue31] Problem with initial state firing event
+2. [Issue33] Deep History  
+
 *Version 0.3.6 - 2014-12-26*  
 ---
 1. Fix crash on creating state machine builder on Android  
