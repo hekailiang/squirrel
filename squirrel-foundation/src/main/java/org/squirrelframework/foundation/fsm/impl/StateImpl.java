@@ -557,7 +557,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
                 t.verify();
                 ImmutableTransition<T, S, E, C> conflictTransition = checkConflictTransitions(t, allTransitions);
                 if(conflictTransition!=null) {
-                    throw new RuntimeException(String.format("Tansition '%s' is conflicted with '%s'.", t, conflictTransition));
+                    throw new RuntimeException(String.format("Transition '%s' is conflicted with '%s'.", t, conflictTransition));
                 }
             }
         }
@@ -573,7 +573,7 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
                     return target;
                 if(target.getCondition().getClass()==Conditions.Always.class)
                     return target;
-                if(t.getCondition().getClass()==target.getCondition().getClass()) 
+                if( t.getCondition().name().equals(target.getCondition().name()) )
                     return target;
             }
         }
