@@ -1220,8 +1220,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public void addTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener) {
         addListener(TransitionDeclinedEvent.class, listener, TransitionDeclinedListener.METHOD);
     }
+
+    @Override
+    public void removeTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener) {
+        removeListener(TransitionDeclinedEvent.class, listener, TransitionDeclinedListener.METHOD);
+    }
     
     @Override
+    @Deprecated
     public void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener) {
         removeListener(TransitionDeclinedEvent.class, listener, TransitionDeclinedListener.METHOD);
     }
@@ -1233,7 +1239,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void removeTransitionEndListener(TransitionEndListener<T, S, E, C> listener) {
-        removeListener(TransitionEndListener.class, listener, TransitionEndListener.METHOD);
+        removeListener(TransitionEndEvent.class, listener, TransitionEndListener.METHOD);
     }
     
     @Override

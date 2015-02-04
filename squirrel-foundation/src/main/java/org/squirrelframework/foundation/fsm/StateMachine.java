@@ -300,6 +300,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     }
     interface TransitionDeclinedEvent<T extends StateMachine<T, S, E, C>, S, E, C> extends TransitionEvent<T, S, E, C> {}
     void addTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener);
+    void removeTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener);
+    @Deprecated
     void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener);
     
     interface TransitionEndListener<T extends StateMachine<T, S, E, C>, S, E, C> {
