@@ -1,4 +1,4 @@
-*Version 0.3.6 - 2015-1-28*  
+*Version 0.3.7 - 2015-1-28*  
 ---
 1. [Issue 31](https://github.com/hekailiang/squirrel/issues/31) - Crash on starting FSM with action attached to entering initial state
 2. [Issue 33](https://github.com/hekailiang/squirrel/issues/33) -  Deep History Improvement 
