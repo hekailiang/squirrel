@@ -61,7 +61,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.3.5&lt;/version&gt;
+    &lt;version&gt;0.3.7&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -70,7 +70,7 @@ The sample code could be found in package <em>"org.squirrelframework.foundation.
 <pre lang="maven"><code>&lt;dependency&gt;
     &lt;groupId&gt;org.squirrelframework&lt;/groupId&gt;
     &lt;artifactId&gt;squirrel-foundation&lt;/artifactId&gt;
-    &lt;version&gt;0.3.6-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;0.3.8-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 
@@ -507,7 +507,9 @@ builder<span class="pl-k">.</span>defineSequentialStatesOn(<span class="pl-stj">
 
 <p>or</p>
 
-<div class="highlight highlight-java"><pre>@State(parent<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span>, name<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>A1<span class="pl-pds">"</span></span>, entryCallMethod<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>enterA1<span class="pl-pds">"</span></span>, exitCallMethod<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>exitA1<span class="pl-pds">"</span></span>, historyType<span class="pl-k">=</span><span class="pl-stj">HistoryType</span><span class="pl-c1"><span class="pl-k">.</span>DEEP</span>)</pre></div>
+<div class="highlight highlight-java"><pre>@State(parent<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>A<span class="pl-pds">"</span></span>, name<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>A1<span class="pl-pds">"</span></span>, entryCallMethod<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>enterA1<span class="pl-pds">"</span></span>, exitCallMethod<span class="pl-k">=</span><span class="pl-s1"><span class="pl-pds">"</span>exitA1<span class="pl-pds">"</span></span>, historyType<span class="pl-k">=</span><span class="pl-stj">HistoryType</span><span class="pl-c1"><span class="pl-k">.</span>DEEP</span>)  </pre></div>
+
+<p><strong>Note:</strong> Before 0.3.7, user need to define "HistoryType.DEEP" for each level of historical state, which is not quite convenient.(Thanks to <a href="https://github.com/Voskuijlen">Voskuijlen</a> to provide solution <a href="https://github.com/hekailiang/squirrel/issues/33">Issue33</a>). Now user only define "HistoryType.DEEP" at the top level of historical state, and all its children state historical information will be remembered.</p>
 </li>
 <li>
 <p><strong>Transition Types</strong><br>
