@@ -18,10 +18,6 @@ import java.io.StringWriter;
  * 
  * @author Henry.He
  *
- * @param <T> state machine type
- * @param <S> state type
- * @param <E> event type
- * @param <C> context type
  */
 class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     

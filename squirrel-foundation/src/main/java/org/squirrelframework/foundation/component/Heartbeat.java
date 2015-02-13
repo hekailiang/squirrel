@@ -17,7 +17,7 @@ public interface Heartbeat {
     void execute();
 
     /**
-     * Adds a new command to the current Heartbeat. The command will be executed by {@link #end()}.
+     * Adds a new command to the current Heartbeat. The command will be executed by {@link #execute()}.
      * 
      * @param command
      *            command to be executed at the end of the heartbeat

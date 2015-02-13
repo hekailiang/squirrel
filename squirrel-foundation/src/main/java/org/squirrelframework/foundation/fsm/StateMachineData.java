@@ -149,9 +149,6 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
     }
 
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> extends Serializable {
-        /**
-         * @return state machine identifier
-         */
         void identifier(String id);
 
         /**

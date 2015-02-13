@@ -5,7 +5,7 @@ package org.squirrelframework.foundation.fsm;
  */
 public interface Visitable {
     /**
-     * Accepts a {@link #Visitor}.
+     * Accepts a {@link org.squirrelframework.foundation.fsm.Visitor}.
      *
      * @param visitor the visitor.
      */
