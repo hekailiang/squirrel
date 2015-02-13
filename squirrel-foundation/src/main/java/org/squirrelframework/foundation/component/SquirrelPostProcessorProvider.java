@@ -33,6 +33,10 @@ public class SquirrelPostProcessorProvider implements SquirrelComponent, Squirre
     /**
      * Register a new post processor class for a certain component class, note existing registration 
      * are overwritten without warning.
+     *
+     * @param componentClass component class
+     * @param postProcessor post processor to be registered for component class
+     * @param <T> type of component class
      */
     @SuppressWarnings("unchecked")
     public <T> void register(Class<T> componentClass, SquirrelPostProcessor<? super T> postProcessor) {

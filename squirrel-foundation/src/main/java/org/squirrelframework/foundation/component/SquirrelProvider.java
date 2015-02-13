@@ -40,6 +40,9 @@ public class SquirrelProvider implements SquirrelSingleton {
     
     /**
      * Create a new instance of the requested class using the internal registry.
+     * @param clz class of new instance
+     * @param <T> type of new instance
+     * @return new instance
      */
     public <T> T newInstance(Class<T> clz) {
         return newInstance(clz, null, null);
@@ -47,6 +50,11 @@ public class SquirrelProvider implements SquirrelSingleton {
     
     /**
      * Create a new instance of the requested class using the internal registry.
+     * @param clz class of new instance
+     * @param argTypes arguments type of new instance constructor
+     * @param args arguments of new instance constructor
+     * @param <T> type of new instance
+     * @return new instance
      */
     public <T> T newInstance(Class<T> clz, Class<?>[] argTypes, Object[] args) {
         Class<T> implementationClass = getImplementation(clz);
@@ -69,6 +77,9 @@ public class SquirrelProvider implements SquirrelSingleton {
     /**
      * Register the implementation class for a certain class. Note, if there is already an entry in the registry for
      * the class, then it will be overwritten.
+     *
+     * @param clazz register class
+     * @param implementationClass implementation class of register class
      */
     public void register(Class<?> clazz, Class<?> implementationClass) {
         // TODO: handle the case that there is already an entry...
