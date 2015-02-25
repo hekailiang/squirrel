@@ -60,7 +60,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     @Override
-    public Map<S, ImmutableState<T, S, E, C>> orginalStates() {
+    public Map<S, ImmutableState<T, S, E, C>> originalStates() {
         if (states == null) {
             return Collections.emptyMap();
         }
@@ -99,7 +99,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         this.write().identifier(src.identifier());
         this.write().currentState(src.currentState());
         this.write().lastState(src.lastState());
-        this.write().initalState(src.initialState());
+        this.write().initialState(src.initialState());
 
         for (S state : src.activeParentStates()) {
             S lastActiveChildState = src.lastActiveChildStateOf(state);
@@ -149,7 +149,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     @Override
-    public void initalState(S initialStateId) {
+    public void initialState(S initialStateId) {
         this.initialState = initialStateId;
     }
 
@@ -242,7 +242,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     @Override
     public ImmutableState<T, S, E, C> rawStateFrom(S stateId) {
         if(stateId==null) return null;
-        ImmutableState<T, S, E, C> rawState = orginalStates().get(stateId);
+        ImmutableState<T, S, E, C> rawState = originalStates().get(stateId);
         return rawState!=null ? rawState.getThis() : null;
     }
 
@@ -297,12 +297,12 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public Collection<ImmutableState<T, S, E, C>> rawStates() {
-        return Collections.unmodifiableCollection(orginalStates().values());
+        return Collections.unmodifiableCollection(originalStates().values());
     }
 
     @Override
     public Collection<S> states() {
-        return Collections.unmodifiableCollection(orginalStates().keySet());
+        return Collections.unmodifiableCollection(originalStates().keySet());
     }
 
     @Override

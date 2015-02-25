@@ -101,7 +101,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     void prePostConstruct(S initialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states,
             StateMachineConfiguration configuration, Runnable cb) {
         data = FSM.newStateMachineData(states);
-        data.write().initalState(initialStateId);
+        data.write().initialState(initialStateId);
         data.write().currentState(null);
         data.write().identifier(configuration.getIdProvider().get());
         
@@ -151,7 +151,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             
             if(isDataIsolateEnabled) {
                 // use local data to isolation transition data write
-                localData = FSM.newStateMachineData(originalData.read().orginalStates());
+                localData = FSM.newStateMachineData(originalData.read().originalStates());
                 localData.dump(originalData.read());
             }
             
@@ -706,7 +706,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         readLock.lock();
         try {
             StateMachineData<T, S, E, C> savedData = 
-                    FSM.newStateMachineData(data.read().orginalStates());
+                    FSM.newStateMachineData(data.read().originalStates());
             savedData.dump(data.read());
             
             // process linked state if any

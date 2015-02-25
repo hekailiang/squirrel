@@ -143,7 +143,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          */
         Collection<S> linkedStates();
         
-        Map<S, ImmutableState<T, S, E, C>> orginalStates();
+        Map<S, ImmutableState<T, S, E, C>> originalStates();
 
         Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
     }
@@ -170,7 +170,7 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          * 
          * @param initialStateId
          */
-        void initalState(S initialStateId);
+        void initialState(S initialStateId);
 
         /**
          * Set last active child state of parent state
