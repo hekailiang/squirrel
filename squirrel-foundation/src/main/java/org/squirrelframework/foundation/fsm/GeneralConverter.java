@@ -70,7 +70,7 @@ public class GeneralConverter<T> implements Converter<T> {
         } else if(Character.class.equals(type) || char.class.equals(type)) {
             return type.cast(value.charAt(0));
         }
-        throw new IllegalStateException("Unable to coverter type: \'" + 
+        throw new IllegalStateException("Unable to convert type: \'" +
                 type.getName() +"\' with value \'"+value.toString()+"\'.");
     }
 
