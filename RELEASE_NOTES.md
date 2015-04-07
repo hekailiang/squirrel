@@ -1,3 +1,12 @@
+*Version 0.3.8 - 2015-4-7*  
+---
+1. [Issue39](https://github.com/hekailiang/squirrel/issues/39) MVEL is not enough to discriminate transitions
+2. [Issue40](https://github.com/hekailiang/squirrel/issues/40) java.util.NoSuchElementException unregistering a TransitionEndListener   
+3. [Issue41](https://github.com/hekailiang/squirrel/issues/41) POM creates some problem when building  
+4. [Issue42](https://github.com/hekailiang/squirrel/issues/42) Javadoc errors prevented the javadoc jar file to be created  
+5. **[Breaking Change]** Correct typo in StateMachineData 
+6. Save start context with state machine data  
+
 *Version 0.3.7 - 2015-1-28*  
 ---
 1. [Issue 31](https://github.com/hekailiang/squirrel/issues/31) - Crash on starting FSM with action attached to entering initial state
