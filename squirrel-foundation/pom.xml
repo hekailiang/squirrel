@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.squirrelframework</groupId>
     <artifactId>squirrel-foundation</artifactId>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.3.8</version>
     <packaging>bundle</packaging>
     <name>squirrel foundation</name>
     <description>foundation module of squirrel framework which provided event driven infrastructure and a finite state machine implementation.</description>
@@ -28,7 +28,7 @@
         <connection>scm:git:git://github.com/hekailiang/squirrel.git</connection>
         <developerConnection>scm:git:git@github.com:hekailiang/squirrel.git</developerConnection>
         <url>https://github.com/hekailiang/squirrel.git</url>
-      <tag>HEAD</tag>
+      <tag>squirrel-foundation-0.3.8</tag>
   </scm>
 
     <licenses>
