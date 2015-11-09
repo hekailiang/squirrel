@@ -83,10 +83,21 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
                 + quoteName(visitable.getEvent().toString()) + " sqrl:priority="
                 + quoteName(Integer.toString(visitable.getPriority())) + " sqrl:type="
                 + quoteName(visitable.getType().toString()) + " target="
-                + quoteName(visitable.getTargetState().toString()) + " cond="
-                + quoteName(visitable.getCondition().toString())+">");
+                + quoteName(visitable.getTargetState().toString()) + buildCondition(visitable.getCondition()) + ">");
         for(Action<?, ?, ?, ?> action : visitable.getActions()) {
             writeAction(action);
+        }
+    }
+
+    private String buildCondition(Condition<?> condition)
+    {
+        if (Conditions.always().toString().equals(condition.toString()))
+        {
+            return "";
+        }
+        else
+        {
+            return " cond=" + quoteName(condition.toString());
         }
     }
 
