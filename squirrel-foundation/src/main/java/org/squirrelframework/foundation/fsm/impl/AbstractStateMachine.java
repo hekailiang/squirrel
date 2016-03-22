@@ -971,7 +971,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
                 isTargetStateSet = true;
             } else if(!isTargetStateSet && event instanceof TransitionExceptionEvent && 
-                    parameterType.isAssignableFrom(typeOfState()) && !isTargetStateSet) {
+                    parameterType.isAssignableFrom(typeOfState())) {
                 parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
                 isTargetStateSet = true;
             } else if(!isEventSet && parameterType.isAssignableFrom(typeOfEvent())) {
