@@ -1,6 +1,8 @@
 squirrel-foundation  
 ========
 
+[![Join the chat at https://gitter.im/hekailiang/squirrel](https://badges.gitter.im/hekailiang/squirrel.svg)](https://gitter.im/hekailiang/squirrel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is it?  
 Just like the squirrel, a **small**, **agile**, **smart**, **alert** and **cute** animal, squirrel-foundation is aimed to provide a **lightweight**, highly **flexible** and **extensible**, **diagnosable**, **easy use** and **type safe** Java state machine implementation for enterprise usage.  
 
