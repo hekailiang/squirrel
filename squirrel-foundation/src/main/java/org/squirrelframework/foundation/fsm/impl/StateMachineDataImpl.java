@@ -171,7 +171,8 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     @Override
     public void subStateFor(S parentStateId, S subStateId) {
         if (rawStateFrom(parentStateId) != null
-                && rawStateFrom(parentStateId).isParallelState()) {
+                && rawStateFrom(parentStateId).isParallelState()
+                && !parallelStatesStore.containsEntry(parentStateId, subStateId)) {
             parallelStatesStore.put(parentStateId, subStateId);
         } else {
             logger.warn("Cannot set sub states on none parallel state {}.",
