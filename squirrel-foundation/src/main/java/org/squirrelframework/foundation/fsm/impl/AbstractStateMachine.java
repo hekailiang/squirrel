@@ -515,6 +515,17 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
 
+    @Override
+    public void setCurrentState(S currentState){
+        writeLock.lock();
+        try {
+            data.write().initialState(currentState);
+            data.write().currentState(null);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     private void entryAll(ImmutableState<T, S, E, C> origin, StateContext<T, S, E, C> stateContext) {
         Stack<ImmutableState<T, S, E, C>> stack = new Stack<ImmutableState<T, S, E, C>>();
 
