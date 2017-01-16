@@ -242,6 +242,19 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             currentTranstionBuilder=builder;
             getCurrentTranstionBuilder().from(getCurrentState().getStateId()).to(targetStateId).on(event);
             String conditionScript = attributes.getValue("cond");
+            parseCondition(conditionScript);
+        }
+    }
+
+    private void parseCondition(String conditionScript)
+    {
+        if (conditionScript == null)
+        {
+            final Condition<C> condition = newInstance(Conditions.Always.class.getName());
+            getCurrentTranstionBuilder().when(condition);
+        }
+        else
+        {
             int condPos = conditionScript.indexOf("#");
             String condSchema = conditionScript.substring(0, condPos);
             String condContent = conditionScript.substring(condPos+1);
@@ -254,7 +267,7 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             }
         }
     }
-    
+
     protected boolean isConstructState() {
         return currentStates.size()>0 && currentTranstionBuilder==null && isEntryAction!=null;
     }
