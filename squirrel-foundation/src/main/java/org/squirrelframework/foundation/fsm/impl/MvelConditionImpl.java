@@ -44,7 +44,7 @@ class MvelConditionImpl<C> implements Condition<C> {
             variables.put(MvelScriptManager.VAR_CONTEXT, context);
             return scriptManager.evalBoolean(mvelExpression, variables);
         } catch (Exception e) {
-            logger.error("Evaluate \""+mvelExpression+"\" failed, which caused by "+e.getCause().getMessage());
+            logger.error("Evaluate \""+mvelExpression+"\" failed with "+e.getMessage()+(e.getCause()!=null ? ", which caused by "+e.getCause().getMessage() : ""));
             return false;
         }
     }
