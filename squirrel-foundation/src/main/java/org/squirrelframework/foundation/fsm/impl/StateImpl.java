@@ -532,7 +532,8 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
 
     @Override
     public String toString() {
-        return getStateId().toString();
+        //use enum name value instead of toString result
+        return AbstractVisitor.getName(getStateId());
     }
 
     @Override
