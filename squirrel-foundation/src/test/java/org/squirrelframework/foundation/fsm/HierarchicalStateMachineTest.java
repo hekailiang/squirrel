@@ -1,6 +1,11 @@
 package org.squirrelframework.foundation.fsm;
 
-import org.junit.*;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
 import org.squirrelframework.foundation.component.SquirrelProvider;
 import org.squirrelframework.foundation.fsm.annotation.State;
@@ -16,13 +21,49 @@ import static org.junit.Assert.assertThat;
 public class HierarchicalStateMachineTest {
 
     public enum HState {
-        A, A1, A1a, A1a1, A2, A2a, A3, A4, B, B1, B2, B2a, B3, D, E, E1, C
+        A("this is A"), A1, A1a, A1a1, A2, A2a, A3, A4, B, B1, B2, B2a, B3, D, E, E1, C;
+        private String desc;
+
+        HState() {
+        }
+
+        HState(String desc) {
+            this.desc = desc;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        @Override
+        public String toString() {
+            if(StringUtils.isNotBlank(desc)){
+                return this.name() + '(' + desc + ')';
+            }else{
+                return this.name();
+            }
+        }
     }
 
     public enum HEvent {
-        A2B, B2A, Finish,
+        A2B("this is A2B"), B2A, Finish,
         A12A2, A12A3, A12A4, A12A1a, A12A1a1, A1a12A1, A1a2A1a1, A1a12A1a, A32A1, A12B3, A22A2a,
-        B12B2, B22B2a, B22A, A2D, D2E1
+        B12B2, B22B2a, B22A, A2D, D2E1;
+        private String desc;
+
+        HEvent() {
+        }
+        HEvent(String desc) {
+            this.desc = desc;
+        }
+        @Override
+        public String toString() {
+            if(StringUtils.isNotBlank(desc)){
+                return this.name() + '(' + desc + ')';
+            }else{
+                return this.name();
+            }
+        }
     }
 
     @States({
@@ -259,7 +300,7 @@ public class HierarchicalStateMachineTest {
 
         public void leftE(HState from, HState to, HEvent event, Integer context) {
             logger.append("leftE");
-        } 
+        }
 
         public void enterE1(HState from, HState to, HEvent event, Integer context) {
             logger.append("enterE1");
@@ -267,7 +308,7 @@ public class HierarchicalStateMachineTest {
 
         public void leftE1(HState from, HState to, HEvent event, Integer context) {
             logger.append("leftE1");
-        } 
+        }
 
         public void transitD2E1(HState from, HState to, HEvent event, Integer context) {
             logger.append("transitD2E1");
@@ -372,11 +413,11 @@ public class HierarchicalStateMachineTest {
         stateMachine.start();
         assertThat(stateMachine.consumeLog(), is(equalTo("entryA.entryA1")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
-        
+
         stateMachine.fire(HEvent.A12A2, 1);
         assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.transitFromA1ToA2OnA12A2.entryA2")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A2)));
-        
+
         testResult = stateMachine.test(HEvent.A2B, 1);
         assertThat(stateMachine.consumeLog(), is(equalTo("")));
         assertThat(testResult, is(equalTo(HState.B1)));
@@ -454,7 +495,7 @@ public class HierarchicalStateMachineTest {
         assertThat(savedData.currentState(), is(equalTo(HState.A1)));
         assertThat(savedData.initialState(), is(equalTo(HState.A)));
         assertThat(savedData.lastState(), is(equalTo(HState.A3)));
-        
+
         assertThat(savedData.lastActiveChildStateOf(HState.A), is(equalTo(HState.A3)));
         setup();
 
@@ -513,25 +554,25 @@ public class HierarchicalStateMachineTest {
     public void testExportAndImportHierarchicalStateMachine() {
         SCXMLVisitor visitor = SquirrelProvider.getInstance().newInstance(SCXMLVisitor.class);
         stateMachine.accept(visitor);
-//        visitor.convertSCXMLFile("HierarchicalStateMachine", true);
+        //visitor.convertSCXMLFile("HierarchicalStateMachine", true);
         String xmlDef = visitor.getScxml(false);
-        
+
         UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(xmlDef);
         stateMachine = builder.newAnyStateMachine(HState.A);
-        
+
         HState testResult = stateMachine.test(HEvent.A12A2, 1);
         assertThat(testResult, is(equalTo(HState.A2)));
         assertThat(stateMachine.consumeLog(), is(equalTo("")));
         assertThat(stateMachine.getStatus(), is(equalTo(StateMachineStatus.INITIALIZED)));
-        
+
         stateMachine.start();
         assertThat(stateMachine.consumeLog(), is(equalTo("entryA.entryA1")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
-        
+
         stateMachine.fire(HEvent.A12A2, 1);
         assertThat(stateMachine.consumeLog(), is(equalTo("exitA1.transitFromA1ToA2OnA12A2.entryA2")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A2)));
-        
+
         testResult = stateMachine.test(HEvent.A2B, 1);
         assertThat(stateMachine.consumeLog(), is(equalTo("")));
         assertThat(testResult, is(equalTo(HState.B1)));

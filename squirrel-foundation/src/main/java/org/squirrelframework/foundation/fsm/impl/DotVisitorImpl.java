@@ -12,11 +12,11 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 class DotVisitorImpl extends AbstractVisitor implements DotVisitor {
 
     protected final StringBuilder transBuf = new StringBuilder();
-    
+
     @Override
     public void visitOnEntry(StateMachine<?, ?, ?, ?> visitable) {
         writeLine("digraph {\ncompound=true;");
-        writeLine("subgraph cluster_StateMachine {\nlabel=\""+visitable.getClass().getName()+"\";");
+        writeLine("subgraph cluster_StateMachine {\nlabel=\"" + visitable.getClass().getName() + "\";");
     }
 
     @Override
@@ -27,22 +27,23 @@ class DotVisitorImpl extends AbstractVisitor implements DotVisitor {
 
     @Override
     public void visitOnEntry(ImmutableState<?, ?, ?, ?> visitable) {
-        String stateId = visitable.getStateId().toString();
-        if(visitable.hasChildStates()) {
-            writeLine("subgraph cluster_"+stateId+" {\nlabel=\""+stateId+"\";");
-            if(visitable.getHistoryType()==HistoryType.DEEP) {
-                writeLine(stateId+"History"+" [label=\"\"];");
-            } else if (visitable.getHistoryType()==HistoryType.SHALLOW) {
-                writeLine(stateId+"History"+" [label=\"\"];");
+        String stateId = getName(visitable.getStateId());
+        String stateLabel = visitable.getStateId().toString();
+        if (visitable.hasChildStates()) {
+            writeLine("subgraph cluster_" + stateId + " {\nlabel=\"" + stateLabel + "\";");
+            if (visitable.getHistoryType() == HistoryType.DEEP) {
+                writeLine(stateId + "History" + " [label=\"\"];");
+            } else if (visitable.getHistoryType() == HistoryType.SHALLOW) {
+                writeLine(stateId + "History" + " [label=\"\"];");
             }
         } else {
-            writeLine(stateId+" [label=\""+stateId+"\"];");
+            writeLine(stateId + " [label=\"" + stateLabel + "\"];");
         }
     }
 
     @Override
     public void visitOnExit(ImmutableState<?, ?, ?, ?> visitable) {
-        if(visitable.hasChildStates()) {
+        if (visitable.hasChildStates()) {
             writeLine("}");
         }
     }
@@ -51,30 +52,31 @@ class DotVisitorImpl extends AbstractVisitor implements DotVisitor {
     public void visitOnEntry(ImmutableTransition<?, ?, ?, ?> visitable) {
         ImmutableState<?, ?, ?, ?> sourceState = visitable.getSourceState();
         ImmutableState<?, ?, ?, ?> targetState = visitable.getTargetState();
-        String sourceStateId = sourceState.getStateId().toString();
-        String targetStateId = targetState.getStateId().toString();
-        boolean sourceIsCluster=sourceState.hasChildStates();
-        boolean targetIsCluster=targetState.hasChildStates();
-        String source=(sourceIsCluster)?"cluster_"+sourceStateId:null;
-        String target=(targetIsCluster)?"cluster_"+targetStateId:null;
-        String realStart=(sourceIsCluster)? getSimpleChildOf(sourceState).getStateId().toString():sourceStateId;
-        String realEnd=(targetIsCluster)? getSimpleChildOf(targetState).getStateId().toString():targetStateId;
+        String sourceStateId = getName(sourceState.getStateId());
+        String targetStateId = getName(targetState.getStateId());
+        boolean sourceIsCluster = sourceState.hasChildStates();
+        boolean targetIsCluster = targetState.hasChildStates();
+        String source = (sourceIsCluster) ? "cluster_" + sourceStateId : null;
+        String target = (targetIsCluster) ? "cluster_" + targetStateId : null;
+        String realStart = (sourceIsCluster) ? getName(getSimpleChildOf(sourceState).getStateId()) : sourceStateId;
+        String realEnd = (targetIsCluster) ? getName(getSimpleChildOf(targetState).getStateId()) : targetStateId;
         String edgeLabel = visitable.getEvent().toString();
-        String ltail=(source!=null)?"ltail=\""+source+"\"":null;
-        String lhead=(target!=null)?"lhead=\""+target+"\"":null;
-        transBuf.append("\n"+realStart+" -> "+realEnd+" ["+((ltail!=null)?ltail+",":"")+((lhead!=null)?lhead+",":"")+" label=\""+edgeLabel+"\"];");
+        String ltail = (source != null) ? "ltail=\"" + source + "\"" : null;
+        String lhead = (target != null) ? "lhead=\"" + target + "\"" : null;
+        transBuf.append(
+            "\n" + realStart + " -> " + realEnd + " [" + ((ltail != null) ? ltail + "," : "") + ((lhead != null) ? lhead
+                + "," : "") + " label=\"" + edgeLabel + "\"];");
     }
-    
+
     public ImmutableState<?, ?, ?, ?> getSimpleChildOf(ImmutableState<?, ?, ?, ?> sourceState) {
-        Queue<ImmutableState<?, ?, ?, ?>> list=new LinkedList<ImmutableState<?, ?, ?, ?>>();
+        Queue<ImmutableState<?, ?, ?, ?>> list = new LinkedList<ImmutableState<?, ?, ?, ?>>();
         list.add(sourceState);
-        while(!list.isEmpty()) {
-            ImmutableState<?, ?, ?, ?> x=list.poll();
-            int l=x.getChildStates().size();
-            for (int i=0; i<l; i++) {
+        while (!list.isEmpty()) {
+            ImmutableState<?, ?, ?, ?> x = list.poll();
+            int l = x.getChildStates().size();
+            for (int i = 0; i < l; i++) {
                 ImmutableState<?, ?, ?, ?> c = x.getChildStates().get(i);
-                if (c.hasChildStates()) list.add(c);
-                else return c;
+                if (c.hasChildStates()) { list.add(c); } else { return c; }
             }
         }
         return sourceState;
@@ -86,7 +88,7 @@ class DotVisitorImpl extends AbstractVisitor implements DotVisitor {
 
     @Override
     public void convertDotFile(String filename) {
-        saveFile(filename+".dot", buffer.toString());
+        saveFile(filename + ".dot", buffer.toString());
     }
 
 }

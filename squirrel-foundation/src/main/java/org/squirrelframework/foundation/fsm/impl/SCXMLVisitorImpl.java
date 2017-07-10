@@ -23,7 +23,7 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     
     @Override
     public void visitOnEntry(StateMachine<?, ?, ?, ?> visitable) {
-        writeLine("<scxml initial=" + quoteName(visitable.getInitialState().toString()) + " version=\"1.0\" " +
+        writeLine("<scxml initial=" + quoteEnumName(visitable.getInitialState()) + " version=\"1.0\" " +
                 "xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:sqrl=\"http://squirrelframework.org/squirrel\">");
         writeLine("<sqrl:fsm "+visitable.getDescription()+" />");
     }
@@ -36,14 +36,14 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     @Override
     public void visitOnEntry(ImmutableState<?, ?, ?, ?> visitable) {
         if(visitable.isParallelState()) {
-            writeLine("<parallel id= " + quoteName(visitable.toString()) + ">");
+            writeLine("<parallel id= " + quoteEnumName(visitable) + ">");
         } else if(visitable.isFinalState()) {
-            writeLine("<final id= " + quoteName(visitable.toString()) + ">");
+            writeLine("<final id= " + quoteEnumName(visitable) + ">");
         } else { 
             StringBuilder builder = new StringBuilder("<state id= ");
-            builder.append(quoteName(visitable.toString()));
+            builder.append(quoteEnumName(visitable));
             if(visitable.getInitialState()!=null) {
-                builder.append(" initial= ").append(quoteName(visitable.getInitialState().toString()));
+                builder.append(" initial= ").append(quoteEnumName(visitable.getInitialState()));
             }
             builder.append(">");
             writeLine(builder.toString());
@@ -80,10 +80,10 @@ class SCXMLVisitorImpl extends AbstractVisitor implements SCXMLVisitor {
     @Override
     public void visitOnEntry(ImmutableTransition<?, ?, ?, ?> visitable) {
         writeLine("<transition event="
-                + quoteName(visitable.getEvent().toString()) + " sqrl:priority="
+                + quoteEnumName(visitable.getEvent()) + " sqrl:priority="
                 + quoteName(Integer.toString(visitable.getPriority())) + " sqrl:type="
                 + quoteName(visitable.getType().toString()) + " target="
-                + quoteName(visitable.getTargetState().toString()) + " cond="
+                + quoteEnumName(visitable.getTargetState()) + " cond="
                 + quoteName(visitable.getCondition().toString())+">");
         for(Action<?, ?, ?, ?> action : visitable.getActions()) {
             writeAction(action);
