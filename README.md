@@ -799,14 +799,14 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 
     User can save data of state machine when state machine is in idle status.
 
-    ``` java
+    ```java
     StateMachineData.Reader<MyStateMachine, MyState, MyEvent, MyContext>
         savedData = stateMachine.dumpSavedData();
     ```
 
     And also user can load above *savedData* into another state machine whose status is terminated or just initialized.
 
-    ``` java
+    ```java
     newStateMachineInstance.loadSavedData(savedData);
     ```
 
