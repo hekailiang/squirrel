@@ -108,17 +108,17 @@ At now you may have many questions about the sample code, please be patient. The
 	```
 	An **internal transition** with priority set to high is build inside state 'A' on event 'WithinA' perform 'myAction'. The internal transition means after transition complete, no state is exited or entered. The transition priority is used to override original transition when state machine extended.
 	```java
-	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
-		new Condition<MyContext>() {
-            @Override
-            public boolean isSatisfied(MyContext context) {
-                return context!=null && context.getValue()>80;
-            }
-            
-			@Override
-			public String name() {
-				return "MyCondition";
-			}
+  builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).when(
+      new Condition<MyContext>() {
+          @Override
+          public boolean isSatisfied(MyContext context) {
+              return context!=null && context.getValue()>80;
+          }
+
+          @Override
+          public String name() {
+              return "MyCondition";
+          }
     }).callMethod("myInternalTransitionCall");
 	```
 	An **conditional transition** is built from state 'C' to state 'D' on event 'GoToD' when external context satisfied the condition restriction, then call action method "myInternalTransitionCall". User can also use [MVEL][7](a powerful expression language) to describe condition in the following way.  
@@ -126,7 +126,7 @@ At now you may have many questions about the sample code, please be patient. The
 	builder.externalTransition().from(MyState.C).to(MyState.D).on(MyEvent.GoToD).whenMvel(
 		"MyCondition:::(context!=null && context.getValue()>80)").callMethod("myInternalTransitionCall");
 	```
-	**Note:** Characters ':::' use to separate condition name and condition expression. The 'context' is the predefined variable point to current Context object.    
+	**Note:** Characters `:::` use to separate condition name and condition expression. The 'context' is the predefined variable point to current Context object.    
 	```java
 	builder.onEntry(MyState.A).perform(Lists.newArrayList(action1, action2))
 	```
@@ -258,14 +258,14 @@ After user defined state machine behaviour, user could create a new state machin
 	```java
 	T newStateMachine(S initialStateId, Object... extraParams);
 	```
-To create a new state machine instance from state machine builder, you need to pass following parameters.
-	1. ```initialStateId```: When started, the initial state of the state machine.
-	2. ```extraParams```: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
+    To create a new state machine instance from state machine builder, you need to pass following parameters.
+	1. `initialStateId`: When started, the initial state of the state machine.
+	2. `extraParams`: Extra parameters that needed for create new state machine instance. Set to *"new Object[0]"* for no extra parameters needed.  
 	
-		a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also had defined type of extra parameters when creating the state machine builder. Otherwise, extra parameter will be ignored.  
-		b. Extra parameters can be passed into state machine instance in two ways. One is through state machine constructor which means user need to define a constructor with the same parameters' type and order for the state machine instance. Another way is define a method named ```postConstruct``` and also with the same parameters' type and order.  		
+	    a. If user passed extra parameters while creating a new state machine instance, please be sure that StateMachineBuilderFactory also had defined type of extra parameters when creating the state machine builder. Otherwise, extra parameter will be ignored.  
+	    b. Extra parameters can be passed into state machine instance in two ways. One is through state machine constructor which means user need to define a constructor with the same parameters' type and order for the state machine instance. Another way is define a method named `postConstruct` and also with the same parameters' type and order.  		
 	
-	If no extra parameters need to passed to state machine, user can simply call ```T newStateMachine(S initialStateId)``` to create a new state machine instance.  
+	If no extra parameters need to passed to state machine, user can simply call `T newStateMachine(S initialStateId)` to create a new state machine instance.  
 	
 	New state machine from state machine builder. (In this case, no extra parameters need to be passed.)
 	```java
@@ -318,16 +318,16 @@ To create a new state machine instance from state machine builder, you need to p
 Sometimes state transition does not care about context, which means transition mostly only determined by event. For this case user can use context insensitive state machine to simplify method call parameters.  
 To declare context insensitive state machine is quite simple. User only need to add annotation *@ContextInsensitive* on state machine implementation class. After that, context parameter can be ignored on the transition method parameter list. e.g.  
 	```java
-	@ContextInsensitive
-	public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
-		// no need to add context parameter here anymore
-		public void transitFromIdleToLoadingOnConnected(ATMState from, ATMState to, String event) {
-        	...
-    	}
-    	public void entryLoading(ATMState from, ATMState to, String event) {
-        	...
-    	}
-}
+    @ContextInsensitive
+    public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMState, String, Void> {
+        // no need to add context parameter here anymore
+        public void transitFromIdleToLoadingOnConnected(ATMState from, ATMState to, String event) {
+            ...
+        }
+        public void entryLoading(ATMState from, ATMState to, String event) {
+            ...
+        }
+    }
 	```  
 
 * **Transition Exception Handling**  
@@ -336,7 +336,7 @@ All the exception happened during transition phase including action execution an
 	```java  
 	protected void afterTransitionCausedException(...) { throw e; }
 	```  
-If state machine can be recovered from this exception, user can extend afterTransitionCausedException method, and add corresponding the recovery logic in this method. **DONOT** forget to set state machine status back to normal at the end. e.g.  
+    If state machine can be recovered from this exception, user can extend afterTransitionCausedException method, and add corresponding the recovery logic in this method. **DONOT** forget to set state machine status back to normal at the end. e.g.  
 	```java 
     @Override
     protected void afterTransitionCausedException(Object fromState, Object toState, Object event, Object context) {
@@ -362,13 +362,13 @@ A hierarchical state may contain nested state. The child states may themselves h
 	```java
 	void defineSequentialStatesOn(S parentStateId, S... childStateIds);
 	```
-*builder.defineSequentialStatesOn(State.A, State.BinA, StateCinA)* defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.
+    *builder.defineSequentialStatesOn(State.A, State.BinA, StateCinA)* defines two child states "BinA" and "CinA" under parent state "A", the first defined child state will also be the initial state of the hierarchical state "A". The same hierarchical state can also be defined through annotation, e.g.
 	```java
-@States({
+  @States({
 		@State(name="A", entryMethodCall="entryA", exitMethodCall="exitA"),
 		@State(parent="A", name="BinA", entryMethodCall="entryBinA", exitMethodCall="exitBinA", initialState=true),
 		@State(parent="A", name="CinA", entryMethodCall="entryCinA", exitMethodCall="exitCinA")
-})
+  })
 	```  
 
 * **Define Parallel State**  
@@ -384,30 +384,30 @@ The parallel state encapsulates a set of child states which are simultaneously a
 	builder.defineSequentialStatesOn(MyState.RegionState2, MyState.State21, MyState.State22);
 	builder.externalTransition().from(MyState.State21).to(MyState.State22).on(MyEvent.Event2);
 	```
-or  
+    or  
 	```java  
-@States({
+  @States({
 		@State(name="Root", entryCallMethod="enterRoot", exitCallMethod="exitRoot", compositeType=StateCompositeType.PARALLEL),
 		@State(parent="Root", name="RegionState1", entryCallMethod="enterRegionState1", exitCallMethod="exitRegionState1"),
 		@State(parent="Root", name="RegionState2", entryCallMethod="enterRegionState2", exitCallMethod="exitRegionState2")
-})
+  })
 	```
-To get current sub states of the parallel state
+  To get current sub states of the parallel state
 	```java
-stateMachine.getSubStatesOn(MyState.Root); // return list of current sub states of parallel state
+  stateMachine.getSubStatesOn(MyState.Root); // return list of current sub states of parallel state
 	```
-When all the parallel states reached final state, a **Finish** context event will be fired.  
+  When all the parallel states reached final state, a **Finish** context event will be fired.  
 * **Define Context Event**  
 Context event means that user defined event has predefined context in the state machine. squirrel-foundation defined three type of context event for different use case.  
-**Start/Terminate Event**: Event declared as start/terminate event will be used when state machine started/terminated. So user can differentiate the invoked action trigger, e.g. when state machine is starting and entering its initial state, user can differentiate these state entry action was invoked by start event.  
-**Finish Event**: When all the parallel states reached final state, finish event will be automatically fired. User can define following transition based on finish event.  
-To define the context event, user has two way, annotation or builder API.
-	```java
-	@ContextEvent(finishEvent="Finish")
-	static class ParallelStateMachine extends AbstractStateMachine<...> {
-	}
+  **Start/Terminate Event**: Event declared as start/terminate event will be used when state machine started/terminated. So user can differentiate the invoked action trigger, e.g. when state machine is starting and entering its initial state, user can differentiate these state entry action was invoked by start event.  
+  **Finish Event**: When all the parallel states reached final state, finish event will be automatically fired. User can define following transition based on finish event.  
+  To define the context event, user has two way, annotation or builder API.
+  ```java
+  @ContextEvent(finishEvent="Finish")
+  static class ParallelStateMachine extends AbstractStateMachine<...> {
+  }
 	```
-or
+  or
 	```java
 	StateMachineBuilder<...> builder = StateMachineBuilderFactory.create(...);
 	...
@@ -423,11 +423,11 @@ Both API and annotation are supported to define history type of state. e.g.
 	// defined history type of state "A" as "deep"
 	builder.defineSequentialStatesOn(MyState.A, HistoryType.DEEP, MyState.A1, MyState.A2)
 	```
-or
+  or
 	```java  
 	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)  
 	```  
-**Note:** Before 0.3.7, user need to define "HistoryType.DEEP" for each level of historical state, which is not quite convenient.(Thanks to [Voskuijlen](https://github.com/Voskuijlen) to provide solution [Issue33](https://github.com/hekailiang/squirrel/issues/33)). Now user only define "HistoryType.DEEP" at the top level of historical state, and all its children state historical information will be remembered.
+  **Note:** Before 0.3.7, user need to define "HistoryType.DEEP" for each level of historical state, which is not quite convenient.(Thanks to [Voskuijlen](https://github.com/Voskuijlen) to provide solution [Issue33](https://github.com/hekailiang/squirrel/issues/33)). Now user only define "HistoryType.DEEP" at the top level of historical state, and all its children state historical information will be remembered.
 
 * **Transition Types**  
 According to the UML specification, a transition may be one of these three kinds:    
@@ -457,192 +457,197 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
 * **Polymorphism Event Dispatch**  
 During the lifecycle of the state machine, various events will be fired, e.g.   
 	```  
-State Machine Lifecycle Events
-|--StateMachineEvent 						/* Base event of all state machine event */   
-       |--StartEvent							/* Fired when state machine started      */ 
-       |--TerminateEvent						/* Fired when state machine terminated   */ 
-       |--TransitionEvent						/* Base event of all transition event    */ 
-       		|--TransitionBeginEvent				/* Fired when transition began           */ 
-            |--TransitionCompleteEvent			/* Fired when transition completed       */ 
-            |--TransitionExceptionEvent			/* Fired when transition threw exception */ 
-            |--TransitionDeclinedEvent			/* Fired when transition declined        */ 
-            |--TransitionEndEvent				/* Fired when transition end no matter declined or complete */ 
+  State Machine Lifecycle Events
+  |--StateMachineEvent                          /* Base event of all state machine event */   
+       |--StartEvent                            /* Fired when state machine started      */ 
+       |--TerminateEvent                        /* Fired when state machine terminated   */ 
+       |--TransitionEvent                       /* Base event of all transition event    */ 
+            |--TransitionBeginEvent             /* Fired when transition began           */ 
+            |--TransitionCompleteEvent          /* Fired when transition completed       */ 
+            |--TransitionExceptionEvent         /* Fired when transition threw exception */ 
+            |--TransitionDeclinedEvent          /* Fired when transition declined        */ 
+            |--TransitionEndEvent               /* Fired when transition end no matter declined or complete */ 
 	```
-User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
+  User can add a listener to listen StateMachineEvent, which means all events fired during state machine lifecycle will be caught by this listener, e.g.,
 	```java
-	stateMachine.addStateMachineListener(new StateMachineListener<...>() {
-			@Override
-			public void stateMachineEvent(StateMachineEvent<...> event) {
-				// ...
-			}
-	});
+  stateMachine.addStateMachineListener(new StateMachineListener<...>() {
+      @Override
+      public void stateMachineEvent(StateMachineEvent<...> event) {
+          // ...
+      }
+  });
 	```
-**And** User can also add a listener to listen TransitionEvent through StateMachine.addTransitionListener, which means all events fired during each state transition including TransitionBeginEvent, TransitionCompleteEvent and TransitionEndEvent will be caught by this listener.  
-**Or** user can add specific listener e.g. TransitionDeclinedListener to listen TransitionDeclinedEvent when transition request was declined.  
+  **And** User can also add a listener to listen TransitionEvent through StateMachine.addTransitionListener, which means all events fired during each state transition including TransitionBeginEvent, TransitionCompleteEvent and TransitionEndEvent will be caught by this listener.  
+  **Or** user can add specific listener e.g. TransitionDeclinedListener to listen TransitionDeclinedEvent when transition request was declined.  
 * **Declarative Event Listener**  
 Adding above event listener to state machine sometime annoying to user, and too many generic types also makes code ugly to read. To simplify state machine usage, more important to provide a non-invasive integration, squirrel-foundation provides a declarative way to add event listener through following annotation, e.g.     
 	```java
-	static class ExternalModule {
-        @OnTransitionEnd
-        @ListenerOrder(10) // Since 0.3.1 ListenerOrder can be used to insure listener invoked orderly
-        public void transitionEnd() {
-            // method annotated with TransitionEnd will be invoked when transition end...
-            // the method must be public and return nothing
+  static class ExternalModule {
+      @OnTransitionEnd
+      @ListenerOrder(10) // Since 0.3.1 ListenerOrder can be used to insure listener invoked orderly
+      public void transitionEnd() {
+          // method annotated with TransitionEnd will be invoked when transition end...
+          // the method must be public and return nothing
+      }
+        
+      @OnTransitionBegin
+      public void transitionBegin(TestEvent event) {
+          // method annotated with TransitionBegin will be invoked when transition begin...
         }
         
-        @OnTransitionBegin
-        public void transitionBegin(TestEvent event) {
-            // method annotated with TransitionBegin will be invoked when transition begin...
-        }
+      // 'event'(E), 'from'(S), 'to'(S), 'context'(C) and 'stateMachine'(T) can be used in MVEL scripts		
+      @OnTransitionBegin(when="event.name().equals(\"toB\")")
+      public void transitionBeginConditional() {
+          // method will be invoked when transition begin while transition caused by event "toB"
+      }
         
-		// 'event'(E), 'from'(S), 'to'(S), 'context'(C) and 'stateMachine'(T) can be used in MVEL scripts		
-		@OnTransitionBegin(when="event.name().equals(\"toB\")")
-        public void transitionBeginConditional() {
-            // method will be invoked when transition begin while transition caused by event "toB"
-        }
+      @OnTransitionComplete
+      public void transitionComplete(String from, String to, TestEvent event, Integer context) {
+          // method annotated with TransitionComplete will be invoked when transition complete...
+      }
         
-        @OnTransitionComplete
-        public void transitionComplete(String from, String to, TestEvent event, Integer context) {
-            // method annotated with TransitionComplete will be invoked when transition complete...
-        }
+      @OnTransitionDecline
+      public void transitionDeclined(String from, TestEvent event, Integer context) {
+          // method annotated with TransitionDecline will be invoked when transition declined...
+      }
         
-        @OnTransitionDecline
-        public void transitionDeclined(String from, TestEvent event, Integer context) {
-            // method annotated with TransitionDecline will be invoked when transition declined...
-        }
+      @OnBeforeActionExecuted
+      public void onBeforeActionExecuted(Object sourceState, Object targetState, 
+          Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
+          // method annotated with OnAfterActionExecuted will be invoked before action invoked  
+      }
         
-		@OnBeforeActionExecuted
-    	public void onBeforeActionExecuted(Object sourceState, Object targetState, 
-            	Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-            // method annotated with OnAfterActionExecuted will be invoked before action invoked  
-        }
-        
-		@OnAfterActionExecuted
-    	public void onAfterActionExecuted(Object sourceState, Object targetState, 
-            	Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
-        	// method annotated with OnAfterActionExecuted will be invoked after action invoked  
-    	}
+      @OnAfterActionExecuted
+      public void onAfterActionExecuted(Object sourceState, Object targetState, 
+          Object event, Object context, int[] mOfN, Action<?, ?, ?,?> action) {
+          // method annotated with OnAfterActionExecuted will be invoked after action invoked  
+      }
     
-    	@OnActionExecException
-    	public void onActionExecException(Action<?, ?, ?,?> action, TransitionException e) {
-        	// method annotated with OnActionExecException will be invoked when action thrown exception  
-    	}
-    }
+      @OnActionExecException
+      public void onActionExecException(Action<?, ?, ?,?> action, TransitionException e) {
+          // method annotated with OnActionExecException will be invoked when action thrown exception  
+      }
+  }
     
-	ExternalModule externalModule = new ExternalModule();
-    fsm.addDeclarativeListener(externalModule);
-    ...
-    fsm.removeDeclarativeListener(externalModule);
+  ExternalModule externalModule = new ExternalModule();
+  fsm.addDeclarativeListener(externalModule);
+  ...
+  fsm.removeDeclarativeListener(externalModule);
 	```
-By doing this external module code does not need to implement any state machine listener interface. Only add few annotations on methods which will be hooked during transition phase. The parameters of method is also type safe, and will automatically be inferred to match corresponding event. This is a good approach for **Separation of Concerns**. User can find sample usage in *org.squirrelframework.foundation.fsm.StateMachineLogger*.
+  By doing this external module code does not need to implement any state machine listener interface.
+  Only add few annotations on methods which will be hooked during transition phase. The parameters of method
+  is also type safe, and will automatically be inferred to match corresponding event. This is a good approach
+  for **Separation of Concerns**. User can find sample usage in
+  *org.squirrelframework.foundation.fsm.StateMachineLogger*.
 
 * **Transition Extension Methods**   
-Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed to be extended in customer state machine implementation class.  
+  Each transition event also has corresponding extension method on AbstractStateMachine class which is allowed
+  to be extended in customer state machine implementation class.  
 	```java
-	protected void afterTransitionCausedException(Exception e, S fromState, S toState, E event, C context) {
-    }
+  protected void afterTransitionCausedException(Exception e, S fromState, S toState, E event, C context) {
+  }
     
-	protected void beforeTransitionBegin(S fromState, E event, C context) {
-    }
+  protected void beforeTransitionBegin(S fromState, E event, C context) {
+  }
     
-    protected void afterTransitionCompleted(S fromState, S toState, E event, C context) {
-    }
+  protected void afterTransitionCompleted(S fromState, S toState, E event, C context) {
+  }
     
-    protected void afterTransitionEnd(S fromState, S toState, E event, C context) {
-    }
+  protected void afterTransitionEnd(S fromState, S toState, E event, C context) {
+  }
     
-    protected void afterTransitionDeclined(S fromState, E event, C context) {
-    }
+  protected void afterTransitionDeclined(S fromState, E event, C context) {
+  }
     
-	protected void beforeActionInvoked(S fromState, S toState, E event, C context) {
-    }
+  protected void beforeActionInvoked(S fromState, S toState, E event, C context) {
+  }
 	```
-Typically, user can hook in your business processing logic in these extension methods during each state transition, while the various event listener serves as boundary of state machine based control system, which can interact with external modules (e.g. UI, Auditing, ESB and so on).  
+  Typically, user can hook in your business processing logic in these extension methods during each state transition, while the various event listener serves as boundary of state machine based control system, which can interact with external modules (e.g. UI, Auditing, ESB and so on).  
 For example, user can extend the method afterTransitionCausedException for environment clean up when exception happened during transition, and also notify user interface module to display error message  through TransitionExceptionEvent.  
 
 * **Weighted Action**  
-User can define action weight to adjust action execution order. The actions during state entry/exit and state transition are ordered in ascending order according to their weight value. Action weight is 0 by default. User has two way to set action weight.  
-One is append weight number to method name and separated by ':'.
+  User can define action weight to adjust action execution order. The actions during state entry/exit and state transition are ordered in ascending order according to their weight value. Action weight is 0 by default. User has two way to set action weight.  
+  One is append weight number to method name and separated by ':'.
 	```java
-// define state entry action 'goEntryD' weight -150
-@State(name="D", entryCallMethod="goEntryD:-150") 
-// define transition action 'goAToC1' weight +150
-@Transit(from="A", to="C", on="ToC", callMethod="goAToC1:+150") 
+  // define state entry action 'goEntryD' weight -150
+  @State(name="D", entryCallMethod="goEntryD:-150") 
+  // define transition action 'goAToC1' weight +150
+  @Transit(from="A", to="C", on="ToC", callMethod="goAToC1:+150") 
 	```  
-Another way is override weight method of Action class, e.g. 
+  Another way is override weight method of Action class, e.g. 
 	```java
-	Action<...> newAction = new Action<...>() {
-		...
-		@Override
-		public int weight() {
-			return 100;
-		}
-}
+  Action<...> newAction = new Action<...>() {
+      ...
+      @Override
+      public int weight() {
+          return 100;
+      }
+  }
 	```  
-squirrel-foundation also support a conventional manner to declare action weight. The weight of method call action whose name started with '*before*' will be set to 100, so as the name started with '*after*' will be set to -100. Generally it means that the action method name started with 'before' will be invoked at first, while the action method name started with 'after' will be invoked at last. "method1:ignore" means method1 will not be invoked.  
-For more information, please refer to test case '*org.squirrelframework.foundation.fsm.WeightedActionTest*';  
+  squirrel-foundation also support a conventional manner to declare action weight. The weight of method call action whose name started with '*before*' will be set to 100, so as the name started with '*after*' will be set to -100. Generally it means that the action method name started with 'before' will be invoked at first, while the action method name started with 'after' will be invoked at last. "method1:ignore" means method1 will not be invoked.  
+For more information, please refer to test case *org.squirrelframework.foundation.fsm.WeightedActionTest*;  
 
 * **Asynchronized Execution**  
 **@AsyncExecute** annotation can be used on method call action and declarative event listener to indicate that this action or event listener will be executed asynchronously, e.g.  
 Define asynchronously invoked action method:
 	```java
-	@ContextInsensitive
-	@StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
-	public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
-		// No need to specify constructor anymore since 0.2.9
-    	// protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
-        //    Map<Object, ImmutableUntypedState> states) {
-        //	super(initialState, states);
-    	// }
+  @ContextInsensitive
+  @StateMachineParameters(stateType=String.class, eventType=String.class, contextType=Void.class)
+  public class ConcurrentSimpleStateMachine extends AbstractUntypedStateMachine {
+      // No need to specify constructor anymore since 0.2.9
+      // protected ConcurrentSimpleStateMachine(ImmutableUntypedState initialState, 
+      //    Map<Object, ImmutableUntypedState> states) {
+      //    super(initialState, states);
+      // }
     
-    	@AsyncExecute
-    	protected void fromAToB(String from, String to, String event) {
-        	// this action method will be invoked asynchronously
-    	}
-	}
+      @AsyncExecute
+      protected void fromAToB(String from, String to, String event) {
+          // this action method will be invoked asynchronously
+      }
+  }
 	```  
-Define asynchronously dispatched event:  
+  Define asynchronously dispatched event:  
 	```java
-	public class DeclarativeListener {
-        @OnTransitionBegin
-        @AsyncExecute
-        public void onTransitionBegin(...) {
-            // transition begin event will be dispatched asynchronously to this listener method
-        }
-    }
+  public class DeclarativeListener {
+      @OnTransitionBegin
+      @AsyncExecute
+      public void onTransitionBegin(...) {
+          // transition begin event will be dispatched asynchronously to this listener method
+      }
+  }
 	```
-Asynchronous execution task will be submit to a *ExecutorService*. User can register your ExecutorService implementation instance through *SquirrelSingletonProvider*, e.g.  
+  Asynchronous execution task will be submit to a *ExecutorService*. User can register your ExecutorService implementation instance through *SquirrelSingletonProvider*, e.g.  
 	```java
 	ExecutorService executorService = Executors.newFixedThreadPool(1);
 	SquirrelSingletonProvider.getInstance().register(ExecutorService.class, executorService);
 	```
-If no ExecutorService instance was registered, *SquirrelConfiguration* will provide a default one.
+  If no ExecutorService instance was registered, *SquirrelConfiguration* will provide a default one.
 
 * **State Machine PostProcessor**  
 	User can register post processor for specific type of state machine in order to adding post process logic after state machine instantiated, e.g.  
 	```java
-	// 1 User defined a state machine interface
-	interface MyStateMachine extends StateMachine<MyStateMachine, MyState, MyEvent, MyContext> {
-	. . .
-	}
+  // 1 User defined a state machine interface
+  interface MyStateMachine extends StateMachine<MyStateMachine, MyState, MyEvent, MyContext> {
+      // ...
+  }
 	
-	// 2 Both MyStateMachineImpl and MyStateMachineImplEx are implemented MyStateMachine
-	class MyStateMachineImpl implements MyStateMachine {
-		. . . 
-	}
-	class MyStateMachineImplEx implements MyStateMachine {
-		. . .
-	}
+  // 2 Both MyStateMachineImpl and MyStateMachineImplEx are implemented MyStateMachine
+  class MyStateMachineImpl implements MyStateMachine {
+      // ... 
+  }
+  class MyStateMachineImplEx implements MyStateMachine {
+      // ...
+  }
 	
-	// 3 User define a state machine post processor
-	MyStateMachinePostProcessor implements SquirrelPostProcessor<MyStateMachine> {
-		void postProcess(MyStateMachine component) {
-			. . . 
-		}
-	}  
+  // 3 User define a state machine post processor
+  MyStateMachinePostProcessor implements SquirrelPostProcessor<MyStateMachine> {
+      void postProcess(MyStateMachine component) {
+          // ... 
+      }
+  }  
 	
-	// 4 User register state machine post process
-	SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, MyStateMachinePostProcessor.class);
+  // 4 User register state machine post process
+  SquirrelPostProcessorProvider.getInstance().register(MyStateMachine.class, MyStateMachinePostProcessor.class);
 	```
 	For this case, when user created both MyStateMachineImpl and MyStateMachineImplEx instance, the registered post processor MyStateMachinePostProcessor will be called to do some work.
 	
@@ -666,30 +671,30 @@ If no ExecutorService instance was registered, *SquirrelConfiguration* will prov
 	UntypedStateMachineBuilder builder = new UntypedStateMachineImporter().importDefinition(scxmlDef);
 	ATMStateMachine stateMachine = builder.newAnyStateMachine(ATMState.Idle);
 	```  
-*Note: The UntypedStateMachineImporter provided an XML-style to define the state machine just like the state machine builder API or declarative annotations. The SCXML-similar definition is not equal to standard SCXML.*   
+  *Note: The UntypedStateMachineImporter provided an XML-style to define the state machine just like the state machine builder API or declarative annotations. The SCXML-similar definition is not equal to standard SCXML.*   
 
 * **Save/Load State Machine Data**  
 User can save data of state machine when state machine is in idle status.
 	``` java
-StateMachineData.Reader<MyStateMachine, MyState, MyEvent, MyContext> 
-		savedData = stateMachine.dumpSavedData();
+  StateMachineData.Reader<MyStateMachine, MyState, MyEvent, MyContext> 
+      savedData = stateMachine.dumpSavedData();
 	```  
-And also user can load above *savedData* into another state machine whose status is terminated or just initialized.
+  And also user can load above *savedData* into another state machine whose status is terminated or just initialized.
 	``` java 
-newStateMachineInstance.loadSavedData(savedData);
+  newStateMachineInstance.loadSavedData(savedData);
 	``` 
-**NOTE**: The state machine data can be serialized to/deserialized from Base64 encoded string with the help of *ObjectSerializableSupport* class.
+  **NOTE**: The state machine data can be serialized to/deserialized from Base64 encoded string with the help of *ObjectSerializableSupport* class.
 * **State Machine Configuration**  
 When creating new state machine instance, user can configure its behavior through 	*StateMachineConfiguration*, e.g.    
 	```java
-    UntypedStateMachine fsm = builder.newUntypedStateMachine("a", 
-    	 StateMachineConfiguration.create().enableAutoStart(false)
-         		.setIdProvider(IdProvider.UUIDProvider.getInstance()), 
-         new Object[0]); // since 0.3.0
-    fsm.fire(TestEvent.toA);
+  UntypedStateMachine fsm = builder.newUntypedStateMachine("a", 
+      StateMachineConfiguration.create().enableAutoStart(false)
+          .setIdProvider(IdProvider.UUIDProvider.getInstance()), 
+          new Object[0]); // since 0.3.0
+  fsm.fire(TestEvent.toA);
 	``` 
 	The sample code above is used to create a state machine instance with UUID as its identifier and disable auto start function.  
-	StateMachineConfigure can also be set on state machine builder which means all the state machine instance created by ```builder.newStateMachine(S initialStateId)``` or ```builder.newStateMachine(S initialStateId, Object... extraParams)``` will use this configuration.
+	StateMachineConfigure can also be set on state machine builder which means all the state machine instance created by `builder.newStateMachine(S initialStateId)` or `builder.newStateMachine(S initialStateId, Object... extraParams)` will use this configuration.
 
 * **State Machine Diagnose**  
 	*StateMachineLogger* is used to observe internal status of the state machine, like the execution performance, action calling sequence, transition progress and so on, e.g.  
@@ -712,44 +717,44 @@ When creating new state machine instance, user can configure its behavior throug
 	...
 	```   
 	*Since v0.3.0 state machine logger can be used more easy way by just set StateMachineConfiguration enable debug mode to ture, e.g.*
-	```
-	StateMachine<?,?,?,?> stateMachine = builder.newStateMachine(HState.A,
-    		StateMachineConfiguration.create().enableDebugMode(true),
-            new Object[0]);
+	```java
+  StateMachine<?,?,?,?> stateMachine = builder.newStateMachine(HState.A,
+  StateMachineConfiguration.create().enableDebugMode(true),
+      new Object[0]);
 	```   
 	
 	*StateMachinePerformanceMonitor* can be used to monitor state machine execution performance information, including total transition times count, average transition consumed time and so on, e.g.
 	```java
-	final UntypedStateMachine fsm = builder.newStateMachine("D");
-	final StateMachinePerformanceMonitor performanceMonitor = 
-                new StateMachinePerformanceMonitor("Sample State Machine Performance Info");
-    fsm.addDeclarativeListener(performanceMonitor);
-    for (int i = 0; i < 10000; i++) {
-    	fsm.fire(FSMEvent.ToA, 10);
-        fsm.fire(FSMEvent.ToB, 10);
-        fsm.fire(FSMEvent.ToC, 10);
-        fsm.fire(FSMEvent.ToD, 10);
-    }
-    fsm.removeDeclarativeListener(performanceMonitor);
-    System.out.println(performanceMonitor.getPerfModel());
-    -------------------------------------------------------------------------------------------
-	Console Log:
-	========================== Sample State Machine Performance Info ==========================
-	Total Transition Invoked: 40000
-	Total Transition Failed: 0
-	Total Transition Declained: 0
-	Average Transition Comsumed: 0.0004ms
-		Transition Key		Invoked Times	Average Time		Max Time	Min Time
-		C--{ToD, 10}->D		10000			0.0007ms			5ms			0ms		
-		B--{ToC, 10}->C		10000			0.0001ms			1ms			0ms		
-		D--{ToA, 10}->A		10000			0.0009ms			7ms			0ms		
-		A--{ToB, 10}->B		10000			0.0000ms			1ms			0ms		
-	Total Action Invoked: 40000
-	Total Action Failed: 0
-	Average Action Execution Comsumed: 0.0000ms
-		Action Key			Invoked Times	Average Time		Max Time	Min Time
-		instan...Test$1		40000			0.0000ms			1ms			0ms	
-	========================== Sample State Machine Performance Info ==========================
+  final UntypedStateMachine fsm = builder.newStateMachine("D");
+  final StateMachinePerformanceMonitor performanceMonitor = 
+      new StateMachinePerformanceMonitor("Sample State Machine Performance Info");
+  fsm.addDeclarativeListener(performanceMonitor);
+  for (int i = 0; i < 10000; i++) {
+      fsm.fire(FSMEvent.ToA, 10);
+      fsm.fire(FSMEvent.ToB, 10);
+      fsm.fire(FSMEvent.ToC, 10);
+      fsm.fire(FSMEvent.ToD, 10);
+  }
+  fsm.removeDeclarativeListener(performanceMonitor);
+  System.out.println(performanceMonitor.getPerfModel());
+  -------------------------------------------------------------------------------------------
+  Console Log:
+  ========================== Sample State Machine Performance Info ==========================
+  Total Transition Invoked: 40000
+  Total Transition Failed: 0
+  Total Transition Declained: 0
+  Average Transition Comsumed: 0.0004ms
+      Transition Key      Invoked Times  Average Time        Max Time     Min Time
+      C--{ToD, 10}->D     10000          0.0007ms            5ms          0ms		
+      B--{ToC, 10}->C     10000          0.0001ms            1ms          0ms		
+      D--{ToA, 10}->A     10000          0.0009ms            7ms          0ms		
+      A--{ToB, 10}->B     10000          0.0000ms            1ms          0ms		
+  Total Action Invoked: 40000
+  Total Action Failed: 0
+  Average Action Execution Comsumed: 0.0000ms
+      Action Key          Invoked Times  Average Time        Max Time     Min Time
+      instan...Test$1     40000          0.0000ms            1ms          0ms	
+  ========================== Sample State Machine Performance Info ==========================
 	```
 	Add **@LogExecTime** on action method will log out the execution time of the method. And also add the @LogExecTime on state machine class will log out all the action method execution time. For example, the execution time of method *transitFromAToBOnGoToB* will be logged out.
 	```java
@@ -763,7 +768,7 @@ When creating new state machine instance, user can configure its behavior throug
 	ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	SquirrelSingletonProvider.getInstance().register(ScheduledExecutorService.class, scheduler);
 	```
-If no ScheduledExecutorService instance was registered, *SquirrelConfiguration* will provide a default one. After that, a timed state can be defined by state machine builder, e.g.  
+  If no ScheduledExecutorService instance was registered, *SquirrelConfiguration* will provide a default one. After that, a timed state can be defined by state machine builder, e.g.  
 	```java  
 	// after 50ms delay fire event "FIRST" every 100ms with null context
 	builder.defineTimedState("A", 50, 100, "FIRST", null);
@@ -807,7 +812,7 @@ See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_N
 * For any issue or requirement, please submit an [issue][6]  
 * **If you use Squirrel State Machine code in your application, I'll be appreciate if you inform the author about it (email: hekailiang@gmail.com) like this**:  
 
-	**Subject:** Squirrel State Machine Usage Notification  		
+	**Subject:** Squirrel State Machine Usage Notification  
 	**Text:** I use Squirrel State Machine \<lib\_version\> in \<project\_name\> - http://link\_to\_project. I [allow | don't allow] to mention my project in section "Who using Squirrel State Machine" on GitHub.
 
 [1]: http://en.wikipedia.org/wiki/UML_state_machine
@@ -821,5 +826,4 @@ See [RELEASE NOTES](https://github.com/hekailiang/squirrel/blob/master/RELEASE_N
 [9]: http://www.uml-diagrams.org/state-machine-diagrams.html
 [10]: http://qt-project.org/doc/qt-4.8/statemachine-api.html
 [11]: https://github.com/hekailiang/squirrel/pull/11
-
 
