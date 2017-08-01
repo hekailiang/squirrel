@@ -56,3 +56,8 @@ Squirrel state machine does not have any heavy dependencies, so basically it sho
 
 * **Andriod Integration**   
 Thanks to [Vyacheslav Blinov](https://github.com/dant3) to provide this [sample project](https://github.com/dant3/squirrel-android-example) for squirrel state machine used in android.
+
+* **Use Cases**  
+[Why Choose Squirrel (Chinese)](http://www.timguan.net/2017/06/19/%E7%8A%B6%E6%80%81%E6%9C%BA%E5%BC%95%E6%93%8E%E9%80%89%E5%9E%8B/)  
+[squirrel-foundation Use Details (Chinese)](http://www.timguan.net/2017/06/21/squirrel-foundation%E7%8A%B6%E6%80%81%E6%9C%BA%E7%9A%84%E4%BD%BF%E7%94%A8%E7%BB%86%E8%8A%82/#more)  
+[Finite-State Machine for Single-Use Code Authentication (English)](http://www.ebaytechblog.com/2016/08/30/finite-state-machine-for-single-use-code-authentication/)  
