@@ -302,7 +302,7 @@ At now you may have many questions about the sample code, please be patient. The
 
 *   **New State Machine Instance**
 
-    After user defined state machine behaviour, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot used to define any new element of state machine anymore.
+    After user defined state machine behaviour, user could create a new state machine instance through builder. Note, once the state machine instance is created from the builder, the builder cannot be used to define any new element of state machine anymore.
 
     ```java
     T newStateMachine(S initialStateId, Object... extraParams);
