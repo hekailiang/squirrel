@@ -101,9 +101,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     void prePostConstruct(S initialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states,
             StateMachineConfiguration configuration, Runnable cb) {
         data = FSM.newStateMachineData(states);
-        data.write().initialState(initialStateId);
+        data.write().identifier(configuration.getIdProvider().get());       
+ 	    data.write().initialState(initialStateId);
         data.write().currentState(null);
-        data.write().identifier(configuration.getIdProvider().get());
         
         // retrieve options value from state machine configuration
         this.isAutoStartEnabled = configuration.isAutoStartEnabled();
