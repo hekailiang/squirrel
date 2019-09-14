@@ -25,33 +25,50 @@ The sample code could be found in package *"org.squirrelframework.foundation.fsm
 	This example can be found in package *"org.squirrelframework.foundation.fsm.snake"*. 
 
 * **Spring Framework Integration**  
-Squirrel state machine does not have any heavy dependencies, so basically it should be highly embedable. To Integrate with Spring IoC container, basically user can add @Configurable annotation on the state machine implementation class, e.g.
+Squirrel state machine does not have any heavy dependencies, so basically it should be highly embedable. To Integrate with Spring IoC container, basically user can register an statemachine post processor to enable auto wire dependencies. Following StateMachineAutowireProcessor provide the sample implementation.
 	```java
-	interface StateMachineBean extends StateMachine<StateMachineBean, MyState, MyEvent, MyContext> {
-		...
-	}
+	package org.squirreframework.foundation.spring;
 
-	@Configurable(preConstruction=true)
-	abstract class AbstractStateMachineBean extends AbstractStateMachine<StateMachineBean, MyState, MyEvent, MyContext> implements StateMachineBean {
-		@Autowired
-  		private ApplicationContext applicationContext;
-		...
-	}
-	
-	public class TypedStateMachineA extends AbstractStateMachineBean {
-  		@Autowired
-  		// some other managed beans...
-	}
+	import com.google.common.base.Preconditions;
+	import org.springframework.beans.BeansException;
+	import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+	import org.springframework.context.ApplicationContext;
+	import org.springframework.context.ApplicationContextAware;
+	import org.springframework.stereotype.Component;
+	import org.squirrelframework.foundation.component.SquirrelPostProcessor;
+	import org.squirrelframework.foundation.component.SquirrelPostProcessorProvider;
+	import org.squirrelframework.foundation.fsm.*;
 
-	public class TypedStateMachineB extends AbstractStateMachineBean {
-  		@Autowired
-  		// some other managed beans...
+	/**
+	 * Support autowire dependencies within spring IoC container
+	 *
+	 * @author kailiang.hkl
+	 * @version : StateMachineBuilderWithSpringSupport.java
+	 */
+	@Component
+	public class StateMachineAutowireProcessor implements SquirrelPostProcessor<StateMachine>, ApplicationContextAware {
+
+	    private ApplicationContext applicationContext;
+
+	    public StateMachineAutowireProcessor() {
+	        // register StateMachineAutowireProcessor as state machine post processor
+		SquirrelPostProcessorProvider.getInstance().register(StateMachine.class, this);
+	    }
+
+	    @Override
+	    public void postProcess(StateMachine stateMachine) {
+		Preconditions.checkNotNull(stateMachine);
+		// after state machine instance created, 
+		// autoware @Autowired/@Value dependencies and properties within state machine class
+		AutowireCapableBeanFactory autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
+		autowireCapableBeanFactory.autowireBean(stateMachine);
+	    }
+
+	    @Override
+	    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	    }
 	}
-	
-	TypedStateMachineA fsmA = StateMachineBuilderFactory.create(TypedStateMachineA.class, 
-		MyState.class, MyEvent.class, MyContext.class).newStateMachine(MyState.Initial);
-	TypedStateMachineA fsmB = StateMachineBuilderFactory.create(TypedStateMachineB.class, 
-		MyState.class, MyEvent.class, MyContext.class).newStateMachine(MyState.Initial);
 	```  
 
 * **Andriod Integration**   
