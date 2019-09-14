@@ -78,7 +78,7 @@ public class SnakePanel extends JPanel {
                 smallMessage = "Press Enter to Restart";
             } else if(controller.getCurrentState()==SnakeState.PAUSE) {
                 largeMessage = "Paused";
-                smallMessage = "Press P to Resume";
+                smallMessage = "Press P/SPACE to Resume";
             }
 
             g.setFont(FONT);

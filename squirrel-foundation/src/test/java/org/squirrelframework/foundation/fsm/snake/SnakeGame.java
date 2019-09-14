@@ -58,6 +58,7 @@ public class SnakeGame extends JFrame {
                     break;
 
                 case KeyEvent.VK_P:
+                case KeyEvent.VK_SPACE:
                     gameController.fire(SnakeEvent.PRESS_PAUSE, gameModel);
                     break;
 
