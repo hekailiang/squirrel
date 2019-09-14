@@ -43,7 +43,7 @@ Squirrel state machine does not have any heavy dependencies, so basically it sho
 	 * Support autowire dependencies within spring IoC container
 	 *
 	 * @author kailiang.hkl
-	 * @version : StateMachineBuilderWithSpringSupport.java
+	 * @version : StateMachineAutowireProcessor.java
 	 */
 	@Component
 	public class StateMachineAutowireProcessor implements SquirrelPostProcessor<StateMachine>, ApplicationContextAware {
