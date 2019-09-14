@@ -111,7 +111,6 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
         this.isDebugModeEnabled = configuration.isDebugModeEnabled();
         this.isDelegatorModeEnabled = configuration.isDelegatorModeEnabled();
-        this.isRemoteMonitorEnabled = configuration.isRemoteMonitorEnabled();
         cb.run();
         
         prepare();

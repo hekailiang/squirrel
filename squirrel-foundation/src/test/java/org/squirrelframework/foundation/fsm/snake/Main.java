@@ -14,8 +14,6 @@ public class Main {
     public static void main(String[] args) {
         final SnakeModel gameModel = new SnakeModel();
         UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(SnakeController.class);
-        builder.setStateMachineConfiguration(StateMachineConfiguration.create().enableRemoteMonitor(true));
-        
         // define timed state
         builder.defineTimedState(SnakeState.UP, 0, GameConfigure.FRAME_TIME, SnakeEvent.MOVE_AHEAD, gameModel);
         builder.defineTimedState(SnakeState.DOWN, 0, GameConfigure.FRAME_TIME, SnakeEvent.MOVE_AHEAD, gameModel);

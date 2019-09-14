@@ -16,7 +16,6 @@ import org.squirrelframework.foundation.exception.SquirrelRuntimeException;
 import org.squirrelframework.foundation.fsm.*;
 import org.squirrelframework.foundation.fsm.annotation.*;
 import org.squirrelframework.foundation.fsm.builder.*;
-import org.squirrelframework.foundation.fsm.jmx.ManagementService;
 import org.squirrelframework.foundation.util.DuplicateChecker;
 import org.squirrelframework.foundation.util.ReflectUtils;
 
@@ -74,8 +73,6 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
 
     private StateMachineConfiguration defaultConfiguration = StateMachineConfiguration.getInstance();
 
-    private ManagementService managementService;
-    
     @SuppressWarnings("unchecked")
     private StateMachineBuilderImpl(Class<? extends T> stateMachineImplClazz, Class<S> stateClazz, 
             Class<E> eventClazz, Class<C> contextClazz, Class<?>... extraParamTypes) {
@@ -748,18 +745,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
             }
         } 
         postProcessStateMachine((Class<T>)stateMachineImplClazz, stateMachine);
-        
-        if(configuration.isRemoteMonitorEnabled()) {
-            getManagementService().register(stateMachine);
-        }
-        return stateMachine;
-    }
 
-    private ManagementService getManagementService() {
-        if(managementService==null) {
-            managementService = new ManagementService();
-        }
-        return managementService;
+        return stateMachine;
     }
 
     private boolean isValidState(S initialStateId) {
