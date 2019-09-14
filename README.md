@@ -930,7 +930,7 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
     builderOfTestStateMachine.definedLinkedState(LState.A, builderOfLinkedStateMachine, LState.A1);
     ```
 
-*   **JMX Support**
+*   ~~**JMX Support**~~
 
     Since 0.3.3, user can remote monitor state machine instance(e.g. current status, name) and modify configurations(e.g. toggle loggings/toggle performance monitor/remote fire event) at runtime. All the state machine instances information will be under "org.squirrelframework" domain. The following sample code shows how to enable JMX support.
 
@@ -938,6 +938,8 @@ Implies that the Transition, if triggered, occurs without exiting or entering th
     UntypedStateMachineBuilder builder = StateMachineBuilderFactory.create(...);
     builder.setStateMachineConfiguration(StateMachineConfiguration.create().enableRemoteMonitor(true));
     ```
+    
+    **NOTE**: JMX feature support deprecated since 0.3.9-SNAPSHOT.
 
 ## Examples
 
