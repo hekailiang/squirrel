@@ -1,0 +1,8 @@
+title: Squirrel State Machine
+description: squirrel-foundation provided an easy use, type safe and highly extensible state machine implementation for Java.
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
