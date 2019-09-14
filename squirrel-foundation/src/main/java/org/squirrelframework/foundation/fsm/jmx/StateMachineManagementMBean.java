@@ -14,7 +14,7 @@ public interface StateMachineManagementMBean {
     
     long getTotalTransitionDeclinedTimes();
     
-    float getAverageTranstionConsumedTime();
+    float getAverageTransitionConsumedTime();
     
     String getLastErrorMessage();
     

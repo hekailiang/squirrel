@@ -24,7 +24,7 @@ public class StateMachineManagement implements StateMachineManagementMBean {
     
     private long totalTransitionDeclinedTimes = 0;
     
-    private float averageTranstionConsumedTime = 0.0f;
+    private float averageTransitionConsumedTime = 0.0f;
     
     private String perfStatDetails = "[Empty]";
     
@@ -61,8 +61,8 @@ public class StateMachineManagement implements StateMachineManagementMBean {
         return totalTransitionDeclinedTimes;
     }
     
-    public float getAverageTranstionConsumedTime() {
-        return averageTranstionConsumedTime;
+    public float getAverageTransitionConsumedTime() {
+        return averageTransitionConsumedTime;
     }
     
     @Override
@@ -99,7 +99,7 @@ public class StateMachineManagement implements StateMachineManagementMBean {
             this.totalTransitionInvokedTimes = perfModel.getTotalTransitionInvokedTimes();
             this.totalTransitionDeclinedTimes = perfModel.getTotalTransitionDeclinedTimes();
             this.totalTransitionFailedTimes = perfModel.getTotalTransitionFailedTimes();
-            this.averageTranstionConsumedTime = perfModel.getAverageTranstionConsumedTime();
+            this.averageTransitionConsumedTime = perfModel.getAverageTransitionConsumedTime();
             
             perfStatDetails = perfModel.toString();
             stateMachine.removeDeclarativeListener(performanceMonitor);

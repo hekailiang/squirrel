@@ -14,7 +14,7 @@ public class StateMachinePerformanceModel {
     private long totalTransitionInvokedTimes = 0;
     private long totalTransitionFailedTimes = 0;
     private long totalTransitionDeclinedTimes = 0;
-    private float averageTranstionConsumedTime = 0.0f;
+    private float averageTransitionConsumedTime = 0.0f;
     private final Map<String, Long> transitionInvokeTimes = Maps.newHashMap();
     private final Map<String, Float> averTransitionConsumedTime = Maps.newHashMap();
     private final Map<String, Long> maxTransitionConsumedTime = Maps.newHashMap();
@@ -60,12 +60,12 @@ public class StateMachinePerformanceModel {
         this.totalTransitionDeclinedTimes = totalTransitionDeclinedTimes;
     }
     
-    public float getAverageTranstionConsumedTime() {
-        return averageTranstionConsumedTime;
+    public float getAverageTransitionConsumedTime() {
+        return averageTransitionConsumedTime;
     }
     
-    void setAverageTranstionConsumedTime(float averageTranstionConsumedTime) {
-        this.averageTranstionConsumedTime = averageTranstionConsumedTime;
+    void setAverageTransitionConsumedTime(float averageTransitionConsumedTime) {
+        this.averageTransitionConsumedTime = averageTransitionConsumedTime;
     }
     
     public long getTotalActionInvokedTimes() {
@@ -166,7 +166,7 @@ public class StateMachinePerformanceModel {
         builder.append("Total Transition Invoked: ").append(totalTransitionInvokedTimes).append("\n");
         builder.append("Total Transition Failed: ").append(totalTransitionFailedTimes).append("\n");
         builder.append("Total Transition Declained: ").append(totalTransitionDeclinedTimes).append("\n");
-        builder.append("Average Transition Comsumed: ").append(String.format("%.4fms", averageTranstionConsumedTime)).append("\n");
+        builder.append("Average Transition Comsumed: ").append(String.format("%.4fms", averageTransitionConsumedTime)).append("\n");
         
         builder.append("\t").append("Transition Key").append("\t\tInvoked Times\tAverage Time\t\tMax Time\tMin Time\n");
         for(String tKey : transitionInvokeTimes.keySet()) {

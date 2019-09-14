@@ -211,7 +211,7 @@ public class StateMachinePerformanceMonitor {
         long totalTransitionConsumedTime = getTotal(transitionElapsedMillis);
         float averageTranstionConsumedTime = 
                 totalTransitionConsumedTime / (totalTransitionInvokedTimes+Float.MIN_VALUE);
-        perfModel.setAverageTranstionConsumedTime(averageTranstionConsumedTime);
+        perfModel.setAverageTransitionConsumedTime(averageTranstionConsumedTime);
         
         long totalActionInvokedTimes = getTotal(actionInvokeTimes);
         perfModel.setTotalActionInvokedTimes(totalActionInvokedTimes);
