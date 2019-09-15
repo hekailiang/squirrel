@@ -76,7 +76,7 @@ Thanks to [Vyacheslav Blinov](https://github.com/dant3) to provide this [sample 
 
 * **Use Cases**  
 The following links linked to some good articles about how to use squirrel state machine library. If the author does not like to be referred here, please contact me. I will withdraw immediately.  
-	* [Why Choose Squirrel (Chinese)](http://www.timguan.net/2017/06/19/%E7%8A%B6%E6%80%81%E6%9C%BA%E5%BC%95%E6%93%8E%E9%80%89%E5%9E%8B/)  
+	* [Why Choose Squirrel (Chinese)](https://segmentfault.com/a/1190000009906317)  
 	* [squirrel-foundation Use Details (Chinese)](https://segmentfault.com/a/1190000009906469)   
 	* [Finite-State Machine for Single-Use Code Authentication (English)](http://www.ebaytechblog.com/2016/08/30/finite-state-machine-for-single-use-code-authentication/)   
 	* [Squirrel Usages (Chinese)](http://www.yangguo.info/2015/02/01/squirrel/)  
