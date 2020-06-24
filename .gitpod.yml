@@ -1,0 +1,5 @@
+tasks:
+  - init: cd /workspace/squirrel/squirrel-foundation && mvn clean install
+    command: echo "Replace me with something that should run on every start, or just
+      remove me entirely."
+image: custom
