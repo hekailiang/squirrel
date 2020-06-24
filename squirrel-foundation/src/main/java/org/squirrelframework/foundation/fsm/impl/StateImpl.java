@@ -625,6 +625,6 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         while(curr.getLevel()>input.getLevel()) {
             curr = curr.getParentState();
         }
-        return curr==input;
+        return this!=input && curr==input;
     }
 }
