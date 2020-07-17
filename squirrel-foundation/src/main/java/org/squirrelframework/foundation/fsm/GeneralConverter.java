@@ -62,7 +62,8 @@ public class GeneralConverter<T> implements Converter<T> {
                 return type.cast(convertedValue.byteValue());
             }
         } else if(Enum.class.isAssignableFrom(type)) {
-            return type.cast(Enum.valueOf((Class)type, value));
+            Object anEnum = Enum.valueOf((Class) type, value);
+            return type.cast(anEnum);
         } else if(String.class.equals(type)) {
             return type.cast(value);
         } else if(Date.class.isAssignableFrom(type)) {
@@ -71,7 +72,7 @@ public class GeneralConverter<T> implements Converter<T> {
             return type.cast(value.charAt(0));
         }
         throw new IllegalStateException("Unable to convert type: \'" +
-                type.getName() +"\' with value \'"+value.toString()+"\'.");
+                type.getName() +"\' with value \'"+value+"\'.");
     }
 
 }
