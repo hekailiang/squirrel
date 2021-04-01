@@ -191,18 +191,34 @@
                     </plugin>
                 </plugins>
             </build>
+        <distributionManagement>
+		        <repository>        
+		            <id>sonatype-nexus-staging</id>
+		            <name>Nexus Staging Repo</name>
+		            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		        </repository>        
+		        <snapshotRepository>
+		            <id>sonatype-nexus-snapshots</id>
+		            <name>Nexus Snapshot Repo</name>
+		            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		        </snapshotRepository>
+		    </distributionManagement>
         </profile>
+        <profile>
+	      <id>unofficial</id>
+	      <activation>
+                <property>
+                    <name>unofficial</name>
+                    <value>true</value>
+                </property>
+            </activation>
+	      <distributionManagement>
+	      	<repository>
+			     <id>github</id>
+			     <name>GitHub Squirrel Maven Packages</name>
+			     <url>https://maven.pkg.github.com/jassuncao/squirrel</url>		     
+			</repository>
+	      </distributionManagement>	      
+	    </profile>
     </profiles>
-    <distributionManagement>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Staging Repo</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Nexus Snapshot Repo</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
