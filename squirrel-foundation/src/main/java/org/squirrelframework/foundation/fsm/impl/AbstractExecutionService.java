@@ -81,7 +81,8 @@ public abstract class AbstractExecutionService<T extends StateMachine<T, S, E, C
                         actionContext.run();
                     }
                 } catch (Exception e) {
-                    logger.error("Error during transition", e);
+                    // 此处不应该打印Error日志，应该将异常交给调用者来决定是否打印异常。
+                    //logger.error("Error during transition", e);
                     Throwable t = (e instanceof SquirrelRuntimeException) ?
                             ((SquirrelRuntimeException)e).getTargetException() : e;
                     // wrap any exception into transition exception
