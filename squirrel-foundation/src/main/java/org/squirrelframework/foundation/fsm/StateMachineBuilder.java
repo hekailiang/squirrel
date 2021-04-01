@@ -205,6 +205,11 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
      * @param terminateEvent
      */
     void defineTerminateEvent(E terminateEvent);
+
+    /**
+     * Define default initial state for state machine started
+     */
+    void defineDefaultInitialState(S stateId);
     
     /**
      * Define on entry actions for state
@@ -222,14 +227,14 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     
     /**
      * Create a new state machine instance
-     * @param initialStateId initial state id
+     * @param initialStateId initial state id, null means using the default
      * @return new state machine instance
      */
     T newStateMachine(S initialStateId);
     
     /**
      * Create new state machine instance according to state machine definition 
-     * @param initialStateId the id of state machine initial state
+     * @param initialStateId the id of state machine initial state, null means using the default
      * @param extraParams other parameters for instantiate state machine
      * @return new state machine
      */
@@ -237,7 +242,7 @@ public interface StateMachineBuilder<T extends StateMachine<T, S, E, C>, S, E, C
     
     /**
      * Create new state machine instance according to state machine definition
-     * @param initialStateId the id of state machine initial state
+     * @param initialStateId the id of state machine initial state, null means using the default
      * @param configuration configuration for state machine
      * @param extraParams other parameters for instantiate state machine
      * @return new state machine

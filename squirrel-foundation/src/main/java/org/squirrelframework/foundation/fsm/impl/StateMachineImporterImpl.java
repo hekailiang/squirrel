@@ -61,7 +61,9 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             ArrayListMultimap.create();
     
     protected Boolean isEntryAction;
-    
+
+    protected String initStateIdName;
+
     protected final Map<String, Object> reusableInstance = Maps.newHashMap();
     
     public StateMachineImporterImpl() {
@@ -138,6 +140,8 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             
             currentStates.clear();
             currentTranstionBuilder=null;
+
+            stateMachineBuilder.defineDefaultInitialState(stateConverter.convertFromString(initStateIdName));
         } else if(qName.equals("state") || qName.equals("final") || qName.equals("parallel")) {
             MutableState<T, S, E, C> parentState = null;
             if(currentStates.size()>0) {
@@ -252,6 +256,8 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
             } else if(condSchema.equals("mvel")) {
                 getCurrentTranstionBuilder().whenMvel(condContent);
             }
+        } else if (qName.equals("scxml")) {
+            this.initStateIdName = attributes.getValue("initial");
         }
     }
     
