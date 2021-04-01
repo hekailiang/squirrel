@@ -148,6 +148,8 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     Collection<S> getAllStates();
     
     Collection<ImmutableState<T, S, E, C>> getAllRawStates();
+
+    void setCurrentState(S currentState);
     
     /**
      * Dump current state machine data. This operation can only be done when state machine status is 
