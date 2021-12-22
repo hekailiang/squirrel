@@ -56,6 +56,12 @@ class TransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> impleme
     }
 
     @Override
+    public void invokeMethod(MethodReference<T, S, E, C> methodReference) {
+        Action<T, S, E, C> action = FSM.newMethodReferenceAction(methodReference);
+        transition.addAction(action);
+    }
+
+    @Override
     public On<T, S, E, C> on(E event) {
         transition = sourceState.addTransitionOn(event);
         transition.setTargetState(targetState);

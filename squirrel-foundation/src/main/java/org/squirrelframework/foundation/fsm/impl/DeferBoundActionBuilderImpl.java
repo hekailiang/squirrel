@@ -68,8 +68,13 @@ public class DeferBoundActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, 
 
     @Override
     public void callMethod(String methodName) {
-        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName,
-                executionContext);
+        Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName, executionContext);
+        perform(action);
+    }
+
+    @Override
+    public void invokeMethod(MethodReference<T, S, E, C> methodReference) {
+        Action<T, S, E, C> action = FSM.newMethodReferenceAction(methodReference);
         perform(action);
     }
 

@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import org.squirrelframework.foundation.component.SquirrelComponent;
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.MethodReference;
 import org.squirrelframework.foundation.fsm.MutableState;
 import org.squirrelframework.foundation.fsm.StateMachine;
 import org.squirrelframework.foundation.fsm.builder.EntryExitActionBuilder;
@@ -51,6 +52,12 @@ class EntryExitActionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
     @Override
     public void callMethod(String methodName) {
         Action<T, S, E, C> action = FSM.newMethodCallActionProxy(methodName, executionContext);
+        perform(action);
+    }
+
+    @Override
+    public void invokeMethod(MethodReference<T, S, E, C> methodReference) {
+        Action<T, S, E, C> action = FSM.newMethodReferenceAction(methodReference);
         perform(action);
     }
 }

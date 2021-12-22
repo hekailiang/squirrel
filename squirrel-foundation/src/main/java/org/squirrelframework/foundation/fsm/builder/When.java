@@ -1,6 +1,7 @@
 package org.squirrelframework.foundation.fsm.builder;
 
 import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.MethodReference;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
 import java.util.List;
@@ -47,4 +48,10 @@ public interface When<T extends StateMachine<T, S, E, C>, S, E, C> {
      * @param methodName method name
      */
     void callMethod(String methodName);
+
+    /**
+     * refer method of statemachine through method reference after jdk 1.8
+     * @param methodReference method reference of state machine
+     */
+    void invokeMethod(MethodReference<T, S, E, C> methodReference);
 }

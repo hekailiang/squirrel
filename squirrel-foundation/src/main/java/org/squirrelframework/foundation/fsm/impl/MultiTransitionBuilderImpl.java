@@ -191,4 +191,10 @@ class MultiTransitionBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C> im
             transitions.get(i).addAction(action);
         }
     }
+
+    @Override
+    public void invokeMethod(MethodReference<T, S, E, C> methodReference) {
+        Action<T, S, E, C> action = FSM.newMethodReferenceAction(methodReference);
+        perform(action);
+    }
 }
