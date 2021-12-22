@@ -84,6 +84,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     private boolean isAutoTerminateEnabled = true;
     
     private boolean isDelegatorModeEnabled = false;
+
+    private boolean isStartEventTriggerEntryActions = true;
+
+    private boolean isTerminateEventTriggerExitActions = true;
     
     @SuppressWarnings("unused")
     private long transitionTimeout = -1;
@@ -111,6 +115,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         this.isDataIsolateEnabled = configuration.isDataIsolateEnabled();
         this.isDebugModeEnabled = configuration.isDebugModeEnabled();
         this.isDelegatorModeEnabled = configuration.isDelegatorModeEnabled();
+        this.isStartEventTriggerEntryActions = configuration.isStartEventTriggerEntryActions();
+        this.isTerminateEventTriggerExitActions = configuration.isTerminateEventTriggerExitActions();
         cb.run();
         
         prepare();
@@ -548,7 +554,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         
         entryAll(initialRawState, stateContext);
         ImmutableState<T, S, E, C> historyState = initialRawState.enterByHistory(stateContext);
-        executionService.execute();
+        if (isStartEventTriggerEntryActions) {
+            executionService.execute();
+        }
         localData.write().currentState(historyState.getStateId());
         localData.write().startContext(context);
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
@@ -613,8 +621,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 this, data, data.read().currentRawState(), getTerminateEvent(), 
                 context, null, executor);
         exitAll(data.read().currentRawState(), stateContext);
-        executor.execute();
-        
+        if (isTerminateEventTriggerExitActions) {
+            executor.execute();
+        }
+
         setStatus(StateMachineStatus.TERMINATED);
         fireEvent(new TerminateEventImpl<T, S, E, C>(getThis()));
     }

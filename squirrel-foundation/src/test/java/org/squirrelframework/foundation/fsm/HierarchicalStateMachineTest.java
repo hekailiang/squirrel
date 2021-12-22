@@ -337,6 +337,8 @@ public class HierarchicalStateMachineTest {
 
     StateMachineLogger fsmLogger;
 
+    StateMachineBuilder<HierachicalStateMachine, HState, HEvent, Integer> builder;
+
     @BeforeClass
     public static void beforeTest() {
     }
@@ -356,9 +358,8 @@ public class HierarchicalStateMachineTest {
 
     @Before
     public void setup() {
-        StateMachineBuilder<HierachicalStateMachine, HState, HEvent, Integer> builder =
-                StateMachineBuilderFactory.create(HierachicalStateMachine.class,
-                        HState.class, HEvent.class, Integer.class, new Class<?>[0]);
+        builder = StateMachineBuilderFactory.create(HierachicalStateMachine.class,
+                HState.class, HEvent.class, Integer.class, new Class<?>[0]);
         builder.externalTransition().from(HState.A).to(HState.B).on(HEvent.A2B);
         builder.externalTransition().from(HState.B).to(HState.A).on(HEvent.B2A);
 
@@ -371,9 +372,16 @@ public class HierarchicalStateMachineTest {
 
         builder.defineFinishEvent(HEvent.Finish);
 
+        stateMachine = builder.newStateMachine(HState.A, StateMachineConfiguration.create().enableDebugMode(true));
+    }
+
+    @Test
+    public void testIgnoreStateEntryWhenStart() {
         stateMachine = builder.newStateMachine(HState.A,
-                StateMachineConfiguration.create().enableDebugMode(true),
-                new Object[0]);
+                StateMachineConfiguration.create().enableDebugMode(true).disableStartEventTriggerEntryActions(true));
+        stateMachine.start();
+        assertThat(stateMachine.consumeLog(), is(equalTo("")));
+        assertThat(stateMachine.getCurrentState(), is(equalTo(HState.A1)));
     }
 
     @Test

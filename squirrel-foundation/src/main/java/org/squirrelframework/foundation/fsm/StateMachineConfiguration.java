@@ -35,6 +35,10 @@ public class StateMachineConfiguration implements SquirrelSingleton {
     
     private boolean isDelegatorModeEnabled = false;
 
+    private boolean isStartEventTriggerEntryActions = true;
+
+    private boolean isTerminateEventTriggerExitActions = true;
+
     private IdProvider idProvider = IdProvider.Default.getInstance();
     
     public boolean isAutoStartEnabled() {
@@ -90,4 +94,23 @@ public class StateMachineConfiguration implements SquirrelSingleton {
         this.isDelegatorModeEnabled = isDelegatorModeEnabled;
         return this;
     }
+
+    public StateMachineConfiguration disableStartEventTriggerEntryActions(boolean disableStartEventTriggerEntryActions) {
+        this.isStartEventTriggerEntryActions = !disableStartEventTriggerEntryActions;
+        return this;
+    }
+
+    public boolean isStartEventTriggerEntryActions() {
+        return isStartEventTriggerEntryActions;
+    }
+
+    public StateMachineConfiguration disableTerminateEventTriggerExitActions(boolean disableStartEventTriggerEntryActions) {
+        this.isTerminateEventTriggerExitActions = !disableStartEventTriggerEntryActions;
+        return this;
+    }
+
+    public boolean isTerminateEventTriggerExitActions() {
+        return isTerminateEventTriggerExitActions;
+    }
+
 }
