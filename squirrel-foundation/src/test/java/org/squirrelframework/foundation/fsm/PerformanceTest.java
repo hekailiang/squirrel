@@ -22,7 +22,7 @@ public class PerformanceTest {
     static class StateMachineSample extends AbstractUntypedStateMachine {
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = 20000)
     public void manyTransitions() {
         performTest(10000, false, null);
     }
