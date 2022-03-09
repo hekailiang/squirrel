@@ -144,7 +144,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
+                    <arguments>-Dgpg.passphrase=${gpg.passphrase} -Dmaven.javadoc.skip=true</arguments>
                 </configuration>
             </plugin>
             <plugin>
