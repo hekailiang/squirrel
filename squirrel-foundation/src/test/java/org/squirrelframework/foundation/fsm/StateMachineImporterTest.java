@@ -36,19 +36,21 @@ public class StateMachineImporterTest {
         String definition = sample.exportXMLDefinition(false);
         UntypedStateMachineBuilder importedBuilder =  new UntypedStateMachineImporter().importDefinition(definition);
     }
-    
+
     @Test
     public void testImportNonParameterizedActionSuccess() {
         UntypedStateMachineBuilder builder =
                 StateMachineBuilderFactory.create(ImportParameterizedActionCase.class);
-        builder.externalTransition().from("a").to("b").on(TestEvent.toB).perform(Action.DUMMY_ACTION);
+        builder.externalTransition().from("b").to("c").on(TestEvent.toC)
+                .whenMvel("MyCondition:::(context>1&&context<10)").perform(Action.DUMMY_ACTION);
         ImportParameterizedActionCase sample = builder.newUntypedStateMachine("a");
-        
-        UntypedStateMachineBuilder importedBuilder = 
-                new UntypedStateMachineImporter().importDefinition(sample.exportXMLDefinition(false));
+        String xmlDefinition = sample.exportXMLDefinition(false);
+        UntypedStateMachineBuilder importedBuilder = new UntypedStateMachineImporter().importDefinition(xmlDefinition);
         ImportParameterizedActionCase importedSample = importedBuilder.newAnyStateMachine("a");
         importedSample.fire(TestEvent.toB);
         assertTrue(importedSample.getCurrentState().equals("b"));
+        importedSample.fire(TestEvent.toC, 5);
+        assertTrue(importedSample.getCurrentState().equals("c"));
     }
 
     @Test
