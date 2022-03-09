@@ -27,8 +27,8 @@
     <scm>
         <connection>scm:git:git://github.com/hekailiang/squirrel.git</connection>
         <developerConnection>scm:git:git@github.com:hekailiang/squirrel.git</developerConnection>
-        <url>https://github.com/hekailiang/squirrel.git</url>
-      <tag>HEAD</tag>
+        <url>https://github.com/hekailiang/squirrel</url>
+        <tag>HEAD</tag>
   </scm>
 
     <licenses>
