@@ -5,16 +5,19 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 
 import java.util.*;
 
+import static org.junit.Assert.assertNotNull;
+
 
 public class NormalStateMachineInit {
 
 
     /**
-     * 定义终态、相同的event下、使用了mvel表达式且没有命名，在checkConflictTransitions方法中会认为使用了相同的Transition，抛异常
+     * 问题：定义终态、相同的event下、使用了mvel表达式且没有命名，在checkConflictTransitions方法中会认为使用了相同的Transition，抛异常。
+     * 修复：isMatch方法去掉终态的判断
      * @see org.squirrelframework.foundation.fsm.impl.StateImpl#checkConflictTransitions
      * @see org.squirrelframework.foundation.fsm.impl.TransitionImpl#isMatch(S, S, E, int)
      */
-    @Test(expected = Exception.class)
+    @Test
     public void initSignUpStateMachine() {
 
         StateMachineBuilder<SignupStateMachine, SignUpStatusEnum, BusinessEventEnum, Map> builder =
@@ -47,6 +50,7 @@ public class NormalStateMachineInit {
 
         // 初始化状态机对象
         SignupStateMachine signupStateMachine = builder.newStateMachine(SignUpStatusEnum.START);
+        assertNotNull(signupStateMachine);
     }
 
 }
