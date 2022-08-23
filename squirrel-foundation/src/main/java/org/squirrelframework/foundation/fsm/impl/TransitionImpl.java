@@ -220,10 +220,9 @@ class TransitionImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements Mut
     
     @Override
     public boolean isMatch(S fromState, S toState, E event, int priority) {
-        if(toState==null && !getTargetState().isFinalState())
+        if(toState==null)
             return false;
-        if(toState!=null && !getTargetState().isFinalState() && 
-                !getTargetState().getStateId().equals(toState))
+        if(toState!=null && !getTargetState().getStateId().equals(toState))
             return false;
         if(!getEvent().equals(event)) 
             return false;
