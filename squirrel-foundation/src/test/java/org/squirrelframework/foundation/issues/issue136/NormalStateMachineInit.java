@@ -1,4 +1,4 @@
-package org.squirrelframework.foundation.fsm.issue;
+package org.squirrelframework.foundation.issues.issue136;
 import org.junit.Test;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;

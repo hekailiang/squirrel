@@ -1,4 +1,4 @@
-package org.squirrelframework.foundation.fsm.issue;
+package org.squirrelframework.foundation.issues.issue136;
 
 public enum SignUpStatusEnum {
     START(9999, "初始态"),
