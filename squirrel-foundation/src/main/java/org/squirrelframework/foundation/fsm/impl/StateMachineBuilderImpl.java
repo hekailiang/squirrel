@@ -62,6 +62,8 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     private final MvelScriptManager scriptManager;
     
     private E startEvent, finishEvent, terminateEvent;
+
+    private S defaultInitStateId;
     
     private final ExecutionContext executionContext;
     
@@ -701,6 +703,7 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     @Override
     public T newStateMachine(S initialStateId, StateMachineConfiguration configuration, Object... extraParams) {
         if(!prepared) prepare();
+        if (initialStateId == null) initialStateId = defaultInitStateId;
         if(!isValidState(initialStateId)) {
             throw new IllegalArgumentException(getClass()+" cannot find Initial state \'"+ 
                     initialStateId+"\' in state machine.");
@@ -922,6 +925,12 @@ public class StateMachineBuilderImpl<T extends StateMachine<T, S, E, C>, S, E, C
     public void defineTerminateEvent(E terminateEvent) {
         checkState();
         this.terminateEvent = terminateEvent;
+    }
+
+    @Override
+    public void defineDefaultInitialState(S stateId) {
+        checkState();
+        this.defaultInitStateId = stateId;
     }
     
     void setScanAnnotations(boolean isScanAnnotations) {
