@@ -26,6 +26,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -60,7 +61,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     private StateMachineData<T, S, E, C> data;
     
-    private volatile StateMachineStatus status = StateMachineStatus.INITIALIZED;
+    private volatile AtomicReference<StateMachineStatus> status = new AtomicReference<>(StateMachineStatus.INITIALIZED);
     
     private LinkedBlockingDeque<Pair<E, C>> queuedEvents = new LinkedBlockingDeque<Pair<E, C>>();
     
@@ -222,10 +223,20 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
                 if(isAutoTerminateEnabled && rawState.isRootState() && rawState.isFinalState()) {
                     terminate(context);
+            } else {
+                // make sure queuedEvents is empty when leave this method
+                while ((eventInfo=queuedEvents.poll())!=null) {
+                    if(Thread.interrupted()) {
+                        queuedEvents.clear();
+                        break;
+                    }
+                    event = eventInfo.first();
+                    context = eventInfo.second();
+                    processEvent(event, context, data, executor, isDataIsolateEnabled);
                 }
+            }
             } finally {
-                if(getStatus()==StateMachineStatus.BUSY)
-                    setStatus(StateMachineStatus.IDLE);
+                status.compareAndSet(StateMachineStatus.BUSY, StateMachineStatus.IDLE);
                 writeLock.unlock();
             }
         }
@@ -318,7 +329,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private S internalTest(E event, C context) {
-        checkState(status!=StateMachineStatus.ERROR && status!=StateMachineStatus.TERMINATED,
+        checkState(status.get()!=StateMachineStatus.ERROR && status.get()!=StateMachineStatus.TERMINATED,
                 "Cannot test state machine under "+status+" status.");
         
         S testResult = null;
@@ -584,11 +595,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public StateMachineStatus getStatus() {
-        return status;
+        return status.get();
     }
     
     protected void setStatus(StateMachineStatus status) {
-        this.status = status;
+        this.status.set(status);
     }
     
     @Override
@@ -1403,3 +1414,4 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
 }
+
