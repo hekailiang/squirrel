@@ -202,7 +202,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     private void processEvents() {
-        if (isIdle()) {
+        while (isIdle() && queuedEvents.size() > 0) {
             writeLock.lock();
             setStatus(StateMachineStatus.BUSY);
             try {
