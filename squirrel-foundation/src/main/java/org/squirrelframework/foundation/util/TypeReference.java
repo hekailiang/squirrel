@@ -74,8 +74,8 @@ public abstract class TypeReference<T> {
         } catch (ClassNotFoundException e) {
             try {
                 return Array.newInstance(componentType, 0).getClass();
-            } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("Error creating array class", e);
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Error getting array type. ", e);
             }
         }
     }
