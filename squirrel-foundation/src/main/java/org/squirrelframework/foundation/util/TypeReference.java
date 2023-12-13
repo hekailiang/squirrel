@@ -69,9 +69,14 @@ public abstract class TypeReference<T> {
     }
 
     static Class<?> getArrayClass(Class<?> componentType) {
-        // TODO(user): This is not the most efficient way to handle generic
-        // arrays, but is there another way to extract the array class in a
-        // non-hacky way (i.e. using String value class names- "[L...")?
-        return Array.newInstance(componentType, 0).getClass();
+        try {
+            return Class.forName("[L" + componentType.getName() + ";");
+        } catch (ClassNotFoundException e) {
+            try {
+                return Array.newInstance(componentType, 0).getClass();
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Error getting array type. ", e);
+            }
+        }
     }
 }
